@@ -13,7 +13,7 @@ if (!defined('DOKU_PLUGIN'))
 
 require_once(DOKU_PLUGIN . 'admin.php');
 
-class admin_plugin_fksnewsfeeds extends DokuWiki_Admin_Plugin {
+class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
 
     function getMenuSort() {
         return 229;
@@ -35,7 +35,7 @@ class admin_plugin_fksnewsfeeds extends DokuWiki_Admin_Plugin {
     function html() {
         $imax;
         for ($i = 1; true; $i++) {
-            if (file_exists("data/pages/fksnewsfeeds/news$i.txt")) {
+            if (file_exists("data/pages/fksnewsfeed/news$i.txt")) {
                 continue;
             } else {
                 $imax = $i - 1;
@@ -44,7 +44,7 @@ class admin_plugin_fksnewsfeeds extends DokuWiki_Admin_Plugin {
         }
 
 
-        echo '<script type="text/javascript" charset="utf-8" src="lib/plugins/fksnewsfeeds/script.js"></script>';
+        echo '<script type="text/javascript" charset="utf-8" src="lib/plugins/fksnewsfeed/script.js"></script>';
         echo '<script type="text/javascript" charset="utf-8">';
         echo 'var maxfile='.$i.';</script>';
 
@@ -59,7 +59,7 @@ class admin_plugin_fksnewsfeeds extends DokuWiki_Admin_Plugin {
         echo '<div class="" >';
         echo '<input type="hidden" name="do" value="edit">';
         echo '<input type="hidden" name="rev" value="0"> ';
-        echo '<input type="hidden" name="id" value="fksnewsfeeds:news';
+        echo '<input type="hidden" name="id" value="fksnewsfeed:news';
         echo $imax + 1;
         echo '">';
         echo ' <input type="submit" value="' . $this->getLang('subaddnews') . '" class="button" title="Pridať novinku [E]">';
@@ -79,12 +79,12 @@ class admin_plugin_fksnewsfeeds extends DokuWiki_Admin_Plugin {
         echo '<input type="hidden" name="rev" value="0"> ';
         //echo $imax;
         for ($i = $imax; $i > 0; $i--) {
-            $newsfeed = preg_split('/====/', io_readFile("data/pages/fksnewsfeeds/news" . $i . ".txt", false));
-            $newsdate = preg_split('/newsdate/', io_readFile("data/pages/fksnewsfeeds/news" . $i . ".txt", false));
-            $newsauthor = preg_split('/newsauthor/', io_readFile("data/pages/fksnewsfeeds/news" . $i . ".txt", false));
+            $newsfeed = preg_split('/====/', io_readFile("data/pages/fksnewsfeed/news" . $i . ".txt", false));
+            $newsdate = preg_split('/newsdate/', io_readFile("data/pages/fksnewsfeed/news" . $i . ".txt", false));
+            $newsauthor = preg_split('/newsauthor/', io_readFile("data/pages/fksnewsfeed/news" . $i . ".txt", false));
 
             echo '<div id="" style="border-bottom: 1px solid #dcdcdc">';
-            echo '<input type="radio" name="id" value="fksnewsfeeds:news' . $i . '">';
+            echo '<input type="radio" name="id" value="fksnewsfeed:news' . $i . '">';
             //echo '<div >';
             echo $newsfeed[1];
             echo '<span style="color:#ff4800;cursor:pointer" onclick="viewsedit(';

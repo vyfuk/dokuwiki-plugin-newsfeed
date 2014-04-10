@@ -7,7 +7,7 @@ if (!defined('DOKU_PLUGIN'))
     define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
 require_once(DOKU_PLUGIN . 'syntax.php');
 
-class syntax_plugin_fksnewsfeeds_newsdate extends DokuWiki_Syntax_Plugin {
+class syntax_plugin_fksnewsfeed_newsdate extends DokuWiki_Syntax_Plugin {
 
     public function getType() {
         return 'substition';
@@ -26,7 +26,7 @@ class syntax_plugin_fksnewsfeeds_newsdate extends DokuWiki_Syntax_Plugin {
     }
 
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('<newsdate>.+?</newsdate>', $mode, 'plugin_fksnewsfeeds_newsdate');
+        $this->Lexer->addSpecialPattern('<newsdate>.+?</newsdate>', $mode, 'plugin_fksnewsfeed_newsdate');
     }
 
     //public function postConnect() { $this->Lexer->addExitPattern('</fkstimer>','plugin_fkstimer'); }

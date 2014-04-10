@@ -7,7 +7,7 @@ if (!defined('DOKU_PLUGIN'))
     define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
 require_once(DOKU_PLUGIN . 'syntax.php');
 
-class syntax_plugin_fksnewsfeeds_fksnewsfeeds extends DokuWiki_Syntax_Plugin {
+class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
     public function getType() {
         return 'substition';
@@ -26,7 +26,7 @@ class syntax_plugin_fksnewsfeeds_fksnewsfeeds extends DokuWiki_Syntax_Plugin {
     }
 
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('<fksnewsfeeds>.+?</fksnewsfeeds>', $mode, 'plugin_fksnewsfeeds_fksnewsfeeds');
+        $this->Lexer->addSpecialPattern('<fksnewsfeed>.+?</fksnewsfeed>', $mode, 'plugin_fksnewsfeed_fksnewsfeed');
     }
 
     //public function postConnect() { $this->Lexer->addExitPattern('</fkstimer>','plugin_fkstimer'); }
@@ -51,16 +51,16 @@ class syntax_plugin_fksnewsfeeds_fksnewsfeeds extends DokuWiki_Syntax_Plugin {
                 /**
                  * find news wiht max number
                  */
-                if (file_exists("data/pages/fksnewsfeeds/news" . $i . ".txt")) {
+                if (file_exists("data/pages/fksnewsfeed/news" . $i . ".txt")) {
                     $match--;
                     if ($match % 2) {
                         $to_page.="<div class='fksnewseven'>";
                     } else {
                         $to_page.="<div class='fksnewsodd'>";
                     }
-                    $newsfeed = preg_split('/====/', io_readFile("data/pages/fksnewsfeeds/news" . $i . ".txt", false));
-                    $newsdate = preg_split('/newsdate/', io_readFile("data/pages/fksnewsfeeds/news" . $i . ".txt", false));
-                    $newsauthor = preg_split('/newsauthor/', io_readFile("data/pages/fksnewsfeeds/news" . $i . ".txt", false));
+                    $newsfeed = preg_split('/====/', io_readFile("data/pages/fksnewsfeed/news" . $i . ".txt", false));
+                    $newsdate = preg_split('/newsdate/', io_readFile("data/pages/fksnewsfeed/news" . $i . ".txt", false));
+                    $newsauthor = preg_split('/newsauthor/', io_readFile("data/pages/fksnewsfeed/news" . $i . ".txt", false));
                     
                     $to_page.= p_render("xhtml", p_get_instructions('<newsdate>' . substr($newsdate[1], 1, -2). '-render</newsdate>'), $info);
                     
@@ -84,9 +84,9 @@ class syntax_plugin_fksnewsfeeds_fksnewsfeeds extends DokuWiki_Syntax_Plugin {
         }
         $to_page.="</div>";
 
-        //$feedsdata = io_readFile("data/pages/fksnewsfeeds.txt", false);
+        //$feedsdata = io_readFile("data/pages/fksnewsfeed.txt", false);
         /* @var $feedsdata ArrayObject */
-        //$feedsdata = fksnewsfeeds($feedsdata, $match);
+        //$feedsdata = fksnewsfeed($feedsdata, $match);
         /* $imax = 2 * $match + 1;
           $jmax = strlen($feedsdata);
           $i = 0;
@@ -116,7 +116,7 @@ class syntax_plugin_fksnewsfeeds_fksnewsfeeds extends DokuWiki_Syntax_Plugin {
         return false;
     }
 
-    private function fksnewsfeeds(&$feedsdata, $feedsno) {
+    private function fksnewsfeed(&$feedsdata, $feedsno) {
 
         return $feedsdata;
     }
