@@ -1,0 +1,62 @@
+/* CSS Document */
+
+.fksnewswrapper{
+    background-color: __background_neu__;
+    border-radius: 5px;
+    width: 100%;
+    padding: 5px 10px 5px 10px;
+    /*border: 1px solid black;*/ 
+}
+
+.fksnewsodd{
+    border-bottom: 2px solid __border__;
+    margin: 0px;
+    /*border: 1px solid blue;*/
+    padding: 0px;  
+}
+
+.fksnewseven{
+    border-bottom: 2px solid __background__;
+    margin: 0px;
+    /*border: 1px solid red;*/
+    padding: 0px;
+}
+
+.fksnewsheadline{
+    float: left;
+    max-width: 80%;
+    text-align: left;
+    /*border: 1px solid pink;*/
+    margin: 0px;
+    padding: 0px;
+}
+
+.fksnewsdate{
+    float: right;
+    font-weight: bold;
+    text-align: right;
+    /*border: 1px solid green;*/
+    margin: 0px;
+    padding: 0px;
+    top: 10px;
+}
+
+.fksnewsarticle{
+    clear: left;
+    text-align: justify;
+    /*border: 1px solid lightgreen;*/
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+.fksnewsauthor{
+    /*float: right;*/
+    font-style: italic;
+    text-align: right;
+    /*border: 1px solid orange;*/
+    /*clear: both;*/
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}

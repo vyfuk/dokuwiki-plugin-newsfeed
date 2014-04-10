@@ -1,0 +1,7 @@
+base   fksnewsfeeds
+author Michal Červňák, Radka Štefaníková
+email  miso@fykos.cz
+date   2014-04-07
+name   fksnewsfeeds
+desc   display and manage newsfeed on page
+url    FIXME
