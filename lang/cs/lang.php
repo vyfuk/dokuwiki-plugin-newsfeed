@@ -20,6 +20,9 @@ $lang['subeditnews']      = 'Upravit novinku';
 $lang['subaddnews']       = 'Přidat novinku';
 $lang['addnews']          = 'Přidat novinku číslo: ';
 
+$lang['newsfolder'] = 'zložka pre ukladanie noviniek';
+$lang['newsfile'] = 'subor s novinkou';
+
 
 //Setup VIM: ex: et ts=2 enc=utf-8 :
 
