@@ -92,7 +92,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             $newsurl = $this->getConf('newsfolder') . ':' . $this->getConf('newsfile');
             $newsurl= str_replace("@i@", $i, $newsurl);
             echo '<input type="radio" name="id" value="' . $newsurl . '"';
-            if($i==1){echo ' checked="checked"';}else{}
+            if($i==$imax - 1){echo ' checked="checked"';}else{}
             echo '>';
             echo $newsfeed[1];
             echo '<span style="color:#ff4800;cursor:pointer" onclick="viewsedit(';
