@@ -35,10 +35,12 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
     function html() {
         $imax;
         for ($i = 1; true; $i++) {
-            if (file_exists("data/pages/fksnewsfeed/news$i.txt")) {
+            $newsurl = '' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
+            $newsurl = str_replace("@i@", $i, $newsurl);
+            if (file_exists($newsurl)) {
                 continue;
             } else {
-                $imax = $i - 1;
+                $imax = $i ;
                 break;
             }
         }
@@ -46,21 +48,21 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
 
         echo '<script type="text/javascript" charset="utf-8" src="lib/plugins/fksnewsfeed/script.js"></script>';
         echo '<script type="text/javascript" charset="utf-8">';
-        echo 'var maxfile='.$i.';</script>';
+        echo 'var maxfile=' . $imax . ';</script>';
 
         echo '<h1 style="cursor:pointer" onclick="viewnewsadmin(';
         echo "'newsadd'";
         echo ')">' . $this->getLang('addmenu') . '</h1>';
         echo '<div id="newsadd" style="display: none">';
         echo '<span> ' . $this->getLang('addnews') . ' ';
-        echo $imax + 1;
+        echo $imax ;
         echo '</span>';
         echo '<form method="post" action=doku.php>';
         echo '<div class="" >';
         echo '<input type="hidden" name="do" value="edit">';
         echo '<input type="hidden" name="rev" value="0"> ';
         echo '<input type="hidden" name="id" value="fksnewsfeed:news';
-        echo $imax + 1;
+        echo $imax ;
         echo '">';
         echo ' <input type="submit" value="' . $this->getLang('subaddnews') . '" class="button" title="Pridať novinku [E]">';
         echo '</div>';
@@ -78,22 +80,24 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo '<input type="hidden" name="do" value="edit">';
         echo '<input type="hidden" name="rev" value="0"> ';
         //echo $imax;
-        for ($i = $imax; $i > 0; $i--) {
-            $newsfeed = preg_split('/====/', io_readFile("data/pages/fksnewsfeed/news" . $i . ".txt", false));
-            $newsdate = preg_split('/newsdate/', io_readFile("data/pages/fksnewsfeed/news" . $i . ".txt", false));
-            $newsauthor = preg_split('/newsauthor/', io_readFile("data/pages/fksnewsfeed/news" . $i . ".txt", false));
-
+        for ($i = $imax-1; $i > 0; $i--) {
+            $newsurl = '' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
+            $newsurl = str_replace("@i@", $i, $newsurl);
+            $newsdata = io_readFile($newsurl, false);
+            $newsfeed = preg_split('/====/', $newsdata);
+            $newsdate = preg_split('/newsdate/', $newsdata);
+            $newsauthor = preg_split('/newsauthor/', $newsdata);
+            
             echo '<div id="" style="border-bottom: 1px solid #dcdcdc">';
             echo '<input type="radio" name="id" value="fksnewsfeed:news' . $i . '">';
-            //echo '<div >';
             echo $newsfeed[1];
             echo '<span style="color:#ff4800;cursor:pointer" onclick="viewsedit(';
-            echo "'".$i."'";
+            echo "'" . $i . "'";
             echo ')">Zobraz podrobnosti</span><br>';
-            echo '<div id="newsedit'.$i.'" style="display:none">';
-            $newsauthorinfo=preg_split('/\|/',substr($newsauthor[1], 3, -4));
-            echo 'author: '.$newsauthorinfo[1]. '<br>email: '. $newsauthorinfo[0].'<br>';
-            echo 'datum: ' .substr($newsdate[1], 1, -2);  
+            echo '<div id="newsedit' . $i . '" style="display:none">';
+            $newsauthorinfo = preg_split('/\|/', substr($newsauthor[1], 3, -4));
+            echo 'author: ' . $newsauthorinfo[1] . '<br>email: ' . $newsauthorinfo[0] . '<br>';
+            echo 'datum: ' . substr($newsdate[1], 1, -2);
             echo '<div style="background-color: #f0f0f0; border-radius: 5px; width: 100%; padding: 5px 10px">';
             echo p_render("xhtml", p_get_instructions($newsfeed[2]), $info);
             echo '</div>';
@@ -104,5 +108,4 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo '</form>';
         echo '</div>';
     }
-
 }

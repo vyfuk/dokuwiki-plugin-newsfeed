@@ -29,50 +29,61 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         $this->Lexer->addSpecialPattern('<fksnewsfeed>.+?</fksnewsfeed>', $mode, 'plugin_fksnewsfeed_fksnewsfeed');
     }
 
-    //public function postConnect() { $this->Lexer->addExitPattern('</fkstimer>','plugin_fkstimer'); }
-
     /**
      * Handle the match
      */
     public function handle($match, $state, $pos, Doku_Handler &$handler) {
-        $noi = 1;
-        for (; $noi < 20; $noi++) {
-            $matchpar = substr($match, 14 + $noi, 1);
-            /* @var $matchpar patr of $match */
-            if ($matchpar === "<") {
+        $match = substr($match, 13, -14);
+        $match+=0;
+        $to_page.="<div class='fksnewswrapper'>";
+        $imax;
+        for ($i = 1; true; $i++) {
+            $newsurl = '' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
+            $newsurl = str_replace("@i@", $i, $newsurl);
+            if (file_exists($newsurl)) {
+                continue;
+            } else {
+                $imax = $i - 1;
                 break;
             }
         }
-        $match = substr($match, 14, $noi);
-        $match+=0;
-        $to_page.="<div class='fksnewswrapper'>";
-        for ($i = 2000; $i > 0; $i--) {
+        //" <span>" . $this->getConf('newsfolder') . "/" . $this->getConf('newsfile') . ".txt</span>";
+        for ($i = $imax; $i > 0; $i--) {
             if ($match) {
                 /**
                  * find news wiht max number
                  */
-                if (file_exists("data/pages/fksnewsfeed/news" . $i . ".txt")) {
+                $newsurl = '' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
+                $newsurl = str_replace("@i@", $i, $newsurl);
+                //if (file_exists($newsurl)) {
+                if (file_exists($newsurl)) {
                     $match--;
                     if ($match % 2) {
+                        /*
+                         * find even and odd news, css is not same.
+                         */
                         $to_page.="<div class='fksnewseven'>";
                     } else {
                         $to_page.="<div class='fksnewsodd'>";
                     }
-                    $newsfeed = preg_split('/====/', io_readFile("data/pages/fksnewsfeed/news" . $i . ".txt", false));
-                    $newsdate = preg_split('/newsdate/', io_readFile("data/pages/fksnewsfeed/news" . $i . ".txt", false));
-                    $newsauthor = preg_split('/newsauthor/', io_readFile("data/pages/fksnewsfeed/news" . $i . ".txt", false));
-                    
-                    $to_page.= p_render("xhtml", p_get_instructions('<newsdate>' . substr($newsdate[1], 1, -2). '-render</newsdate>'), $info);
-                    
+                    /*
+                     * find news autor title and date news and render then
+                     */
+                    $newsdata = io_readFile($newsurl, false);
+                    $newsfeed = preg_split('/====/', $newsdata);
+                    $newsdate = preg_split('/newsdate/', $newsdata);
+                    $newsauthor = preg_split('/newsauthor/', $newsdata);
+
+                    $to_page.= p_render("xhtml", p_get_instructions('<newsdate>' . substr($newsdate[1], 1, -2) . '-render</newsdate>'), $info);
+
                     $to_page.='<div class="fksnewsheadline">';
                     $to_page.= p_render("xhtml", p_get_instructions('===' . $newsfeed[1] . '==='), $info);
                     $to_page.="</div>";
-                    
-                    
+
                     $to_page.='<div class="fksnewsarticle">';
                     $to_page.= p_render("xhtml", p_get_instructions($newsfeed[2]), $info);
                     $to_page.="</div>";
-                    $to_page.= p_render("xhtml", p_get_instructions('<newsauthor>' . substr($newsauthor[1], 1, -2). '-render</newsauthor>'), $info);
+                    $to_page.= p_render("xhtml", p_get_instructions('<newsauthor>' . substr($newsauthor[1], 1, -2) . '-render</newsauthor>'), $info);
                     $to_page.='<div class="clearer"></div>';
                     $to_page.="</div>";
                     $to_page.='<div class="clearer"></div>';
@@ -83,25 +94,6 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             }
         }
         $to_page.="</div>";
-
-        //$feedsdata = io_readFile("data/pages/fksnewsfeed.txt", false);
-        /* @var $feedsdata ArrayObject */
-        //$feedsdata = fksnewsfeed($feedsdata, $match);
-        /* $imax = 2 * $match + 1;
-          $jmax = strlen($feedsdata);
-          $i = 0;
-          for (; $i < $jmax - 3; $i++) {
-          $datapar = substr($feedsdata, $i, 4);
-          if ($datapar == '====') {
-          $imax--;
-          }
-          if (!$imax) {
-          break;
-          }
-          }
-          $feedsdata = substr($feedsdata, 0, $i);
-          $to_page = p_render("xhtml", p_get_instructions($feedsdata), $info);
-         */
         return array($state, array($to_page));
     }
 
