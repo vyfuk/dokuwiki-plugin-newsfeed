@@ -53,10 +53,13 @@
 .fksnewsauthor{
     /*float: right;*/
     font-style: italic;
-    text-align: right;
     /*border: 1px solid orange;*/
     /*clear: both;*/
     width: 100%;
     margin: 0px;
     padding: 0px;
+}
+
+div.dokuwiki div.fksnewsauthor p{
+    text-align: right;
 }
