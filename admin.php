@@ -35,12 +35,12 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
     function html() {
         $imax;
         for ($i = 1; true; $i++) {
-            $newsurl = '' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
+            $newsurl = 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
             $newsurl = str_replace("@i@", $i, $newsurl);
             if (file_exists($newsurl)) {
                 continue;
             } else {
-                $imax = $i ;
+                $imax = $i;
                 break;
             }
         }
@@ -55,14 +55,14 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo ')">' . $this->getLang('addmenu') . '</h1>';
         echo '<div id="newsadd" style="display: none">';
         echo '<span> ' . $this->getLang('addnews') . ' ';
-        echo $imax ;
+        echo $imax;
         echo '</span>';
         echo '<form method="post" action=doku.php>';
         echo '<div class="" >';
         echo '<input type="hidden" name="do" value="edit">';
         echo '<input type="hidden" name="rev" value="0"> ';
-        echo '<input type="hidden" name="id" value="fksnewsfeed:news';
-        echo $imax ;
+        echo '<input type="hidden" name="id" value="' . $this->getConf('newsfolder') . ':' . $this->getConf('newsfile') . '"';
+        echo $imax;
         echo '">';
         echo ' <input type="submit" value="' . $this->getLang('subaddnews') . '" class="button" title="Pridať novinku [E]">';
         echo '</div>';
@@ -80,24 +80,25 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo '<input type="hidden" name="do" value="edit">';
         echo '<input type="hidden" name="rev" value="0"> ';
         //echo $imax;
-        for ($i = $imax-1; $i > 0; $i--) {
-            $newsurl = '' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
+        for ($i = $imax - 1; $i > 0; $i--) {
+            $newsurl = 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
             $newsurl = str_replace("@i@", $i, $newsurl);
             $newsdata = io_readFile($newsurl, false);
             $newsfeed = preg_split('/====/', $newsdata);
             $newsdate = preg_split('/newsdate/', $newsdata);
             $newsauthor = preg_split('/newsauthor/', $newsdata);
-            
+
             echo '<div id="" style="border-bottom: 1px solid #dcdcdc">';
-            echo '<input type="radio" name="id" value="fksnewsfeed:news' . $i . '">';
+            echo '<input type="radio" name="id" value="value="' . $this->getConf('newsfolder') . ':' . $this->getConf('newsfile') . '">';
             echo $newsfeed[1];
             echo '<span style="color:#ff4800;cursor:pointer" onclick="viewsedit(';
             echo "'" . $i . "'";
-            echo ')">Zobraz podrobnosti</span><br>';
+            echo ')">'.$this->getLang('viewmore').'</span><br>';
             echo '<div id="newsedit' . $i . '" style="display:none">';
             $newsauthorinfo = preg_split('/\|/', substr($newsauthor[1], 3, -4));
-            echo 'author: ' . $newsauthorinfo[1] . '<br>email: ' . $newsauthorinfo[0] . '<br>';
-            echo 'datum: ' . substr($newsdate[1], 1, -2);
+            echo $this->getLang('author').': ' . $newsauthorinfo[1] . '<br>';
+            echo $this->getLang('email') . ': ' . $newsauthorinfo[0] . '<br>';
+            echo $this->getLang('date') . ': ' . substr($newsdate[1], 1, -2);
             echo '<div style="background-color: #f0f0f0; border-radius: 5px; width: 100%; padding: 5px 10px">';
             echo p_render("xhtml", p_get_instructions($newsfeed[2]), $info);
             echo '</div>';
@@ -108,4 +109,5 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo '</form>';
         echo '</div>';
     }
+
 }

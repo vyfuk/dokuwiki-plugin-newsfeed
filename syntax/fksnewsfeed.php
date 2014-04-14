@@ -26,19 +26,19 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     }
 
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('<fksnewsfeed>.+?</fksnewsfeed>', $mode, 'plugin_fksnewsfeed_fksnewsfeed');
+        $this->Lexer->addSpecialPattern('\{\{fksnewsfeed>.+?\}\}', $mode, 'plugin_fksnewsfeed_fksnewsfeed');
     }
 
     /**
      * Handle the match
      */
     public function handle($match, $state, $pos, Doku_Handler &$handler) {
-        $match = substr($match, 13, -14);
+        $match = substr($match, 14, -2);
         $match+=0;
         $to_page.="<div class='fksnewswrapper'>";
         $imax;
         for ($i = 1; true; $i++) {
-            $newsurl = '' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
+            $newsurl = 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
             $newsurl = str_replace("@i@", $i, $newsurl);
             if (file_exists($newsurl)) {
                 continue;
@@ -53,7 +53,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
                 /**
                  * find news wiht max number
                  */
-                $newsurl = '' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
+                $newsurl = 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
                 $newsurl = str_replace("@i@", $i, $newsurl);
                 //if (file_exists($newsurl)) {
                 if (file_exists($newsurl)) {
