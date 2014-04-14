@@ -61,9 +61,9 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo '<div class="" >';
         echo '<input type="hidden" name="do" value="edit">';
         echo '<input type="hidden" name="rev" value="0"> ';
-        echo '<input type="hidden" name="id" value="' . $this->getConf('newsfolder') . ':' . $this->getConf('newsfile') . '"';
-        echo $imax;
-        echo '">';
+        $newsurlnew = $this->getConf('newsfolder') . ':' . $this->getConf('newsfile');
+        $newsurlnew = str_replace("@i@", $imax, $newsurl);
+        echo '<input type="hidden" name="id" value="' . $this->getConf('newsfolder') . ':' . $this->getConf('newsfile') . '">';
         echo ' <input type="submit" value="' . $this->getLang('subaddnews') . '" class="button" title="Pridať novinku [E]">';
         echo '</div>';
         echo '</div>';
@@ -89,14 +89,16 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             $newsauthor = preg_split('/newsauthor/', $newsdata);
 
             echo '<div id="" style="border-bottom: 1px solid #dcdcdc">';
-            echo '<input type="radio" name="id" value="value="' . $this->getConf('newsfolder') . ':' . $this->getConf('newsfile') . '">';
+            $newsurl = $this->getConf('newsfolder') . ':' . $this->getConf('newsfile');
+            $newsurl= str_replace("@i@", $i, $newsurl);
+            echo '<input type="radio" name="id" value="' . $newsurl . '">';
             echo $newsfeed[1];
             echo '<span style="color:#ff4800;cursor:pointer" onclick="viewsedit(';
             echo "'" . $i . "'";
-            echo ')">'.$this->getLang('viewmore').'</span><br>';
+            echo ')">' . $this->getLang('viewmore') . '</span><br>';
             echo '<div id="newsedit' . $i . '" style="display:none">';
             $newsauthorinfo = preg_split('/\|/', substr($newsauthor[1], 3, -4));
-            echo $this->getLang('author').': ' . $newsauthorinfo[1] . '<br>';
+            echo $this->getLang('author') . ': ' . $newsauthorinfo[1] . '<br>';
             echo $this->getLang('email') . ': ' . $newsauthorinfo[0] . '<br>';
             echo $this->getLang('date') . ': ' . substr($newsdate[1], 1, -2);
             echo '<div style="background-color: #f0f0f0; border-radius: 5px; width: 100%; padding: 5px 10px">';
