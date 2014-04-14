@@ -62,8 +62,8 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo '<input type="hidden" name="do" value="edit">';
         echo '<input type="hidden" name="rev" value="0"> ';
         $newsurlnew = $this->getConf('newsfolder') . ':' . $this->getConf('newsfile');
-        $newsurlnew = str_replace("@i@", $imax, $newsurl);
-        echo '<input type="hidden" name="id" value="' . $this->getConf('newsfolder') . ':' . $this->getConf('newsfile') . '">';
+        $newsurlnew = str_replace("@i@", $imax, $newsurlnew);
+        echo '<input type="hidden" name="id" value="' . $newsurlnew . '">';
         echo ' <input type="submit" value="' . $this->getLang('subaddnews') . '" class="button" title="Pridať novinku [E]">';
         echo '</div>';
         echo '</div>';
@@ -91,7 +91,9 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             echo '<div id="" style="border-bottom: 1px solid #dcdcdc">';
             $newsurl = $this->getConf('newsfolder') . ':' . $this->getConf('newsfile');
             $newsurl= str_replace("@i@", $i, $newsurl);
-            echo '<input type="radio" name="id" value="' . $newsurl . '">';
+            echo '<input type="radio" name="id" value="' . $newsurl . '"';
+            if($i==1){echo ' checked="checked"';}else{}
+            echo '>';
             echo $newsfeed[1];
             echo '<span style="color:#ff4800;cursor:pointer" onclick="viewsedit(';
             echo "'" . $i . "'";
