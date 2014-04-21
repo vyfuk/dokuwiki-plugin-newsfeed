@@ -15,6 +15,7 @@ $lang['direction']  = 'ltr';
 $lang['addmenu']          = 'Přidat aktualitu'; 
 $lang['editmenu']         = 'Upravit aktualitu';
 $lang['menu']             = 'Spravovat aktuality';
+$lang['deletemenu']       = 'Upraviť zobrazovanie aktualít';
 
 $lang['subeditnews']      = 'Upravit novinku';
 $lang['subaddnews']       = 'Přidat novinku';
@@ -27,6 +28,8 @@ $lang['author']           = 'Autor';
 $lang['email']            = 'Email';
 $lang['date']             = 'Dátum';
 $lang['viewmore']         = 'Zobraziť podrobnosti';
+
+$lang['subaddwikinews']  = 'Prejsť na vytvorenie aktuality';
 
 
 //Setup VIM: ex: et ts=2 enc=utf-8 :
