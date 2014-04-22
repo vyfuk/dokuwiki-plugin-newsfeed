@@ -41,6 +41,7 @@ $lang['newsviewfalse']    = 'se nyní nezobrazuje';
 $lang['newsviewtrue']     = 'se nyní zobrazuje';
 $lang['nonews']           = 'Aktualita číslo';
 $lang['returntomenu']     = 'Návrat do menu';
+$lang['autoreturn']       = 'TU NAPÍŠ O TOM PRESMEROVANÍ!!!!';
 
 
 //Setup VIM: ex: et ts=2 enc=utf-8 :
