@@ -34,12 +34,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
 
     function html() {
 
-        $files = glob('data/cache/8/*');
-        foreach ($files as $file) {
-            if (is_file($file))
-                unlink($file);
-        }
-
+        deletecache();
         $imax;
         for ($i = 1; true; $i++) {
             $newsurl = 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
@@ -80,6 +75,9 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
                 $rendernews = str_replace($_POST['IDtodel'] . '-F;', $_POST['IDtodel'] . '-T;', io_readFile("data/meta/newsfeed.csv", FALSE));
                 echo '<span> ' . $this->getLang('nonews') . ' ' . $_POST['IDtodel'] . ' ' . $this->getLang('newsviewtrue') . '</span>';
             }
+            echo '<form method="post" id="addtowiki" action=doku.php?id=start&do=admin&page=fksnewsfeed>';
+            echo '<input type="submit"  value="' . $this->getLang('returntomenu') . '" class="button">';
+            echo '</form>';
             file_put_contents("data/meta/newsfeed.csv", $rendernews);
         } else {
 
@@ -205,4 +203,13 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
     /*
      * permutation news
      */
+}
+
+function deletecache() {
+    $files = glob('data/cache/8/*');
+    foreach ($files as $file) {
+        if (is_file($file))
+            unlink($file);
+    }
+    return;
 }

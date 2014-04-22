@@ -36,9 +36,10 @@ $lang['reviewnews']       = 'Opäť zobraziť túto aktualitu';
 $lang['deletenews']       = 'Nezobrazobvať túto akutalitu';
 $lang['newsviewnow']      = 'Aktuality ktoré sa zobrazujú';
 
-$lang['newsviewfalse']      = 'sa odteraz nezobarzuje';
-$lang['newsviewtrue']      = 'sa odteraz zobarzuje';
-$lang['nonews']      = 'Aktualita číslo';
+$lang['newsviewfalse']    = 'sa odteraz nezobarzuje';
+$lang['newsviewtrue']     = 'sa odteraz zobarzuje';
+$lang['nonews']           = 'Aktualita číslo';
+$lang['returntomenu']     = 'Návrat do menu';
 
 
 //Setup VIM: ex: et ts=2 enc=utf-8 :
