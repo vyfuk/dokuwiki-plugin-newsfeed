@@ -38,8 +38,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         $to_page.="<div class='fksnewswrapper'>";
         $imax;
         for ($i = 1; true; $i++) {
-            $newsurl = 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
-            $newsurl = str_replace("@i@", $i, $newsurl);
+            $newsurl = getnewsurl($ri, 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt');
             if (file_exists($newsurl)) {
                 continue;
             } else {
@@ -48,49 +47,20 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             }
         }
         //" <span>" . $this->getConf('newsfolder') . "/" . $this->getConf('newsfile') . ".txt</span>";
-        for ($i = $imax; $i > 0; $i--) {
-            if ($match) {
-                /**
-                 * find news wiht max number
-                 */
-                $newsurl = 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
-                $newsurl = str_replace("@i@", $i, $newsurl);
-                //if (file_exists($newsurl)) {
-                if (file_exists($newsurl)) {
-                    $match--;
-                    if ($match % 2) {
-                        /*
-                         * find even and odd news, css is not same.
-                         */
-                        $to_page.="<div class='fksnewseven'>";
-                    } else {
-                        $to_page.="<div class='fksnewsodd'>";
-                    }
-                    /*
-                     * find news autor title and date news and render then
+        $rendernews = preg_split('/;/', io_readFile("data/meta/newsfeed.csv", FALSE));
+        for ($i = 0; $i < count($rendernews); $i++) {
+
+            $rendernewsbool = preg_split('/-/', $rendernews[$i]);
+            if ($rendernewsbool[1] == "T") {
+                if ($match) {
+                    /**
+                     * find news wiht max number
                      */
-                    $newsdata = io_readFile($newsurl, false);
-                    $newsfeed = preg_split('/====/', $newsdata);
-                    $newsdate = preg_split('/newsdate/', $newsdata);
-                    $newsauthor = preg_split('/newsauthor/', $newsdata);
-
-                    $to_page.= p_render("xhtml", p_get_instructions('<newsdate>' . substr($newsdate[1], 1, -2) . '-render</newsdate>'), $info);
-
-                    $to_page.='<div class="fksnewsheadline">';
-                    $to_page.= p_render("xhtml", p_get_instructions('===' . $newsfeed[1] . '==='), $info);
-                    $to_page.="</div>";
-
-                    $to_page.='<div class="fksnewsarticle">';
-                    $to_page.= p_render("xhtml", p_get_instructions($newsfeed[2]), $info);
-                    $to_page.="</div>";
-                    $to_page.= p_render("xhtml", p_get_instructions('<newsauthor>' . substr($newsauthor[1], 1, -2) . '-render</newsauthor>'), $info);
-                    $to_page.='<div class="clearer"></div>';
-                    $to_page.="</div>";
-                    $to_page.='<div class="clearer"></div>';
-                    //$to_page.="</div>";
+                    $newsurl = getnewsurl($rendernewsbool[0], 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt');
+                    $to_page.=rendernews($match, $newsurl);
+                } else {
+                    break;
                 }
-            } else {
-                break;
             }
         }
         $to_page.="</div>";
@@ -108,9 +78,46 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         return false;
     }
 
-    private function fksnewsfeed(&$feedsdata, $feedsno) {
+}
 
-        return $feedsdata;
+function getnewsurl($newsno,$newsurl) {
+    $newsurl = str_replace("@i@", $newsno, $newsurl);
+    //if (file_exists($newsurl)) {
+    return $newsurl;
+}
+
+function rendernews($match, $newsurl) {
+    if (file_exists($newsurl)) {
+        $match--;
+        if ($match % 2) {
+            /*
+             * find even and odd news, css is not same.
+             */
+            $to_page.="<div class='fksnewseven'>";
+        } else {
+            $to_page.="<div class='fksnewsodd'>";
+        }
+        /*
+         * find news autor title and date news and render then
+         */
+        $newsdata = io_readFile($newsurl, false);
+        $newsfeed = preg_split('/====/', $newsdata);
+        $newsdate = preg_split('/newsdate/', $newsdata);
+        $newsauthor = preg_split('/newsauthor/', $newsdata);
+
+        $to_page.= p_render("xhtml", p_get_instructions('<newsdate>' . substr($newsdate[1], 1, -2) . '-render</newsdate>'), $info);
+
+        $to_page.='<div class="fksnewsheadline">';
+        $to_page.= p_render("xhtml", p_get_instructions('===' . $newsfeed[1] . '==='), $info);
+        $to_page.="</div>";
+
+        $to_page.='<div class="fksnewsarticle">';
+        $to_page.= p_render("xhtml", p_get_instructions($newsfeed[2]), $info);
+        $to_page.="</div>";
+        $to_page.= p_render("xhtml", p_get_instructions('<newsauthor>' . substr($newsauthor[1], 1, -2) . '-render</newsauthor>'), $info);
+        $to_page.='<div class="clearer"></div>';
+        $to_page.="</div>";
+        $to_page.='<div class="clearer"></div>';
+        return $to_page;
     }
-
 }

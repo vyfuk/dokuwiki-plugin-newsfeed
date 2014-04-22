@@ -15,6 +15,7 @@ $lang['direction']  = 'ltr';
 $lang['addmenu']          = 'Přidat aktualitu'; 
 $lang['editmenu']         = 'Upravit aktualitu';
 $lang['menu']             = 'Spravovat aktuality';
+$lang['deletemenu']       = 'Upraviť zobrazovanie aktualít';
 
 $lang['subeditnews']      = 'Upravit novinku';
 $lang['subaddnews']       = 'Přidat novinku';
@@ -26,7 +27,18 @@ $lang['newsfile']         = 'subor s novinkou';
 $lang['author']           = 'Autor';
 $lang['email']            = 'Email';
 $lang['date']             = 'Dátum';
+$lang['newsname']         = 'Nadpis';
 $lang['viewmore']         = 'Zobraziť podrobnosti';
+
+$lang['subaddwikinews']   = 'Prejsť na vytvorenie aktuality';
+
+$lang['reviewnews']       = 'Opäť zobraziť túto aktualitu';
+$lang['deletenews']       = 'Nezobrazobvať túto akutalitu';
+$lang['newsviewnow']      = 'Aktuality ktoré sa zobrazujú';
+
+$lang['newsviewfalse']      = 'sa odteraz nezobarzuje';
+$lang['newsviewtrue']      = 'sa odteraz zobarzuje';
+$lang['nonews']      = 'Aktualita číslo';
 
 
 //Setup VIM: ex: et ts=2 enc=utf-8 :
