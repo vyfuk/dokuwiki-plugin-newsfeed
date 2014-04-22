@@ -34,6 +34,12 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
 
     function html() {
 
+        $files = glob('data/cache/8/*');
+        foreach ($files as $file) {
+            if (is_file($file))
+                unlink($file);
+        }
+
         $imax;
         for ($i = 1; true; $i++) {
             $newsurl = 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt';
@@ -67,12 +73,12 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             echo '</div>';
             echo '</form>';
         } elseif ($_POST['IDtodel'] || $_POST['typetodel']) {
-            if ($_POST['typetodel'] == "true" ) {
+            if ($_POST['typetodel'] == "true") {
                 $rendernews = str_replace($_POST['IDtodel'] . '-T;', $_POST['IDtodel'] . '-F;', io_readFile("data/meta/newsfeed.csv", FALSE));
-                echo '<span> '. $this->getLang('nonews') .' ' . $_POST['IDtodel'] . ' '. $this->getLang('newsviewfalse') .'</span>';
+                echo '<span> ' . $this->getLang('nonews') . ' ' . $_POST['IDtodel'] . ' ' . $this->getLang('newsviewfalse') . '</span>';
             } else {
                 $rendernews = str_replace($_POST['IDtodel'] . '-F;', $_POST['IDtodel'] . '-T;', io_readFile("data/meta/newsfeed.csv", FALSE));
-                echo '<span> '. $this->getLang('nonews') .' ' . $_POST['IDtodel'] . ' '. $this->getLang('newsviewtrue') .'</span>';
+                echo '<span> ' . $this->getLang('nonews') . ' ' . $_POST['IDtodel'] . ' ' . $this->getLang('newsviewtrue') . '</span>';
             }
             file_put_contents("data/meta/newsfeed.csv", $rendernews);
         } else {
@@ -161,7 +167,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
 
             echo '<div id="newsdelete" style="display: none">';
 
-            echo  $this->getLang('newsviewnow') .':<br>';
+            echo $this->getLang('newsviewnow') . ':<br>';
 
 
 
@@ -181,12 +187,12 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
                 if ($boolrender) {
                     echo '<input type="hidden" name="typetodel" value="true">';
 
-                    echo '<input type="submit" value="'.$this->getLang('deletenews') .'"> </form>';
+                    echo '<input type="submit" value="' . $this->getLang('deletenews') . '"> </form>';
                 } else {
                     echo '<input type="hidden" name="typetodel" value="false">';
-                    echo '<input type="submit" value="'.$this->getLang('reviewnews') .'"></form> ';
+                    echo '<input type="submit" value="' . $this->getLang('reviewnews') . '"></form> ';
                 }
-                echo $this->getLang('newsname') .': ';
+                echo $this->getLang('newsname') . ': ';
                 $newsurl = str_replace("@i@", $i, 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt');
                 $newsdata = io_readFile($newsurl, false);
                 $newsfeed = preg_split('/====/', $newsdata);
@@ -200,5 +206,3 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
      * permutation news
      */
 }
-
-
