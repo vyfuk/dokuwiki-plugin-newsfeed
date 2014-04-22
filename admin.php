@@ -52,7 +52,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
 
         if ($_POST['newsid'] || $_POST['newsdo'] || $_POST['newsrev']) {
             $newsID = io_readFile("data/meta/newsfeed.csv", FALSE);
-            $newsID = $_POST['newsid'] . ";" . $newsID;
+            $newsID = $_POST['newsid'] . "-T;" . $newsID;
             file_put_contents("data/meta/newsfeed.csv", $newsID);
 
 
