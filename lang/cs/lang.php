@@ -15,29 +15,29 @@ $lang['direction']  = 'ltr';
 $lang['addmenu']          = 'Přidat aktualitu'; 
 $lang['editmenu']         = 'Upravit aktualitu';
 $lang['menu']             = 'Spravovat aktuality';
-$lang['deletemenu']       = 'Upraviť zobrazovanie aktualít';
+$lang['deletemenu']       = 'Upravit zobrazovaní aktualit';
 
 $lang['subeditnews']      = 'Upravit novinku';
 $lang['subaddnews']       = 'Přidat novinku';
 $lang['addnews']          = 'Přidat novinku číslo: ';
 
-$lang['newsfolder']       = 'zložka pre ukladanie noviniek';
-$lang['newsfile']         = 'subor s novinkou';
+$lang['newsfolder']       = 'složka pro ukládání novinek';
+$lang['newsfile']         = 'soubor s novinkou';
 
 $lang['author']           = 'Autor';
-$lang['email']            = 'Email';
-$lang['date']             = 'Dátum';
+$lang['email']            = 'E-mail';
+$lang['date']             = 'Datum';
 $lang['newsname']         = 'Nadpis';
-$lang['viewmore']         = 'Zobraziť podrobnosti';
+$lang['viewmore']         = 'Zobrazit podrobnosti';
 
-$lang['subaddwikinews']   = 'Prejsť na vytvorenie aktuality';
+$lang['subaddwikinews']   = 'Přejít k vytvoření aktuality';
 
-$lang['reviewnews']       = 'Opäť zobraziť túto aktualitu';
-$lang['deletenews']       = 'Nezobrazobvať túto akutalitu';
-$lang['newsviewnow']      = 'Aktuality ktoré sa zobrazujú';
+$lang['reviewnews']       = 'Opět zobrazit tuto aktualitu';
+$lang['deletenews']       = 'Nezobrazovat tuto aktualitu';
+$lang['newsviewnow']      = 'Aktuality, které se zobrazují';
 
-$lang['newsviewfalse']      = 'sa odteraz nezobarzuje';
-$lang['newsviewtrue']      = 'sa odteraz zobarzuje';
+$lang['newsviewfalse']      = 'se nyní nezobrazuje';
+$lang['newsviewtrue']      = 'se nyní zobrazuje';
 $lang['nonews']      = 'Aktualita číslo';
 
 

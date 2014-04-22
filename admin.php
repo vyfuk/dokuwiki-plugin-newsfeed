@@ -187,10 +187,10 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
                 if ($boolrender) {
                     echo '<input type="hidden" name="typetodel" value="true">';
 
-                    echo '<input type="submit" value="' . $this->getLang('deletenews') . '"> </form>';
+                    echo '<input class="button" type="submit" value="' . $this->getLang('deletenews') . '"> </form>';
                 } else {
                     echo '<input type="hidden" name="typetodel" value="false">';
-                    echo '<input type="submit" value="' . $this->getLang('reviewnews') . '"></form> ';
+                    echo '<input class="button" type="submit" value="' . $this->getLang('reviewnews') . '"></form> ';
                 }
                 echo $this->getLang('newsname') . ': ';
                 $newsurl = str_replace("@i@", $i, 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt');
