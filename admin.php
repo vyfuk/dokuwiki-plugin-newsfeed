@@ -207,7 +207,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
 }
 
 function deletecache() {
-    $files = glob('data/cache/8/*');
+    $files = glob('data/cache/*/*');
     foreach ($files as $file) {
         if (is_file($file))
             unlink($file);
