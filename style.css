@@ -63,3 +63,10 @@
 div.dokuwiki div.fksnewsauthor p{
     text-align: right;
 }
+
+/*     admin     */
+
+.fkshover:hover{
+    text-decoration: underline;
+    cursor: pointer;
+}

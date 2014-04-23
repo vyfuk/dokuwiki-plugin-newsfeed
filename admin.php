@@ -64,7 +64,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             $newsurlnew = $this->getConf('newsfolder') . ':' . $this->getConf('newsfile');
             $newsurlnew = str_replace("@i@", $_POST['newsid'], $newsurlnew);
             echo '<input type="hidden" name="id" value="' . $newsurlnew . '">';
-            echo ' <input type="submit" value="' . $this->getLang('subaddwikinews') . '" class="button" title="Pridať novinku [E]">';
+            echo ' <input type="submit" value="' . $this->getLang('subaddwikinews') . '" class="button" title="Přidat novinku [E]">';
             echo '</div>';
             echo '</form>';
         } elseif ($_POST['IDtodel'] || $_POST['typetodel']) {
@@ -87,7 +87,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             echo '<script type="text/javascript" charset="utf-8">';
             echo 'var maxfile=' . $imax . ';</script>';
 
-            echo '<h1 style="cursor:pointer" onclick="viewnewsadmin(';
+            echo '<h1 class="fkshover" onclick="viewnewsadmin(';
             echo "'newsadd'";
             echo ')">' . $this->getLang('addmenu') . '</h1>';
 
@@ -110,7 +110,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             /*
              * edit news
              */
-            echo '<h1 style="cursor:pointer" onclick="viewnewsadmin(';
+            echo '<h1 class="fkshover" onclick="viewnewsadmin(';
             echo "'newsedit'";
             echo ')">' . $this->getLang('editmenu') . '</h1>';
             echo '<div id="newsedit" style="display: none">';
@@ -160,7 +160,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
              */
 
 
-            echo '<h1 style="cursor:pointer" onclick="viewnewsadmin(';
+            echo '<h1 class="fkshover" onclick="viewnewsadmin(';
             echo "'newsdelete'";
             echo ')">' . $this->getLang('deletemenu') . '</h1>';
 
