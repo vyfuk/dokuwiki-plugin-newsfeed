@@ -68,6 +68,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             echo '</div>';
             echo '</form>';
         } elseif ($_POST['IDtodel'] || $_POST['typetodel']) {
+            echo $this->getLang('autoreturn') .'<br>';
             if ($_POST['typetodel'] == "true") {
                 $rendernews = str_replace($_POST['IDtodel'] . '-T;', $_POST['IDtodel'] . '-F;', io_readFile("data/meta/newsfeed.csv", FALSE));
                 echo '<span> ' . $this->getLang('nonews') . ' ' . $_POST['IDtodel'] . ' ' . $this->getLang('newsviewfalse') . '</span>';
@@ -75,7 +76,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
                 $rendernews = str_replace($_POST['IDtodel'] . '-F;', $_POST['IDtodel'] . '-T;', io_readFile("data/meta/newsfeed.csv", FALSE));
                 echo '<span> ' . $this->getLang('nonews') . ' ' . $_POST['IDtodel'] . ' ' . $this->getLang('newsviewtrue') . '</span>';
             }
-            echo '<form method="post" id="addtowiki" action=doku.php?id=start&do=admin&page=fksnewsfeed>';
+            echo '<br><form method="post" id="addtowiki" action=doku.php?id=start&do=admin&page=fksnewsfeed>';
             echo '<input type="submit"  value="' . $this->getLang('returntomenu') . '" class="button">';
             echo '</form>';
             file_put_contents("data/meta/newsfeed.csv", $rendernews);
