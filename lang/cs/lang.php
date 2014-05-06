@@ -16,6 +16,7 @@ $lang['addmenu']          = 'Přidat aktualitu';
 $lang['editmenu']         = 'Upravit aktualitu';
 $lang['menu']             = 'Spravovat aktuality';
 $lang['deletemenu']       = 'Upravit zobrazovaní aktualit';
+$lang['permutmenu']       = 'Upravit zobrazovaní aktualit';
 
 $lang['subeditnews']      = 'Upravit novinku';
 $lang['subaddnews']       = 'Přidat novinku';
