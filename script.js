@@ -48,20 +48,25 @@ function newspermsubmit() {
     document.getElementById('fksnewsadminperm').submit();
 }
 ;
-function newsviewmoredef(ID){
-    setTimeout(function(){
-        document.getElementById("fksnewsmoreinfo"+ID).style.display='none' ;
-    },200);
+function newsviewmoredef(ID) {
+    setTimeout(function() {
+        document.getElementById("fksnewsmoreinfo" + ID).style.display = 'none';
+    }, 200);
     //document.getElementById("fksnewsmoreinfo"+ID).style.display='none' ;
 }
 function newsviewmore(ID) {
-    document.getElementById("fksnewsmoreinfo"+ID).style.display='block' ;
-    var IDfull = document.getElementById("fksnewsmoreinfo"+ID);
+    document.getElementById("fksnewsmoreinfo" + ID).style.display = 'block';
+    var IDfull = document.getElementById("fksnewsmoreinfo" + ID);
 
     document.body.onmousemove = function(e) {
-        IDfull.style.left = ((e || event).clientX + document.body.scrollLeft) + "px";
-        IDfull.style.top = ((e || event).clientY + document.body.scrollTop) + "px";
-    }
+        var browserIE = document.all ? true : false;
+        if (!browserIE) {document.captureEvents(Event.MOUSEMOVE);};
+        IDfull.style.left = (browserIE ? event.clientX + document.body.scrollLeft : e.pageX) + "px";
+        IDfull.style.top = (browserIE ? event.clientY + document.body.scrollTop : e.pageY) + "px";
+
+        //IDfull.style.left = ((e || event).clientX + document.body.scrollLeft) + "px";
+        //IDfull.style.top = ((e || event).clientY + document.body.scrollTop) + "px";
+    };
 }
 ;
 
