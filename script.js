@@ -1,7 +1,7 @@
 
 function viewnewsadmin(id) {
     document.getElementById(id).style.display = "block";
-    var eeid = ['newsadd', 'newsedit', 'newsdelete', 'newspermut'];
+    var eeid = ['newsadd', 'newspermut'];
     for (var i in eeid) {
         if (eeid[i] !== id) {
             document.getElementById(eeid[i]).style.display = "none";

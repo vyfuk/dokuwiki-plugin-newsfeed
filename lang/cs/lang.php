@@ -16,22 +16,23 @@ $lang['addmenu']          = 'Přidat aktualitu';
 $lang['editmenu']         = 'Upravit aktualitu';
 $lang['menu']             = 'Spravovat aktuality';
 $lang['deletemenu']       = 'Upravit zobrazovaní aktualit';
-$lang['permutmenu']       = 'Upravit pořadí a zobrazovaní novinek';
+$lang['permutmenu']       = 'Upravit pořadí, parametre a zobrazovaní novinek';
+$lang['newssave']         = 'Uložiť zmeny';
 
 $lang['subeditnews']      = 'Upravit novinku';
 $lang['subaddnews']       = 'Přidat novinku';
 $lang['addnews']          = 'Přidat novinku číslo: ';
 
 $lang['display']          = 'Zobraziť';
-$lang['nodisplay']          = 'Nezobrazovať';
+$lang['nodisplay']        = 'Nezobrazovať';
 
 $lang['IDnews']           = 'čislo novinky ';
 $lang['newspermold']      = 'staré poradie';
 $lang['newspermnew']      = 'nové poradie ';
 $lang['newrender']        = 'zobrazovanie ';
-$lang['permwarning1']      = 'Upozornenie!!';
-$lang['permwarning2']      = 'Ak neviete, ako sa presne miní poradie aktualit, tak to prosím nemeňte. ';
-$lang['permwarning3']      = 'Každé číslo pri zmene poradia musí byť použité práve raz a žiadné sa nesmie vynechať. Čislo musí mať aj nezobrazovaná aktualita';
+$lang['permwarning1']     = 'Upozornenie!!';
+$lang['permwarning2']     = 'Ak neviete, ako sa presne miní poradie aktualit, tak to prosím nemeňte. ';
+$lang['permwarning3']     = 'Každé číslo pri zmene poradia musí byť použité práve raz a žiadné sa nesmie vynechať. Čislo musí mať aj nezobrazovaná aktualita';
 
 $lang['newsfolder']       = 'složka pro ukládání novinek';
 $lang['newsfile']         = 'soubor s novinkou';
@@ -44,14 +45,6 @@ $lang['viewmore']         = 'Zobrazit podrobnosti';
 
 $lang['subaddwikinews']   = 'Přejít k vytvoření aktuality';
 
-$lang['reviewnews']       = 'Opět zobrazit tuto aktualitu';
-$lang['deletenews']       = 'Nezobrazovat tuto aktualitu';
-$lang['newsviewnow']      = 'Aktuality, které se zobrazují';
-
-
-$lang['newsviewfalse']    = 'se nyní nezobrazuje';
-$lang['newsviewtrue']     = 'se nyní zobrazuje';
-$lang['nonews']           = 'Aktualita číslo';
 $lang['returntomenu']     = 'Návrat do menu';
 $lang['autoreturn']       = 'Stránka bude přesměrována během pěti sekund.';
 
