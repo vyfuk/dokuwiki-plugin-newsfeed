@@ -138,8 +138,6 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             echo '<input type="radio" name="id" value="' . $newsurl . '"';
             if ($i == $imax - 1) {
                 echo ' checked="checked"';
-            } else {
-                
             }
             echo '>';
             echo $newsfeed[1];
@@ -205,13 +203,19 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo "'newspermut'";
         echo ')">' . $this->getLang('permutmenu') . '</h1>';
         echo '<div id="newspermut" style="display: none">';
-        echo '<span style="font-weight:bold;color:red;">' . $this->getLang('permwarning') . '</span>';
-        echo '<form method="post" action=doku.php?id=start&do=admin&page=fksnewsfeed>';
+        //warningy
+        echo '<div class="fksnewswarning"><p class=""><span style="font-weight:bold;font-size:130%">' . $this->getLang('permwarning1') . '</span></p>';
+        echo '<p><span >' . $this->getLang('permwarning2') . '</span></p>';
+        echo '<p><span >' . $this->getLang('permwarning3') . '</span></p></div>';
+
+        echo '<form method="post" id="fksnewsadminperm" onsubmit="return false" action=doku.php?id=start&do=admin&page=fksnewsfeed>';
         echo '<input type="hidden" name="maxnews" value="' . $imax . '"></td>';
         echo '<input type="hidden" name="newsdo" value="permut"></td>';
         echo '<table class="newspermuttable">';
+
+
         echo '<tr><td>' . $this->getLang('IDnews') . '</td>';
-        
+        echo '<td></td>';
         echo '<td>' . $this->getLang('newspermold') . '</td>';
         echo '<td>' . $this->getLang('newspermnew') . '</td>';
         echo '<td>' . $this->getLang('newrender') . '</td>';
@@ -227,23 +231,59 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
                 $boolrender = true;
             }
             echo '<tr><td class="fksnewsid">' . $i . '</td>';
+            $newsurl = $this->getConf('newsfolder') . ':' . $this->getConf('newsfile');
+            $newsurl = str_replace("@i@", $i, $newsurl);
+            echo '<td><input type="submit" onclick="newseditsibmit(';
+            echo "'" . $newsurl . "'";
+            echo ')" value="' . $this->getLang('subeditnews') . '" class="button"> </td>';
+
             echo '<td class="fksnewspermold">' . $rendernewsbool[0] . '</td>';
             echo '<td class="fksnewspermnew"><input class="fksnewsinputperm" type="text" name="permutnew' . $i . '" value="' . $rendernewsbool[0] . '">';
-            
+
             echo '<td><select class="fksnwsselectperm" name="newIDsrender' . $i . '">';
-            echo '<option value="' . $i . '-T" ' . fksnewsboolswitch('selected="selected', '', $boolrender) . '">Zobraziť</option>';
-            echo '<option value="' . $i . '-F" ' . fksnewsboolswitch('', 'selected="selected"', $boolrender) . '>Nezobrazovať</option>';
+            echo '<option value="' . $i . '-T" ' . fksnewsboolswitch('selected="selected', '', $boolrender) . '">' . $this->getLang('display') . '</option>';
+            echo '<option value="' . $i . '-F" ' . fksnewsboolswitch('', 'selected="selected"', $boolrender) . '>' . $this->getLang('nodisplay') . '</option>';
             echo '</select></td>';
-            
+
             $newsfeed = preg_split('/====/', $this->loadnewssimple($i));
             if (strlen($newsfeed[1]) > 25) {
                 $newsfeed[1] = substr($newsfeed[1], 0, 25) . '...';
             }
-            echo '<td><span style="color:' . fksnewsboolswitch('#000', '#999', $boolrender) . '">' . $newsfeed[1] . '</span></td></tr>';
+
+            $newsdata = $this->loadnewssimple($i);
+            $newsdate = preg_split('/newsdate/', $newsdata);
+            $newsauthor = preg_split('/newsauthor/', $newsdata);
+
+
+
+            echo '<td><span onMouseOver="newsviewmore(';
+            echo "'" . $i . "'";
+            echo ')" onMouseOut="newsviewmoredef(';
+            echo "'" . $i . "'";
+            echo ')" style="color:' . fksnewsboolswitch('#000', '#999', $boolrender) . '">' . $newsfeed[1] . '</span></td></tr>';
+            
+            
+            echo '<div class="fksnewsmoreinfo" id="fksnewsmoreinfo' . $i . '" style="display:none;position:absolute;">';
+            $newsauthorinfo = preg_split('/\|/', substr($newsauthor[1], 3, -4));
+            echo $this->getLang('author') . ': ' . $newsauthorinfo[1] . '<br>';
+            echo $this->getLang('email') . ': ' . $newsauthorinfo[0] . '<br>';
+            echo $this->getLang('date') . ': ' . substr($newsdate[1], 1, -2);
+            echo '<div style="background-color: #f0f0f0; border-radius: 5px; width: 100%">';
+            echo p_render("xhtml", p_get_instructions($newsfeed[2]), $info);
+            echo '</div>';
+            echo '</div>';
         }
         echo '</table>';
-        echo '<input type="submit" value="' . $this->getLang('subaddnews') . '" class="button" title="Pridať novinku [E]">';
+        echo '<input type="submit" onclick="newspermsubmit()" value="' . $this->getLang('subaddnews') . '" class="button">';
         echo '</form>';
+
+        echo '<form id="fksnewsadminedit" onsubmit="return false" method="post" action=doku.php>';
+        echo '<input type="hidden" name="do" value="edit">';
+        echo '<input type="hidden" name="rev" value="0"> ';
+        echo '<input type="hidden" name="rev" value="0"> ';
+        echo '<input type="hidden" id="fksnewsadmineditvalue" name="id" value=""></form>';
+
+
         echo '</div>';
     }
 

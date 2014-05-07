@@ -75,7 +75,7 @@ table.newspermuttable td{
     border: solid 1px #ccc;
     border-collapse: collapse;
     padding: 3px;
-    
+
     background-color:#eee;
 }
 td.fksnewsid{
@@ -89,8 +89,8 @@ td.fksnewspermnew{
 }
 
 td.fksnewspermold{
-   width: 3em; 
-   text-align: center;
+    width: 3em; 
+    text-align: center;
 }
 
 
@@ -110,7 +110,20 @@ input.fksnewsinputperm{
     background-color: #ff4800;
 }
 select.fksnwsselectperm{
-    
-border-radius: 5px;
-background-color: #cdf;
+
+    border-radius: 5px;
+    background-color: #cdf;
 }
+div.fksnewswarning{
+    padding: 1em 2em 1em 2em ;
+    background-color: #fcc
+}
+
+div.fksnewsmoreinfo{
+    width: 25em;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #ff4800;
+    padding: .5em
+}
+    

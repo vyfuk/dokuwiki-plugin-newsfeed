@@ -16,17 +16,22 @@ $lang['addmenu']          = 'Přidat aktualitu';
 $lang['editmenu']         = 'Upravit aktualitu';
 $lang['menu']             = 'Spravovat aktuality';
 $lang['deletemenu']       = 'Upravit zobrazovaní aktualit';
-$lang['permutmenu']       = 'Upravit pořadí novinek';
+$lang['permutmenu']       = 'Upravit pořadí a zobrazovaní novinek';
 
 $lang['subeditnews']      = 'Upravit novinku';
 $lang['subaddnews']       = 'Přidat novinku';
 $lang['addnews']          = 'Přidat novinku číslo: ';
 
+$lang['display']          = 'Zobraziť';
+$lang['nodisplay']          = 'Nezobrazovať';
+
 $lang['IDnews']           = 'čislo novinky ';
 $lang['newspermold']      = 'staré poradie';
 $lang['newspermnew']      = 'nové poradie ';
 $lang['newrender']        = 'zobrazovanie ';
-$lang['permwarning']      = 'Upozornenie!! Ak neviete, čo presne robite tak sa v tom nerýpte. ';
+$lang['permwarning1']      = 'Upozornenie!!';
+$lang['permwarning2']      = 'Ak neviete, ako sa presne miní poradie aktualit, tak to prosím nemeňte. ';
+$lang['permwarning3']      = 'Každé číslo pri zmene poradia musí byť použité práve raz a žiadné sa nesmie vynechať. Čislo musí mať aj nezobrazovaná aktualita';
 
 $lang['newsfolder']       = 'složka pro ukládání novinek';
 $lang['newsfile']         = 'soubor s novinkou';

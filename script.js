@@ -37,5 +37,34 @@ if (toolbar) {
     };
 }
 ;
+function newseditsibmit(url) {
+    document.getElementById('fksnewsadmineditvalue').value = url;
+    document.getElementById('fksnewsadminedit').return = "return true";
+    document.getElementById('fksnewsadminedit').submit();
+}
+;
+function newspermsubmit() {
+    document.getElementById('fksnewsadminperm').return = "return true";
+    document.getElementById('fksnewsadminperm').submit();
+}
+;
+function newsviewmoredef(ID){
+    setTimeout(function(){
+        document.getElementById("fksnewsmoreinfo"+ID).style.display='none' ;
+    },200);
+    //document.getElementById("fksnewsmoreinfo"+ID).style.display='none' ;
+}
+function newsviewmore(ID) {
+    document.getElementById("fksnewsmoreinfo"+ID).style.display='block' ;
+    var IDfull = document.getElementById("fksnewsmoreinfo"+ID);
+
+    document.body.onmousemove = function(e) {
+        IDfull.style.left = ((e || event).clientX + document.body.scrollLeft) + "px";
+        IDfull.style.top = ((e || event).clientY + document.body.scrollTop) + "px";
+    }
+}
+;
+
+
 
 
