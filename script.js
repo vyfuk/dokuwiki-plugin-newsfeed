@@ -1,29 +1,50 @@
 
 function viewnewsadmin(id) {
-    if (id === "newsedit") {
-        if (document.getElementById(id).style.display == "none") {
-            document.getElementById(id).style.display = "block";
-            document.getElementById("newsadd").style.display = "none";
-            document.getElementById("newsdelete").style.display = "none";
-        }
+    document.getElementById(id).style.display = "block";
+    var eeid = ['newsadd', 'newsedit', 'newsdelete', 'newspermut'];
+    for (var i in eeid) {
+        if (eeid[i] !== id) {
+            document.getElementById(eeid[i]).style.display = "none";
+        };
+    };
+    //switch (id) {
+    //   case "newsadd":
+//
+    //          break;
+    //    case "newsedit":
+//
+    //          break;
+    //    case "newsdelete":
+//
+    //          break;
+    //    case "newspermut":
+//
+    //          break;
+    //}
+    //if (id === "newsedit") {
+    //  if (document.getElementById(id).style.display == "none") {
+    //     document.getElementById(id).style.display = "block";
+    //      document.getElementById("newsadd").style.display = "none";
+    //   document.getElementById("newsdelete").style.display = "none";
+    //}
 
-    }
-    else {
-        if (id === "newsadd") {
-            if (document.getElementById(id).style.display == "none") {
-                document.getElementById(id).style.display = "block";
-                document.getElementById("newsedit").style.display = "none";
-                document.getElementById("newsdelete").style.display = "none";
-            }
-        } else {
-            if (document.getElementById(id).style.display == "none") {
-                document.getElementById(id).style.display = "block";
-                document.getElementById("newsedit").style.display = "none";
-                document.getElementById("newsadd").style.display = "none";
+    //}
+    //else {
+    //  if (id === "newsadd") {
+    //    if (document.getElementById(id).style.display == "none") {
+    //      document.getElementById(id).style.display = "block";
+    //    document.getElementById("newsedit").style.display = "none";
+    //  document.getElementById("newsdelete").style.display = "none";
+    //}
+//        } else {
+    //           if (document.getElementById(id).style.display == "none") {
+    //             document.getElementById(id).style.display = "block";
+    //           document.getElementById("newsedit").style.display = "none";
+    //         document.getElementById("newsadd").style.display = "none";
 
-            }
-        }
-    }
+    //          }
+//        }
+    //}
 }
 ;
 function viewsedit(id) {
