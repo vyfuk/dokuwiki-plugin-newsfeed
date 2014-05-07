@@ -47,7 +47,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             }
         }
         //" <span>" . $this->getConf('newsfolder') . "/" . $this->getConf('newsfile') . ".txt</span>";
-        $rendernews = preg_split('/;;/', substr(io_readFile("data/meta/newsfeed.csv", FALSE),1,-1));
+        $rendernews = preg_split('/;;/', substr(io_readFile("data/meta/newsfeed.csv", FALSE), 1, -1));
         for ($i = 0; $i < count($rendernews); $i++) {
 
             $rendernewsbool = preg_split('/-/', $rendernews[$i]);
@@ -80,7 +80,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
 }
 
-function getnewsurl($newsno,$newsurl) {
+function getnewsurl($newsno, $newsurl) {
     $newsurl = str_replace("@i@", $newsno, $newsurl);
     //if (file_exists($newsurl)) {
     return $newsurl;

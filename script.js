@@ -5,46 +5,10 @@ function viewnewsadmin(id) {
     for (var i in eeid) {
         if (eeid[i] !== id) {
             document.getElementById(eeid[i]).style.display = "none";
-        };
-    };
-    //switch (id) {
-    //   case "newsadd":
-//
-    //          break;
-    //    case "newsedit":
-//
-    //          break;
-    //    case "newsdelete":
-//
-    //          break;
-    //    case "newspermut":
-//
-    //          break;
-    //}
-    //if (id === "newsedit") {
-    //  if (document.getElementById(id).style.display == "none") {
-    //     document.getElementById(id).style.display = "block";
-    //      document.getElementById("newsadd").style.display = "none";
-    //   document.getElementById("newsdelete").style.display = "none";
-    //}
-
-    //}
-    //else {
-    //  if (id === "newsadd") {
-    //    if (document.getElementById(id).style.display == "none") {
-    //      document.getElementById(id).style.display = "block";
-    //    document.getElementById("newsedit").style.display = "none";
-    //  document.getElementById("newsdelete").style.display = "none";
-    //}
-//        } else {
-    //           if (document.getElementById(id).style.display == "none") {
-    //             document.getElementById(id).style.display = "block";
-    //           document.getElementById("newsedit").style.display = "none";
-    //         document.getElementById("newsadd").style.display = "none";
-
-    //          }
-//        }
-    //}
+        }
+        ;
+    }
+    ;
 }
 ;
 function viewsedit(id) {
@@ -63,6 +27,14 @@ window.onload = function newssubmit() {
         //document.getElementById("addtowiki").onsubmit="return true";	
         document.getElementById("addtowiki").submit();
     }, 5000);
+}
+;
+
+if (toolbar) {
+    toolbar[toolbar.length] = {"type": "fksnewsfeeds", "title": "Add news", "key": "",
+        "icon": "../../plugins/fksnewsfeed/images/newsfeeds.png",
+        "insert": "{{like>}}", "block": "false"
+    };
 }
 ;
 

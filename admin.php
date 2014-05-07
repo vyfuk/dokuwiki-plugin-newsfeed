@@ -50,9 +50,6 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         //echo '<script type="text/javascript" charset="utf-8" src="lib/plugins/fksnewsfeed/script.js"></script>';
         global $newsreturndata;
         $newsreturndata = $_POST;
-         
-        //$newsdo = $_POST;
-
         switch ($newsreturndata['newsdo']) {
             case "add":
                 $this->returnnewsadd();
@@ -82,47 +79,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
                 /*
                  * permutation news
                  */
-
-                echo '<h1 class="fkshover" onclick="viewnewsadmin(';
-                echo "'newspermut'";
-                echo ')">' . $this->getLang('permutmenu') . '</h1>';
-                echo '<div id="newspermut" style="display: none">';
-                echo '<span style="font-weight:bold;color:red;">' . $this->getLang('permwarning') . '</span>';
-                echo '<form method="post" action=doku.php?id=start&do=admin&page=fksnewsfeed>';
-                echo '<input type="hidden" name="maxnews" value="' . $imax . '"></td>';
-                echo '<input type="hidden" name="newsdo" value="permut"></td>';
-                echo '<table>';
-                echo '<tr><td>' . $this->getLang('IDnews') . '</td>';
-                echo '<td>' . $this->getLang('newrender') . '</td>';
-                echo '<td>' . $this->getLang('newspermold') . '</td>';
-                echo '<td>' . $this->getLang('newsname') . '</td>';
-                echo '<td>Text</tr>';
-
-
-                for ($i = $imax - 1; $i > 0; $i--) {
-                    $boolrender = false;
-                    $rendernews = loadnews();
-                    $rendernewsbool = preg_split('/-/', $rendernews[$imax - 1 - $i]);
-
-                    if ($rendernewsbool[1] == 'T') {
-                        $boolrender = true;
-                    }
-                    echo '<tr><td>' . $i . '</td>';
-                    echo '<td><select name="newIDsrender' . $i . '">';
-                    echo '<option value="' . $i . '-T" ' . getnewsColor('selected="selected', '', $boolrender) . '">Zobraziť</option>';
-                    echo '<option value="' . $i . '-F" ' . getnewsColor('', 'selected="selected"', $boolrender) . '>Nezobrazovať</option>';
-                    echo '</select></td>';
-                    echo '<td>' . $rendernewsbool[0] . '</td>';
-
-                    echo '<td><input type="text" name="permutnew' . $i . '" value="' . $rendernewsbool[0] . '">';
-
-                    $newsfeed = preg_split('/====/', $this->loadnewssimple($i));
-                    echo '<td><span style="color:' . getnewsColor('#000', '#cccccc', $boolrender) . '">' . $newsfeed[1] . '</span></td></tr>';
-                }
-                echo '</table>';
-                echo '<input type="submit" value="' . $this->getLang('subaddnews') . '" class="button" title="Pridať novinku [E]">';
-                echo '</form>';
-                echo '</div>';
+                $this->getpermutnews();
         }
     }
 
@@ -235,8 +192,58 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             }
             echo $this->getLang('newsname') . ': ';
             $newsfeed = preg_split('/====/', $this->loadnewssimple($i));
-            echo '<span style="color:' . getnewsColor('#000', '#cccccc', $boolrender) . '">' . $newsfeed[1] . '</span><br>';
+            echo '<span style="color:' . fksnewsboolswitch('#000', '#cccccc', $boolrender) . '">' . $newsfeed[1] . '</span><br>';
         }
+        echo '</div>';
+    }
+
+    private function getpermutnews() {
+        global $lang;
+        global $imax;
+
+        echo '<h1 class="fkshover" onclick="viewnewsadmin(';
+        echo "'newspermut'";
+        echo ')">' . $this->getLang('permutmenu') . '</h1>';
+        echo '<div id="newspermut" style="display: none">';
+        echo '<span style="font-weight:bold;color:red;">' . $this->getLang('permwarning') . '</span>';
+        echo '<form method="post" action=doku.php?id=start&do=admin&page=fksnewsfeed>';
+        echo '<input type="hidden" name="maxnews" value="' . $imax . '"></td>';
+        echo '<input type="hidden" name="newsdo" value="permut"></td>';
+        echo '<table class="newspermuttable">';
+        echo '<tr><td>' . $this->getLang('IDnews') . '</td>';
+        
+        echo '<td>' . $this->getLang('newspermold') . '</td>';
+        echo '<td>' . $this->getLang('newspermnew') . '</td>';
+        echo '<td>' . $this->getLang('newrender') . '</td>';
+        echo '<td>' . $this->getLang('newsname') . '</tr>';
+
+
+        for ($i = $imax - 1; $i > 0; $i--) {
+            $boolrender = false;
+            $rendernews = loadnews();
+            $rendernewsbool = preg_split('/-/', $rendernews[$imax - 1 - $i]);
+
+            if ($rendernewsbool[1] == 'T') {
+                $boolrender = true;
+            }
+            echo '<tr><td class="fksnewsid">' . $i . '</td>';
+            echo '<td class="fksnewspermold">' . $rendernewsbool[0] . '</td>';
+            echo '<td class="fksnewspermnew"><input class="fksnewsinputperm" type="text" name="permutnew' . $i . '" value="' . $rendernewsbool[0] . '">';
+            
+            echo '<td><select class="fksnwsselectperm" name="newIDsrender' . $i . '">';
+            echo '<option value="' . $i . '-T" ' . fksnewsboolswitch('selected="selected', '', $boolrender) . '">Zobraziť</option>';
+            echo '<option value="' . $i . '-F" ' . fksnewsboolswitch('', 'selected="selected"', $boolrender) . '>Nezobrazovať</option>';
+            echo '</select></td>';
+            
+            $newsfeed = preg_split('/====/', $this->loadnewssimple($i));
+            if (strlen($newsfeed[1]) > 25) {
+                $newsfeed[1] = substr($newsfeed[1], 0, 25) . '...';
+            }
+            echo '<td><span style="color:' . fksnewsboolswitch('#000', '#999', $boolrender) . '">' . $newsfeed[1] . '</span></td></tr>';
+        }
+        echo '</table>';
+        echo '<input type="submit" value="' . $this->getLang('subaddnews') . '" class="button" title="Pridať novinku [E]">';
+        echo '</form>';
         echo '</div>';
     }
 
@@ -260,7 +267,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         global $imax;
         global $newsreturndata;
         global $lang;
-        
+
         $newsID = io_readFile("data/meta/newsfeed.csv", FALSE);
         $newsID = ';' . $newsreturndata['newsid'] . "-T;" . $newsID;
         file_put_contents("data/meta/newsfeed.csv", $newsID);
@@ -306,7 +313,7 @@ function deletecache() {
     return;
 }
 
-function getnewsColor($color1, $color2, $bool) {
+function fksnewsboolswitch($color1, $color2, $bool) {
     if ($bool) {
         return $color1;
     } else {

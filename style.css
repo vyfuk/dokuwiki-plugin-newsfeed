@@ -70,3 +70,47 @@ div.dokuwiki div.fksnewsauthor p{
     text-decoration: underline;
     cursor: pointer;
 }
+
+table.newspermuttable td{
+    border: solid 1px #ccc;
+    border-collapse: collapse;
+    padding: 3px;
+    
+    background-color:#eee;
+}
+td.fksnewsid{
+    width: 3em;
+    text-align: center; 
+}
+
+td.fksnewspermnew{
+    width: 4em; 
+    text-align: center;
+}
+
+td.fksnewspermold{
+   width: 3em; 
+   text-align: center;
+}
+
+
+table.newspermuttable{
+    border: solid 1px;
+    border-collapse: collapse;
+    border-radius: 5px;
+}
+
+input.fksnewsinputperm{
+    vertical-align: middle;
+    margin: 1px;
+    padding: .2em .3em;
+    display: inline;
+    border-radius: 5px;
+    width:3em;
+    background-color: #ff4800;
+}
+select.fksnwsselectperm{
+    
+border-radius: 5px;
+background-color: #cdf;
+}
