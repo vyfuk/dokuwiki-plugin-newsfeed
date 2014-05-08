@@ -124,12 +124,14 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo '<table class="newspermuttable">';
 
 
-        echo '<tr><td>' . $this->getLang('IDnews') . '</td>';
-        echo '<td></td>';
-        echo '<td>' . $this->getLang('newspermold') . '</td>';
-        echo '<td>' . $this->getLang('newspermnew') . '</td>';
-        echo '<td>' . $this->getLang('newrender') . '</td>';
-        echo '<td>' . $this->getLang('newsname') . '</tr>';
+        echo '<thead><tr><th>' . $this->getLang('IDnews') . '</th>';
+        echo '<th></th>';
+        echo '<th>' . $this->getLang('newspermold') . '</th>';
+        echo '<th colspan="2">' . $this->getLang('newspermnew') . '</th>';
+        //echo '<td></td>';
+        //echo '<td></td>';
+        echo '<th>' . $this->getLang('newrender') . '</th>';
+        echo '<th class="fksnewsinfo">' . $this->getLang('newsname') . '</th></tr></thead>';
 
 
         for ($i = $imax - 1; $i > 0; $i--) {
@@ -143,12 +145,20 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             echo '<tr><td class="fksnewsid">' . $i . '</td>';
             $newsurl = $this->getConf('newsfolder') . ':' . $this->getConf('newsfile');
             $newsurl = str_replace("@i@", $i, $newsurl);
-            echo '<td><input type="submit" onclick="newseditsibmit(';
+            echo '<td class="fksnewsedit"><input class="fksnewsinputedit" type="submit" onclick="newseditsibmit(';
             echo "'" . $newsurl . "'";
             echo ')" value="' . $this->getLang('subeditnews') . '" class="button"> </td>';
 
             echo '<td class="fksnewspermold">' . $rendernewsbool[0] . '</td>';
-            echo '<td class="fksnewspermnew"><input class="fksnewsinputperm" type="text" name="permutnew' . $i . '" value="' . $rendernewsbool[0] . '">';
+            
+            echo '<td class="fksnewspermnew"><input class="fksnewsinputperm" type="text" id="fkspermutnew'.$i.'" name="permutnew' . $i . '" value="' . $rendernewsbool[0] . '">';
+            echo '<td> <img src="lib/plugins/fksnewsfeed/images/up.gif" onclick=newsvalueup(';
+            echo "'".$i."'";
+            echo ')>';
+             echo '<img src="lib/plugins/fksnewsfeed/images/down.gif" onclick=newsvaluedown(';
+            echo "'".$i."'";
+            echo ')></td>';
+            
 
             echo '<td><select class="fksnwsselectperm" name="newIDsrender' . $i . '">';
             echo '<option value="' . $i . '-T" ' . fksnewsboolswitch('selected="selected', '', $boolrender) . '">' . $this->getLang('display') . '</option>';
@@ -166,7 +176,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
 
 
 
-            echo '<td><span onMouseOver="newsviewmore(';
+            echo '<td class="fksnewsinfo" ><span onMouseOver="newsviewmore(';
             echo "'" . $i . "'";
             echo ')" onMouseOut="newsviewmoredef(';
             echo "'" . $i . "'";

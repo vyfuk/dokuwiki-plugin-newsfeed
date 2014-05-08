@@ -60,7 +60,10 @@ function newsviewmore(ID) {
 
     document.body.onmousemove = function(e) {
         var browserIE = document.all ? true : false;
-        if (!browserIE) {document.captureEvents(Event.MOUSEMOVE);};
+        if (!browserIE) {
+            document.captureEvents(Event.MOUSEMOVE);
+        }
+        ;
         IDfull.style.left = (browserIE ? event.clientX + document.body.scrollLeft : e.pageX) + "px";
         IDfull.style.top = (browserIE ? event.clientY + document.body.scrollTop : e.pageY) + "px";
 
@@ -70,6 +73,34 @@ function newsviewmore(ID) {
 }
 ;
 
+function newsvalueup(ID) {
+    var valueid = document.getElementById("fkspermutnew" + ID).value;
+    var IDup = ID;
+    IDup++;
+    if (document.getElementById("fkspermutnew" + IDup).value !== null) {
+
+        var valueupid = document.getElementById("fkspermutnew" + IDup).value;
+        document.getElementById("fkspermutnew" + IDup).value = valueid;
+        document.getElementById("fkspermutnew" + ID).value = valueupid;
+    }
+    ;
+}
+;
+
+function newsvaluedown(ID) {
+    var valueid = document.getElementById("fkspermutnew" + ID).value;
+    var IDdown = ID;
+    IDdown--;
+    if (document.getElementById("fkspermutnew" + IDdown).value !== null) {
+
+        var valuedownid = document.getElementById("fkspermutnew" + IDdown).value;
+        document.getElementById("fkspermutnew" + IDdown).value = valueid;
+        document.getElementById("fkspermutnew" + ID).value = valuedownid;
+    }
+    ;
+
+}
+;
 
 
 

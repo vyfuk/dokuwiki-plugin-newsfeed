@@ -74,6 +74,14 @@ div.dokuwiki div.fksnewsauthor p{
 table.newspermuttable td{
     border: solid 1px #ccc;
     border-collapse: collapse;
+    padding: 5px;
+    margin: 5px;
+    background-color:#eee;
+}
+
+table.newspermuttable thead th{
+    border: solid 1px #ccc;
+    border-collapse: collapse;
     padding: 3px;
 
     background-color:#eee;
@@ -93,6 +101,17 @@ td.fksnewspermold{
     text-align: center;
 }
 
+td.fksnewsinfo{
+    width: 100%; 
+    padding: 1em;
+    white-space: nowrap;
+}
+
+th.fksnewsinfo{
+    width: 25em; 
+    padding: 1em;
+}
+
 
 table.newspermuttable{
     border: solid 1px;
@@ -108,6 +127,7 @@ input.fksnewsinputperm{
     border-radius: 5px;
     width:3em;
     background-color: #ff4800;
+    font-weight:bold;
 }
 select.fksnwsselectperm{
 
@@ -116,7 +136,8 @@ select.fksnwsselectperm{
 }
 div.fksnewswarning{
     padding: 1em 2em 1em 2em ;
-    background-color: #fcc
+    background-color: #fcc;
+    border-radius: 5px;
 }
 
 div.fksnewsmoreinfo{
@@ -126,4 +147,17 @@ div.fksnewsmoreinfo{
     border: 1px solid #ff4800;
     padding: .5em
 }
-    
+
+input.fksnewsinputedit{
+    border: 1px solid #ff4800;
+    color: #000;
+    background-color: #fff;
+    vertical-align: middle;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: .95em;
+    cursor: pointer;
+    margin: 1px;
+    padding: .25em .5em;
+    border-radius: 5px;
+}
