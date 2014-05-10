@@ -120,7 +120,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo '<p><span >' . $this->getLang('permwarning2') . '</span></p>';
         echo '<p><span >' . $this->getLang('permwarning3') . '</span></p></div>';
 
-        echo '<form method="post" id="fksnewsadminperm" onsubmit="return false" action=doku.php?id=start&do=admin&page=fksnewsfeed>';
+        echo '<form method="post" id="fksnewsadminperm" onsubmit="return false" action=doku.php?do=admin&page=fksnewsfeed>';
         echo '<input type="hidden" name="maxnews" value="' . $imax . '"></td>';
         echo '<input type="hidden" name="newsdo" value="permut"></td>';
         echo '<table class="newspermuttable">';
@@ -145,7 +145,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
                 $boolrender = true;
             }
             echo '<tr id="fksnewsadmintr'.$i.'">';
-            echo '<td id="fksnewsadminid' . $i . '" class="fksnewsid">' . $i . '<input type="hidden" name="newsid" value="'.$i.'"></td>';
+            echo '<td id="fksnewsadminid' . $i . '" class="fksnewsid">' . $i . '</td>';
             $newsurl = $this->getConf('newsfolder') . ':' . $this->getConf('newsfile');
             $newsurl = str_replace("@i@", $i, $newsurl);
             echo '<td id="fksnewsadminedit' . $i . '" class="fksnewsedit"><input class="fksnewsinputedit" type="submit" onclick="newseditsibmit(';
@@ -154,7 +154,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
 
             echo '<td id="fksnewsadminpermold' . $i . '" class="fksnewspermold">' . $rendernewsbool[0] . '</td>';
 
-            echo '<td id="fksnewspermnew' . $i . '" class="fksnewspermnew"><input class="fksnewsinputperm" disabled="disabled" readonly="readonly" type="text" id="fkspermutnew' . $i . '" name="permutnew' . $i . '" value="' . $rendernewsbool[0] . '">';
+            echo '<td id="fksnewspermnew' . $i . '" class="fksnewspermnew"><input class="fksnewsinputperm" readonly="readonly" type="text" id="fkspermutnew' . $i . '" name="permutnew' . $i . '" value="' . $rendernewsbool[0] . '">';
             echo '<td> <img src="lib/plugins/fksnewsfeed/images/up.gif" onclick=newsvalueup(';
             echo "'" . $i . "'";
             echo ')>';
