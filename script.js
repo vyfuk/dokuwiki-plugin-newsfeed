@@ -49,9 +49,9 @@ function newspermsubmit() {
 }
 ;
 function newsviewmoredef(ID) {
-    setTimeout(function() {
-        document.getElementById("fksnewsmoreinfo" + ID).style.display = 'none';
-    }, 200);
+    //setTimeout(function() {
+    document.getElementById("fksnewsmoreinfo" + ID).style.display = 'none';
+    //}, 200);
     //document.getElementById("fksnewsmoreinfo"+ID).style.display='none' ;
 }
 function newsviewmore(ID) {
@@ -74,33 +74,46 @@ function newsviewmore(ID) {
 ;
 
 function newsvalueup(ID) {
-    var valueid = document.getElementById("fkspermutnew" + ID).value;
-    var IDup = ID;
-    IDup++;
-    if (document.getElementById("fkspermutnew" + IDup).value !== null) {
-
-        var valueupid = document.getElementById("fkspermutnew" + IDup).value;
-        document.getElementById("fkspermutnew" + IDup).value = valueid;
-        document.getElementById("fkspermutnew" + ID).value = valueupid;
+    if (ID !== maxfile) {
+        ID++;
+        newsvaluedown(ID);
     }
     ;
 }
 ;
 
 function newsvaluedown(ID) {
-    var valueid = document.getElementById("fkspermutnew" + ID).value;
-    var IDdown = ID;
-    IDdown--;
-    if (document.getElementById("fkspermutnew" + IDdown).value !== null) {
+    var IDdown = ID - 1;
+    var olddata = new Array();
+    if (ID !== 1) {
+        olddata['fksnewsadminid'] = document.getElementById('fksnewsadminid' + ID).innerHTML;
+        olddata['fksnewsadminedit'] = document.getElementById('fksnewsadminedit' + ID).innerHTML;
+        olddata['fksnewsadminpermold'] = document.getElementById('fksnewsadminpermold' + ID).innerHTML;
+        olddata['fksnewsadminview'] = document.getElementById('fksnewsadminview' + ID).innerHTML;
+        olddata['fksnewsadmininfo'] = document.getElementById('fksnewsadmininfo' + ID).innerHTML;
+        olddata['fkspermutnewname'] = document.getElementById('fkspermutnew' + ID).name;
 
-        var valuedownid = document.getElementById("fkspermutnew" + IDdown).value;
-        document.getElementById("fkspermutnew" + IDdown).value = valueid;
-        document.getElementById("fkspermutnew" + ID).value = valuedownid;
+        document.getElementById('fksnewsadminid' + ID).innerHTML = document.getElementById('fksnewsadminid' + IDdown).innerHTML;
+        document.getElementById('fksnewsadminedit' + ID).innerHTML = document.getElementById('fksnewsadminedit' + IDdown).innerHTML;
+        document.getElementById('fksnewsadminpermold' + ID).innerHTML = document.getElementById('fksnewsadminpermold' + IDdown).innerHTML;
+        document.getElementById('fksnewsadminview' + ID).innerHTML = document.getElementById('fksnewsadminview' + IDdown).innerHTML;
+        document.getElementById('fksnewsadmininfo' + ID).innerHTML = document.getElementById('fksnewsadmininfo' + IDdown).innerHTML;
+        document.getElementById('fkspermutnew' + ID).name = document.getElementById('fkspermutnew' + IDdown).name;
+
+        document.getElementById('fksnewsadminid' + IDdown).innerHTML = olddata['fksnewsadminid'];
+        document.getElementById('fksnewsadminedit' + IDdown).innerHTML = olddata['fksnewsadminedit'];
+        document.getElementById('fksnewsadminpermold' + IDdown).innerHTML = olddata['fksnewsadminpermold'];
+        document.getElementById('fksnewsadminview' + IDdown).innerHTML = olddata['fksnewsadminview'];
+        document.getElementById('fksnewsadmininfo' + IDdown).innerHTML = olddata['fksnewsadmininfo'];
+        document.getElementById('fkspermutnew' + IDdown).name = olddata['fkspermutnewname'];
     }
-    ;
+
+
+
 
 }
 ;
+
 
 
 
