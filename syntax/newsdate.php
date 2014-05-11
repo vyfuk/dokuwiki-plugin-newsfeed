@@ -36,13 +36,44 @@ class syntax_plugin_fksnewsfeed_newsdate extends DokuWiki_Syntax_Plugin {
      */
     public function handle($match, $state, $pos, Doku_Handler &$handler) {
         $match = substr($match, 10, -11);
-        $newsdate=preg_split('/-/', $match);
-        if($newsdate[1]=='render'){
-        $to_page.="<div class='fksnewsdate'>";
-        $to_page.=$newsdate[0];
-        $to_page.="</div>";
-        return array($state, array($to_page));
-        }else{};
+        $newsdate = preg_split('/-/', $match);
+        if ($newsdate[1] == 'render') {
+            $enmonth = Array(
+                'January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July',
+                'August',
+                'September',
+                'October',
+                'November',
+                'December');
+            $langmonth = Array(
+                $this->getLang('jan'),
+                $this->getLang('feb'),
+                $this->getLang('mar'),
+                $this->getLang('apr'),
+                $this->getLang('may'),
+                $this->getLang('jun'),
+                $this->getLang('jul'),
+                $this->getLang('aug'),
+                $this->getLang('sep'),
+                $this->getLang('oct'),
+                $this->getLang('now'),
+                $this->getLang('dec')
+            );
+
+            $to_page.="<div class='fksnewsdate'>";
+            $newsdate[0]=str_replace($enmonth, $langmonth, $newsdate[0]);
+            $to_page.=$newsdate[0];
+            $to_page.="</div>";
+            return array($state, array($to_page));
+        } else {
+            
+        };
     }
 
     public function render($mode, Doku_Renderer &$renderer, $data) {

@@ -48,6 +48,22 @@ $lang['subaddwikinews']   = 'Přejít k vytvoření aktuality';
 $lang['returntomenu']     = 'Návrat do menu';
 $lang['autoreturn']       = 'Stránka bude přesměrována během pěti sekund.';
 
+$lang['jan']       = 'ledna';
+$lang['feb']       = 'února';
+$lang['mar']       = 'března';
+$lang['apr']       = 'dubna';
+
+$lang['may']       = 'května';
+$lang['jun']       = 'června';
+$lang['jul']       = 'července';
+$lang['aug']       = 'řína';
+
+$lang['sep']       = 'záři';
+$lang['oct']       = 'srpna';
+$lang['now']       = 'listopadu';
+$lang['dec']       = 'prosince';
+
+
 
 //Setup VIM: ex: et ts=2 enc=utf-8 :
 

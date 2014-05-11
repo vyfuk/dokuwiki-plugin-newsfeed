@@ -144,7 +144,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             if ($rendernewsbool[1] == 'T') {
                 $boolrender = true;
             }
-            echo '<tr id="fksnewsadmintr'.$i.'">';
+            echo '<tr id="fksnewsadmintr' . $i . '">';
             echo '<td id="fksnewsadminid' . $i . '" class="fksnewsid">' . $i . '</td>';
             $newsurl = $this->getConf('newsfolder') . ':' . $this->getConf('newsfile');
             $newsurl = str_replace("@i@", $i, $newsurl);
@@ -231,10 +231,27 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         global $imax;
         global $newsreturndata;
         global $lang;
+        global $INFO;
 
         $newsID = io_readFile("data/meta/newsfeed.csv", FALSE);
         $newsID = ';' . $newsreturndata['newsid'] . "-T;" . $newsID;
         file_put_contents("data/meta/newsfeed.csv", $newsID);
+        
+        $fksnews.="<newsdate>@DATE@</newsdate>\n"
+                . "<newsauthor>[[@MAIL@|@NAME@]]</newsauthor>"
+                . "\n"
+                . "==== Název aktuality ==== \n"
+                . "Tady napiš text aktuality.\n"
+                . "\n";
+                
+        //$sig = $conf['fksnewsfeeds'];
+        //$sig = dformat(null,$sig);
+        $fksnews = str_replace('@USER@', $_SERVER['REMOTE_USER'], $fksnews);
+        $fksnews = str_replace('@NAME@', $INFO['userinfo']['name'], $fksnews);
+        $fksnews = str_replace('@MAIL@', $INFO['userinfo']['mail'], $fksnews);
+        $fksnews = str_replace('@DATE@', dformat(), $fksnews);
+        file_put_contents(str_replace("@i@", $newsreturndata['newsid'], 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt'),$fksnews);
+        
         echo '<form method="post" id="addtowiki" action=doku.php>';
         echo '<div class="" >';
         echo '<input type="hidden" name="do" value="edit">';
