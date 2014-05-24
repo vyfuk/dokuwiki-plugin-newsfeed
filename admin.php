@@ -144,57 +144,9 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             if ($rendernewsbool[1] == 'T') {
                 $boolrender = true;
             }
-            echo '<tr id="fksnewsadmintr' . $i . '">';
-            echo '<td id="fksnewsadminid' . $i . '" class="fksnewsid">' . $i . '</td>';
-            $newsurl = $this->getConf('newsfolder') . ':' . $this->getConf('newsfile');
-            $newsurl = str_replace("@i@", $i, $newsurl);
-            echo '<td id="fksnewsadminedit' . $i . '" class="fksnewsedit"><input class="fksnewsinputedit" type="submit" onclick="newseditsibmit(';
-            echo "'" . $newsurl . "'";
-            echo ')" value="' . $this->getLang('subeditnews') . '" class="button"> </td>';
 
-            echo '<td id="fksnewsadminpermold' . $i . '" class="fksnewspermold">' . $rendernewsbool[0] . '</td>';
-
-            echo '<td id="fksnewspermnew' . $i . '" class="fksnewspermnew"><input class="fksnewsinputperm" readonly="readonly" type="text" id="fkspermutnew' . $i . '" name="permutnew' . $i . '" value="' . $rendernewsbool[0] . '">';
-            echo '<td> <img src="lib/plugins/fksnewsfeed/images/up.gif" onclick=newsvalueup(';
-            echo "'" . $i . "'";
-            echo ')>';
-            echo '<img src="lib/plugins/fksnewsfeed/images/down.gif" onclick=newsvaluedown(';
-            echo "'" . $i . "'";
-            echo ')></td>';
-
-
-            echo '<td id="fksnewsadminview' . $i . '"><select class="fksnwsselectperm" name="newIDsrender' . $i . '">';
-            echo '<option value="' . $i . '-T" ' . fksnewsboolswitch('selected="selected', '', $boolrender) . '">' . $this->getLang('display') . '</option>';
-            echo '<option value="' . $i . '-F" ' . fksnewsboolswitch('', 'selected="selected"', $boolrender) . '>' . $this->getLang('nodisplay') . '</option>';
-            echo '</select></td>';
-
-            $newsfeed = preg_split('/====/', $this->loadnewssimple($i));
-            if (strlen($newsfeed[1]) > 25) {
-                $newsfeed[1] = substr($newsfeed[1], 0, 25) . '...';
-            }
-
-            $newsdata = $this->loadnewssimple($i);
-            $newsdate = preg_split('/newsdate/', $newsdata);
-            $newsauthor = preg_split('/newsauthor/', $newsdata);
-
-
-
-            echo '<td id="fksnewsadmininfo' . $i . '" class="fksnewsinfo" ><span onMouseOver="newsviewmore(';
-            echo "'" . $i . "'";
-            echo ')" onMouseOut="newsviewmoredef(';
-            echo "'" . $i . "'";
-            echo ')" style="color:' . fksnewsboolswitch('#000', '#999', $boolrender) . '">' . $newsfeed[1] . '</span></td></tr>';
-
-
-            echo '<div class="fksnewsmoreinfo" id="fksnewsmoreinfo' . $i . '" style="display:none;position:absolute;">';
-            $newsauthorinfo = preg_split('/\|/', substr($newsauthor[1], 3, -4));
-            echo $this->getLang('author') . ': ' . $newsauthorinfo[1] . '<br>';
-            echo $this->getLang('email') . ': ' . $newsauthorinfo[0] . '<br>';
-            echo $this->getLang('date') . ': ' . substr($newsdate[1], 1, -2);
-            echo '<div style="background-color: #f0f0f0; border-radius: 5px; width: 100%">';
-            echo p_render("xhtml", p_get_instructions($newsfeed[2]), $info);
-            echo '</div>';
-            echo '</div>';
+            $this->newstebletd($rendernewsbool[0], $i, $boolrender);
+            $this->newsinfo($i);
         }
 
         echo '</table>';
@@ -227,6 +179,70 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo '<p>Data: <br>' . $datawrite['write'] . '</p>';
     }
 
+    private function newstebletd($i, $renderi, $boolrender) {
+        global $lang;
+        $newsfeed = preg_split('/====/', $this->loadnewssimple($i));
+        if (strlen($newsfeed[1]) > 25) {
+            $newsfeed[1] = substr($newsfeed[1], 0, 25) . '...';
+        }
+        $newsurl = $this->getConf('newsfolder') . ':' . $this->getConf('newsfile');
+        $newsurl = str_replace("@i@", $i, $newsurl);
+
+
+        echo '<tr id="fksnewsadmintr' . $renderi . '">';
+        echo getnewstd('fksnewsadminid' . $renderi ,"fksnewsid",$i);
+        //echo '<td id="fksnewsadminid' . $renderi . '" class="fksnewsid">' . $i . '</td>';
+
+        echo getnewstd('fksnewsadminedit' . $renderi ,"fksnewsedit",'<input class="fksnewsinputedit" type="submit" onclick="newseditsibmit('.
+        "'" . $newsurl . "'".
+        ')" value="' . $this->getLang('subeditnews') . '" class="button">');
+        //echo '<td id="fksnewsadminedit' . $renderi . '" class="fksnewsedit"><input class="fksnewsinputedit" type="submit" onclick="newseditsibmit(';
+        //echo "'" . $newsurl . "'";
+        //echo ')" value="' . $this->getLang('subeditnews') . '" class="button"> </td>';
+        echo getnewstd('fksnewsadminpermold' . $renderi,"fksnewspermold",$renderi);
+        //echo '<td id="fksnewsadminpermold' . $renderi . '" class="fksnewspermold">' . $renderi . '</td>';
+
+        echo '<td id="fksnewspermnew' . $renderi . '" class="fksnewspermnew"><input class="fksnewsinputperm" readonly="readonly" type="text" id="fkspermutnew' . $i . '" name="permutnew' . $i . '" value="' . $renderi . '">';
+        echo '<td> <img src="lib/plugins/fksnewsfeed/images/up.gif" onclick=newsvalueup(';
+        echo "'" . $renderi . "'";
+        echo ')>';
+        echo '<img src="lib/plugins/fksnewsfeed/images/down.gif" onclick=newsvaluedown(';
+        echo "'" . $renderi . "'";
+        echo ')></td>';
+
+
+        echo '<td id="fksnewsadminview' . $renderi . '"><select class="fksnwsselectperm" name="newIDsrender' . $i . '">';
+        echo '<option value="' . $i . '-T" ' . fksnewsboolswitch('selected="selected', '', $boolrender) . '">' . $this->getLang('display') . '</option>';
+        echo '<option value="' . $i . '-F" ' . fksnewsboolswitch('', 'selected="selected"', $boolrender) . '>' . $this->getLang('nodisplay') . '</option>';
+        echo '</select></td>';
+
+
+
+        echo '<td id="fksnewsadmininfo' . $renderi . '" class="fksnewsinfo" ><span onMouseOver="newsviewmore(';
+        echo "'" . $i . "'";
+        echo ')" onMouseOut="newsviewmoredef(';
+        echo "'" . $i . "'";
+        echo ')" style="color:' . fksnewsboolswitch('#000', '#999', $boolrender) . '">' . $newsfeed[1] . '</span></td></tr>';
+    }
+
+    private function newsinfo($i) {
+        global $lang;
+        $newsdata = $this->loadnewssimple($i);
+        $newsdate = preg_split('/newsdate/', $newsdata);
+        $newsauthor = preg_split('/newsauthor/', $newsdata);
+        $newsauthorinfo = preg_split('/\|/', substr($newsauthor[1], 3, -4));
+        $newsfeed = preg_split('/====/', $newsdata);
+
+        echo '<div class="fksnewsmoreinfo" id="fksnewsmoreinfo' . $i . '" style="display:none;position:absolute;">';
+        echo $this->getLang('author') . ': ' . $newsauthorinfo[1] . '<br>';
+        echo $this->getLang('email') . ': ' . $newsauthorinfo[0] . '<br>';
+        echo $this->getLang('date') . ': ' . substr($newsdate[1], 1, -2);
+        echo '<div style="background-color: #f0f0f0; border-radius: 5px; width: 100%">';
+        echo p_render("xhtml", p_get_instructions($newsfeed[2]), $info);
+        echo '</div>';
+        echo '</div>';
+    }
+
     private function returnnewsadd() {
         global $imax;
         global $newsreturndata;
@@ -236,22 +252,22 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         $newsID = io_readFile("data/meta/newsfeed.csv", FALSE);
         $newsID = ';' . $newsreturndata['newsid'] . "-T;" . $newsID;
         file_put_contents("data/meta/newsfeed.csv", $newsID);
-        
+
         $fksnews.="<newsdate>@DATE@</newsdate>\n"
                 . "<newsauthor>[[@MAIL@|@NAME@]]</newsauthor>"
                 . "\n"
                 . "==== Název aktuality ==== \n"
                 . "Tady napiš text aktuality.\n"
                 . "\n";
-                
+
         //$sig = $conf['fksnewsfeeds'];
         //$sig = dformat(null,$sig);
         $fksnews = str_replace('@USER@', $_SERVER['REMOTE_USER'], $fksnews);
         $fksnews = str_replace('@NAME@', $INFO['userinfo']['name'], $fksnews);
         $fksnews = str_replace('@MAIL@', $INFO['userinfo']['mail'], $fksnews);
         $fksnews = str_replace('@DATE@', dformat(), $fksnews);
-        file_put_contents(str_replace("@i@", $newsreturndata['newsid'], 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt'),$fksnews);
-        
+        file_put_contents(str_replace("@i@", $newsreturndata['newsid'], 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt'), $fksnews);
+
         echo '<form method="post" id="addtowiki" action=doku.php>';
         echo '<div class="" >';
         echo '<input type="hidden" name="do" value="edit">';
@@ -264,6 +280,11 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo '</form>';
     }
 
+}
+
+function getnewstd($id,$class,$text){
+    $td = '<td id="'.$id.'" class="'.$class.'" >'.$text.'</td>';
+    return $td;
 }
 
 function deletecache() {

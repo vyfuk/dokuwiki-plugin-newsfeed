@@ -73,7 +73,7 @@ class syntax_plugin_fksnewsfeed_newsdate extends DokuWiki_Syntax_Plugin {
             return array($state, array($to_page));
         } else {
             
-        };
+        }
     }
 
     public function render($mode, Doku_Renderer &$renderer, $data) {
