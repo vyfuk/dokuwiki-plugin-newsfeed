@@ -111,20 +111,43 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         global $lang;
         global $imax;
 
-        echo '<h1 class="fkshover" onclick="viewnewsadmin(';
-        echo "'newspermut'";
-        echo ')">' . $this->getLang('permutmenu') . '</h1>';
-        echo '<div id="newspermut" style="display: none">';
-//warningy
-        echo '<div class="fksnewswarning"><p class=""><span style="font-weight:bold;font-size:130%">' . $this->getLang('permwarning1') . '</span></p>';
+        echo '<h1 class="fkshover" '
+        . getnewsjsfce("onclick", "viewnewsadmin", 'newspermut') .
+        '>' . $this->getLang('permutmenu') . '</h1>';
+        echo '<div '
+        . 'id="newspermut" '
+        . 'style="display: none">';
+        /*
+         * warningy
+         */
+        echo '<div class="fksnewswarning">'
+        . '<p>'
+        . '<span '
+        . 'class="newswarning">'
+        . $this->getLang('permwarning1')
+        . '</span></p>';
         echo '<p><span >' . $this->getLang('permwarning2') . '</span></p>';
         echo '<p><span >' . $this->getLang('permwarning3') . '</span></p></div>';
 
-        echo '<form method="post" id="fksnewsadminperm" onsubmit="return false" action=doku.php?do=admin&page=fksnewsfeed>';
-        echo '<input type="hidden" name="maxnews" value="' . $imax . '"></td>';
-        echo '<input type="hidden" name="newsdo" value="permut"></td>';
-        echo '<table class="newspermuttable">';
+        echo '<form '
+        . 'method="post" '
+        . 'id="fksnewsadminperm" '
+        . 'onsubmit="return false" '
+        . 'action=doku.php?do=admin&page=fksnewsfeed>';
+        echo '<input '
+        . 'type="hidden" '
+        . 'name="maxnews" '
+        . 'value="' . $imax . '">';
+        echo '<input '
+        . 'type="hidden" '
+        . 'name="newsdo" '
+        . 'value="permut">';
 
+        /*
+         * begin org table
+         */
+
+        echo '<table class="newspermuttable">';
 
         echo '<thead><tr><th>' . $this->getLang('IDnews') . '</th>';
         echo '<th></th>';
@@ -190,39 +213,52 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
 
 
         echo '<tr id="fksnewsadmintr' . $renderi . '">';
-        echo getnewstd('fksnewsadminid' . $renderi ,"fksnewsid",$i);
-        //echo '<td id="fksnewsadminid' . $renderi . '" class="fksnewsid">' . $i . '</td>';
+        echo getnewstd('fksnewsadminid' . $renderi, "fksnewsid", $i);
 
-        echo getnewstd('fksnewsadminedit' . $renderi ,"fksnewsedit",'<input class="fksnewsinputedit" type="submit" onclick="newseditsibmit('.
-        "'" . $newsurl . "'".
-        ')" value="' . $this->getLang('subeditnews') . '" class="button">');
-        //echo '<td id="fksnewsadminedit' . $renderi . '" class="fksnewsedit"><input class="fksnewsinputedit" type="submit" onclick="newseditsibmit(';
-        //echo "'" . $newsurl . "'";
-        //echo ')" value="' . $this->getLang('subeditnews') . '" class="button"> </td>';
-        echo getnewstd('fksnewsadminpermold' . $renderi,"fksnewspermold",$renderi);
-        //echo '<td id="fksnewsadminpermold' . $renderi . '" class="fksnewspermold">' . $renderi . '</td>';
+        echo getnewstd('fksnewsadminedit' . $renderi, "fksnewsedit", ' '
+                . '<input '
+                . 'class="fksnewsinputedit" '
+                . 'type="submit" '
+                . getnewsjsfce('onclick', "newseditsibmit", $newsurl)
+                . 'value="' . $this->getLang('subeditnews') . '" '
+                . 'class="button">');
 
-        echo '<td id="fksnewspermnew' . $renderi . '" class="fksnewspermnew"><input class="fksnewsinputperm" readonly="readonly" type="text" id="fkspermutnew' . $i . '" name="permutnew' . $i . '" value="' . $renderi . '">';
-        echo '<td> <img src="lib/plugins/fksnewsfeed/images/up.gif" onclick=newsvalueup(';
-        echo "'" . $renderi . "'";
-        echo ')>';
-        echo '<img src="lib/plugins/fksnewsfeed/images/down.gif" onclick=newsvaluedown(';
-        echo "'" . $renderi . "'";
-        echo ')></td>';
-
-
-        echo '<td id="fksnewsadminview' . $renderi . '"><select class="fksnwsselectperm" name="newIDsrender' . $i . '">';
-        echo '<option value="' . $i . '-T" ' . fksnewsboolswitch('selected="selected', '', $boolrender) . '">' . $this->getLang('display') . '</option>';
-        echo '<option value="' . $i . '-F" ' . fksnewsboolswitch('', 'selected="selected"', $boolrender) . '>' . $this->getLang('nodisplay') . '</option>';
-        echo '</select></td>';
+        echo getnewstd('fksnewsadminpermold' . $renderi, "fksnewspermold", $renderi);
 
 
 
-        echo '<td id="fksnewsadmininfo' . $renderi . '" class="fksnewsinfo" ><span onMouseOver="newsviewmore(';
-        echo "'" . $i . "'";
-        echo ')" onMouseOut="newsviewmoredef(';
-        echo "'" . $i . "'";
-        echo ')" style="color:' . fksnewsboolswitch('#000', '#999', $boolrender) . '">' . $newsfeed[1] . '</span></td></tr>';
+        echo getnewstd('fksnewspermnew' . $renderi, "fksnewspermnew", ' '
+                . '<input class="fksnewsinputperm" '
+                . fksnewsboolswitch(' '
+                        . 'title="' . $this->getLang('notreadonly').'" ', ' '
+                        . 'readonly="readonly" '
+                        . 'title="' . $this->getLang('readonly').'" ', $this->getConf('editnumber'))
+               
+                . 'type="text" id="fkspermutnew' . $i . '" '
+                . 'name="permutnew' . $i . '" '
+                . 'value="' . $renderi . '">');
+
+        echo getnewstd("fksnewsbutton", "fksnewsbutton", ' '
+                . '<img src="' . wl() . '/../lib/plugins/fksnewsfeed/images/up.gif" '
+                . getnewsjsfce("onclick", "newsvalueup", $renderi)
+                . '>'
+                . '<img src="' . wl() . '/../lib/plugins/fksnewsfeed/images/down.gif" '
+                . getnewsjsfce("onclick", "newsvaluedown", $renderi)
+                . '>');
+
+        echo getnewstd('fksnewsadminview' . $renderi, "fksnewsadminview", ' ' .
+                '<select ' .
+                'class="fksnwsselectperm" ' .
+                'name="newIDsrender' . $i . '">' .
+                '<option value="' . $i . '-T" ' . fksnewsboolswitch('selected="selected', '', $boolrender) . '">' . $this->getLang('display') . '</option>' .
+                '<option value="' . $i . '-F" ' . fksnewsboolswitch('', 'selected="selected"', $boolrender) . '>' . $this->getLang('nodisplay') . '</option>' .
+                '</select>');
+        echo getnewstd('fksnewsadmininfo' . $renderi, 'fksnewsinfo', ' ' .
+                '<span ' .
+                getnewsjsfce("onMouseOver", "newsviewmore", $i) .
+                getnewsjsfce("onMouseOut", "newsviewmoredef", $i) .
+                ' style="color:' . fksnewsboolswitch('#000', '#999', $boolrender) . '">' . $newsfeed[1] . '</span>');
+        echo '</tr>';
     }
 
     private function newsinfo($i) {
@@ -282,9 +318,14 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
 
 }
 
-function getnewstd($id,$class,$text){
-    $td = '<td id="'.$id.'" class="'.$class.'" >'.$text.'</td>';
+function getnewstd($id, $class, $text) {
+    $td = '<td id="' . $id . '" class="' . $class . '" >' . $text . '</td>';
     return $td;
+}
+
+function getnewsjsfce($act, $fce, $elem) {
+    $js = $act . '="' . $fce . "('" . $elem . "')" . '"';
+    return $js;
 }
 
 function deletecache() {
