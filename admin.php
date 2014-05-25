@@ -88,23 +88,36 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         global $lang;
         global $imax;
         echo '<script type="text/javascript" charset="utf-8">';
-        echo 'var maxfile=' . $imax . '; formax=maxfile+1;var permut=new Array();for (i=1;i<formax;i++){permut[i]=i;};</script>';
+        echo 'var maxfile=' . $imax . ';</script>';
 
-        echo '<h1 class="fkshover" onclick="viewnewsadmin(';
-        echo "'newsadd'";
-        echo ')">' . $this->getLang('addmenu') . '</h1>';
+        echo '<h1 class="fkshover" '
+        . getnewsjsfce("onclick", "viewnewsadmin", 'newsadd')
+        . '>' . $this->getLang('addmenu') . '</h1>';
 
-        echo '<div id="newsadd" style="display: none">';
-        echo '<span> ' . $this->getLang('addnews') . ' ';
-        echo $imax;
-        echo '</span>';
-        echo '<form method="post" action=doku.php?id=start&do=admin&page=fksnewsfeed>';
+        echo '<div '
+        . 'id="newsadd" '
+        . 'style="display: none">';
 
-        echo '<input type="hidden" name="newsdo" value="add">';
-        echo '<input type="hidden" name="newsid" value="' . $imax . '">';
-        echo '<input type="submit" value="' . $this->getLang('subaddnews') . '" class="button" title="Pridať novinku [E]">';
-        echo '</form>';
-        echo '</div>';
+        echo '<span> '
+        . $this->getLang('addnews') . ' '
+        . $imax
+        . '</span>';
+
+        echo '<form '
+        . 'method="post" '
+        . 'action=doku.php?id=start&do=admin&page=fksnewsfeed>'
+        . '<input type="hidden" name="newsdo" value="add">';
+        echo '<input '
+        . 'type="hidden" '
+        . 'name="newsid" '
+        . 'value="' . $imax . '">';
+
+        echo '<input '
+        . 'type="submit" '
+        . 'value="' . $this->getLang('subaddnews') . '" '
+        . 'class="button" '
+        . 'title="Pridať novinku [E]">'
+        . ' </form></div>';
     }
 
     private function getpermutnews() {
@@ -120,24 +133,33 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         /*
          * warningy
          */
-        echo '<div class="fksnewswarning">'
-        . '<p>'
-        . '<span '
+        echo '<div '
+        . 'class="fksnewswarning">';
+
+        echo '<p><span '
         . 'class="newswarning">'
         . $this->getLang('permwarning1')
         . '</span></p>';
-        echo '<p><span >' . $this->getLang('permwarning2') . '</span></p>';
-        echo '<p><span >' . $this->getLang('permwarning3') . '</span></p></div>';
+
+        echo '<p><span >'
+        . $this->getLang('permwarning2')
+        . '</span></p>';
+
+        echo '<p><span >'
+        . $this->getLang('permwarning3')
+        . '</span></p></div>';
 
         echo '<form '
         . 'method="post" '
         . 'id="fksnewsadminperm" '
         . 'onsubmit="return false" '
         . 'action=doku.php?do=admin&page=fksnewsfeed>';
+
         echo '<input '
         . 'type="hidden" '
         . 'name="maxnews" '
         . 'value="' . $imax . '">';
+
         echo '<input '
         . 'type="hidden" '
         . 'name="newsdo" '
@@ -147,14 +169,13 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
          * begin org table
          */
 
-        echo '<table class="newspermuttable">';
+        echo '<table '
+        . 'class="newspermuttable">';
 
         echo '<thead><tr><th>' . $this->getLang('IDnews') . '</th>';
         echo '<th></th>';
         echo '<th>' . $this->getLang('newspermold') . '</th>';
         echo '<th colspan="2">' . $this->getLang('newspermnew') . '</th>';
-//echo '<td></td>';
-//echo '<td></td>';
         echo '<th>' . $this->getLang('newrender') . '</th>';
         echo '<th class="fksnewsinfo">' . $this->getLang('newsname') . '</th></tr></thead>';
 
@@ -173,15 +194,35 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         }
 
         echo '</table>';
-        echo '<input type="submit" onclick="newspermsubmit()" value="' . $this->getLang('newssave') . '" class="button">';
+        echo '<input '
+        . 'type="submit" '
+        . 'onclick="newspermsubmit()" '
+        . 'value="' . $this->getLang('newssave') . '" '
+        . 'class="button">';
+
         echo '</form>';
 
-        echo '<form id="fksnewsadminedit" onsubmit="return false" method="post" action=doku.php>';
-        echo '<input type="hidden" name="do" value="edit">';
-        echo '<input type="hidden" name="rev" value="0"> ';
-        echo '<input type="hidden" name="rev" value="0"> ';
-        echo '<input type="hidden" id="fksnewsadmineditvalue" name="id" value=""></form>';
-        echo '</div>';
+        echo '<form '
+        . 'id="fksnewsadminedit" '
+        . 'onsubmit="return false" '
+        . 'method="post" action=doku.php>';
+        echo '<input '
+        . 'type="hidden" '
+        . 'name="do" '
+        . 'value="edit">';
+
+        echo '<input '
+        . 'type="hidden" '
+        . 'name="rev" '
+        . 'value="0"> ';
+
+        echo '<input '
+        . 'type="hidden" '
+        . 'id="fksnewsadmineditvalue" '
+        . 'name="id" '
+        . 'value="">';
+
+        echo '</form></div>';
     }
 
     private function returnnewspermut() {
@@ -191,13 +232,18 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             $datawrite[$newsreturndata['permutnew' . $i]] = $newsreturndata['newIDsrender' . $i];
         }
         for ($i = $newsreturndata['maxnews'] - 1; $i > 0; $i--) {
-//echo ';' . $datawrite[$i] . ';';
             $datawrite['write'].=';' . $datawrite[$i] . ';';
         }
         file_put_contents("data/meta/newsfeed.csv", $datawrite['write']);
         echo $this->getLang('autoreturn');
-        echo '<form method="post" id="addtowiki" action=doku.php?id=start&do=admin&page=fksnewsfeed>';
-        echo '<input type="submit"  value="' . $this->getLang('returntomenu') . '" class="button">';
+        echo '<form '
+        . 'method="post" '
+        . 'id="addtowiki" '
+        . 'action=doku.php?id=start&do=admin&page=fksnewsfeed>';
+        echo '<input '
+        . 'type="submit" '
+        . 'value="' . $this->getLang('returntomenu') . '" '
+        . 'class="button">';
         echo '</form>';
         echo '<p>Data: <br>' . $datawrite['write'] . '</p>';
     }
@@ -212,7 +258,9 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         $newsurl = str_replace("@i@", $i, $newsurl);
 
 
-        echo '<tr id="fksnewsadmintr' . $renderi . '">';
+        echo '<tr '
+        . 'id="fksnewsadmintr' . $renderi . '">';
+
         echo getnewstd('fksnewsadminid' . $renderi, "fksnewsid", $i);
 
         echo getnewstd('fksnewsadminedit' . $renderi, "fksnewsedit", ' '
@@ -230,10 +278,9 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo getnewstd('fksnewspermnew' . $renderi, "fksnewspermnew", ' '
                 . '<input class="fksnewsinputperm" '
                 . fksnewsboolswitch(' '
-                        . 'title="' . $this->getLang('notreadonly').'" ', ' '
+                        . 'title="' . $this->getLang('notreadonly') . '" ', ' '
                         . 'readonly="readonly" '
-                        . 'title="' . $this->getLang('readonly').'" ', $this->getConf('editnumber'))
-               
+                        . 'title="' . $this->getLang('readonly') . '" ', $this->getConf('editnumber'))
                 . 'type="text" id="fkspermutnew' . $i . '" '
                 . 'name="permutnew' . $i . '" '
                 . 'value="' . $renderi . '">');
@@ -269,11 +316,15 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         $newsauthorinfo = preg_split('/\|/', substr($newsauthor[1], 3, -4));
         $newsfeed = preg_split('/====/', $newsdata);
 
-        echo '<div class="fksnewsmoreinfo" id="fksnewsmoreinfo' . $i . '" style="display:none;position:absolute;">';
+        echo '<div '
+        . 'class="fksnewsmoreinfo" '
+        . 'id="fksnewsmoreinfo' . $i . '" '
+        . 'style="display:none;position:absolute;">';
         echo $this->getLang('author') . ': ' . $newsauthorinfo[1] . '<br>';
         echo $this->getLang('email') . ': ' . $newsauthorinfo[0] . '<br>';
         echo $this->getLang('date') . ': ' . substr($newsdate[1], 1, -2);
-        echo '<div style="background-color: #f0f0f0; border-radius: 5px; width: 100%">';
+        echo '<div '
+        . 'class="fksnewsmoreinfotext">';
         echo p_render("xhtml", p_get_instructions($newsfeed[2]), $info);
         echo '</div>';
         echo '</div>';
@@ -304,16 +355,31 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         $fksnews = str_replace('@DATE@', dformat(), $fksnews);
         file_put_contents(str_replace("@i@", $newsreturndata['newsid'], 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt'), $fksnews);
 
-        echo '<form method="post" id="addtowiki" action=doku.php>';
-        echo '<div class="" >';
-        echo '<input type="hidden" name="do" value="edit">';
-        echo '<input type="hidden" name="rev" value="0"> ';
+        echo '<form '
+        . 'method="post" '
+        . 'id="addtowiki" '
+        . 'action=doku.php>';
+        echo '<div>';
+        echo '<input '
+        . 'type="hidden" '
+        . 'name="do" '
+        . 'value="edit">';
+        echo '<input '
+        . 'type="hidden" '
+        . 'name="rev" '
+        . 'value="0"> ';
         $newsurlnew = $this->getConf('newsfolder') . ':' . $this->getConf('newsfile');
         $newsurlnew = str_replace("@i@", $newsreturndata['newsid'], $newsurlnew);
-        echo '<input type="hidden" name="id" value="' . $newsurlnew . '">';
-        echo '<input type="submit" value="' . $this->getLang('subaddwikinews') . '" class="button" title="Přidat novinku [E]">';
-        echo '</div>';
-        echo '</form>';
+        echo '<input '
+        . 'type="hidden" '
+        . 'name="id" '
+        . 'value="' . $newsurlnew . '">';
+        echo '<input '
+        . 'type="submit" '
+        . 'value="' . $this->getLang('subaddwikinews') . '" '
+        . 'class="button" '
+        . 'title="Přidat novinku [E]">';
+        echo '</div></form>';
     }
 
 }
