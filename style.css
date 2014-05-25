@@ -161,3 +161,7 @@ input.fksnewsinputedit{
     padding: .25em .5em;
     border-radius: 5px;
 }
+span.newswarning{
+   font-weight:bold;
+   font-size:130%;
+}
