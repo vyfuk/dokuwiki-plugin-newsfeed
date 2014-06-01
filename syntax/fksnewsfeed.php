@@ -46,16 +46,11 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
                 break;
             }
         }
-        //" <span>" . $this->getConf('newsfolder') . "/" . $this->getConf('newsfile') . ".txt</span>";
-        $rendernews = preg_split('/;;/', substr(io_readFile("data/meta/newsfeed.csv", FALSE), 1, -1));
+        $rendernews = preg_split('/;/', io_readFile("data/meta/newsfeed.csv", FALSE));
         for ($i = 0; $i < count($rendernews); $i++) {
-
             $rendernewsbool = preg_split('/-/', $rendernews[$i]);
             if ($rendernewsbool[1] == "T") {
                 if ($match) {
-                    /**
-                     * find news wiht max number
-                     */
                     $newsurl = getnewsurl($rendernewsbool[0], 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt');
                     $to_page.=rendernews($match, $newsurl);
                 } else {
