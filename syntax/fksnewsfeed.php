@@ -9,6 +9,10 @@ require_once(DOKU_PLUGIN . 'syntax.php');
 
 class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
+    public function __construct() {
+        $this->helper = $this->loadHelper('fksnewsfeed');
+    }
+
     public function getType() {
         return 'substition';
     }
@@ -38,7 +42,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         $to_page.="<div class='fksnewswrapper'>";
         $imax;
         for ($i = 1; true; $i++) {
-            $newsurl = getnewsurl($ri, 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt');
+            $newsurl = getnewsurl($i, 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt');
             if (file_exists($newsurl)) {
                 continue;
             } else {
