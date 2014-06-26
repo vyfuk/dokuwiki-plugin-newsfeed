@@ -24,6 +24,33 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $newsurl;
     }
 
+    function extractParam($text) {
+        global $INFO;
+        global $TEXT;
+
+
+        $newsfeed = preg_split('/====/', $TEXT);
+        $newsdate = preg_split('/newsdate/', $TEXT);
+        $newsdate = substr($newsdate[1], 1, -2);
+        $newsauthor = preg_split('/newsauthor/', $TEXT);
+        $newsauthorinfo = preg_split('/\|/', substr($newsauthor[1], 3, -4));
+        $TEXT = $newsfeed [2];
+        $param = array(
+            'name' => $newsfeed[1],
+            'author' => $newsauthorinfo[1],
+            'email' => $newsauthorinfo[0],
+            'newsdate' => $newsdate
+        );
+        return $param;
+    }
+
+    function loadnewssimple($i) {
+        global $lang;
+        $newsurl = str_replace("@i@", $i, 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt');
+        $newsdata = io_readFile($newsurl, false);
+        return $newsdata;
+    }
+
     function rendernews($match, $newsurl) {
         if (file_exists($newsurl)) {
             $match--;
@@ -40,24 +67,29 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
              */
             $newsdata = io_readFile($newsurl, false);
             $newsfeed = preg_split('/====/', $newsdata);
-            $newsdate = preg_split('/newsdate/', $newsdata);
-            $newsauthor = preg_split('/newsauthor/', $newsdata);
+            $newsdata = $this->helper->extractParam($newsdata);
+            
 
-            $to_page.= p_render("xhtml", p_get_instructions('<newsdate>' . substr($newsdate[1], 1, -2) . '-render</newsdate>'), $info);
+            $to_page.= p_render("xhtml", p_get_instructions('<newsdate>' . $newsdata[3] . '-render</newsdate>'), $info);
 
             $to_page.='<div class="fksnewsheadline">';
-            $to_page.= p_render("xhtml", p_get_instructions('===' . $newsfeed[1] . '==='), $info);
+            $to_page.= p_render("xhtml", p_get_instructions('===' . $newsdata[0] . '==='), $info);
             $to_page.="</div>";
 
             $to_page.='<div class="fksnewsarticle">';
             $to_page.= p_render("xhtml", p_get_instructions($newsfeed[2]), $info);
             $to_page.="</div>";
-            $to_page.= p_render("xhtml", p_get_instructions('<newsauthor>' . substr($newsauthor[1], 1, -2) . '-render</newsauthor>'), $info);
+            $to_page.= p_render("xhtml", p_get_instructions('<newsauthor>[[' . $newsdata[2].'|'.$newsdata[1] . ']]-render</newsauthor>'), $info);
             $to_page.='<div class="clearer"></div>';
             $to_page.="</div>";
             $to_page.='<div class="clearer"></div>';
             return $to_page;
         }
+    }
+    
+    public function getNewsFile($news) {
+        $id = $this->getPluginName() . ":$news";
+        return metaFN($id, '.txt');
     }
 
 }

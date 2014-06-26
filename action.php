@@ -12,7 +12,7 @@ if (!defined('DOKU_INC'))
 
 class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
-    private $modFields = array('name', 'author', 'date', 'text');
+    private $modFields = array('name', 'email', 'author', 'newsdate', 'text');
 
     /**
      * Registers a callback function for a given event
@@ -25,8 +25,8 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
     }
 
     public function register(Doku_Event_Handler $controller) {
-        //$controller->register_hook('TPL_ACT_RENDER', 'AFTER', $this, 'news');
         $controller->register_hook('HTML_EDIT_FORMSELECTION', 'BEFORE', $this, 'handle_html_edit_formselection');
+        $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'handle_action_act_preprocess');
     }
 
     /**
@@ -37,48 +37,6 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
      *                           handler was registered]
      * @return void
      */
-    function news(Doku_Event &$event, $param) {
-        //print_r($event);
-        //print_r($param);
-        print_r($INFO['meta']);
-        if (isset($meta['plugin_fksnewsfeed'])) {
-            $match = $meta['plugin_fksnewsfeed']['nonews'];
-        }
-
-        //print_r($this->data);
-        $match = 10;
-        $to_page.="<div class='fksnewswrapper'>";
-        $imax;
-        for ($i = 1; true; $i++) {
-            $newsurl = getnewsurl($i, 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt');
-            if (file_exists($newsurl)) {
-                continue;
-            } else {
-                $imax = $i - 1;
-                break;
-            }
-        }
-        //" <span>" . $this->getConf('newsfolder') . "/" . $this->getConf('newsfile') . ".txt</span>";
-        $rendernews = preg_split('/;;/', substr(io_readFile("data/meta/newsfeed.csv", FALSE), 1, -1));
-        for ($i = 0; $i < count($rendernews); $i++) {
-
-            $rendernewsbool = preg_split('/-/', $rendernews[$i]);
-            if ($rendernewsbool[1] == "T") {
-                if ($match) {
-                    /**
-                     * find news wiht max number
-                     */
-                    $newsurl = getnewsurl($rendernewsbool[0], 'data/pages/' . $this->getConf('newsfolder') . '/' . $this->getConf('newsfile') . '.txt');
-                    $to_page.=rendernews($match, $newsurl);
-                } else {
-                    break;
-                }
-            }
-        }
-        $to_page.="</div>";
-        echo $to_page;
-    }
-
     public function handle_html_edit_formselection(Doku_Event &$event, $param) {
         global $TEXT;
         global $INPUT;
@@ -104,35 +62,22 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $parameters[$field] = $_POST[$field];
             }
         } else {
-            $parameters = syntax_plugin_fkstaskrepo_entry::extractParameters($TEXT, $this);
+            $parameters = $this->helper->extractParam($TEXT);
         }
 
-        //$data = $this->helper->getProblemData($parameters['year'], $parameters['series'], $parameters['problem']);
-        //$data = array_merge($data, $parameters);
 
+        $data = $parameters;
         $globAttr = array();
-        if (!$event->data['wr']) {
-            $globAttr['readonly'] = 'readonly';
-        }
-
         $form->startFieldset('Newsfeed');
-        
+
         // editable fields
         foreach ($this->modFields as $field) {
             $attr = $globAttr;
-            
+
             if ($field == 'text') {
                 $value = $INPUT->post->str('wikitext', $data[$field]);
                 print_r($value);
                 $form->addElement(form_makeWikiText($TEXT, $attr));
-            } else if ($field == 'tags') {
-                $value = $INPUT->post->str($field, implode(', ', $data[$field]));
-                $tags = array_map(function($it) {
-                    return $it['tag'];
-                }, "" );//$this->helper->getTags()); // TODO default lang
-
-                $attr['data-tags'] = json_encode($tags);
-                $form->addElement(form_makeTextField($field, $value, $this->getLang($field), $this->getPluginName() . '-' . $field, null, $attr));
             } else {
                 $value = $INPUT->post->str($field, $data[$field]);
                 $form->addElement(form_makeTextField($field, $value, $this->getLang($field), $field, null, $attr));
@@ -140,6 +85,37 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         }
 
         $form->endFieldset();
+    }
+
+    public function handle_action_act_preprocess(Doku_Event &$event, $param) {
+        if (!isset($_POST['do']['save'])) {
+            return;
+        }
+        global $TEXT;
+        global $ID;
+
+        // = sprintf('<fkstaskrepo year="%s" series="%s" problem="%s"/>', $_POST['year'], $_POST['series'], $_POST['problem']);
+
+        $data = array();
+        foreach ($this->modFields as $field) {
+            if ($field == 'text') {
+
+                $data[$field] = cleanText($_POST['wikitext']);
+                unset( $_POST['wikitext']);
+            } else {
+                $data[$field] = $_POST[$field];
+            }
+        }
+
+
+        $news.='<newsdate>' . $data['newsdate'] . '</newsdate>';
+        $news.='<newsauthor>[[' . $data['email'] . '|' . $data['author'] . ']]</newsauthor>';
+        $news.='==== ' . $data['name'] . ' ==== ';
+        $news.=$data['text'];
+
+        $filename =$this->helper->getNewsFile($_POST["id"]);
+        $TEXT=$news;
+        io_saveFile("$filename", $news);//ano som prasa !!
     }
 
 }
