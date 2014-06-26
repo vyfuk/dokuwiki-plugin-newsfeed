@@ -142,6 +142,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo '<input type="hidden" name="do" value="edit">';
         echo '<input type="hidden" name="rev" value="0"> ';
         echo '<input type="hidden" name="rev" value="0"> ';
+        echo '<input type="hidden" name="target" value="plugin_fksnewsfeed">';
         echo '<input type="hidden" id="fksnewsadmineditvalue" name="id" value=""></form>';
         echo '</div>';
     }
