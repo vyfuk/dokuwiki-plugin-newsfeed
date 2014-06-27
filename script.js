@@ -7,8 +7,8 @@ if (toolbar) {
 ;
 function newseditsibmit(url) {
     document.getElementById('fksnewsadmineditvalue').value = url;
-    document.getElementById('fksnewsadminedit').return = "return true";
-    document.getElementById('fksnewsadminedit').submit();
+    document.getElementById('fks_news_admin_edit_form').return = "return true";
+    document.getElementById('fks_news_admin_edit_form').submit();
 }
 ;
 function newspermsubmit() {
@@ -37,6 +37,8 @@ function newsviewmore(ID) {
     };
 }
 ;
+
+
 function newsvalueup(ID) {
     if (ID !== maxfile) {
         ID++;
@@ -45,45 +47,90 @@ function newsvalueup(ID) {
     ;
 }
 ;
-function newsvaluedown(ID) {
-    var IDdown = ID - 1;
-    var olddata = new Array();
-    if (ID !== 1) {
-        olddata['fksnewsadminid'] = document.getElementById('fksnewsadminid' + ID).innerHTML;
-        olddata['fksnewsadminedit'] = document.getElementById('fksnewsadminedit' + ID).innerHTML;
-        olddata['fksnewsadminpermold'] = document.getElementById('fksnewsadminpermold' + ID).innerHTML;
-        olddata['fksnewsadminview'] = document.getElementById('fksnewsadminview' + ID).innerHTML;
-        olddata['fksnewsadmininfo'] = document.getElementById('fksnewsadmininfo' + ID).innerHTML;
-        olddata['fkspermutnewname'] = document.getElementById('fkspermutnew' + ID).name;
-        document.getElementById('fksnewsadminid' + ID).innerHTML = document.getElementById('fksnewsadminid' + IDdown).innerHTML;
-        document.getElementById('fksnewsadminedit' + ID).innerHTML = document.getElementById('fksnewsadminedit' + IDdown).innerHTML;
-        document.getElementById('fksnewsadminpermold' + ID).innerHTML = document.getElementById('fksnewsadminpermold' + IDdown).innerHTML;
-        document.getElementById('fksnewsadminview' + ID).innerHTML = document.getElementById('fksnewsadminview' + IDdown).innerHTML;
-        document.getElementById('fksnewsadmininfo' + ID).innerHTML = document.getElementById('fksnewsadmininfo' + IDdown).innerHTML;
-        document.getElementById('fkspermutnew' + ID).name = document.getElementById('fkspermutnew' + IDdown).name;
-        document.getElementById('fksnewsadminid' + IDdown).innerHTML = olddata['fksnewsadminid'];
-        document.getElementById('fksnewsadminedit' + IDdown).innerHTML = olddata['fksnewsadminedit'];
-        document.getElementById('fksnewsadminpermold' + IDdown).innerHTML = olddata['fksnewsadminpermold'];
-        document.getElementById('fksnewsadminview' + IDdown).innerHTML = olddata['fksnewsadminview'];
-        document.getElementById('fksnewsadmininfo' + IDdown).innerHTML = olddata['fksnewsadmininfo'];
-        document.getElementById('fkspermutnew' + IDdown).name = olddata['fkspermutnewname'];
+
+
+
+
+jQuery(function() {
+
+    function newsvaluedown(ID) {
+        var IDdown = ID - 1;
+        var olddata = new Array();
+        var el = document.getElementById( 'fks_news_admin_tr' + ID );
+ 
+        if (ID !== 1) {
+            $(el).slideUp("slow", function() {
+                olddata['fks_news_admin_id'] = document.getElementById('fks_news_admin_id' + ID).innerHTML;
+                olddata['fks_news_admin_edit'] = document.getElementById('fks_news_admin_edit' + ID).innerHTML;
+                olddata['fks_news_admin_permold'] = document.getElementById('fks_news_admin_perm_old' + ID).innerHTML;
+                olddata['fks_news_admin_view'] = document.getElementById('fks_news_admin_view' + ID).innerHTML;
+                olddata['fks_news_admin_info'] = document.getElementById('fks_news_admin_info' + ID).innerHTML;
+                olddata['fks_news_admin_permut_new'] = document.getElementById('fks_news_admin_perm_new' + ID).name;
+                document.getElementById('fks_news_admin_id' + ID).innerHTML = document.getElementById('fks_news_admin_id' + IDdown).innerHTML;
+                document.getElementById('fks_news_admin_edit' + ID).innerHTML = document.getElementById('fks_news_admin_edit' + IDdown).innerHTML;
+                document.getElementById('fks_news_admin_perm_old' + ID).innerHTML = document.getElementById('fks_news_admin_perm_old' + IDdown).innerHTML;
+                document.getElementById('fks_news_admin_view' + ID).innerHTML = document.getElementById('fks_news_admin_view' + IDdown).innerHTML;
+                document.getElementById('fks_news_admin_info' + ID).innerHTML = document.getElementById('fks_news_admin_info' + IDdown).innerHTML;
+                document.getElementById('fks_news_admin_perm_new' + ID).name = document.getElementById('fks_news_admin_perm_new' + IDdown).name;
+                document.getElementById('fks_news_admin_id' + IDdown).innerHTML = olddata['fks_news_admin_id'];
+                document.getElementById('fks_news_admin_edit' + IDdown).innerHTML = olddata['fks_news_admin_edit'];
+                document.getElementById('fks_news_admin_perm_old' + IDdown).innerHTML = olddata['fks_news_admin_permold'];
+                document.getElementById('fks_news_admin_view' + IDdown).innerHTML = olddata['fks_news_admin_view'];
+                document.getElementById('fks_news_admin_info' + IDdown).innerHTML = olddata['fks_news_admin_info'];
+                document.getElementById('fks_news_admin_perm_new' + IDdown).name = olddata['fks_news_admin_permut_new'];
+                $(el).slideDown("slow")
+            });
+
+        }
+        ;
     }
     ;
-}
-;
-jQuery(function() {
+
+
+
     jQuery("h1.fkshover").click(function() {
         // var str=this.id;
-        if (jQuery("div." + this.id).is(":hidden")){
+        if (jQuery("div." + this.id).is(":hidden")) {
             jQuery("div." + this.id).slideDown();
-        }else{
+        } else {
             jQuery("div." + this.id).slideUp();
         }
         ;
     });
-    
-    jQuery("td.fks_news_info").mouseover(function(){newsviewmore(this.id);});
-    jQuery("td.fks_news_info").mouseout(function(){newsviewmoredef(this.id);});
+
+    jQuery("td.fks_news_info").mouseover(function() {
+        newsviewmore(this.id);
+    });
+    jQuery("td.fks_news_info").mouseout(function() {
+        newsviewmoredef(this.id);
+    });
+
+
+    //jQuery("td > img").click(function() {
+    $("img.fks_news_admin_down").click(function() {
+        var value = jQuery(this).parent().parent().index();
+        value = maxfile - value - 1;
+        /*for (var IDtr in value) {
+         */ newsvaluedown(value)/*
+          }
+          ;*/
+    });
+
+
+    $("img.fks_news_admin_up").click(function() {
+        var value = jQuery(this).parent().parent().index();
+        value = maxfile - value - 1;
+        /*for (var IDtr in value) {
+         */ newsvalueup(value)/*
+          }
+          ;*/
+    });
+
+
+
+
+
+    //});
 
 
     jQuery("#addtowiki").load(function() {
@@ -92,7 +139,13 @@ jQuery(function() {
             document.getElementById("addtowiki").submit();
         }, 5000);
     });
+
+
 });
+
+
+
+
 
 
 

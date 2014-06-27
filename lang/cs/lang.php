@@ -40,6 +40,8 @@ $lang['newsfile']         = 'soubor s novinkou';
 $lang['author']           = 'Autor';
 $lang['email']            = 'E-mail';
 $lang['date']             = 'Datum';
+$lang['newsdate']         = 'Datum';
+$lang['name']             = 'Nadpis aktuality';
 $lang['newsname']         = 'Nadpis';
 $lang['viewmore']         = 'Zobrazit podrobnosti';
 

@@ -93,29 +93,26 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         }
         global $TEXT;
         global $ID;
+        if ($_POST["target"] == "plugin_fksnewsfeed") {
+            $data = array();
+            foreach ($this->modFields as $field) {
+                if ($field == 'text') {
 
-        // = sprintf('<fkstaskrepo year="%s" series="%s" problem="%s"/>', $_POST['year'], $_POST['series'], $_POST['problem']);
-
-        $data = array();
-        foreach ($this->modFields as $field) {
-            if ($field == 'text') {
-
-                $data[$field] = cleanText($_POST['wikitext']);
-                unset( $_POST['wikitext']);
-            } else {
-                $data[$field] = $_POST[$field];
+                    $data[$field] = cleanText($_POST['wikitext']);
+                    unset($_POST['wikitext']);
+                } else {
+                    $data[$field] = $_POST[$field];
+                }
             }
+            $news.='<newsdate>' . $data['newsdate'] . '</newsdate>';
+            $news.='<newsauthor>[[' . $data['email'] . '|' . $data['author'] . ']]</newsauthor>';
+            $news.='==== ' . $data['name'] . ' ==== ';
+            $news.=$data['text'];
+
+            $filename = $this->helper->getNewsFile($_POST["id"]);
+            $TEXT = $news;
+            io_saveFile("$filename", $news); //ano som prasa !!
         }
-
-
-        $news.='<newsdate>' . $data['newsdate'] . '</newsdate>';
-        $news.='<newsauthor>[[' . $data['email'] . '|' . $data['author'] . ']]</newsauthor>';
-        $news.='==== ' . $data['name'] . ' ==== ';
-        $news.=$data['text'];
-
-        $filename =$this->helper->getNewsFile($_POST["id"]);
-        $TEXT=$news;
-        io_saveFile("$filename", $news);//ano som prasa !!
     }
 
 }
