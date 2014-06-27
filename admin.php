@@ -186,7 +186,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         ));
         $form->addElement(form_makeButton('submit', '', $this->getLang('returntomenu')));
         html_form('addnews', $form);
-        
+
         echo '<p>Data: <br>' . $datawrite['write'] . '</p>';
     }
 
@@ -202,13 +202,10 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         }
 
         $newsdata = $this->helper->loadnewssimple($i);
+        $newsdata = $this->helper->extractParamtext($newsdata);
 
-        $newsdate = preg_split('/newsdate/', $newsdata);
-        $newsauthor = preg_split('/newsauthor/', $newsdata);
-        $newsfeed = preg_split('/====/', $newsdata);
-
-        if (strlen($newsfeed[1]) > 25) {
-            $newsfeed[1] = substr($newsfeed[1], 0, 25) . '...';
+        if (strlen($newsdata['name']) > 25) {
+            $newsdata['name'] = substr($newsdata['name'], 0, 25) . '...';
         }
 
         echo '<tr id="fks_news_admin_tr' . $i . '">';
@@ -222,7 +219,10 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo $this->helper->getnewstd("fksnewspermnew", "fks_news_admin_perm_new" . $i, ' '
                 . '<input '
                 . 'class="fksnewsinputperm" '
-                . 'readonly="readonly" '
+                . fksnewsboolswitch(' '
+                        . 'title="' . $this->getLang('notreadonly') . '" ', ' '
+                        . 'readonly="readonly" '
+                        . 'title="' . $this->getLang('readonly') . '" ', $this->getConf('editnumber'))
                 . 'type="text" '
                 . 'id="fkspermutnew' . $i . '" '
                 . 'name="permutnew' . $i . '" '
@@ -236,23 +236,19 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
                 . $this->getLang('display') . '</option>'
                 . '<option value="' . $i . '-F" ' . fksnewsboolswitch('', 'selected="selected"', $boolrender) . '>'
                 . $this->getLang('nodisplay') . '</option></select>');
+        echo $this->helper->getnewstd("fks_news_info", 'fks_news_admin_info' . $i, ''
+                . '<span style="color:' . fksnewsboolswitch('#000', '#999', $boolrender) . '">'
+                . $newsdata['name'] . '</span>');
+        echo '</tr>';
 
 
-
-
-
-        echo '<td id="fks_news_admin_info' . $i . '" class="fks_news_info" ><span ';
-
-        echo 'style="color:' . fksnewsboolswitch('#000', '#999', $boolrender) . '">' . $newsfeed[1] . '</span></td></tr>';
-
-
-        echo '<div class="fksnewsmoreinfo" id=""fks_news_admin_info' . $i . '_div" style="display:none;position:absolute;">';
-        $newsauthorinfo = preg_split('/\|/', substr($newsauthor[1], 3, -4));
-        echo $this->getLang('author') . ': ' . $newsauthorinfo[1] . '<br>';
-        echo $this->getLang('email') . ': ' . $newsauthorinfo[0] . '<br>';
-        echo $this->getLang('date') . ': ' . substr($newsdate[1], 1, -2);
-        echo '<div style="background-color: #f0f0f0; border-radius: 5px; width: 100%">';
-        echo p_render("xhtml", p_get_instructions($newsfeed[2]), $info);
+        echo '<div class="fksnewsmoreinfo" id="fks_news_admin_info' . $i . '_div" style=" " >';
+       
+        echo $this->getLang('author') . ': ' . $newsdata['author']. '<br>';
+        echo $this->getLang('email') . ': ' . $newsdata['email'] . '<br>';
+        echo $this->getLang('date') . ': ' . $newsdata['newsdate'];
+        echo '<div class="fksnewsmoreinfotext">';
+        echo p_render("xhtml", p_get_instructions($newsdata["text"]), $info);
         echo '</div>';
         echo '</div>';
     }

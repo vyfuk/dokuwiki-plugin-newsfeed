@@ -37,19 +37,28 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     function extractParam($text) {
         global $INFO;
         global $TEXT;
+        $param = $this->extractParamtext($TEXT);
+        $TEXT = $param["text"];
+        unset($param["text"]);
+        return $param;
+    }
+
+    function extractParamtext($text) {
+        global $INFO;
+        global $TEXT;
 
 
-        $newsfeed = preg_split('/====/', $TEXT);
-        $newsdate = preg_split('/newsdate/', $TEXT);
+        $newsfeed = preg_split('/====/', $text);
+        $newsdate = preg_split('/newsdate/', $text);
         $newsdate = substr($newsdate[1], 1, -2);
-        $newsauthor = preg_split('/newsauthor/', $TEXT);
+        $newsauthor = preg_split('/newsauthor/', $text);
         $newsauthorinfo = preg_split('/\|/', substr($newsauthor[1], 3, -4));
-        $TEXT = $newsfeed [2];
         $param = array(
             'name' => $newsfeed[1],
             'author' => $newsauthorinfo[1],
             'email' => $newsauthorinfo[0],
-            'newsdate' => $newsdate
+            'newsdate' => $newsdate,
+            'text' => $newsfeed [2]
         );
         return $param;
     }

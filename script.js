@@ -17,13 +17,13 @@ function newspermsubmit() {
 }
 ;
 function newsviewmoredef(ID) {
-    document.getElementById("fksnewsmoreinfo" + ID).style.display = 'none';
+    document.getElementById(ID+"_div").style.display = 'none';
 }
 ;
 
 function newsviewmore(ID) {
-    document.getElementById("fksnewsmoreinfo" + ID).style.display = 'block';
-    var IDfull = document.getElementById("fksnewsmoreinfo" + ID);
+    document.getElementById(ID+"_div").style.display = 'block';
+    var IDfull = document.getElementById(ID+"_div");
     document.body.onmousemove = function(e) {
         var browserIE = document.all ? true : false;
         if (!browserIE) {

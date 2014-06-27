@@ -8,4 +8,5 @@
 
 $conf['newsfolder'] = 'fksnewsfeeds';
 $conf['newsfile'] = 'news@i@';
+$conf['editnumber']  = 0;
 
