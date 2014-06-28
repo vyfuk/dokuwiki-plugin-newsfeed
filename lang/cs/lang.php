@@ -43,7 +43,9 @@ $lang['notreadonly']      ='Úprava čísel je povolena';
 $lang['author']           = 'Autor';
 $lang['email']            = 'E-mail';
 $lang['date']             = 'Datum';
+$lang['newsdate']         = 'Datum';
 $lang['newsname']         = 'Nadpis';
+$lang['name']             = 'Nadpis';
 $lang['viewmore']         = 'Zobrazit podrobnosti';
 
 $lang['subaddwikinews']   = 'Přejít k vytvoření aktuality';
