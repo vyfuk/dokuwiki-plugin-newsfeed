@@ -27,12 +27,20 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $url;
     }
 
+    /*
+     * get wiki URL with :
+     */
+
     function getwikinewsurl($i) {
         global $lang;
         global $conf;
         $url = str_replace("@i@", $i, $this->getConf('newsfolder') . ':' . $this->getConf('newsfile'));
         return $url;
     }
+
+    /*
+     * changed doku text and extract param
+     */
 
     function extractParam($text) {
         global $INFO;
@@ -42,6 +50,10 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         unset($param["text"]);
         return $param;
     }
+
+    /*
+     * extract param from text
+     */
 
     function extractParamtext($text) {
         global $INFO;
@@ -108,12 +120,16 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     }
 
     /*
-     * 
+     * load file with configuration
      */
 
     function loadnews() {
-        return preg_split('/;;/', substr(io_readFile("data/meta/newsfeed.csv", FALSE), 1, -2));
+        return preg_split('/;;/', substr(io_readFile("data/meta/newsfeed.csv", FALSE), 1, -1));
     }
+
+    /*
+     * load news @i@ and return text
+     */
 
     function loadnewssimple($i) {
         global $lang;
@@ -123,10 +139,11 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $newsdata;
     }
 
-    function rendernews($match, $newsurl) {
-        if (file_exists($newsurl)) {
-            $match--;
-            if ($match % 2) {
+    function rendernews($i) {
+        if (file_exists($this->getnewsurl($i))) {
+            global $par;
+            $par --;
+            if ($par % 2) {
                 /*
                  * find even and odd news, css is not same.
                  */
@@ -137,21 +154,18 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
             /*
              * find news autor title and date news and render then
              */
-            $newsdata = io_readFile($newsurl, false);
-            $newsfeed = preg_split('/====/', $newsdata);
-            $newsdata = $this->helper->extractParam($newsdata);
+            $newsdata = $this->loadnewssimple($i);
+            $newsdata = $this->extractParamtext($newsdata);
 
 
-            $to_page.= p_render("xhtml", p_get_instructions('<newsdate>' . $newsdata[3] . '-render</newsdate>'), $info);
-
+            $to_page.= p_render("xhtml", p_get_instructions('<newsdate>' . $newsdata['newsdate'] . '-render</newsdate>'), $info);
             $to_page.='<div class="fksnewsheadline">';
-            $to_page.= p_render("xhtml", p_get_instructions('===' . $newsdata[0] . '==='), $info);
+            $to_page.= p_render("xhtml", p_get_instructions('===' . $newsdata['name'] . '==='), $info);
             $to_page.="</div>";
-
             $to_page.='<div class="fksnewsarticle">';
-            $to_page.= p_render("xhtml", p_get_instructions($newsfeed[2]), $info);
+            $to_page.= p_render("xhtml", p_get_instructions($newsdata['text']), $info);
             $to_page.="</div>";
-            $to_page.= p_render("xhtml", p_get_instructions('<newsauthor>[[' . $newsdata[2] . '|' . $newsdata[1] . ']]-render</newsauthor>'), $info);
+            $to_page.= p_render("xhtml", p_get_instructions('<newsauthor>[[' . $newsdata['email'] . '|' . $newsdata['author'] . ']]-render</newsauthor>'), $info);
             $to_page.='<div class="clearer"></div>';
             $to_page.="</div>";
             $to_page.='<div class="clearer"></div>';
@@ -164,4 +178,16 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return metaFN($id, '.txt');
     }
 
+    function findimax() {
+        global $imax;
+        for ($i = 1; true; $i++) {
+            $newsurl = $this->getnewsurl($i);
+            if (file_exists($newsurl)) {
+                continue;
+            } else {
+                $imax = $i;
+                break;
+            }
+        }
+    }
 }

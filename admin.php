@@ -44,16 +44,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
 
         global $imax;
         $this->helper->deletecache();
-
-        for ($i = 1; true; $i++) {
-            $newsurl = $this->helper->getnewsurl($i);
-            if (file_exists($newsurl)) {
-                continue;
-            } else {
-                $imax = $i;
-                break;
-            }
-        }
+        $this->helper->findimax();
 
 //echo '<script type="text/javascript" charset="utf-8" src="lib/plugins/fksnewsfeed/script.js"></script>';
         global $newsreturndata;
@@ -107,15 +98,16 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         global $lang;
         global $imax;
 
-        echo '<h1 class="fkshover" id="fks_news_permut" >' . $this->getLang('permutmenu') . '</h1>';
-        echo '<div class="fks_news_permut" style="display:none;">';
+        echo '<h1 class="fkshover" id="fks_news_permut" >' . $this->getLang('permutmenu') . '</h1>'
+        . '<div class="fks_news_permut" style="display:none;">';
         //warningy
         echo $this->getnewswarning();
 
-        echo '<form method="post" id="fksnewsadminperm" onsubmit="return false" action=doku.php?do=admin&page=fksnewsfeed>';
-        echo '<input type="hidden" name="maxnews" value="' . $imax . '"></td>';
-        echo '<input type="hidden" name="newsdo" value="permut"></td>';
-        echo '<table class="newspermuttable">';
+        echo '<form method="post" id="fksnewsadminperm" onsubmit="return false" '
+        . 'action=doku.php?do=admin&page=fksnewsfeed>'
+        . '<input type="hidden" name="maxnews" value="' . $imax . '"></td>'
+        . '<input type="hidden" name="newsdo" value="permut"></td>'
+        . '<table class="newspermuttable">';
 
 
         echo '<thead><tr><th>' . $this->getLang('IDnews') . '</th>';
@@ -176,7 +168,11 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         for ($i = $newsreturndata['maxnews'] - 1; $i > 0; $i--) {
             $datawrite['write'].=';' . $datawrite[$i] . ';';
         }
-        file_put_contents("data/meta/newsfeed.csv", $datawrite['write']);
+        //if (strlen(io_readFile("data/meta/newsfeed.csv", FALSE)) === strlen($datawrite["write"])) {
+            file_put_contents("data/meta/newsfeed.csv", $datawrite['write']);
+        //} else {
+        //    echo "medzičasom došlo k zmene dat";
+        //}
         echo $this->getLang('autoreturn');
 
         $form = new Doku_Form(array(
@@ -243,8 +239,8 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
 
 
         echo '<div class="fksnewsmoreinfo" id="fks_news_admin_info' . $i . '_div" style=" " >';
-       
-        echo $this->getLang('author') . ': ' . $newsdata['author']. '<br>';
+
+        echo $this->getLang('author') . ': ' . $newsdata['author'] . '<br>';
         echo $this->getLang('email') . ': ' . $newsdata['email'] . '<br>';
         echo $this->getLang('date') . ': ' . $newsdata['newsdate'];
         echo '<div class="fksnewsmoreinfotext">';
