@@ -190,4 +190,33 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
             }
         }
     }
+
+    function controlData($data) {
+        $olddata=io_readFile("data/meta/newsfeed.csv", FALSE);
+        $to_page.= '<div class="info"><p>' . $this->getLang('length') . ' ' . $this->getLang('old')
+                . " " . strlen(io_readFile("data/meta/newsfeed.csv", FALSE)) . "</p></div> ";
+        $to_page.= '<div class="info"><p>' . $this->getLang('length') . ' ' . $this->getLang('new')
+                . " " . strlen($data) . "</p></div> ";
+        $to_page.='<div class="info"><p>Ols data: <br>' .$olddata. '</p></div>';
+        $to_page.='<div class="notify"><p>New data: <br>' . $data . '</p></div>';
+        $to_page.='<div class="error"><p>' . $this->getLang('autoreturn') . '</p></div>';
+        if (strlen($olddata) == strlen($data)) {
+
+
+
+            file_put_contents("data/meta/newsfeed.csv", $data);
+        } else {
+            $to_page.='<div class="error">'
+                    .$this->getLang('dataerror')."</div>";
+        }
+        return $to_page;
+    }
+
+    function fksnewsboolswitch($color1, $color2, $bool) {
+    if ($bool) {
+        return $color1;
+    } else {
+        return $color2;
+    }
+}
 }

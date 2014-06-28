@@ -48,6 +48,11 @@ $lang['newsname']         = 'Nadpis';
 $lang['name']             = 'Nadpis';
 $lang['viewmore']         = 'Zobrazit podrobnosti';
 
+$lang['length']           = 'Dĺžka';
+$lang['old']              = 'starých dat:';
+$lang['new']              = 'nových dat:';
+$lang['dataerror']       = 'Data boli medzčasom zmenené';
+
 $lang['subaddwikinews']   = 'Přejít k vytvoření aktuality';
 
 $lang['returntomenu']     = 'Návrat do menu';

@@ -37,22 +37,15 @@ function newsviewmore(ID) {
     };
 }
 ;
-
-
-function newsvalueup(ID) {
-    if (ID !== maxfile) {
-        ID++;
-        newsvaluedown(ID);
+jQuery(function() {
+    function newsvalueup(ID) {
+        if (ID !== maxfile) {
+            ID++;
+            newsvaluedown(ID);
+        }
+        ;
     }
     ;
-}
-;
-
-
-
-
-jQuery(function() {
-
     function newsvaluedown(ID) {
         var IDdown = ID - 1;
         var olddata = new Array();

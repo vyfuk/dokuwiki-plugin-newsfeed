@@ -145,7 +145,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
     private function getnewswarning() {
         global $lang;
 
-        $to_page.= '<div class="fksnewswarning">'
+        $to_page.= '<div class="error">'
                 . '<p><span style="font-weight:bold;font-size:130%">'
                 . $this->getLang('permwarning1')
                 . '</span></p>'
@@ -168,12 +168,8 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         for ($i = $newsreturndata['maxnews'] - 1; $i > 0; $i--) {
             $datawrite['write'].=';' . $datawrite[$i] . ';';
         }
-        //if (strlen(io_readFile("data/meta/newsfeed.csv", FALSE)) === strlen($datawrite["write"])) {
-            file_put_contents("data/meta/newsfeed.csv", $datawrite['write']);
-        //} else {
-        //    echo "medzičasom došlo k zmene dat";
-        //}
-        echo $this->getLang('autoreturn');
+        echo $this->helper->controlData($datawrite["write"]);
+
 
         $form = new Doku_Form(array(
             'id' => "addtowiki",
@@ -182,8 +178,6 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         ));
         $form->addElement(form_makeButton('submit', '', $this->getLang('returntomenu')));
         html_form('addnews', $form);
-
-        echo '<p>Data: <br>' . $datawrite['write'] . '</p>';
     }
 
     private function getnewstr($i) {
@@ -215,7 +209,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo $this->helper->getnewstd("fksnewspermnew", "fks_news_admin_perm_new" . $i, ' '
                 . '<input '
                 . 'class="fksnewsinputperm" '
-                . fksnewsboolswitch(' '
+                . $this->helper->fksnewsboolswitch(' '
                         . 'title="' . $this->getLang('notreadonly') . '" ', ' '
                         . 'readonly="readonly" '
                         . 'title="' . $this->getLang('readonly') . '" ', $this->getConf('editnumber'))
@@ -228,12 +222,12 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
                 . '<img src="lib/plugins/fksnewsfeed/images/down.gif" class="fks_news_admin_down">');
         echo $this->helper->getnewstd(" ", "fks_news_admin_view" . $i, ' '
                 . '<select class="fksnwsselectperm" name="newIDsrender' . $i . '">'
-                . '<option value="' . $i . '-T" ' . fksnewsboolswitch('selected="selected', '', $boolrender) . '">'
+                . '<option value="' . $i . '-T" ' . $this->helper->fksnewsboolswitch('selected="selected', '', $boolrender) . '">'
                 . $this->getLang('display') . '</option>'
-                . '<option value="' . $i . '-F" ' . fksnewsboolswitch('', 'selected="selected"', $boolrender) . '>'
+                . '<option value="' . $i . '-F" ' . $this->helper->fksnewsboolswitch('', 'selected="selected"', $boolrender) . '>'
                 . $this->getLang('nodisplay') . '</option></select>');
         echo $this->helper->getnewstd("fks_news_info", 'fks_news_admin_info' . $i, ''
-                . '<span style="color:' . fksnewsboolswitch('#000', '#999', $boolrender) . '">'
+                . '<span style="color:' . $this->helper->fksnewsboolswitch('#000', '#999', $boolrender) . '">'
                 . $newsdata['name'] . '</span>');
         echo '</tr>';
 
@@ -262,21 +256,15 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         $this->helper->saveNewNews($newsreturndata);
 
         $newsurlnew = $this->helper->getwikinewsurl($newsreturndata['newsid']);
-
         $form = new Doku_Form(array('id' => 'addtowiki', 'method' => 'POST', 'action' => DOKU_BASE, 'class' => 'fksreturn'));
         $form->addHidden('do', "edit");
         $form->addHidden("target", "plugin_fksnewsfeed");
         $form->addHidden('id', $newsurlnew);
+        $form->addElement('<div class="error"><p>' . $this->getLang('autoreturn') . '</p></div>');
         $form->addElement(form_makeButton('submit', '', $this->getLang('subaddwikinews')));
         html_form('addnews', $form);
     }
 
 }
 
-function fksnewsboolswitch($color1, $color2, $bool) {
-    if ($bool) {
-        return $color1;
-    } else {
-        return $color2;
-    }
-}
+
