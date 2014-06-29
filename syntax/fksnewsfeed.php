@@ -3,8 +3,9 @@
 if (!defined('DOKU_INC')) {
     die();
 }
-if (!defined('DOKU_PLUGIN'))
+if (!defined('DOKU_PLUGIN')) {
     define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
+}
 require_once(DOKU_PLUGIN . 'syntax.php');
 
 class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
@@ -37,14 +38,15 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
      * Handle the match
      */
     public function handle($match, $state, $pos, Doku_Handler &$handler) {
+        /* @var $par integer */
         global $par;
-        $par = substr($match, 14, -2)+0;
+        $par = substr($match, 14, -2) + 0;
         $to_page.="<div class='fksnewswrapper'>";
         global $imax;
         $this->helper->findimax();
         $rendernews = $this->helper->loadnews();
-        for ($i = count($rendernews); $i >=0 ; $i--) {
-            $rendernewsbool = preg_split('/-/', $rendernews[$imax-1-$i]);
+        for ($i = count($rendernews); $i >= 0; $i--) {
+            $rendernewsbool = preg_split('/-/', $rendernews[$imax - 1 - $i]);
             if ($rendernewsbool[1] == "T") {
                 if ($par) {
                     $to_page.=$this->helper->rendernews($i);
@@ -56,6 +58,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         $to_page.="</div>";
         return array($state, array($to_page));
     }
+
     public function render($mode, Doku_Renderer &$renderer, $data) {
         // $data is what the function handle return'ed.
         if ($mode == 'xhtml') {

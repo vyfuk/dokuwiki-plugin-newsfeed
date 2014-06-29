@@ -41,12 +41,9 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
     public function html() {
         global $lang;
         global $conf;
-
         global $imax;
         $this->helper->deletecache();
         $this->helper->findimax();
-
-//echo '<script type="text/javascript" charset="utf-8" src="lib/plugins/fksnewsfeed/script.js"></script>';
         global $newsreturndata;
         $newsreturndata = $_POST;
         switch ($newsreturndata['newsdo']) {
@@ -78,7 +75,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         global $lang;
         global $imax;
         echo '<script type="text/javascript" charset="utf-8">'
-        . 'var maxfile=' . $imax . '; formax=maxfile+1;</script>';
+        . 'var maxfile=' . $imax . ';</script>';
 
         echo '<h1 class="fkshover" id="fks_news_add">' . $this->getLang('addmenu') . '</h1>';
 
@@ -110,14 +107,12 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         . '<table class="newspermuttable">';
 
 
-        echo '<thead><tr><th>' . $this->getLang('IDnews') . '</th>';
-        echo '<th></th>';
-        echo '<th>' . $this->getLang('newspermold') . '</th>';
-        echo '<th colspan="2">' . $this->getLang('newspermnew') . '</th>';
-//echo '<td></td>';
-//echo '<td></td>';
-        echo '<th>' . $this->getLang('newrender') . '</th>';
-        echo '<th class="fksnewsinfo">' . $this->getLang('newsname') . '</th></tr></thead>';
+        echo '<thead><tr><th>' . $this->getLang('IDnews') . '</th>
+        <th></th>
+        <th>' . $this->getLang('newspermold') . '</th>
+        <th colspan="2">' . $this->getLang('newspermnew') . '</th>
+        <th>' . $this->getLang('newrender') . '</th>
+        <th class="fksnewsinfo">' . $this->getLang('newsname') . '</th></tr></thead>';
 
 
         for ($i = $imax - 1; $i > 0; $i--) {
@@ -218,8 +213,8 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
                 . 'name="permutnew' . $i . '" '
                 . 'value="' . $rendernewsbool[0] . '">');
         echo $this->helper->getnewstd(" ", " ", ' '
-                . '<img src="lib/plugins/fksnewsfeed/images/up.gif" class="fks_news_admin_up">'
-                . '<img src="lib/plugins/fksnewsfeed/images/down.gif" class="fks_news_admin_down">');
+                . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/up.gif" class="fks_news_admin_up">'
+                . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/down.gif" class="fks_news_admin_down">');
         echo $this->helper->getnewstd(" ", "fks_news_admin_view" . $i, ' '
                 . '<select class="fksnwsselectperm" name="newIDsrender' . $i . '">'
                 . '<option value="' . $i . '-T" ' . $this->helper->fksnewsboolswitch('selected="selected', '', $boolrender) . '">'
@@ -266,5 +261,3 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
     }
 
 }
-
-

@@ -106,7 +106,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             }
             $news.='<newsdate>' . $data['newsdate'] . '</newsdate>';
             $news.='<newsauthor>[[' . $data['email'] . '|' . $data['author'] . ']]</newsauthor>';
-            $news.='==== ' . $data['name'] . ' ==== ';
+            $news.="\n".'==== ' . $data['name'] . ' ==== '."\n";
             $news.=$data['text'];
 
             $filename = $this->helper->getNewsFile($_POST["id"]);
