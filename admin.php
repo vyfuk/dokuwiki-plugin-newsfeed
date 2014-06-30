@@ -209,7 +209,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
                         . 'readonly="readonly" '
                         . 'title="' . $this->getLang('readonly') . '" ', $this->getConf('editnumber'))
                 . 'type="text" '
-                . 'id="fkspermutnew' . $i. '" '
+                . 'id="fks_news_admin_permut_new_input' . $i. '" '
                 . 'name="permutnew' . $rendernewsbool[0]  . '" '
                 . 'value="'.$i. '">');
         echo $this->helper->getnewstd(" ", " ", ' '

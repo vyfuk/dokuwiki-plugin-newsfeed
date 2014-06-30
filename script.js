@@ -57,19 +57,20 @@ jQuery(function() {
             olddata['fks_news_admin_permold'] = document.getElementById('fks_news_admin_perm_old' + ID).innerHTML;
             olddata['fks_news_admin_view'] = document.getElementById('fks_news_admin_view' + ID).innerHTML;
             olddata['fks_news_admin_info'] = document.getElementById('fks_news_admin_info' + ID).innerHTML;
-            olddata['fks_news_admin_permut_new'] = document.getElementById('fks_news_admin_perm_new' + ID).name;
+            olddata['fks_news_admin_permut_new_input'] = document.getElementById('fks_news_admin_permut_new_input' + ID).name;
+            
             document.getElementById('fks_news_admin_id' + ID).innerHTML = document.getElementById('fks_news_admin_id' + IDdown).innerHTML;
             document.getElementById('fks_news_admin_edit' + ID).innerHTML = document.getElementById('fks_news_admin_edit' + IDdown).innerHTML;
             document.getElementById('fks_news_admin_perm_old' + ID).innerHTML = document.getElementById('fks_news_admin_perm_old' + IDdown).innerHTML;
             document.getElementById('fks_news_admin_view' + ID).innerHTML = document.getElementById('fks_news_admin_view' + IDdown).innerHTML;
             document.getElementById('fks_news_admin_info' + ID).innerHTML = document.getElementById('fks_news_admin_info' + IDdown).innerHTML;
-            document.getElementById('fks_news_admin_perm_new' + ID).name = document.getElementById('fks_news_admin_perm_new' + IDdown).name;
+            document.getElementById('fks_news_admin_permut_new_input' + ID).name = document.getElementById('fks_news_admin_permut_new_input' + IDdown).name;
             document.getElementById('fks_news_admin_id' + IDdown).innerHTML = olddata['fks_news_admin_id'];
             document.getElementById('fks_news_admin_edit' + IDdown).innerHTML = olddata['fks_news_admin_edit'];
             document.getElementById('fks_news_admin_perm_old' + IDdown).innerHTML = olddata['fks_news_admin_permold'];
             document.getElementById('fks_news_admin_view' + IDdown).innerHTML = olddata['fks_news_admin_view'];
             document.getElementById('fks_news_admin_info' + IDdown).innerHTML = olddata['fks_news_admin_info'];
-            document.getElementById('fks_news_admin_perm_new' + IDdown).name = olddata['fks_news_admin_permut_new'];
+            document.getElementById('fks_news_admin_permut_new_input' + IDdown).name = olddata['fks_news_admin_permut_new_input'];
         }
         ;
     }
