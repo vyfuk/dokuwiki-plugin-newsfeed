@@ -45,7 +45,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     function extractParam($text) {
         global $INFO;
         global $TEXT;
-        $param = $this->extractParamtext($TEXT);
+        $param = $this->extractParamtext($text);
         $TEXT = $param["text"];
         unset($param["text"]);
         return $param;

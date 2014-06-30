@@ -186,7 +186,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
             $boolrender = true;
         }
 
-        $newsdata = $this->helper->loadnewssimple($i);
+        $newsdata = $this->helper->loadnewssimple($rendernewsbool[0]);
         $newsdata = $this->helper->extractParamtext($newsdata);
 
         if (strlen($newsdata['name']) > 25) {
@@ -194,13 +194,13 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         }
 
         echo '<tr id="fks_news_admin_tr' . $i . '">';
-        echo $this->helper->getnewstd("fksnewsid", "fks_news_admin_id" . $i, $i);
+        echo $this->helper->getnewstd("fksnewsid", "fks_news_admin_id" . $i, $rendernewsbool[0]);
         echo $this->helper->getnewstd("fksnewsedit", "fks_news_admin_edit" . $i, ' '
                 . '<input class="fksnewsinputedit" type="submit" onclick="newseditsibmit('
-                . "'" . $this->helper->getwikinewsurl($i) . "'"
+                . "'" . $this->helper->getwikinewsurl($rendernewsbool[0]) . "'"
                 . ')" value="' . $this->getLang('subeditnews') . '" class="button">');
 
-        echo $this->helper->getnewstd("fksnewspermold", "fks_news_admin_perm_old" . $i, $rendernewsbool[0]);
+        echo $this->helper->getnewstd("fksnewspermold", "fks_news_admin_perm_old" . $i, $i);
         echo $this->helper->getnewstd("fksnewspermnew", "fks_news_admin_perm_new" . $i, ' '
                 . '<input '
                 . 'class="fksnewsinputperm" '
@@ -209,9 +209,9 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
                         . 'readonly="readonly" '
                         . 'title="' . $this->getLang('readonly') . '" ', $this->getConf('editnumber'))
                 . 'type="text" '
-                . 'id="fkspermutnew' . $i . '" '
-                . 'name="permutnew' . $i . '" '
-                . 'value="' . $rendernewsbool[0] . '">');
+                . 'id="fkspermutnew' . $i. '" '
+                . 'name="permutnew' . $rendernewsbool[0]  . '" '
+                . 'value="'.$i. '">');
         echo $this->helper->getnewstd(" ", " ", ' '
                 . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/up.gif" class="fks_news_admin_up">'
                 . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/down.gif" class="fks_news_admin_down">');
