@@ -200,7 +200,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $to_page.='<div class="info"><p>Ols data: <br>' .$olddata. '</p></div>';
         $to_page.='<div class="notify"><p>New data: <br>' . $data . '</p></div>';
         $to_page.='<div class="error"><p>' . $this->getLang('autoreturn') . '</p></div>';
-        if (strlen($olddata) == strlen($data)) {
+        if (strlen($olddata) - strlen($data)<2) {
 
 
 
