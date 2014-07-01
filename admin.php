@@ -82,7 +82,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo '<div class="fks_news_add" style="display: none">';
         echo '<span> ' . $this->getLang('addnews') . ' ' . $imax . '</span>';
 
-        $form = new Doku_Form(array('id' => 'addtowiki', 'method' => 'POST', 'action' => DOKU_BASE . "?do=admin&page=fksnewsfeed", 'class' => 'fksreturn'));
+        $form = new Doku_Form(array('id' => 'addtowiki', 'method' => 'POST', 'class' => 'fksreturn'));
         $form->addHidden("newsdo", "add");
         $form->addHidden('newsid', $imax);
         $form->addHidden("target", "plugin_fksnewsfeed");
