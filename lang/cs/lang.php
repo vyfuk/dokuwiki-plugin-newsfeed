@@ -51,7 +51,7 @@ $lang['viewmore']         = 'Zobrazit podrobnosti';
 $lang['length']           = 'Dĺžka';
 $lang['old']              = 'starých dat:';
 $lang['new']              = 'nových dat:';
-$lang['dataerror']       = 'Data boli medzčasom zmenené';
+$lang['dataerror']        = 'Data boli medzčasom zmenené';
 
 $lang['subaddwikinews']   = 'Přejít k vytvoření aktuality';
 

@@ -41,7 +41,10 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         global $TEXT;
         global $INPUT;
 
-        if ($event->data['target'] !== 'plugin_fksnewsfeed') {
+        //if ($event->data['target'] !== 'plugin_fksnewsfeed') {
+        //    return;
+        //}
+         if ($_POST['target'] !== 'plugin_fksnewsfeed') {
             return;
         }
         $event->preventDefault();
@@ -95,6 +98,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         global $ID;
         if ($_POST["target"] == "plugin_fksnewsfeed") {
             $data = array();
+            print_r($_REQUEST);
             foreach ($this->modFields as $field) {
                 if ($field == 'text') {
 
@@ -111,7 +115,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
             $filename = $this->helper->getNewsFile($_POST["id"]);
             $TEXT = $news;
-            io_saveFile("$filename", $news); //ano som prasa !!
+            io_saveFile($filename, $news); //ano som prasa !!
         }
     }
 

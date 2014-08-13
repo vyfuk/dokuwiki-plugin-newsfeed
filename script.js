@@ -1,10 +1,4 @@
-if (toolbar) {
-    toolbar[toolbar.length] = {"type": "fksnewsfeeds", "title": "Add news", "key": "",
-        "icon": "../../plugins/fksnewsfeed/images/newsfeeds.png",
-        "insert": "{{like>}}", "block": "false"
-    };
-}
-;
+
 function newseditsibmit(url) {
     document.getElementById('fksnewsadmineditvalue').value = url;
     document.getElementById('fks_news_admin_edit_form').return = "return true";
@@ -20,7 +14,6 @@ function newsviewmoredef(ID) {
     document.getElementById(ID + "_div").style.display = 'none';
 }
 ;
-
 function newsviewmore(ID) {
     document.getElementById(ID + "_div").style.display = 'block';
     var IDfull = document.getElementById(ID + "_div");
@@ -32,8 +25,6 @@ function newsviewmore(ID) {
         ;
         IDfull.style.left = (browserIE ? event.clientX + document.body.scrollLeft : e.pageX) + "px";
         IDfull.style.top = (browserIE ? event.clientY + document.body.scrollTop : e.pageY) + "px";
-        //IDfull.style.left = ((e || event).clientX + document.body.scrollLeft) + "px";
-        //IDfull.style.top = ((e || event).clientY + document.body.scrollTop) + "px";
     };
 }
 ;
@@ -58,7 +49,7 @@ jQuery(function() {
             olddata['fks_news_admin_view'] = document.getElementById('fks_news_admin_view' + ID).innerHTML;
             olddata['fks_news_admin_info'] = document.getElementById('fks_news_admin_info' + ID).innerHTML;
             olddata['fks_news_admin_permut_new_input'] = document.getElementById('fks_news_admin_permut_new_input' + ID).name;
-            
+
             document.getElementById('fks_news_admin_id' + ID).innerHTML = document.getElementById('fks_news_admin_id' + IDdown).innerHTML;
             document.getElementById('fks_news_admin_edit' + ID).innerHTML = document.getElementById('fks_news_admin_edit' + IDdown).innerHTML;
             document.getElementById('fks_news_admin_perm_old' + ID).innerHTML = document.getElementById('fks_news_admin_perm_old' + IDdown).innerHTML;
