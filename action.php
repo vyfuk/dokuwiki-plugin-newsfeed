@@ -98,7 +98,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         global $ID;
         if ($_POST["target"] == "plugin_fksnewsfeed") {
             $data = array();
-            print_r($_REQUEST);
+            //print_r($_REQUEST);
             foreach ($this->modFields as $field) {
                 if ($field == 'text') {
 

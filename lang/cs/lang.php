@@ -66,10 +66,10 @@ $lang['apr']              = 'dubna';
 $lang['may']              = 'května';
 $lang['jun']              = 'června';
 $lang['jul']              = 'července';
-$lang['aug']              = 'října';
+$lang['aug']              = 'srpna';
 
 $lang['sep']              = 'září';
-$lang['oct']              = 'srpna';
+$lang['oct']              = 'října';
 $lang['now']              = 'listopadu';
 $lang['dec']              = 'prosince';
 
