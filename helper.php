@@ -19,7 +19,7 @@ if (!defined('DOKU_TAB')) {
 class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     function getnewsurl($newsno) {
-        global $lang;
+        
         global $conf;
         $url = str_replace("@i@", $newsno, 'data/pages/'
                 . $this->getConf('newsfolder') . '/'
@@ -139,18 +139,13 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $newsdata;
     }
 
-    function rendernews($i) {
+    function rendernews($i, $par) {
         if (file_exists($this->getnewsurl($i))) {
-            global $par;
-            $par --;
-            if ($par % 2) {
-                /*
-                 * find even and odd news, css is not same.
-                 */
-                $to_page.="<div class='fksnewseven'>";
-            } else {
-                $to_page.="<div class='fksnewsodd'>";
-            }
+            
+            
+
+            $to_page.='<div class="' . $par . '">';
+
             /*
              * find news autor title and date news and render then
              */
@@ -179,7 +174,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     }
 
     function findimax() {
-        global $imax;
+
         for ($i = 1; true; $i++) {
             $newsurl = $this->getnewsurl($i);
             if (file_exists($newsurl)) {
@@ -189,34 +184,36 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 break;
             }
         }
+        return $imax;
     }
 
     function controlData($data) {
-        $olddata=io_readFile("data/meta/newsfeed.csv", FALSE);
+        $olddata = io_readFile("data/meta/newsfeed.csv", FALSE);
         $to_page.= '<div class="info"><p>' . $this->getLang('length') . ' ' . $this->getLang('old')
                 . " " . strlen(io_readFile("data/meta/newsfeed.csv", FALSE)) . "</p></div> ";
         $to_page.= '<div class="info"><p>' . $this->getLang('length') . ' ' . $this->getLang('new')
                 . " " . strlen($data) . "</p></div> ";
-        $to_page.='<div class="info"><p>Ols data: <br>' .$olddata. '</p></div>';
+        $to_page.='<div class="info"><p>Ols data: <br>' . $olddata . '</p></div>';
         $to_page.='<div class="notify"><p>New data: <br>' . $data . '</p></div>';
         $to_page.='<div class="error"><p>' . $this->getLang('autoreturn') . '</p></div>';
-        if (strlen($olddata) - strlen($data)<2) {
+        if (strlen($olddata) - strlen($data) < 2) {
 
 
 
             file_put_contents("data/meta/newsfeed.csv", $data);
         } else {
             $to_page.='<div class="error">'
-                    .$this->getLang('dataerror')."</div>";
+                    . $this->getLang('dataerror') . "</div>";
         }
         return $to_page;
     }
 
     function fksnewsboolswitch($color1, $color2, $bool) {
-    if ($bool) {
-        return $color1;
-    } else {
-        return $color2;
+        if ($bool) {
+            return $color1;
+        } else {
+            return $color2;
+        }
     }
-}
+
 }

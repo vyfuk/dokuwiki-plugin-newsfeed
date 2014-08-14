@@ -41,11 +41,11 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
     public function html() {
         global $lang;
         global $conf;
-        global $imax;
+
         $this->helper->deletecache();
-        $this->helper->findimax();
         global $newsreturndata;
         $newsreturndata = $_POST;
+
         switch ($newsreturndata['newsdo']) {
             case "add":
                 $this->returnnewsadd();
@@ -69,18 +69,45 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
                  */
                 $this->getpermutnews();
         }
+
+        $allnews = glob($this->helper->getnewsurl("*"));
+        $arraynews = array();
+        foreach ($allnews as $key => $value) {
+            $idn = substr($value, count($this->helper->getnewsurl("*")) - 6, -4);
+
+            $to_page = "";
+            $to_page.= "<div class='fksnewswrapper'>";
+            $to_page.= $this->helper->rendernews($idn, 'fksnewseven');
+            $to_page.= "</div>";
+            $form = new Doku_Form(array('id' => 'editnews', 'method' => 'POST', 'class' => 'fksreturn'));
+            $form->addHidden("do", "edit");
+            $form->addHidden('id', $this->helper->getwikinewsurl($idn));
+            $form->addHidden("target", "plugin_fksnewsfeed");
+            $form->addElement(form_makeButton('submit', '', $this->getLang('subeditnews')));
+            ob_start();
+            html_form('editnews', $form);
+            $to_page.=ob_get_contents();
+            ob_end_clean();
+            $arraynews[] = $to_page;
+        }
+        $arraynews = array_reverse($arraynews, false);
+        foreach ($arraynews as $key => $value) {
+            echo $value;
+        }
     }
 
     private function getaddnews() {
         global $lang;
-        global $imax;
+        $imax = $this->helper->findimax();
         echo '<script type="text/javascript" charset="utf-8">'
         . 'var maxfile=' . $imax . ';</script>';
 
         echo '<h1 class="fkshover" id="fks_news_add">' . $this->getLang('addmenu') . '</h1>';
 
-        echo '<div class="fks_news_add" style="display: none">';
+        echo '<div class="fks_news_add">';
+        echo '<div class="info">';
         echo '<span> ' . $this->getLang('addnews') . ' ' . $imax . '</span>';
+        echo '</div>';
 
         $form = new Doku_Form(array('id' => 'addtowiki', 'method' => 'POST', 'class' => 'fksreturn'));
         $form->addHidden("newsdo", "add");
@@ -93,7 +120,7 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
 
     private function getpermutnews() {
         global $lang;
-        global $imax;
+        $imax = $this->helper->findimax();
 
         echo '<h1 class="fkshover" id="fks_news_permut" >' . $this->getLang('permutmenu') . '</h1>'
         . '<div class="fks_news_permut" style="display:none;">';
@@ -209,9 +236,9 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
                         . 'readonly="readonly" '
                         . 'title="' . $this->getLang('readonly') . '" ', $this->getConf('editnumber'))
                 . 'type="text" '
-                . 'id="fks_news_admin_permut_new_input' . $i. '" '
-                . 'name="permutnew' . $rendernewsbool[0]  . '" '
-                . 'value="'.$i. '">');
+                . 'id="fks_news_admin_permut_new_input' . $i . '" '
+                . 'name="permutnew' . $rendernewsbool[0] . '" '
+                . 'value="' . $i . '">');
         echo $this->helper->getnewstd(" ", " ", ' '
                 . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/up.gif" class="fks_news_admin_up">'
                 . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/down.gif" class="fks_news_admin_down">');

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Michal Červeňák <miso@fykos.cz>
@@ -47,14 +48,22 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         global $par;
         $par = substr($match, 14, -2) + 0;
         $to_page.="<div class='fksnewswrapper'>";
-        global $imax;
-        $this->helper->findimax();
         $rendernews = $this->helper->loadnews();
-        for ($i = count($rendernews); $i >= 0; $i--) {
-            $rendernewsbool = preg_split('/-/', $rendernews[$imax - 1 - $i]);
+        foreach ($rendernews as $key => $value) {
+            $rendernewsbool = preg_split('/-/', $value);
             if ($rendernewsbool[1] == "T") {
+
                 if ($par) {
-                    $to_page.=$this->helper->rendernews($i);
+                    if ($par % 2) {
+
+
+                        $to_page.=$this->helper->rendernews($rendernewsbool[0], 'fksnewseven');
+                    } else {
+                        $to_page.=$this->helper->rendernews($rendernewsbool[0], 'fksnewsodd');
+                    }
+
+
+                    $par --;
                 } else {
                     break;
                 }
