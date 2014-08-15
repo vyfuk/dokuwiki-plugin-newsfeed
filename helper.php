@@ -19,9 +19,9 @@ if (!defined('DOKU_TAB')) {
 class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     function getnewsurl($newsno) {
-        
+
         global $conf;
-        $url = str_replace("@i@", $newsno,DOKU_INC. 'data/pages/'
+        $url = str_replace("@i@", $newsno, DOKU_INC . 'data/pages/'
                 . $this->getConf('newsfolder') . '/'
                 . $this->getConf('newsfile') . '.txt');
         return $url;
@@ -100,7 +100,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     function deletecache() {
         global $conf;
-        $files = glob(DOKU_INC.'data/cache/*/*');
+        $files = glob(DOKU_INC . 'data/cache/*/*');
         foreach ($files as $file) {
             if (is_file($file)) {
                 unlink($file);
@@ -130,9 +130,10 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     /*
      * load news @i@ and return text
      */
-    function shortName($name,$l){
+
+    function shortName($name, $l) {
         if (strlen($name) > $l) {
-            $name = substr($name, 0, $l-3) . '...';
+            $name = substr($name, 0, $l - 3) . '...';
         }
         return $name;
     }
@@ -145,19 +146,13 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $newsdata;
     }
 
-    function rendernews($i, $par) {
+    function rendernews($i, $class) {
         if (file_exists($this->getnewsurl($i))) {
-            
-            
-
-            $to_page.='<div class="' . $par . '">';
-
+            $to_page.='<div class="' . $class . '">';
             /*
              * find news autor title and date news and render then
              */
-            $newsdata = $this->loadnewssimple($i);
-            $newsdata = $this->extractParamtext($newsdata);
-
+            $newsdata = $this->extractParamtext($this->loadnewssimple($i));
 
             $to_page.= p_render("xhtml", p_get_instructions('<newsdate>' . $newsdata['newsdate'] . '-render</newsdate>'), $info);
             $to_page.='<div class="fksnewsheadline">';
@@ -193,24 +188,41 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $imax;
     }
 
-    function controlData($data) {
-        $olddata = io_readFile("data/meta/newsfeed.csv", FALSE);
-        $to_page.= '<div class="info"><p>' . $this->getLang('length') . ' ' . $this->getLang('old')
-                . " " . strlen(io_readFile("data/meta/newsfeed.csv", FALSE)) . "</p></div> ";
-        $to_page.= '<div class="info"><p>' . $this->getLang('length') . ' ' . $this->getLang('new')
-                . " " . strlen($data) . "</p></div> ";
-        $to_page.='<div class="info"><p>Ols data: <br>' . $olddata . '</p></div>';
-        $to_page.='<div class="notify"><p>New data: <br>' . $data . '</p></div>';
-        $to_page.='<div class="error"><p>' . $this->getLang('autoreturn') . '</p></div>';
-        if (strlen($olddata) - strlen($data) < 2) {
-
-
-
-            file_put_contents("data/meta/newsfeed.csv", $data);
-        } else {
-            $to_page.='<div class="error">'
-                    . $this->getLang('dataerror') . "</div>";
+    function controlData() {
+        global $Rdata;
+        for ($i = 0; true; $i++) {
+            if (!array_key_exists('newson' . $i, $Rdata) && !array_key_exists('newsonR' . $i, $Rdata)) {
+                break;
+            } else {
+                if ($Rdata['newson' . $i]) {
+                    if ($Rdata['newsonR' . $i] == "T") {
+                        if ($Rdata['newson' . $i] < $Rdata["maxnews"]) {
+                            $data.=';' . $Rdata['newson' . $i] . ';';
+                            //echo $i;
+                        }
+                    }
+                }
+            }
         }
+        
+    if(!$data){
+        
+        $to_page.='<div class="error">'
+                    . $this->getLang('dataerror') . "</div>";
+    }else{file_put_contents("data/meta/newsfeed.csv", $data);
+    $to_page.='<div class="notify"><p>New data: <br>' . $data . '</p></div>';
+    }
+        
+        
+        //$olddata = io_readFile("data/meta/newsfeed.csv", FALSE);
+        //$to_page.= '<div class="info"><p>' . $this->getLang('length') . ' ' . $this->getLang('old')
+        //        . " " . strlen(io_readFile("data/meta/newsfeed.csv", FALSE)) . "</p></div> ";
+        //$to_page.= '<div class="info"><p>' . $this->getLang('length') . ' ' . $this->getLang('new')
+        //        . " " . strlen($data) . "</p></div> ";
+        //$to_page.='<div class="info"><p>Ols data: <br>' . $olddata . '</p></div>';
+        
+       // $to_page.='<div class="error"><p>' . $this->getLang('autoreturn') . '</p></div>';
+       
         return $to_page;
     }
 

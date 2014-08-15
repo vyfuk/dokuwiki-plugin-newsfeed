@@ -50,23 +50,18 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         $to_page.="<div class='fksnewswrapper'>";
         $rendernews = $this->helper->loadnews();
         foreach ($rendernews as $key => $value) {
-            $rendernewsbool = preg_split('/-/', $value);
-            if ($rendernewsbool[1] == "T") {
-
-                if ($par) {
-                    if ($par % 2) {
-
-
-                        $to_page.=$this->helper->rendernews($rendernewsbool[0], 'fksnewseven');
-                    } else {
-                        $to_page.=$this->helper->rendernews($rendernewsbool[0], 'fksnewsodd');
-                    }
-
-
-                    $par --;
+            list($no) = preg_split('/-/', $value);
+            if ($par) {
+                if ($par % 2) {
+                    $to_page.=$this->helper->rendernews($no, 'fksnewseven');
                 } else {
-                    break;
+                    $to_page.=$this->helper->rendernews($no, 'fksnewsodd');
                 }
+
+
+                $par --;
+            } else {
+                break;
             }
         }
         $to_page.="</div>";

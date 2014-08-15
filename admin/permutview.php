@@ -43,10 +43,10 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         global $conf;
 
         $this->helper->deletecache();
-        global $newsreturndata;
-        $newsreturndata = $_POST;
+        global $Rdata;
+        $Rdata = $_POST;
 
-        switch ($newsreturndata['newsdo']) {
+        switch ($Rdata['newsdo']) {
             case "add":
                 $this->returnnewsadd();
                 break;
@@ -75,9 +75,10 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
             //$this->geteditnews();
         }
-        echo '<div id="myDiv"> some text </div>'
-        . '<form id="load_new"> <input type="text" name="news_id_new">'
-        . '<input type="submit" id="MyDivEdit" class="MyDivEdit">'
+        echo '<div id="lost_news"> some text </div>'
+        . '<form id="load_new" onsubmit="return false"> '
+        . '<input type="text" name="news_id_new">'
+        . '<input type="submit">'
         . '</form>';
     }
 
@@ -85,55 +86,89 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         global $lang;
         $imax = $this->helper->findimax();
 
-        echo '<h1 class="fkshover" id="fks_news_permut" >' . $this->getLang('permutmenu') . '</h1>'
+        echo '<h1 class="fkshover">' . $this->getLang('permutmenu') . '</h1>'
         . '<div class="fks_news_permut">';
         //warningy
         echo $this->getnewswarning();
 
-        echo '<form method="post" id="fksnewsadminperm" onsubmit="return false" '
-        . 'action=doku.php?do=admin&page=fksnewsfeed>'
+        echo '<form method="post" id="fksnewsadminperm" '
+        // . 'action=doku.php?do=admin&page=fksnewsfeed
+        . '>'
         . '<input type="hidden" name="maxnews" value="' . $imax . '"></td>'
         . '<input type="hidden" name="newsdo" value="permut"></td>'
         . '<table class="newspermuttable">';
 
 
-        echo '<thead><tr><th>' . $this->getLang('IDnews') . '</th>
-        <th></th>
-        <th>' . $this->getLang('newspermold') . '</th>
-        <th colspan="2">' . $this->getLang('newspermnew') . '</th>
+        echo '<thead><tr><th>' . $this->getLang('newspermold') . '</th>
+              <th>' . $this->getLang('IDnews') . '</th>
+                  <th></th>
         <th>' . $this->getLang('newrender') . '</th>
         <th class="fksnewsinfo">' . $this->getLang('newsname') . '</th></tr></thead>';
 
+        $this->getnewstr(0, null);
 
-        for ($i = 0; $i < $imax - 1; $i++) {
+        $i = 1;
+        foreach ($this->helper->loadnews() as $key => $value) {
+            list($no) = preg_split('/-/', $value);
 
-
-            $rendernews = $this->helper->loadnews();
-            $rendernewsbool = preg_split('/-/', $rendernews[$i]);
-
-            if ($rendernewsbool[1] == 'T') {
-                $boolrender = true;
-                $this->getnewstr($i);
-            } else {
-                continue;
-            }
+            $this->getnewstr($i, $no);
+            $i++;
         }
 
         echo '</table>';
-        echo '<input type="submit" onclick="newspermsubmit()" value="' . $this->getLang('newssave') . '" class="button">';
+        echo '<input type="submit" value="' . $this->getLang('newssave') . '" class="button">';
         echo '</form>';
+    }
+
+    private function getnewstr($i, $no) {
+        /** @var je poradie $i */
+        /** @var je ID novinky $no  */
+        global $lang;
+
+        //$rendernewsbool[0] = $no;
+        $newsdata = $this->helper->extractParamtext($this->helper->loadnewssimple($no));
+
+        $newsdata['name'] = $this->helper->shortName($newsdata['name'], 25);
+
+        echo '<tr>';
+        echo $this->helper->getnewstd("fksnewsid", "fks_news_i" . $i, $i + 1);
 
 
-        $form = new Doku_Form(array(
-            'id' => 'fks_news_admin_edit_form',
-            'method' => 'POST',
-            'action' => DOKU_BASE . "?do=admin&page=fksnewsfeed",
-            "onsubmit" => "return false"));
-        $form->addHidden("do", "edit");
-        $form->addHidden("target", "plugin_fksnewsfeed");
-        $form->addElement('<input type="hidden" id="fksnewsadmineditvalue" name="id" value=""></form>');
-        html_form('addnews', $form);
+        //echo $this->helper->getnewstd("fksnewspermold", "fks_news_admin_perm_old" . $i, $i);
+        echo $this->helper->getnewstd("fksnewspermnew", "fks_news_admin_perm_new" . $i, ' '
+                . '<input '
+                . 'class="fksnewsinputperm" '
+                . $this->helper->fksnewsboolswitch(' '
+                        . 'title="' . $this->getLang('notreadonly') . '" ', ' '
+                        //. 'readonly="readonly" '
+                        . 'title="' . $this->getLang('readonly') . '" ', $this->getConf('editnumber'))
+                . 'type="text" '
+                . 'id="fks_news_admin_permut_new_input' . $i . '" '
+                . 'name="newson' . $i . '" '
+                . 'value="' . $no . '">');
+        echo $this->helper->getnewstd(" ", " ", ' '
+                . '<img src="' . DOKU_INC . 'lib/plugins/fksnewsfeed/images/up.gif" class="fks_news_admin_up">'
+                . '<img src="' . DOKU_INC . 'lib/plugins/fksnewsfeed/images/down.gif" class="fks_news_admin_down">');
+        echo $this->helper->getnewstd(" ", "fks_news_admin_view" . $i, ' '
+                . '<select class="fksnwsselectperm" name="newsonR' . $i . '">'
+                . '<option value="T" selected="selected">'
+                . $this->getLang('display') . '</option>'
+                . '<option value="F" >'
+                . $this->getLang('nodisplay') . '</option></select>');
+        echo $this->helper->getnewstd("fks_news_info", 'fks_news_admin_info' . $i, ''
+                . '<span id="fks_news_admin_info' . $i . '_span" style="color:#000">'
+                . $newsdata['name'] . '</span>');
+        echo '</tr>';
 
+
+        echo '<div class="fksnewsmoreinfo" id="fks_news_admin_info' . $i . '_div" style=" " >';
+
+        echo $this->getLang('author') . ': ' . $newsdata['author'] . '<br>';
+        echo $this->getLang('email') . ': ' . $newsdata['email'] . '<br>';
+        echo $this->getLang('date') . ': ' . $newsdata['newsdate'];
+        echo '<div class="fksnewsmoreinfotext">';
+        echo p_render("xhtml", p_get_instructions($newsdata["text"]), $info);
+        echo '</div>';
         echo '</div>';
     }
 
@@ -156,14 +191,11 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
     private function returnnewspermut() {
         global $lang;
-        global $newsreturndata;
-        for ($i = $newsreturndata['maxnews'] - 1; $i > 0; $i--) {
-            $datawrite[$newsreturndata['permutnew' . $i]] = $newsreturndata['newIDsrender' . $i];
-        }
-        for ($i = $newsreturndata['maxnews'] - 1; $i > 0; $i--) {
-            $datawrite['write'].=';' . $datawrite[$i] . ';';
-        }
-        echo $this->helper->controlData($datawrite["write"]);
+        global $Rdata;
+        //print_r($Rdata);
+        
+        
+        echo $this->helper->controlData();
 
 
         $form = new Doku_Form(array(
@@ -173,62 +205,6 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         ));
         $form->addElement(form_makeButton('submit', '', $this->getLang('returntomenu')));
         html_form('addnews', $form);
-    }
-
-    private function getnewstr($i) {
-        global $lang;
-
-        $rendernews = $this->helper->loadnews();
-        $rendernewsbool = preg_split('/-/', $rendernews[$i]);
-
-
-        $newsdata = $this->helper->extractParamtext($this->helper->loadnewssimple($rendernewsbool[0]));
-
-        $newsdata['name'] = $this->helper->shortName($newsdata['name'], 25);
-        if (strlen($newsdata['name']) > 25) {
-            $newsdata['name'] = substr($newsdata['name'], 0, 22) . '...';
-        }
-
-        echo '<tr id="fks_news_admin_tr' . $i . '">';
-        echo $this->helper->getnewstd("fksnewsid", "fks_news_i" . $i, $i + 1);
-
-
-        //echo $this->helper->getnewstd("fksnewspermold", "fks_news_admin_perm_old" . $i, $i);
-        echo $this->helper->getnewstd("fksnewspermnew", "fks_news_admin_perm_new" . $i, ' '
-                . '<input '
-                . 'class="fksnewsinputperm" '
-                . $this->helper->fksnewsboolswitch(' '
-                        . 'title="' . $this->getLang('notreadonly') . '" ', ' '
-                        //. 'readonly="readonly" '
-                        . 'title="' . $this->getLang('readonly') . '" ', $this->getConf('editnumber'))
-                . 'type="text" '
-                . 'id="fks_news_admin_permut_new_input' . $i . '" '
-                . 'name="permutnew' . $i . '" '
-                . 'value="' . $rendernewsbool[0] . '">');
-        echo $this->helper->getnewstd(" ", " ", ' '
-                . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/up.gif" class="fks_news_admin_up">'
-                . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/down.gif" class="fks_news_admin_down">');
-        echo $this->helper->getnewstd(" ", "fks_news_admin_view" . $i, ' '
-                . '<select class="fksnwsselectperm" name="newIDsrender' . $i . '">'
-                . '<option value="' . $i . '-T" selected="selected">'
-                . $this->getLang('display') . '</option>'
-                . '<option value="' . $i . '-F" >'
-                . $this->getLang('nodisplay') . '</option></select>');
-        echo $this->helper->getnewstd("fks_news_info", 'fks_news_admin_info' . $i, ''
-                . '<span style="color:#000' . '">'
-                . $newsdata['name'] . '</span>');
-        echo '</tr>';
-
-
-        echo '<div class="fksnewsmoreinfo" id="fks_news_admin_info' . $i . '_div" style=" " >';
-
-        echo $this->getLang('author') . ': ' . $newsdata['author'] . '<br>';
-        echo $this->getLang('email') . ': ' . $newsdata['email'] . '<br>';
-        echo $this->getLang('date') . ': ' . $newsdata['newsdate'];
-        echo '<div class="fksnewsmoreinfotext">';
-        echo p_render("xhtml", p_get_instructions($newsdata["text"]), $info);
-        echo '</div>';
-        echo '</div>';
     }
 
 }

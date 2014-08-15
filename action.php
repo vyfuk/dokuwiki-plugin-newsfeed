@@ -53,6 +53,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         $data = $this->helper->extractParamtext($this->helper->loadnewssimple($INPUT->str('id')));
         $data['shortname'] = $this->helper->shortName($data['name'], 25);
         $data['text-html'] = p_render("xhtml", p_get_instructions($data["text"]), $info);
+        $data["fullhtml"] = $this->helper->rendernews($INPUT->str('id'), 'fksnewsodd');
 
         require_once DOKU_INC . 'inc/JSON.php';
         $json = new JSON();
