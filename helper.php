@@ -91,7 +91,8 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $fksnews = str_replace('@NAME@', $INFO['userinfo']['name'], $fksnews);
         $fksnews = str_replace('@MAIL@', $INFO['userinfo']['mail'], $fksnews);
         $fksnews = str_replace('@DATE@', dformat(), $fksnews);
-        file_put_contents($this->getnewsurl($newsreturndata['newsid']), $fksnews);
+        $Wnews = file_put_contents($this->getnewsurl($newsreturndata['newsid']), $fksnews);
+        return $Wnews;
     }
 
     /*
@@ -204,25 +205,21 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 }
             }
         }
-        
-    if(!$data){
-        
-        $to_page.='<div class="error">'
+
+        if (!$data) {
+
+            $to_page.='<div class="error">'
                     . $this->getLang('dataerror') . "</div>";
-    }else{file_put_contents("data/meta/newsfeed.csv", $data);
-    $to_page.='<div class="notify"><p>New data: <br>' . $data . '</p></div>';
-    }
-        
-        
-        //$olddata = io_readFile("data/meta/newsfeed.csv", FALSE);
-        //$to_page.= '<div class="info"><p>' . $this->getLang('length') . ' ' . $this->getLang('old')
-        //        . " " . strlen(io_readFile("data/meta/newsfeed.csv", FALSE)) . "</p></div> ";
-        //$to_page.= '<div class="info"><p>' . $this->getLang('length') . ' ' . $this->getLang('new')
-        //        . " " . strlen($data) . "</p></div> ";
-        //$to_page.='<div class="info"><p>Ols data: <br>' . $olddata . '</p></div>';
-        
-       // $to_page.='<div class="error"><p>' . $this->getLang('autoreturn') . '</p></div>';
-       
+        } else {
+            $wfile = file_put_contents("data/meta/newsfeed.csv", $data);
+
+            msg('New data: <br>' . $data, 0);
+            if ($wfile) {
+                msg(' written successful', 1);
+            } else {
+                msg("written failure", -1);
+            }
+        }
         return $to_page;
     }
 
@@ -232,6 +229,32 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         } else {
             return $color2;
         }
+    }
+
+    function returnMenu($lmenu) {
+        global $lang;
+        $form = new Doku_Form(array(
+            'id' => "addtowiki",
+            'method' => 'POST',
+            'action' => DOKU_BASE . "?do=admin"
+        ));
+        $form->addElement(makeHeading($this->getLang($lmenu), array()));
+        $form->addElement(form_makeButton('submit', '', $this->getLang('returntomenu')));
+        html_form('addnews', $form);
+    }
+    
+     function lostNews() {
+        $allnews = glob($this->getnewsurl("*"));
+        $arraynews = array();
+        foreach ($allnews as $key => $value) {
+            $arraynews[] = substr($value, count($this->getnewsurl("*")) - 6, -4);
+        }
+        msg('Zabudol si ake id ma tva novinka?', 0);
+        $form = new Doku_Form(array('id' => "load_new", 'onsubmit' => "return false"));
+        $form->addElement(form_makeDatalistField('news_id_lost', 'lost_n', $arraynews));
+        $form->addElement(form_makeButton('submit', '', $this->getLang('findnews')));
+        $form->addElement('<div id="lost_news"> </div>');
+        html_form('editnews', $form);
     }
 
 }

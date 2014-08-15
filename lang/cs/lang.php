@@ -13,10 +13,11 @@ $lang['direction']  = 'ltr';
 // for admin plugins, the menu prompt to be displayed in the admin menu
 // if set here, the plugin doesn't need to override the getMenuText() method
 $lang['addmenu']          = 'Přidat aktualitu'; 
-//$lang['editmenu']         = 'Upravit aktualitu';
+$lang['addeditmenu']         = 'Přidat a upravit aktuality';
+$lang['editmenu']         = 'Upravit aktuality';
 $lang['menu']             = 'Spravovat aktuality';
-//$lang['deletemenu']       = 'Upravit zobrazovaní aktualit';
-$lang['permutmenu']       = 'Upravit pořadí, parametry a zobrazovaní novinek';
+$lang['permutviewmenu']       = 'Upravit zobrazovaní a pořadí aktualit';
+$lang['permutmenu']       = 'Upravit pořadí a zobrazovaní novinek';
 $lang['newssave']         = 'Uložit změny';
 
 $lang['subeditnews']      = 'Upravit novinku';

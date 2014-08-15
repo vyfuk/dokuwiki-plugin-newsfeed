@@ -31,8 +31,8 @@ function newsviewmore(ID) {
 jQuery(function() {
     $('input.fksnewsinputperm').change(function() {
         //var $form=$(this);
-        console.log($(this).attr("name"));
-        console.log($(this).parent().parent().index());
+        //console.log($(this).attr("name"));
+        //console.log($(this).parent().parent().index());
         newsID = $(this).val(),
                 $infodiv = $("#fks_news_admin_info" + $(this).parent().parent().index() + '_div');
         $infospan = $("#fks_news_admin_info" + $(this).parent().parent().index() + '_span');
@@ -60,7 +60,7 @@ jQuery(function() {
     $('#load_new').submit(function(event) {
         event.preventDefault();
         var $form = $(this);
-        newsID = $form.find("input[name='news_id_new']").val();
+        newsID = $form.find("input[name='news_id_lost']").val();
         $lostdiv = $('#lost_news');
         $.post(
                 DOKU_BASE + 'lib/exe/ajax.php',
@@ -90,26 +90,10 @@ jQuery(function() {
         var olddata = new Array();
         var el = document.getElementById('fks_news_admin_tr' + ID);
 
-        if (ID !== 1) {
-            olddata['fks_news_admin_id'] = document.getElementById('fks_news_admin_id' + ID).innerHTML;
-            //olddata['fks_news_admin_edit'] = document.getElementById('fks_news_admin_edit' + ID).innerHTML;
-            olddata['fks_news_admin_permold'] = document.getElementById('fks_news_admin_perm_old' + ID).innerHTML;
-            olddata['fks_news_admin_view'] = document.getElementById('fks_news_admin_view' + ID).innerHTML;
-            olddata['fks_news_admin_info'] = document.getElementById('fks_news_admin_info' + ID).innerHTML;
-            olddata['fks_news_admin_permut_new_input'] = document.getElementById('fks_news_admin_permut_new_input' + ID).name;
-
-            document.getElementById('fks_news_admin_id' + ID).innerHTML = document.getElementById('fks_news_admin_id' + IDdown).innerHTML;
-            //document.getElementById('fks_news_admin_edit' + ID).innerHTML = document.getElementById('fks_news_admin_edit' + IDdown).innerHTML;
-            document.getElementById('fks_news_admin_perm_old' + ID).innerHTML = document.getElementById('fks_news_admin_perm_old' + IDdown).innerHTML;
-            document.getElementById('fks_news_admin_view' + ID).innerHTML = document.getElementById('fks_news_admin_view' + IDdown).innerHTML;
-            document.getElementById('fks_news_admin_info' + ID).innerHTML = document.getElementById('fks_news_admin_info' + IDdown).innerHTML;
-            document.getElementById('fks_news_admin_permut_new_input' + ID).name = document.getElementById('fks_news_admin_permut_new_input' + IDdown).name;
-            document.getElementById('fks_news_admin_id' + IDdown).innerHTML = olddata['fks_news_admin_id'];
-            //document.getElementById('fks_news_admin_edit' + IDdown).innerHTML = olddata['fks_news_admin_edit'];
-            document.getElementById('fks_news_admin_perm_old' + IDdown).innerHTML = olddata['fks_news_admin_permold'];
-            document.getElementById('fks_news_admin_view' + IDdown).innerHTML = olddata['fks_news_admin_view'];
-            document.getElementById('fks_news_admin_info' + IDdown).innerHTML = olddata['fks_news_admin_info'];
-            document.getElementById('fks_news_admin_permut_new_input' + IDdown).name = olddata['fks_news_admin_permut_new_input'];
+        if (ID !== 0) {
+            olddata['fks_news_admin_permut_new_input'] = document.getElementById('fks_news_admin_permut_new_input' + ID).value;
+            document.getElementById('fks_news_admin_permut_new_input' + ID).value = document.getElementById('fks_news_admin_permut_new_input' + IDdown).value;
+            document.getElementById('fks_news_admin_permut_new_input' + IDdown).value = olddata['fks_news_admin_permut_new_input'];
         }
         ;
     }
