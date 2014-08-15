@@ -29,37 +29,45 @@ function newsviewmore(ID) {
 }
 ;
 jQuery(function() {
-    $('input.fksnewsinputperm').change(function(){
+    $('input.fksnewsinputperm').change(function() {
         //var $form=$(this);
-        newsID= $(this).val(),
-       
-        $.post(
-                DOKU_BASE + 'lib/exe/ajax.php',
-                {call: 'plugin_fksnewsfeed', name: 'local',id:newsID}, function(data) {
-            alert('Received response'+data);
-            console.log(data);
-            // data is array you returned with action.php
-        },
-                'json');
-        
-    
+        console.log($(this).attr("name"));
+        console.log($(this).parent().parent().index());
+        newsID = $(this).val(),
+        $infodiv=$("#fks_news_admin_info" + $(this).parent().parent().index()+'_div');
+                $.post(
+                        DOKU_BASE + 'lib/exe/ajax.php',
+                        {call: 'plugin_fksnewsfeed', name: 'local', id: newsID}, function(data) {
+                    alert('Received response' + data);
+                    console.log(data);
+                   $infodiv.html(
+                            'author : ' + data['author'] + '<br>'
+                            + 'email : '+data['email'] + '<br>'
+                            + 'date' + ': ' + data['newsdate']
+                            + '<div class="fksnewsmoreinfotext">'
+                            + data["text-html"]
+                            + '</div>');
+                    // data is array you returned with action.php
+                },
+                        'json');
+
+
     });
 
 
     $('#load_new').submit(function(event) {
         event.preventDefault();
-        var $form=$(this);
-        newsID= $form.find( "input[name='news_id_new']" ).val(),
-       
-        $.post(
-                DOKU_BASE + 'lib/exe/ajax.php',
-                {call: 'plugin_fksnewsfeed', name: 'local',id:newsID}, function(data) {
-            alert('Received response'+data);
-            console.log(data);
-            // data is array you returned with action.php
-        },
-                'json');
-        
+        var $form = $(this);
+        newsID = $form.find("input[name='news_id_new']").val(),
+                $.post(
+                        DOKU_BASE + 'lib/exe/ajax.php',
+                        {call: 'plugin_fksnewsfeed', name: 'local', id: newsID}, function(data) {
+                    alert('Received response' + data);
+                    console.log(data);
+                    // data is array you returned with action.php
+                },
+                        'json');
+
     })
             ;
 

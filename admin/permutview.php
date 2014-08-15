@@ -60,10 +60,10 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
                 break;
             default:
-                
-                 $imax = $this->helper->findimax();
-        echo '<script type="text/javascript" charset="utf-8">'
-        . 'var maxfile=' . $imax . ';</script>';
+
+                $imax = $this->helper->findimax();
+                echo '<script type="text/javascript" charset="utf-8">'
+                . 'var maxfile=' . $imax . ';</script>';
                 /*
                  * add news
                  */
@@ -72,19 +72,14 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
                  * permutation news
                  */
                 $this->getpermutnews();
-                
-                //$this->geteditnews();
+
+            //$this->geteditnews();
         }
         echo '<div id="myDiv"> some text </div>'
-        .'<form id="load_new"> <input type="text" name="news_id_new">'
+        . '<form id="load_new"> <input type="text" name="news_id_new">'
         . '<input type="submit" id="MyDivEdit" class="MyDivEdit">'
-                . '</form>';
-        
-
-        
+        . '</form>';
     }
-    
-    
 
     private function getpermutnews() {
         global $lang;
@@ -110,8 +105,18 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         <th class="fksnewsinfo">' . $this->getLang('newsname') . '</th></tr></thead>';
 
 
-        for ($i =0 ; $i <$imax - 1; $i++) {
-            $this->getnewstr($i);
+        for ($i = 0; $i < $imax - 1; $i++) {
+
+
+            $rendernews = $this->helper->loadnews();
+            $rendernewsbool = preg_split('/-/', $rendernews[$i]);
+
+            if ($rendernewsbool[1] == 'T') {
+                $boolrender = true;
+                $this->getnewstr($i);
+            } else {
+                continue;
+            }
         }
 
         echo '</table>';
@@ -170,30 +175,25 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         html_form('addnews', $form);
     }
 
-     private function getnewstr($i) {
+    private function getnewstr($i) {
         global $lang;
-        
-        $boolrender = false;
+
         $rendernews = $this->helper->loadnews();
         $rendernewsbool = preg_split('/-/', $rendernews[$i]);
 
-        if ($rendernewsbool[1] == 'T') {
-            $boolrender = true;
-        }
 
-       
         $newsdata = $this->helper->extractParamtext($this->helper->loadnewssimple($rendernewsbool[0]));
-        
-        $newsdata['name']=$this->helper->shortName($newsdata['name'],25);
+
+        $newsdata['name'] = $this->helper->shortName($newsdata['name'], 25);
         if (strlen($newsdata['name']) > 25) {
             $newsdata['name'] = substr($newsdata['name'], 0, 22) . '...';
         }
 
         echo '<tr id="fks_news_admin_tr' . $i . '">';
-        echo $this->helper->getnewstd("fksnewsid", "fks_news_admin_id" . $i, $rendernewsbool[0]);
-       
+        echo $this->helper->getnewstd("fksnewsid", "fks_news_i" . $i, $i + 1);
 
-        echo $this->helper->getnewstd("fksnewspermold", "fks_news_admin_perm_old" . $i, $i);
+
+        //echo $this->helper->getnewstd("fksnewspermold", "fks_news_admin_perm_old" . $i, $i);
         echo $this->helper->getnewstd("fksnewspermnew", "fks_news_admin_perm_new" . $i, ' '
                 . '<input '
                 . 'class="fksnewsinputperm" '
@@ -203,19 +203,19 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
                         . 'title="' . $this->getLang('readonly') . '" ', $this->getConf('editnumber'))
                 . 'type="text" '
                 . 'id="fks_news_admin_permut_new_input' . $i . '" '
-                . 'name="permutnew' . $rendernewsbool[0] . '" '
-                . 'value="' . $i . '">');
+                . 'name="permutnew' . $i . '" '
+                . 'value="' . $rendernewsbool[0] . '">');
         echo $this->helper->getnewstd(" ", " ", ' '
                 . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/up.gif" class="fks_news_admin_up">'
                 . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/down.gif" class="fks_news_admin_down">');
         echo $this->helper->getnewstd(" ", "fks_news_admin_view" . $i, ' '
                 . '<select class="fksnwsselectperm" name="newIDsrender' . $i . '">'
-                . '<option value="' . $i . '-T" ' . $this->helper->fksnewsboolswitch('selected="selected', '', $boolrender) . '">'
+                . '<option value="' . $i . '-T" selected="selected">'
                 . $this->getLang('display') . '</option>'
-                . '<option value="' . $i . '-F" ' . $this->helper->fksnewsboolswitch('', 'selected="selected"', $boolrender) . '>'
+                . '<option value="' . $i . '-F" >'
                 . $this->getLang('nodisplay') . '</option></select>');
         echo $this->helper->getnewstd("fks_news_info", 'fks_news_admin_info' . $i, ''
-                . '<span style="color:' . $this->helper->fksnewsboolswitch('#000', '#999', $boolrender) . '">'
+                . '<span style="color:#000' . '">'
                 . $newsdata['name'] . '</span>');
         echo '</tr>';
 
@@ -230,4 +230,5 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         echo '</div>';
         echo '</div>';
     }
+
 }
