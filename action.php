@@ -27,6 +27,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
     public function register(Doku_Event_Handler $controller) {
         $controller->register_hook('HTML_EDIT_FORMSELECTION', 'BEFORE', $this, 'handle_html_edit_formselection');
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'handle_action_act_preprocess');
+        $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_action_ajax_request');
     }
 
     /**
@@ -37,6 +38,30 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
      *                           handler was registered]
      * @return void
      */
+    public function handle_action_ajax_request(Doku_Event &$event, $param) {
+
+        //no other ajax call handlers needed
+        $event->stopPropagation();
+        $event->preventDefault();
+
+        //e.g. access additional request variables
+        global $INPUT; //available since release 2012-10-13 "Adora Belle"
+        $name = $INPUT->str('id');
+
+        //data
+
+        $data = $this->helper->extractParamtext($this->helper->loadnewssimple($INPUT->str('id')));
+        $data['shortname'] = $this->helper->shortName($data['name'], 25);
+        $data['text-html'] = p_render("xhtml", p_get_instructions($data["text"]), $info);
+
+        require_once DOKU_INC . 'inc/JSON.php';
+        $json = new JSON();
+
+        //set content type
+        header('Content-Type: application/json');
+        echo $json->encode($data);
+    }
+
     public function handle_html_edit_formselection(Doku_Event &$event, $param) {
         global $TEXT;
         global $INPUT;
@@ -44,7 +69,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         //if ($event->data['target'] !== 'plugin_fksnewsfeed') {
         //    return;
         //}
-         if ($_POST['target'] !== 'plugin_fksnewsfeed') {
+        if ($_POST['target'] !== 'plugin_fksnewsfeed') {
             return;
         }
         $event->preventDefault();
@@ -110,7 +135,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             }
             $news.='<newsdate>' . $data['newsdate'] . '</newsdate>';
             $news.='<newsauthor>[[' . $data['email'] . '|' . $data['author'] . ']]</newsauthor>';
-            $news.="\n".'==== ' . $data['name'] . ' ==== '."\n";
+            $news.="\n" . '==== ' . $data['name'] . ' ==== ' . "\n";
             $news.=$data['text'];
 
             $filename = $this->helper->getNewsFile($_POST["id"]);

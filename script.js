@@ -29,6 +29,40 @@ function newsviewmore(ID) {
 }
 ;
 jQuery(function() {
+    $('input.fksnewsinputperm').change(function(){
+        //var $form=$(this);
+        newsID= $(this).val(),
+       
+        $.post(
+                DOKU_BASE + 'lib/exe/ajax.php',
+                {call: 'plugin_fksnewsfeed', name: 'local',id:newsID}, function(data) {
+            alert('Received response'+data);
+            console.log(data);
+            // data is array you returned with action.php
+        },
+                'json');
+        
+    
+    });
+
+
+    $('#load_new').submit(function(event) {
+        event.preventDefault();
+        var $form=$(this);
+        newsID= $form.find( "input[name='news_id_new']" ).val(),
+       
+        $.post(
+                DOKU_BASE + 'lib/exe/ajax.php',
+                {call: 'plugin_fksnewsfeed', name: 'local',id:newsID}, function(data) {
+            alert('Received response'+data);
+            console.log(data);
+            // data is array you returned with action.php
+        },
+                'json');
+        
+    })
+            ;
+
     function newsvalueup(ID) {
         if (ID !== maxfile) {
             ID++;
@@ -44,20 +78,20 @@ jQuery(function() {
 
         if (ID !== 1) {
             olddata['fks_news_admin_id'] = document.getElementById('fks_news_admin_id' + ID).innerHTML;
-            olddata['fks_news_admin_edit'] = document.getElementById('fks_news_admin_edit' + ID).innerHTML;
+            //olddata['fks_news_admin_edit'] = document.getElementById('fks_news_admin_edit' + ID).innerHTML;
             olddata['fks_news_admin_permold'] = document.getElementById('fks_news_admin_perm_old' + ID).innerHTML;
             olddata['fks_news_admin_view'] = document.getElementById('fks_news_admin_view' + ID).innerHTML;
             olddata['fks_news_admin_info'] = document.getElementById('fks_news_admin_info' + ID).innerHTML;
             olddata['fks_news_admin_permut_new_input'] = document.getElementById('fks_news_admin_permut_new_input' + ID).name;
 
             document.getElementById('fks_news_admin_id' + ID).innerHTML = document.getElementById('fks_news_admin_id' + IDdown).innerHTML;
-            document.getElementById('fks_news_admin_edit' + ID).innerHTML = document.getElementById('fks_news_admin_edit' + IDdown).innerHTML;
+            //document.getElementById('fks_news_admin_edit' + ID).innerHTML = document.getElementById('fks_news_admin_edit' + IDdown).innerHTML;
             document.getElementById('fks_news_admin_perm_old' + ID).innerHTML = document.getElementById('fks_news_admin_perm_old' + IDdown).innerHTML;
             document.getElementById('fks_news_admin_view' + ID).innerHTML = document.getElementById('fks_news_admin_view' + IDdown).innerHTML;
             document.getElementById('fks_news_admin_info' + ID).innerHTML = document.getElementById('fks_news_admin_info' + IDdown).innerHTML;
             document.getElementById('fks_news_admin_permut_new_input' + ID).name = document.getElementById('fks_news_admin_permut_new_input' + IDdown).name;
             document.getElementById('fks_news_admin_id' + IDdown).innerHTML = olddata['fks_news_admin_id'];
-            document.getElementById('fks_news_admin_edit' + IDdown).innerHTML = olddata['fks_news_admin_edit'];
+            //document.getElementById('fks_news_admin_edit' + IDdown).innerHTML = olddata['fks_news_admin_edit'];
             document.getElementById('fks_news_admin_perm_old' + IDdown).innerHTML = olddata['fks_news_admin_permold'];
             document.getElementById('fks_news_admin_view' + IDdown).innerHTML = olddata['fks_news_admin_view'];
             document.getElementById('fks_news_admin_info' + IDdown).innerHTML = olddata['fks_news_admin_info'];
@@ -90,7 +124,7 @@ jQuery(function() {
     //jQuery("td > img").click(function() {
     $("img.fks_news_admin_down").click(function() {
         var value = jQuery(this).parent().parent().index();
-        value = maxfile - value - 1;
+        value++;
         /*for (var IDtr in value) {
          */ newsvaluedown(value)/*
           }
@@ -100,7 +134,7 @@ jQuery(function() {
 
     $("img.fks_news_admin_up").click(function() {
         var value = jQuery(this).parent().parent().index();
-        value = maxfile - value - 1;
+        value--;
         /*for (var IDtr in value) {
          */ newsvalueup(value)/*
           }

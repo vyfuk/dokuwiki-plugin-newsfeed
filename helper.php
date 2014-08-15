@@ -21,7 +21,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     function getnewsurl($newsno) {
         
         global $conf;
-        $url = str_replace("@i@", $newsno, 'data/pages/'
+        $url = str_replace("@i@", $newsno,DOKU_INC. 'data/pages/'
                 . $this->getConf('newsfolder') . '/'
                 . $this->getConf('newsfile') . '.txt');
         return $url;
@@ -100,7 +100,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     function deletecache() {
         global $conf;
-        $files = glob('data/cache/*/*');
+        $files = glob(DOKU_INC.'data/cache/*/*');
         foreach ($files as $file) {
             if (is_file($file)) {
                 unlink($file);
@@ -130,6 +130,12 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     /*
      * load news @i@ and return text
      */
+    function shortName($name,$l){
+        if (strlen($name) > $l) {
+            $name = substr($name, 0, $l-3) . '...';
+        }
+        return $name;
+    }
 
     function loadnewssimple($i) {
         global $lang;
