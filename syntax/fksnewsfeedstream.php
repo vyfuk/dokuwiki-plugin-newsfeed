@@ -14,7 +14,11 @@ if (!defined('DOKU_PLUGIN')) {
 }
 require_once(DOKU_PLUGIN . 'syntax.php');
 
-class syntax_plugin_fksnewsfeed_newsauthor extends DokuWiki_Syntax_Plugin {
+class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin {
+
+    public function __construct() {
+        $this->helper = $this->loadHelper('fksnewsfeed');
+    }
 
     public function getType() {
         return 'substition';
@@ -33,15 +37,37 @@ class syntax_plugin_fksnewsfeed_newsauthor extends DokuWiki_Syntax_Plugin {
     }
 
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('<newsauthor>.+?</newsauthor>', $mode, 'plugin_fksnewsfeed_newsauthor');
+        $this->Lexer->addSpecialPattern('\{\{fksnewsfeed-stream>.+?\}\}', $mode, 'plugin_fksnewsfeed_fksnewsfeedstream');
     }
 
     /**
      * Handle the match
      */
     public function handle($match, $state, $pos, Doku_Handler &$handler) {
-        $to_page.="<div class='fksnewsauthor'>";
-        $to_page.=p_render("xhtml", p_get_instructions(substr($match, 12, -13)), $info);
+
+        foreach (preg_split('/;/', substr($match, 21, -2))as $key => $value) {
+            list($k, $v) = preg_split('/=/', $value);
+            $Sdata[$k] = $v;
+        }
+        //print_r($Sdata);
+        $to_page.="<div class='fksnewswrapper'>";
+
+        foreach ($this->helper->loadstream($Sdata) as $key => $value) {
+            //$data = $this->helper->getfulldata($value, $Sdata);
+            if ($Sdata['feed']) {
+                if ($Sdata['feed'] % 2) {
+                    $to_page.='<div class="fksnewseven">';
+                } else {
+                    $to_page.='<div class="fksnewsodd">';
+                }
+                $to_page.=$this->helper->renderfullnews(array('dir' => $Sdata['dir'], 'id' => $value));
+                $to_page.= '</div>';
+                $Sdata['feed'] --;
+            } else {
+                break;
+            }
+        }
+
         $to_page.="</div>";
         return array($state, array($to_page));
     }

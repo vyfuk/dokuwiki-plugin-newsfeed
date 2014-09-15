@@ -73,8 +73,8 @@ class admin_plugin_fksnewsfeed extends DokuWiki_Admin_Plugin {
         echo ')">' . $this->getLang('editmenu') . '</h1>';
         echo '<div id="newsedit" style="display: none">';
         echo '<form method="post" action=doku.php>';
-        echo '<input type="hidden" name="do" value="edit">';
-        echo '<input type="hidden" name="rev" value="0"> ';
+        echo '<input type="hidden" name="do" value="edit" />';
+        echo '<input type="hidden" name="rev" value="0" /> ';
         echo $imax;
         for ($i = $imax; $i > 0; $i--) {
             $feedsdata = io_readFile("data/pages/fksnewsfeed/news" . $i . ".txt", false);

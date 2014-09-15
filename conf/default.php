@@ -6,6 +6,7 @@
  * and open the template in the editor.
  */
 
-$conf['newsfolder'] = 'fksnewsfeeds';
+$conf['newsfolder'] = 'fksnewsfeed';
 $conf['newsfile'] = 'news@i@';
+$conf['editnumber']  = 0;
 

@@ -8,4 +8,5 @@
 
 $meta['newsfolder'] = array('string');
 $meta['newsfile'] = array('string');
+$meta['editnumber']  = array('onoff');
 
