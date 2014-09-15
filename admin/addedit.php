@@ -68,8 +68,10 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
             $idn = substr($value, count($this->helper->getnewsurl("*")) - 6, -4);
             $form->startFieldset($value);
             $form->endFieldset();
+
+            
             $form->addElement('<div class="fksnewswrapper">'
-                    . $this->helper->rendernews($idn, 'fksnewseven')
+                    . $this->helper->rendernews( $data = $this->helper->getfulldata($idn))
                     . '</div>');
             $form->addHidden("do", "edit");
             $form->addHidden('id', $this->helper->getwikinewsurl($idn));

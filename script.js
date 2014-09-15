@@ -31,14 +31,15 @@ function newsviewmore(ID) {
 jQuery(function() {
     $('input.fksnewsinputperm').change(function() {
         //var $form=$(this);
-        //console.log($(this).attr("name"));
-        //console.log($(this).parent().parent().index());
+
+        console.log($(this).attr("name"));
+        console.log($(this).parent().parent().parent().index());
         newsID = $(this).val(),
-                $infodiv = $("#fks_news_admin_info" + $(this).parent().parent().index() + '_div');
-        $infospan = $("#fks_news_admin_info" + $(this).parent().parent().index() + '_span');
+                $infodiv = $("#fks_news_admin_info" + $(this).parent().parent().parent().index() + '_div');
+        $infospan = $("#fks_news_admin_info" + $(this).parent().parent().parent().index() + '_span');
         $.post(
                 DOKU_BASE + 'lib/exe/ajax.php',
-                {call: 'plugin_fksnewsfeed', name: 'local', id: newsID}, function(data) {
+                {call: 'plugin_fksnewsfeed',target:'feed', name: 'local', id: newsID}, function(data) {
             alert('Received response' + data);
             console.log(data);
             $infodiv.html(
@@ -64,7 +65,9 @@ jQuery(function() {
         $lostdiv = $('#lost_news');
         $.post(
                 DOKU_BASE + 'lib/exe/ajax.php',
-                {call: 'plugin_fksnewsfeed', name: 'local', id: newsID},
+
+                {call: 'plugin_fksnewsfeed',target:'feed', name: 'local', id: newsID},
+
         function(data) {
             alert('Received response' + data);
             $lostdiv.html('<div class="fksnewsmoreinfotext">'

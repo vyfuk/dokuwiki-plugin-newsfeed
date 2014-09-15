@@ -59,7 +59,6 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
     private function getpermutnews() {
         global $lang;
-        $imax = $this->helper->findimax();
         global $tableform;
 
         $tableform = new Doku_Form(array('method' => "post", 'id' => "fksnewsadminperm"));
@@ -73,7 +72,8 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         ob_end_clean();
         $tableform->addElement($W);
         $tableform->addElement('<div class="fks_news_permut">');
-        $tableform->addHidden("maxnews", $imax);
+
+        $tableform->addHidden("maxnews", $this->helper->findimax());
         $tableform->addHidden("newsdo", "permut");
         $tableform->addElement('<table class="newspermuttable">');
 
@@ -86,10 +86,13 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         $this->getnewstr(0, null);
 
         $i = 1;
-        foreach ($this->helper->loadnews() as $key => $value) {
-            list($no) = preg_split('/-/', $value);
 
-            $this->getnewstr($i, $no);
+        $Sdata=array();
+        print_r($this->helper->loadstream($Sdata));
+        foreach ($this->helper->loadstream($Sdata) as $key => $value) {
+           /// list($no) = preg_split('/-/', $value);
+            $this->getnewstr($i, $this->helper->getfulldata($value,$Sdata));
+
             $i++;
         }
         $tableform->addElement('</table>');
@@ -98,46 +101,55 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         $tableform->addElement(form_makeButton('submit', '', $this->getLang('newssave')));
         $tableform->endFieldset();
 
+
         html_form('table', $tableform);
     }
 
-    private function getnewstr($i, $no) {
+
+    private function getnewstr($i, $data) {
+
         /** @var je poradie $i */
         /** @var je ID novinky $no  */
         global $lang;
         global $tableform;
 
-        //$rendernewsbool[0] = $no;
-        $newsdata = $this->helper->extractParamtext($this->helper->loadnewssimple($no));
-        $newsdata['name'] = $this->helper->shortName($newsdata['name'], 25);
-        $tableform->addElement('<tr>');
-        $tableform->addElement($this->helper->getnewstd("fksnewsid", "fks_news_i" . $i, $i + 1));
-        $tableform->addElement($this->helper->getnewstd("fksnewspermnew", "fks_news_admin_perm_new" . $i, ' '
-                        . '<input '
-                        . 'class="fksnewsinputperm" '
-                        . 'type="text" '
-                        . 'id="fks_news_admin_permut_new_input' . $i . '" '
-                        . 'name="newson' . $i . '" '
-                        . 'value="' . $no . '">'));
-        $tableform->addElement($this->helper->getnewstd(" ", " ", ' '
-                        . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/up.gif" class="fks_news_admin_up">'
-                        . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/down.gif" class="fks_news_admin_down">'));
-        $tableform->addElement($this->helper->getnewstd(" ", "fks_news_admin_view" . $i, ' '
-                        . '<select class="fksnwsselectperm" name="newsonR' . $i . '">'
-                        . '<option value="T" selected="selected">'
-                        . $this->getLang('display') . '</option>'
-                        . '<option value="F" >'
-                        . $this->getLang('nodisplay') . '</option></select>'));
-        $tableform->addElement($this->helper->getnewstd("fks_news_info", 'fks_news_admin_info' . $i, ''
-                        . '<span id="fks_news_admin_info' . $i . '_span" style="color:#000">'
-                        . $newsdata['name'] . '</span>'));
-        $tableform->addElement('</tr>');
+        
+        $tableform->startTR(array('class' => 'fksnewstr'));
+
+        $tableform->startTD(array('class' => "fksnewsid", 'id' => "fks_news_i" . $i));
+        $tableform->addElement($i + 1);
+        $tableform->endTD();
+
+
+        $tableform->startTD(array('class' => "fksnewspermnew", 'id' => "fks_news_admin_perm_new" . $i));
+        $tableform->addElement(form_makeDatalistField("newson" . $i, 'fks_news_admin_permut_new_input' . $i, $this->helper->allNews(), '', 'fksnewsinputperm', array('value' => $data['id'])));
+        $tableform->endTD();
+
+        $tableform->startTD(array('class' => "fksnewsimage"));
+        $tableform->addElement('<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/up.gif" class="fks_news_admin_up">'
+                . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/down.gif" class="fks_news_admin_down">');
+        $tableform->endTD();
+
+        $tableform->startTD(array('id' => "fks_news_admin_view" . $i));
+        $tableform->addElement(form_makeListboxField('newsonR' . $i, array(
+            array("T", $this->getLang('display')),
+            array('F', $this->getLang('nodisplay'))
+                        ), '', ''));
+        $tableform->endTD();
+
+        $tableform->startTD(array('class' => "fks_news_info", 'id' => 'fks_news_admin_info' . $i));
+        $tableform->addElement('<span id="fks_news_admin_info' . $i . '_span" style="color:#000">'
+                . $data['shortname'] . '</span>');
+        $tableform->endTD();
+
+        $tableform->endTR();
         $tableform->addElement('<div class="fksnewsmoreinfo" id="fks_news_admin_info' . $i . '_div" style=" " >'
-                . $this->getLang('author') . ': ' . $newsdata['author'] . '<br>'
-                . $this->getLang('email') . ': ' . $newsdata['email'] . '<br>'
-                . $this->getLang('date') . ': ' . $newsdata['newsdate']
+                . $this->getLang('author') . ': ' . $data['author'] . '<br>'
+                . $this->getLang('email') . ': ' . $data['email'] . '<br>'
+                . $this->getLang('date') . ': ' . $data['newsdate']
                 . '<div class="fksnewsmoreinfotext">'
-                . p_render("xhtml", p_get_instructions($newsdata["text"]), $info)
+                . $data["text-html"]
+
                 . '</div>'
                 . '</div>');
     }
@@ -163,7 +175,4 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
         echo $this->helper->controlData();
     }
-
-   
-
 }

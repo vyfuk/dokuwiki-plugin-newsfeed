@@ -40,24 +40,17 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
      */
     public function handle_action_ajax_request(Doku_Event &$event, $param) {
 
-        //no other ajax call handlers needed
+        global $INPUT;
+        $name = $INPUT->str('id');
+        if ($INPUT->str('target') != 'feed') {
+            return;
+        }
         $event->stopPropagation();
         $event->preventDefault();
-
-        //e.g. access additional request variables
-        global $INPUT; //available since release 2012-10-13 "Adora Belle"
-        $name = $INPUT->str('id');
-
         //data
-
-        $data = $this->helper->extractParamtext($this->helper->loadnewssimple($INPUT->str('id')));
-        $data['shortname'] = $this->helper->shortName($data['name'], 25);
-        $data['text-html'] = p_render("xhtml", p_get_instructions($data["text"]), $info);
-        $data["fullhtml"] = $this->helper->rendernews($INPUT->str('id'), 'fksnewsodd');
-
+        $data = $this->helper->getfulldata($INPUT->str('id'));
         require_once DOKU_INC . 'inc/JSON.php';
         $json = new JSON();
-
         //set content type
         header('Content-Type: application/json');
         echo $json->encode($data);
@@ -91,7 +84,9 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $parameters[$field] = $_POST[$field];
             }
         } else {
-            $parameters = $this->helper->extractParam($TEXT);
+
+            $parameters = $this->helper->extractParamACT($TEXT);
+
         }
 
 
@@ -105,7 +100,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
             if ($field == 'text') {
                 $value = $INPUT->post->str('wikitext', $data[$field]);
-                print_r($value);
+
                 $form->addElement(form_makeWikiText($TEXT, $attr));
             } else {
                 $value = $INPUT->post->str($field, $data[$field]);

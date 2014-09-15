@@ -5,11 +5,18 @@
  */
 // must be run within Dokuwiki
 
+/**
+ * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ * @author     Michal Červeňák <miso@fykos.cz>
+ */
+// must be run within Dokuwiki
+
 if (!defined('DOKU_INC')) {
     die();
 }
-if (!defined('DOKU_PLUGIN'))
+if (!defined('DOKU_PLUGIN')) {
     define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
+}
 require_once(DOKU_PLUGIN . 'syntax.php');
 
 class syntax_plugin_fksnewsfeed_newsauthor extends DokuWiki_Syntax_Plugin {
@@ -34,21 +41,13 @@ class syntax_plugin_fksnewsfeed_newsauthor extends DokuWiki_Syntax_Plugin {
         $this->Lexer->addSpecialPattern('<newsauthor>.+?</newsauthor>', $mode, 'plugin_fksnewsfeed_newsauthor');
     }
 
-    //public function postConnect() { $this->Lexer->addExitPattern('</fkstimer>','plugin_fkstimer'); }
-
     /**
      * Handle the match
      */
     public function handle($match, $state, $pos, Doku_Handler &$handler) {
-        $match = substr($match, 12, -13);
-        $newsauthor=preg_split('/-/', $match);
-        //$to_page.=$newsauthor[1];
-        //$to_page.=$newsauthor[0];
-        if($newsauthor[1]=='render'){
         $to_page.="<div class='fksnewsauthor'>";
-        $to_page.=p_render("xhtml", p_get_instructions($newsauthor[0]), $info);;
+        $to_page.=p_render("xhtml", p_get_instructions(substr($match, 12, -13)), $info);
         $to_page.="</div>";
-        }else{}
         return array($state, array($to_page));
     }
 
