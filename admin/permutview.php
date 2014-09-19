@@ -48,10 +48,13 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         if (!isset($Rdata['dir'])) {
             $Rdata['dir'] = 'start';
         }
+        //print_r($Rdata);
         if (!isset($Rdata['stream'])) {
             $Rdata['stream'] = null;
         }
         $this->helper->returnMenu('permutviewmenu');
+        $this->helper->changedir();
+        $this->helper->changedstream();
         switch ($Rdata['newsdo']) {
             case "permut":
                 $this->returnnewspermut($Rdata["dir"]);
@@ -59,8 +62,10 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
                 echo '<script type="text/javascript" charset="utf-8">'
                 . 'var maxfile=' . $this->helper->findimax($Rdata["dir"]) . ';</script>';
-                $this->getpermutnews($Rdata["dir"]);
-                $this->helper->lostNews($Rdata["dir"]);
+                if (isset($Rdata['type'])) {
+                    $this->getpermutnews($Rdata["dir"]);
+                    $this->helper->lostNews($Rdata["dir"]);
+                }
         }
     }
 
@@ -80,12 +85,23 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         $tableform->addElement('<div class="fks_news_permut">');
         $tableform->addHidden("maxnews", $this->helper->findimax($dir));
         $tableform->addHidden("newsdo", "permut");
-        $tableform->addHidden('dir', $dir);
+        switch ($Rdata['type']) {
+            case'stream':
+                $tableform->addHidden('type', 'stream');
+                $tableform->addHidden('stream', $Rdata['stream']);
+                break;
+            case'dir':
+
+                $tableform->addHidden('type', 'dir');
+                $tableform->addHidden('dir', $dir);
+                break;
+        }
+
         $tableform->addElement('<table class="newspermuttable">');
 
         $tableform->addElement('<thead><tr><th>' . $this->getLang('newspermold') . '</th>'
                 . '<th>' . $this->getLang('IDnews') . '</th>'
-                . '<th></th>'
+                . '<th>' . $this->getLang('dir') . '</th>'
                 . '<th>' . $this->getLang('newrender') . '</th>'
                 . '<th class="fksnewsinfo">' . $this->getLang('newsname') . '</th></tr></thead>');
 
@@ -93,38 +109,31 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
         $i = 1;
 
-        // $Sdata=array();
-
-
-        /* foreach ($this->helper->loadstream($Sdata) as $key => $value) {
-
-
-          if ($Sdata['feed']) {
-          if ($Sdata['feed'] % 2) {
-          $to_page.=$this->renderfullnews(array('dir' => $dir, 'id' => $id, 'even' => 'fksnewseven'));
-          } else {
-          $to_page.=$this->renderfullnews(array('dir' => $dir, 'id' => $id, 'even' => 'fksnewsodd'));
-          }
-
-          $Sdata['feed'] --;
-          } else {
-          break;
-          }
-          } */
-
-        //print_r($Rdata);
-        //print_r($this->helper->loadstream($Rdata));
-
         foreach ($this->helper->loadstream($Rdata) as $key => $value) {
             if (isset($Rdata['stream'])) {
                 list($id, $dir) = preg_split('/-/', $value);
+                $this->getnewstr(array_merge(
+                                $this->helper->extractParamtext(substr(io_readFile($this->helper->getnewsurl(array(
+                                                            'dir' => $dir,
+                                                            'id' => $id))), 13, -16)), array(
+                    'dir' => $dir,
+                    'id' => $id,
+                    'trno' => $i,
+                    'type' => 'stream')));
             } else {
-                $id = $value;
-                $dir = $Rdata['dir'];
+
+                $this->getnewstr(array_merge(
+                                $this->helper->extractParamtext(substr(io_readFile($this->helper->getnewsurl(array(
+                                                            'dir' => $Rdata['dir'],
+                                                            'id' => $value)
+                                                )), 13, -16)), array(
+                    'dir' => $Rdata['dir'],
+                    'id' => $value,
+                    'trno' => $i,
+                    'type' => 'dir')));
             }
 
-            $this->getnewstr(array_merge($this->helper->extractParamtext(substr(io_readFile($this->helper->getnewsurl(array('dir' => $dir, 'id' => $id))), 13, -16)), array('dir' => $dir, 'id' => $id, 'trno' => $i)));
-            echo $i;
+            //echo $i;
             $i++;
         }
         $tableform->addElement('</table>');
@@ -144,15 +153,16 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         $data["shortname"] = $this->helper->shortName($data['name'], 25);
         global $lang;
         global $tableform;
+        echo $i;
 
 
-        print_r($data);
+        //print_r($data);
 
 
         $tableform->startTR(array('class' => 'fksnewstr'));
 
         $tableform->startTD(array('class' => "fksnewsid", 'id' => "fks_news_i" . $i));
-        $tableform->addElement('<span>' . $i + 1 . '</span>');
+        $tableform->addElement('<span>' . $i ++ . '</span>');
         $tableform->endTD();
 
         $tableform->startTD(array('class' => "fksnewspermnew", 'id' => "fks_news_admin_perm_new" . $i));
@@ -165,7 +175,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         //$tableform->endTD();
 
         $tableform->startTD(array('class' => "fksnewsdirstream", 'id' => 'fks_dir_stream'));
-        $tableform->addElement(form_textfield(array('readonly' => 'readonly', 'name' => 'dir', 'value' => $data['dir'])));
+        $tableform->addElement(form_textfield(array(/* 'readonly' => 'readonly', */ 'name' => 'newsdiron' . $i, 'value' => $data['dir'])));
         $tableform->endTD();
 
         $tableform->startTD(array('id' => "fks_news_admin_view" . $i));
@@ -211,9 +221,6 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
     private function returnnewspermut() {
         global $lang;
         global $Rdata;
-        //print_r($Rdata);
-
-
         echo $this->helper->controlData();
     }
 

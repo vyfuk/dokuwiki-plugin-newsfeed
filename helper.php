@@ -30,11 +30,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $data['id'] = $no;
         $data['stream'] = $Sdata['stream'];
         $data['dir'] = $Sdata['dir'];
-        //print_r($data);
-
         $data = array_merge($data, $this->extractParamtext($this->loadnewssimple($data)));
-
-
         $data['text-html'] = p_render("xhtml", p_get_instructions($data["text"]), $info);
         $data["fullhtml"] = $this->rendernews($data);
 
@@ -75,7 +71,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     function loadstream($Sdata) {
 
         if (isset($Sdata['stream'])) {
-            return preg_split('/;;/', substr(io_readFile("data/pages/fksnewsfeed/" . $Sdata['stream'] . ".csv", FALSE), 1, -1));
+            return preg_split('/;;/', substr(io_readFile("data/pages/fksnewsfeed/streams/" . $Sdata['stream'] . ".csv", FALSE), 1, -1));
         } else {
             return preg_split('/;;/', substr(io_readFile("data/pages/fksnewsfeed/" . $Sdata['dir'] . "/newsfeed.csv", FALSE), 1, -1));
         }
@@ -112,40 +108,6 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $imax;
     }
 
-    function controlData() {
-        global $Rdata;
-        for ($i = 0; true; $i++) {
-            if (!array_key_exists('newson' . $i, $Rdata) && !array_key_exists('newsonR' . $i, $Rdata)) {
-                break;
-            } else {
-                if ($Rdata['newson' . $i]) {
-                    if ($Rdata['newsonR' . $i] == "T") {
-                        if ($Rdata['newson' . $i] < $Rdata["maxnews"]) {
-                            $data.=';' . $Rdata['newson' . $i] . ';';
-                            
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!$data) {
-
-            $to_page.='<div class="error">'
-                    . $this->getLang('dataerror') . "</div>";
-        } else {
-            $wfile = file_put_contents("data/meta/newsfeed.csv", $data);
-
-            msg('New data: <br>' . $data, 0);
-            if ($wfile) {
-                msg(' written successful', 1);
-            } else {
-                msg("written failure", -1);
-            }
-        }
-        return $to_page;
-    }
-
     function fksnewsboolswitch($color1, $color2, $bool) {
         if ($bool) {
             return $color1;
@@ -173,7 +135,8 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
         $arraynews = array();
         foreach ($allnews as $key => $value) {
-            $arraynews[] = substr($value, count($this->getnewsurl(array('dir' => $dir, 'id' => "*"))) - 6, -4);
+            $arraynews[] = substr(str_replace(DOKU_INC, '', $value), strlen("data/pages/fksnewsfeed/" . $dir . "/news"), -4);
+            //$arraynews[] = substr($value, count($this->getnewsurl(array('dir' => $dir, 'id' => "*"))) - 6, -4);
         }
 
         return$arraynews;
@@ -182,6 +145,56 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     function getNewsFile($news) {
         $id = $this->getPluginName() . ":$news";
         return metaFN($id, '.txt');
+    }
+
+    /*
+     * © Michal Červeňák
+     * 
+     * 
+     * 
+     * Control data before wrinting
+     * 
+     */
+
+    function controlData() {
+
+        global $Rdata;
+        for ($i = 1; true; $i++) {
+            if (!array_key_exists('newson' . $i, $Rdata) && !array_key_exists('newsonR' . $i, $Rdata)) {
+                break;
+            } else {
+                if ($Rdata['newson' . $i] && $Rdata['newsonR' . $i] == "T") {
+                    switch ($Rdata['type']) {
+                        case 'stream':
+                            $data.=';' . $Rdata['newson' . $i] . '-' . $Rdata['newsdiron' . $i] . ';';
+                            break;
+                        case 'dir':
+                            $data.=';' . $Rdata['newson' . $i] . ';';
+                            break;
+                    }
+                }
+            }
+        }
+        //echo $data;
+        msg('New data: <br>' . $data, 0);
+        if (!$data) {
+            msg($this->getLang('dataerror'), -1);
+        } else {
+            switch ($Rdata['type']) {
+                case 'stream':
+                    $wfile = file_put_contents(DOKU_INC . "data/pages/fksnewsfeed/streams/" . $Rdata['stream'] . ".csv", $data);
+                    break;
+                case 'dir':
+                    $wfile = file_put_contents(DOKU_INC . "data/pages/fksnewsfeed/" . $Rdata['dir'] . "/newsfeed.csv", $data);
+                    break;
+            }
+            if ($wfile) {
+                msg('written successful', 1);
+            } else {
+                msg("written failure", -1);
+            }
+        }
+        return;
     }
 
     /*
@@ -363,13 +376,52 @@ Tady napiš text aktuality
     function returnMenu($lmenu) {
         global $lang;
         $form = new Doku_Form(array(
-            'id' => "addtowiki",
+            'id' => "returntomenu",
             'method' => 'POST',
             'action' => DOKU_BASE . "?do=admin"
         ));
         $form->addElement(makeHeading($this->getLang($lmenu), array()));
         $form->addElement(form_makeButton('submit', '', $this->getLang('returntomenu')));
-        html_form('addnews', $form);
+        html_form('returntomenu', $form);
+    }
+
+    /*
+     * 
+     * © Michal Červeňák
+     * 
+     * Changing dir and stream in adminpage.
+     * 
+     */
+
+    function changedir() {
+        global $lang;
+
+        $form = new Doku_Form(array(
+            'id' => "changedir",
+            'method' => 'POST',
+                //'action' => DOKU_BASE . "?do=admin&page=fksnewsfeed_permutview"
+        ));
+        $form->addElement(makeHeading($this->getLang('changedir'), array()));
+        $form->addElement(form_makeDatalistField('dir', 'stream', array('start'), $this->getLang('changedir')));
+        $form->addHidden('type', 'dir');
+
+        $form->addElement(form_makeButton('submit', '', $this->getLang('changedir')));
+        html_form('changedirnews', $form);
+    }
+
+    function changedstream() {
+        global $lang;
+        $form = new Doku_Form(array(
+            'id' => "changedir",
+            'method' => 'POST',
+                //'action' => DOKU_BASE . "?do=admin&page=fksnewsfeed_permutview"
+        ));
+        $form->addElement(makeHeading($this->getLang('changedir'), array()));
+        $form->addElement(form_makeDatalistField('stream', 'stream', array('start'), $this->getLang('changestream')));
+        $form->addHidden('type', 'stream');
+
+        $form->addElement(form_makeButton('submit', '', $this->getLang('changedir')));
+        html_form('changedirnews', $form);
     }
 
 }
