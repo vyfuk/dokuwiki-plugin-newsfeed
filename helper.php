@@ -37,6 +37,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $data;
     }
 
+
     /*
      * changed doku text and extract param
      */
@@ -50,6 +51,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     }
 
     /*
+
      * delete casche if is run
      */
 

@@ -31,6 +31,7 @@ function newsviewmore(ID) {
 jQuery(function() {
     $('input.fksnewsinputperm').change(function() {
         //var $form=$(this);
+
         console.log($(this).attr("name"));
         console.log($(this).parent().parent().parent().index());
         newsID = $(this).val(),
@@ -64,7 +65,9 @@ jQuery(function() {
         $lostdiv = $('#lost_news');
         $.post(
                 DOKU_BASE + 'lib/exe/ajax.php',
+
                 {call: 'plugin_fksnewsfeed',target:'feed', name: 'local', id: newsID},
+
         function(data) {
             alert('Received response' + data);
             $lostdiv.html('<div class="fksnewsmoreinfotext">'

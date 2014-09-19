@@ -1,4 +1,9 @@
 <?php
+/**
+ * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ * @author     Michal Červeňák <miso@fykos.cz>
+ */
+// must be run within Dokuwiki
 
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)

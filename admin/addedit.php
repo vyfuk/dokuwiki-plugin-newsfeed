@@ -79,6 +79,7 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
             $form = new Doku_Form(array('id' => 'editnews', 'method' => 'POST', 'class' => 'fksreturn'));
             $form->startFieldset(substr(str_replace(DOKU_INC, '', $value), strlen("data/pages/fksnewsfeed/" . $dir . "/"), -4));
             $form->endFieldset();
+
             $form->addElement('<div class="fksnewswrapper">'
                     . $this->helper->renderfullnews(array('dir' => $dir, 'id' => substr(str_replace(DOKU_INC, '', $value), strlen("data/pages/fksnewsfeed/" . $dir . "/news"), -4), 'even' => 'fksnewseven'))
                     . '</div>');

@@ -83,7 +83,9 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
         $tableform->addElement($this->getnewswarning());
         $tableform->addElement('<div class="fks_news_permut">');
+
         $tableform->addHidden("maxnews", $this->helper->findimax($dir));
+
         $tableform->addHidden("newsdo", "permut");
         switch ($Rdata['type']) {
             case'stream':
@@ -108,6 +110,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         $this->getnewstr(0, null);
 
         $i = 1;
+
 
         foreach ($this->helper->loadstream($Rdata) as $key => $value) {
             if (isset($Rdata['stream'])) {
@@ -134,6 +137,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
             }
 
             //echo $i;
+
             $i++;
         }
         $tableform->addElement('</table>');
@@ -141,12 +145,14 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
         $tableform->addElement(form_makeButton('submit', '', $this->getLang('newssave')));
         $tableform->endFieldset();
-        //print_r($tableform);
+
 
         html_form('table', $tableform);
     }
 
+
     private function getnewstr($data) {
+
         /** @var je poradie $i */
         /** @var je ID novinky $no  */
         $i = $data['trno'];
@@ -197,6 +203,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
                 . $this->getLang('date') . ': ' . $data['newsdate']
                 . '<div class="fksnewsmoreinfotext">'
                 . $data["text-html"]
+
                 . '</div>'
                 . '</div>');
     }
@@ -223,5 +230,4 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         global $Rdata;
         echo $this->helper->controlData();
     }
-
 }

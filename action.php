@@ -39,6 +39,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
      * @return void
      */
     public function handle_action_ajax_request(Doku_Event &$event, $param) {
+
         global $INPUT;
         $name = $INPUT->str('id');
         if ($INPUT->str('target') != 'feed') {
@@ -83,7 +84,9 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $parameters[$field] = $_POST[$field];
             }
         } else {
+
             $parameters = $this->helper->extractParamACT($TEXT);
+
         }
 
 
@@ -97,7 +100,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
             if ($field == 'text') {
                 $value = $INPUT->post->str('wikitext', $data[$field]);
-                //print_r($value);
+
                 $form->addElement(form_makeWikiText($TEXT, $attr));
             } else {
                 $value = $INPUT->post->str($field, $data[$field]);
