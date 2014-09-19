@@ -45,21 +45,29 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         $this->helper->deletecache();
         global $Rdata;
         $Rdata = $_POST;
+        if (!isset($Rdata['dir'])) {
+            $Rdata['dir'] = 'start';
+        }
+        if (!isset($Rdata['stream'])) {
+            $Rdata['stream'] = null;
+        }
         $this->helper->returnMenu('permutviewmenu');
         switch ($Rdata['newsdo']) {
             case "permut":
-                $this->returnnewspermut();
+                $this->returnnewspermut($Rdata["dir"]);
             default:
+
                 echo '<script type="text/javascript" charset="utf-8">'
-                . 'var maxfile=' . $this->helper->findimax() . ';</script>';
-                $this->getpermutnews();
-                $this->helper->lostNews();
+                . 'var maxfile=' . $this->helper->findimax($Rdata["dir"]) . ';</script>';
+                $this->getpermutnews($Rdata["dir"]);
+                $this->helper->lostNews($Rdata["dir"]);
         }
     }
 
-    private function getpermutnews() {
+    private function getpermutnews($dir) {
+        global $Rdata;
         global $lang;
-        
+
         global $tableform;
 
         $tableform = new Doku_Form(array('method' => "post", 'id' => "fksnewsadminperm"));
@@ -67,14 +75,12 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         $tableform->startFieldset($this->getLang('permutmenu'));
         $tableform->endFieldset();
 
-        ob_start();
-        $this->getnewswarning();
-        $W = ob_get_contents();
-        ob_end_clean();
-        $tableform->addElement($W);
+
+        $tableform->addElement($this->getnewswarning());
         $tableform->addElement('<div class="fks_news_permut">');
-        $tableform->addHidden("maxnews", $this->helper->findimax());
+        $tableform->addHidden("maxnews", $this->helper->findimax($dir));
         $tableform->addHidden("newsdo", "permut");
+        $tableform->addHidden('dir', $dir);
         $tableform->addElement('<table class="newspermuttable">');
 
         $tableform->addElement('<thead><tr><th>' . $this->getLang('newspermold') . '</th>'
@@ -86,11 +92,39 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         $this->getnewstr(0, null);
 
         $i = 1;
-        $Sdata=array();
-        print_r($this->helper->loadstream($Sdata));
-        foreach ($this->helper->loadstream($Sdata) as $key => $value) {
-           /// list($no) = preg_split('/-/', $value);
-            $this->getnewstr($i, $this->helper->getfulldata($value,$Sdata));
+
+        // $Sdata=array();
+
+
+        /* foreach ($this->helper->loadstream($Sdata) as $key => $value) {
+
+
+          if ($Sdata['feed']) {
+          if ($Sdata['feed'] % 2) {
+          $to_page.=$this->renderfullnews(array('dir' => $dir, 'id' => $id, 'even' => 'fksnewseven'));
+          } else {
+          $to_page.=$this->renderfullnews(array('dir' => $dir, 'id' => $id, 'even' => 'fksnewsodd'));
+          }
+
+          $Sdata['feed'] --;
+          } else {
+          break;
+          }
+          } */
+
+        //print_r($Rdata);
+        //print_r($this->helper->loadstream($Rdata));
+
+        foreach ($this->helper->loadstream($Rdata) as $key => $value) {
+            if (isset($Rdata['stream'])) {
+                list($id, $dir) = preg_split('/-/', $value);
+            } else {
+                $id = $value;
+                $dir = $Rdata['dir'];
+            }
+
+            $this->getnewstr(array_merge($this->helper->extractParamtext(substr(io_readFile($this->helper->getnewsurl(array('dir' => $dir, 'id' => $id))), 13, -16)), array('dir' => $dir, 'id' => $id, 'trno' => $i)));
+            echo $i;
             $i++;
         }
         $tableform->addElement('</table>');
@@ -103,27 +137,35 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         html_form('table', $tableform);
     }
 
-    private function getnewstr($i, $data) {
+    private function getnewstr($data) {
         /** @var je poradie $i */
         /** @var je ID novinky $no  */
+        $i = $data['trno'];
+        $data["shortname"] = $this->helper->shortName($data['name'], 25);
         global $lang;
         global $tableform;
 
-        
+
+        print_r($data);
+
+
         $tableform->startTR(array('class' => 'fksnewstr'));
 
         $tableform->startTD(array('class' => "fksnewsid", 'id' => "fks_news_i" . $i));
-        $tableform->addElement($i + 1);
+        $tableform->addElement('<span>' . $i + 1 . '</span>');
         $tableform->endTD();
-
 
         $tableform->startTD(array('class' => "fksnewspermnew", 'id' => "fks_news_admin_perm_new" . $i));
-        $tableform->addElement(form_makeDatalistField("newson" . $i, 'fks_news_admin_permut_new_input' . $i, $this->helper->allNews(), '', 'fksnewsinputperm', array('value' => $data['id'])));
+        $tableform->addElement(form_makeDatalistField("newson" . $i, 'fks_news_admin_permut_new_input' . $i, $this->helper->allNews($dir), '', 'fksnewsinputperm', array('value' => $data['id'])));
         $tableform->endTD();
 
-        $tableform->startTD(array('class' => "fksnewsimage"));
-        $tableform->addElement('<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/up.gif" class="fks_news_admin_up">'
-                . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/down.gif" class="fks_news_admin_down">');
+        //$tableform->startTD(array('class' => "fksnewsimage"));
+        //$tableform->addElement('<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/up.gif" class="fks_news_admin_up">'
+        //        . '<img src="' . DOKU_BASE . 'lib/plugins/fksnewsfeed/images/down.gif" class="fks_news_admin_down">');
+        //$tableform->endTD();
+
+        $tableform->startTD(array('class' => "fksnewsdirstream", 'id' => 'fks_dir_stream'));
+        $tableform->addElement(form_textfield(array('readonly' => 'readonly', 'name' => 'dir', 'value' => $data['dir'])));
         $tableform->endTD();
 
         $tableform->startTD(array('id' => "fks_news_admin_view" . $i));
@@ -151,7 +193,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
     private function getnewswarning() {
         global $lang;
-
+        ob_start();
         msg('<p><span style="font-weight:bold;font-size:130%">'
                 . $this->getLang('permwarning1')
                 . '</span></p>'
@@ -159,7 +201,11 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
                 . $this->getLang('permwarning2')
                 . '</p>'
                 , -1);
-        return true;
+        $W = ob_get_contents();
+        ob_end_clean();
+
+
+        return $W;
     }
 
     private function returnnewspermut() {

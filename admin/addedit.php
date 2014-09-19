@@ -41,48 +41,56 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
     public function html() {
         global $lang;
         global $conf;
-        $this->helper->deletecache();
         global $Rdata;
+
+
+        $this->helper->deletecache();
+
         $Rdata = $_POST;
+        if (!isset($Rdata['dir'])) {
+            $Rdata['dir'] = 'start';
+        }
         $this->helper->returnMenu('addeditmenu');
+
+
         switch ($Rdata['newsdo']) {
             case "add":
-                $this->returnnewsadd();
+                $this->returnnewsadd($Rdata['dir']);
             default:
-                $this->getaddnews();
-                $this->geteditnews();
+                $this->getaddnews($Rdata['dir']);
+                $this->geteditnews($Rdata['dir']);
         }
     }
 
-    private function geteditnews() {
+    private function geteditnews($dir) {
+        
+
         global $conf;
         $Fform = new Doku_Form(array());
         $Fform->addElement(makeHeading($this->getLang('editmenu'), array(), 2));
         $Fform->endFieldset();
         html_form('fform', $Fform);
 
-        $allnews = glob($this->helper->getnewsurl("*"));
+        $allnews = glob($this->helper->getnewsurl(array('id' => "*", 'dir' => $dir)));
         $arraynews = array();
+
+
         foreach ($allnews as $key => $value) {
             $form = new Doku_Form(array('id' => 'editnews', 'method' => 'POST', 'class' => 'fksreturn'));
-            $idn = substr($value, count($this->helper->getnewsurl("*")) - 6, -4);
-            $form->startFieldset($value);
+            $form->startFieldset(substr(str_replace(DOKU_INC, '', $value), strlen("data/pages/fksnewsfeed/" . $dir . "/"), -4));
             $form->endFieldset();
-            
             $form->addElement('<div class="fksnewswrapper">'
-                    . $this->helper->rendernews( $data = $this->helper->getfulldata($idn))
+                    . $this->helper->renderfullnews(array('dir' => $dir, 'id' => substr(str_replace(DOKU_INC, '', $value), strlen("data/pages/fksnewsfeed/" . $dir . "/news"), -4), 'even' => 'fksnewseven'))
                     . '</div>');
+            $form->addHidden('dir', $dir);
             $form->addHidden("do", "edit");
-            $form->addHidden('id', $this->helper->getwikinewsurl($idn));
+            $form->addHidden('id', $this->helper->getwikinewsurl(array('id' => "*", 'dir' => $dir)));
             $form->addHidden("target", "plugin_fksnewsfeed");
             $form->addElement(form_makeButton('submit', '', $this->getLang('subeditnews')));
-
             ob_start();
             html_form('editnews', $form);
-            $to_page = "";
-            $to_page.=ob_get_contents();
+            $arraynews[] = ob_get_contents();
             ob_end_clean();
-            $arraynews[] = $to_page;
         }
         $arraynews = array_reverse($arraynews, false);
         foreach ($arraynews as $key => $value) {
@@ -91,7 +99,7 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
         echo '</div>';
     }
 
-    private function getaddnews() {
+    private function getaddnews($dir) {
         global $lang;
         $form = new Doku_Form(array('id' => 'addtowiki', 'method' => 'POST', 'class' => 'fksreturn'));
         $form->addElement(makeHeading($this->getLang('addmenu'), array(), 2));
@@ -100,25 +108,23 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
          * vysranie s blbým msg()
          */
         ob_start();
-        msg($this->getLang('addnews') . ' ' . $this->helper->findimax(), 1);
+        msg($this->getLang('addnews') . ' ' . $this->helper->findimax($dir), 1);
         $msg_TP = ob_get_contents();
         ob_end_clean();
         $form->addElement($msg_TP);
-
+        $form->addHidden('dir', $dir);
         $form->addHidden("newsdo", "add");
-        $form->addHidden('newsid', $this->helper->findimax());
+        $form->addHidden('newsid', $this->helper->findimax($dir));
         $form->addHidden("target", "plugin_fksnewsfeed");
         $form->addElement(form_makeButton('submit', '', $this->getLang('subaddnews')));
         $form->endFieldset();
         html_form('addnews', $form);
     }
 
-    private function returnnewsadd() {
+    private function returnnewsadd($dir) {
         global $Rdata;
         global $lang;
-        $newsID = io_readFile("data/meta/newsfeed.csv", FALSE);
-        $newsID = ';' . $Rdata['newsid'] . ";" . $newsID;
-        $Wdata = file_put_contents("data/meta/newsfeed.csv", $newsID);
+        $Wdata = file_put_contents(DOKU_INC."data/pages/fksnewsfeed/" . $dir . "/newsfeed.csv", ';' . $Rdata['newsid'] . ";" . io_readFile("data/pages/fksnewsfeed/" . $dir . "/newsfeed.csv", FALSE));
 
         $Wnews = $this->helper->saveNewNews($Rdata);
         if ($Wdata && $Wnews) {
@@ -129,9 +135,10 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
 
         msg($this->getLang('autoreturn'), -1);
         $form = new Doku_Form(array('id' => 'addtowiki', 'method' => 'POST', 'action' => DOKU_BASE, 'class' => 'fksreturn'));
+        $form->addHidden('dir', $dir);
         $form->addHidden('do', "edit");
         $form->addHidden("target", "plugin_fksnewsfeed");
-        $form->addHidden('id', $this->helper->getwikinewsurl($Rdata['newsid']));
+        $form->addHidden('id', $this->helper->getwikinewsurl(array('id'=>$Rdata['newsid'],'dir'=>$dir)));
 
         $form->addElement(form_makeButton('submit', '', $this->getLang('subaddwikinews')));
         html_form('addnews', $form);

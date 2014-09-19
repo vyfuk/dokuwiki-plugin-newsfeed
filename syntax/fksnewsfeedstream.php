@@ -49,26 +49,10 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
             list($k, $v) = preg_split('/=/', $value);
             $Sdata[$k] = $v;
         }
-        //print_r($Sdata);
-        $to_page.="<div class='fksnewswrapper'>";
 
-        foreach ($this->helper->loadstream($Sdata) as $key => $value) {
-            //$data = $this->helper->getfulldata($value, $Sdata);
-            if ($Sdata['feed']) {
-                if ($Sdata['feed'] % 2) {
-                    $to_page.='<div class="fksnewseven">';
-                } else {
-                    $to_page.='<div class="fksnewsodd">';
-                }
-                $to_page.=$this->helper->renderfullnews(array('dir' => $Sdata['dir'], 'id' => $value));
-                $to_page.= '</div>';
-                $Sdata['feed'] --;
-            } else {
-                break;
-            }
-        }
-
-        $to_page.="</div>";
+        $to_page.='<div class="fksnewswrapper">'
+                . $this->helper->renderstream($Sdata)
+                . '</div>';
         return array($state, array($to_page));
     }
 
