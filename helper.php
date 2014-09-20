@@ -37,13 +37,13 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $data;
     }
 
-
     /*
      * changed doku text and extract param
      */
 
     function extractParamACT($text) {
         global $TEXT;
+        echo $text;
         $param = $this->extractParamtext($text);
         $TEXT = $param["text"];
         unset($param["text"]);
@@ -73,14 +73,14 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     function loadstream($Sdata) {
 
         if (isset($Sdata['stream'])) {
-            return preg_split('/;;/', substr(io_readFile("data/pages/fksnewsfeed/streams/" . $Sdata['stream'] . ".csv", FALSE), 1, -1));
+            return preg_split('/;;/', substr(io_readFile(DOKU_INC . "data/pages/fksnewsfeed/streams/" . $Sdata['stream'] . ".csv", FALSE), 1, -1));
         } else {
-            return preg_split('/;;/', substr(io_readFile("data/pages/fksnewsfeed/" . $Sdata['dir'] . "/newsfeed.csv", FALSE), 1, -1));
+            return $this->loadstreamdir($Sdata);
         }
     }
 
     function loadstreamdir($Sdata) {
-        return preg_split('/;;/', substr(io_readFile("data/pages/fksnewsfeed/" . $Sdata['dir'] . "/newsfeed.csv", FALSE), 1, -1));
+        return preg_split('/;;/', substr(io_readFile(DOKU_INC . "data/pages/fksnewsfeed/" . $Sdata['dir'] . "/newsfeed.csv", FALSE), 1, -1));
     }
 
     /*
@@ -120,12 +120,20 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     function lostNews() {
 
-        msg('Zabudol si ake id ma tva novinka?', 0);
+        
         $form = new Doku_Form(array('id' => "load_new", 'onsubmit' => "return false"));
-        $form->addElement(form_makeDatalistField('news_lost_dir', 'list', array('start', 'somtthing else')));
-        $form->addElement(form_makeDatalistField('news_id_lost', 'lost_n', $this->allNews($dir)));
+        $form->startFieldset($this->getLang('findnews'));
+        
+        $form->addElement($this->returnmsg('Zabudol si ake id ma tva novinka?', 0));
+        
+        $form->addElement(form_makeDatalistField('news_dir_lost', 'list', $this->alldir(),$this->getLang('dir')));
+        $form->addElement(form_makeTextField('news_id_lost', null, $this->getLang('id')));
+        //$form->addElement(form_makeDatalistField('news_id_lost', 'lost_n', $this->allNews($dir),$this->getLang('id')));
         $form->addElement(form_makeButton('submit', '', $this->getLang('findnews')));
-        $form->addElement('<div id="lost_news"> </div>');
+        $form->endFieldset();
+        $form->addElement(form_makeOpenTag('div', array('id'=>'lost_news')));
+        $form->addElement(form_makeCloseTag('div'));
+       
         html_form('editnews', $form);
     }
 
@@ -229,7 +237,7 @@ Tady napiš text aktuality
 
     function extractParamtext($text) {
 
-        list($text, $param['text']) = preg_split('/\>/', str_replace("\n", '', $text));
+        list($text, $param['text']) = preg_split('/\>/', str_replace("\n", '', substr($text, 13, -15)));
         foreach (preg_split('/;/', $text)as $key => $value) {
             list($k, $v) = preg_split('/=/', $value);
             $param[$k] = $v;
@@ -245,7 +253,7 @@ Tady napiš text aktuality
      * short name of news and add dots
      */
 
-    function shortName($name, $l) {
+    function shortName($name="", $l=25) {
         if (strlen($name) > $l) {
             $name = substr($name, 0, $l - 3) . '...';
         }
@@ -396,18 +404,15 @@ Tady napiš text aktuality
      */
 
     function changedir() {
-        global $lang;
-
         $form = new Doku_Form(array(
             'id' => "changedir",
             'method' => 'POST',
-                //'action' => DOKU_BASE . "?do=admin&page=fksnewsfeed_permutview"
         ));
-        $form->addElement(makeHeading($this->getLang('changedir'), array()));
-        $form->addElement(form_makeDatalistField('dir', 'stream', array('start'), $this->getLang('changedir')));
+        $form->startFieldset($this->getLang('changedir'));
+        $form->addElement(form_makeDatalistField('dir', 'dir', $this->alldir(), $this->getLang('dir')));
         $form->addHidden('type', 'dir');
-
         $form->addElement(form_makeButton('submit', '', $this->getLang('changedir')));
+        $form->endFieldset();
         html_form('changedirnews', $form);
     }
 
@@ -416,14 +421,48 @@ Tady napiš text aktuality
         $form = new Doku_Form(array(
             'id' => "changedir",
             'method' => 'POST',
-                //'action' => DOKU_BASE . "?do=admin&page=fksnewsfeed_permutview"
         ));
-        $form->addElement(makeHeading($this->getLang('changedir'), array()));
-        $form->addElement(form_makeDatalistField('stream', 'stream', array('start'), $this->getLang('changestream')));
+        $form->startFieldset($this->getLang('changestream'));
+        $form->addElement(form_makeDatalistField('stream', 'stream', $this->allstream(), $this->getLang('stream')));
         $form->addHidden('type', 'stream');
-
-        $form->addElement(form_makeButton('submit', '', $this->getLang('changedir')));
+        $form->addElement(form_makeButton('submit', '', $this->getLang('changestream')));
+        $form->endFieldset();
         html_form('changedirnews', $form);
     }
 
+    /*
+     * © Michal Červeňák
+     * 
+     * 
+     * return all dir and streams
+     */
+
+    function alldir() {
+        foreach (array_filter(glob(DOKU_INC . 'data/pages/fksnewsfeed/*'), 'is_dir') as $key => $value) {
+            if ($value != DOKU_INC . 'data/pages/fksnewsfeed/streams') {
+                $dirs[$key] = str_replace(DOKU_INC . 'data/pages/fksnewsfeed/', "", $value);
+            }
+        } return $dirs;
+    }
+
+    function allstream() {
+        foreach (glob(DOKU_INC . 'data/pages/fksnewsfeed/streams/*.csv') as $key => $value) {
+
+            $streams[$key] = str_replace(array(DOKU_INC . 'data/pages/fksnewsfeed/streams/', '.csv'), array("", ''), $value);
+        }
+        return $streams;
+    }
+    
+    
+    function returnmsg($text,$lvl){
+        ob_start();
+        msg($text,$lvl);
+        $msg=  ob_get_contents();
+        ob_end_clean();
+        return $msg;
+    }
+
+    function addlocation($Rdata){
+        return $this->returnmsg('zobrazuje sa ' . $this->getLang($Rdata['type']) . ' <b>' . $Rdata['dir'] . $Rdata['stream'] . '</b>', 1);
+    }
 }

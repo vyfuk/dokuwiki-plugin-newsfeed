@@ -44,7 +44,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
      * Handle the match
      */
     public function handle($match, $state, $pos, Doku_Handler &$handler) {
-        $to_page.=$this->helper->rendernews($this->helper->extractParamtext(substr($match, 13, -16)));
+        $to_page.=$this->helper->rendernews($this->helper->extractParamtext($match));
         return array($state, array($to_page));
     }
 

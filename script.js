@@ -62,14 +62,16 @@ jQuery(function() {
         event.preventDefault();
         var $form = $(this);
         newsID = $form.find("input[name='news_id_lost']").val();
+        newsdir = $form.find("input[name='news_dir_lost']").val();
         $lostdiv = $('#lost_news');
         $.post(
                 DOKU_BASE + 'lib/exe/ajax.php',
 
-                {call: 'plugin_fksnewsfeed',target:'feed', name: 'local', id: newsID},
+                {call: 'plugin_fksnewsfeed',target:'feed', name: 'local', id: newsID,dir:newsdir},
 
         function(data) {
-            alert('Received response' + data);
+            console.log(data);
+            //alert('Received response' + data);
             $lostdiv.html('<div class="fksnewsmoreinfotext">'
                     + data["fullhtml"]
                     + '</div>');

@@ -39,19 +39,25 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
      * @return void
      */
     public function handle_action_ajax_request(Doku_Event &$event, $param) {
-
         global $INPUT;
-        $name = $INPUT->str('id');
+
         if ($INPUT->str('target') != 'feed') {
             return;
         }
         $event->stopPropagation();
         $event->preventDefault();
-        //data
-        $data = $this->helper->getfulldata($INPUT->str('id'));
+
+        $data["fullhtml"] = $this->helper->renderfullnews(array_merge(array(
+            'dir' => $INPUT->str('dir'),
+            'id' => $INPUT->str('id'),
+            'even' => 'even'
+                        ), $this->helper->extractParamtext(io_readFile($this->helper->getnewsurl(array(
+                                            'dir' => $INPUT->str('dir'),
+                                            'id' => $INPUT->str('id'))
+        )))));
+
         require_once DOKU_INC . 'inc/JSON.php';
         $json = new JSON();
-        //set content type
         header('Content-Type: application/json');
         echo $json->encode($data);
     }
@@ -59,55 +65,33 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
     public function handle_html_edit_formselection(Doku_Event &$event, $param) {
         global $TEXT;
         global $INPUT;
-
-        //if ($event->data['target'] !== 'plugin_fksnewsfeed') {
-        //    return;
-        //}
         if ($_POST['target'] !== 'plugin_fksnewsfeed') {
             return;
         }
         $event->preventDefault();
-
         unset($event->data['intro_locale']);
-
-        // FIXME: Remove this if you want a media manager fallback link
-        // You will probably want a media link if you want a normal toolbar
-        //$event->data['media_manager'] = false;
-
         echo $this->locale_xhtml('edit_intro');
-
-
         $form = $event->data['form'];
 
         if (array_key_exists('wikitext', $_POST)) {
             foreach ($this->modFields as $field) {
-                $parameters[$field] = $_POST[$field];
+                $data[$field] = $_POST[$field];
             }
         } else {
-
-            $parameters = $this->helper->extractParamACT($TEXT);
-
+            $data = $this->helper->extractParamACT($TEXT);
         }
-
-
-        $data = $parameters;
         $globAttr = array();
         $form->startFieldset('Newsfeed');
-
-        // editable fields
         foreach ($this->modFields as $field) {
             $attr = $globAttr;
-
             if ($field == 'text') {
                 $value = $INPUT->post->str('wikitext', $data[$field]);
-
                 $form->addElement(form_makeWikiText($TEXT, $attr));
             } else {
                 $value = $INPUT->post->str($field, $data[$field]);
                 $form->addElement(form_makeTextField($field, $value, $this->getLang($field), $field, null, $attr));
             }
         }
-
         $form->endFieldset();
     }
 
@@ -129,17 +113,19 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                     $data[$field] = $_POST[$field];
                 }
             }
-            $news.='<newsdate>' . $data['newsdate'] . '</newsdate>';
-            $news.='<newsauthor>[[' . $data['email'] . '|' . $data['author'] . ']]</newsauthor>';
-            $news.="\n" . '==== ' . $data['name'] . ' ==== ' . "\n";
-            $news.=$data['text'];
+            $news.= '<fksnewsfeed
+newsdate=' . $data['newsdate'] . ';
+author=' . $data['author'] . ';
+email= ' . $data['email'] . ';
+name=' . $data['name'] . '>
+' . $data['text'] . '
+</fksnewsfeed>';
 
-            $filename = $this->helper->getNewsFile($_POST["id"]);
             $TEXT = $news;
-            io_saveFile($filename, $news); //ano som prasa !!
         }
     }
 
 }
 
 // vim:ts=4:sw=4:et:
+

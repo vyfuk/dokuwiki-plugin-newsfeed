@@ -76,5 +76,16 @@ $lang['dec']              = 'prosince';
 
 
 
+$lang['changedir']              = 'zmeniť adresár';
+$lang['changestream']              = 'zmeniť stream';
+$lang['dir']              = 'adresár';
+$lang['stream']              = 'stream';
+
+$lang['id']              = 'ID';
+
+$lang['findnews']              = 'nájdi novinku';
+
+
+
 //Setup VIM: ex: et ts=2 enc=utf-8 :
 
