@@ -76,10 +76,9 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
 
         $arraynews = array();
 
-
-        foreach (glob($this->helper->getnewsurl(array('id' => "*", 'dir' => $Rdata['dir']))) as $key => $value) {
+        foreach ( $this->helper->allshortnews($Rdata) as $key => $value) {
             $form = new Doku_Form(array('id' => 'editnews', 'method' => 'POST', 'class' => 'fksreturn'));
-            $form->startFieldset(substr($value, strlen(DOKU_INC."data/pages/fksnewsfeed/" . $Rdata['dir'] . "/"), -4));
+            $form->startFieldset($this->helper->shortfilename($value, $Rdata['dir'], $flag = 'NEWS_W_ID'));
             $form->endFieldset();
 
             $form->addElement('<div class="fksnewswrapper">'

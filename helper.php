@@ -38,7 +38,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     }
 
     /*
-     * changed doku text and extract param
+     * changed doku text and extract for action plugin
      */
 
     function extractParamACT($text) {
@@ -52,7 +52,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     /*
 
-     * delete casche if is run
+     * delete casche when is run
      */
 
     function deletecache() {
@@ -120,36 +120,42 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     function lostNews() {
 
-        
+
         $form = new Doku_Form(array('id' => "load_new", 'onsubmit' => "return false"));
         $form->startFieldset($this->getLang('findnews'));
-        
+
         $form->addElement($this->returnmsg('Zabudol si ake id ma tva novinka?', 0));
-        
-        $form->addElement(form_makeDatalistField('news_dir_lost', 'list', $this->alldir(),$this->getLang('dir')));
+
+        $form->addElement(form_makeDatalistField('news_dir_lost', 'list', $this->alldir(), $this->getLang('dir')));
         $form->addElement(form_makeTextField('news_id_lost', null, $this->getLang('id')));
         //$form->addElement(form_makeDatalistField('news_id_lost', 'lost_n', $this->allNews($dir),$this->getLang('id')));
         $form->addElement(form_makeButton('submit', '', $this->getLang('findnews')));
         $form->endFieldset();
-        $form->addElement(form_makeOpenTag('div', array('id'=>'lost_news')));
+        $form->addElement(form_makeOpenTag('div', array('id' => 'lost_news')));
         $form->addElement(form_makeCloseTag('div'));
-       
+
         html_form('editnews', $form);
     }
 
-    function allNews($dir) {
-
-        $dir = 'start';
-
-        $allnews = glob($this->getnewsurl(array('dir' => $dir, 'id' => "*")));
-
+    function allNews($dir = 'start') {
         $arraynews = array();
-        foreach ($allnews as $key => $value) {
-            $arraynews[] = substr(str_replace(DOKU_INC, '', $value), strlen("data/pages/fksnewsfeed/" . $dir . "/news"), -4);
-            //$arraynews[] = substr($value, count($this->getnewsurl(array('dir' => $dir, 'id' => "*"))) - 6, -4);
+        foreach ($this->allshortnews(array('dir' => $dir)) as $key => $value) {
+           $arraynews[]=$this->shortfilename($value,$dir,'ID_ONLY'); 
         }
 
-        return$arraynews;
+        return $arraynews;
+    }
+
+    function shortfilename($name, $dir, $flag = 'ID_ONLY') {
+        switch ($flag) {
+            case 'ID_ONLY':
+                $n = substr($name, strlen(DOKU_INC . "data/pages/fksnewsfeed/" . $dir . "/news"), -4);
+                break;
+            case 'NEWS_W_ID':
+                $n = substr($name, strlen(DOKU_INC . "data/pages/fksnewsfeed/" . $dir . "/"), -4);
+                break;
+        }
+        return $n;
     }
 
     function getNewsFile($news) {
@@ -253,7 +259,7 @@ Tady napiš text aktuality
      * short name of news and add dots
      */
 
-    function shortName($name="", $l=25) {
+    function shortName($name = "", $l = 25) {
         if (strlen($name) > $l) {
             $name = substr($name, 0, $l - 3) . '...';
         }
@@ -452,17 +458,39 @@ Tady napiš text aktuality
         }
         return $streams;
     }
-    
-    
-    function returnmsg($text,$lvl){
+
+    /*
+     * © Michal Červeňák
+     * 
+     * 
+     * 
+     * msg return html not print
+     */
+
+    function returnmsg($text, $lvl) {
         ob_start();
-        msg($text,$lvl);
-        $msg=  ob_get_contents();
+        msg($text, $lvl);
+        $msg = ob_get_contents();
         ob_end_clean();
         return $msg;
     }
 
-    function addlocation($Rdata){
+    /*
+     * © Michal Červeňák
+     * 
+     * 
+     * 
+     * msg info about set strem or dir 
+     */
+
+    function addlocation($Rdata) {
         return $this->returnmsg('zobrazuje sa ' . $this->getLang($Rdata['type']) . ' <b>' . $Rdata['dir'] . $Rdata['stream'] . '</b>', 1);
     }
+
+    function allshortnews($Rdata) {
+        $allnews = glob($this->getnewsurl(array('id' => "*", 'dir' => $Rdata['dir'])));
+        sort($allnews, SORT_NATURAL | SORT_FLAG_CASE);
+        return $allnews;
+    }
+
 }
