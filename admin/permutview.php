@@ -17,8 +17,14 @@ require_once(DOKU_PLUGIN . 'admin.php');
 
 class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
+    private $Rdata;
+    private $tableform;
+    public $helper;
+
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
+
+        $this->FKS_helper = $this->loadHelper('fkshelper');
     }
 
     public function getMenuSort() {
@@ -35,79 +41,92 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
     }
 
     public function handle() {
-        global $lang;
+        
     }
 
     public function html() {
-        global $lang;
-        global $conf;
-
-        $this->helper->deletecache();
+        
         global $Rdata;
-        $Rdata = $_POST;
+        $this->helper->deletecache();
+        $Rdata = array_merge($_POST, $_GET);
+        global $INPUT;
 
-        $this->helper->returnMenu('permutviewmenu');
-        $this->helper->changedir();
+        foreach ($this->Rdata as $k => $v) {
+            if ($k == 'stream') {
+                $this->Rdata[$k] = $INPUT->param($k);
+            } else {
+                $this->Rdata[$k] = $INPUT->str($k);
+            }
+        }
+        
+        echo '<h1>' . $this->getLang('permutviewmenu') . '</h1>';
+        $this->helper->FKS_helper->returnMenu('permutviewmenu');
+        //$this->helper->changedir();
         $this->helper->changedstream();
-        $this->helper->lostNews($Rdata["dir"]);
-        switch ($Rdata['newsdo']) {
+        $this->helper->lostNews($this->Rdata["dir"]);
+        switch ($this->Rdata['newsdo']) {
             case "permut":
-                $this->returnnewspermut($Rdata["dir"]);
+                $this->returnnewspermut($this->Rdata["dir"]);
             default:
                 echo '<script type="text/javascript" charset="utf-8">'
-                . 'var maxfile=' . $this->helper->findimax($Rdata["dir"]) . ';</script>';
-                if (isset($Rdata['type'])) {
+                . 'var maxfile=' . $this->helper->findimax($this->Rdata["dir"]) . ';</script>';
+                //if (isset($this->Rdata['type'])) {
                     $this->getpermutnews();
-                }
+                //}
         }
     }
 
     private function getpermutnews() {
-        global $Rdata;
-        global $lang;
+        $this->helper->Sdata['stream'] = $this->Rdata['stream'];
+        
+        $Wform = new Doku_Form(array('onsubmit'=>"return false"), null, 'POST');
+        $Wform->addElement(form_makeWikiText(io_readFile(DOKU_INC . 'data/pages/fksnewsfeed/streams/' . $this->helper->Sdata['stream'] . '.csv')));
+        $Wform->addElement(form_makeButton('button', 'Ulož'));
+        $Wform->addElement(form_makeButton('button', 'Náhled'));
+        html_form('nic', $Wform);
 
-        global $tableform;
 
-        $tableform = new Doku_Form(array('method' => "post", 'id' => "fksnewsadminperm"));
+        $this->tableform = new Doku_Form(array('method' => "post", 'id' => "fksnewsadminperm"));
 
-        $tableform->startFieldset($this->getLang('permutmenu'));
-        $tableform->addElement($this->helper->addlocation($Rdata));
+        $this->tableform->startFieldset($this->getLang('permutmenu'));
+        $this->tableform->addElement($this->helper->addlocation($this->Rdata));
 
-        $tableform->addElement($this->helper->returnmsg('<p><span style="font-weight:bold;font-size:130%">'
+        $this->tableform->addElement($this->FKS_helper->returnmsg('<p><span style="font-weight:bold;font-size:130%">'
                         . $this->getLang('permwarning1')
                         . '</span></p>'
                         . '<p>'
                         . $this->getLang('permwarning2')
                         . '</p>'
                         , -1));
-        $tableform->endFieldset();
-        $tableform->addElement(form_makeOpenTag('div', array('class' => 'fks_news_permut')));
-        //$tableform->addHidden("maxnews", $this->helper->findimax($dir));
-        $tableform->addHidden("newsdo", "permut");
-        switch ($Rdata['type']) {
+        $this->tableform->endFieldset();
+        $this->tableform->addElement(form_makeOpenTag('div', array('class' => 'fks_news_permut')));
+        //$this->tableform->addHidden("maxnews", $this->helper->findimax($dir));
+        $this->tableform->addHidden("newsdo", "permut");
+        switch ($this->Rdata['type']) {
             case'stream':
-                $tableform->addHidden('type', 'stream');
-                $tableform->addHidden('stream', $Rdata['stream']);
+                $this->tableform->addHidden('type', 'stream');
+                $this->tableform->addHidden('stream', $this->Rdata['stream']);
                 break;
             case'dir':
 
-                $tableform->addHidden('type', 'dir');
-                $tableform->addHidden('dir', $Rdata['dir']);
+                $this->tableform->addHidden('type', 'dir');
+                $this->tableform->addHidden('dir', $this->Rdata['dir']);
                 break;
         }
 
-        $tableform->addElement(form_makeOpenTag('table', array('class' => 'newspermuttable')));
+        $this->tableform->addElement(form_makeOpenTag('table', array('class' => 'newspermuttable')));
         $this->makeTablehead();
 
 
 
         $this->getnewstr(null);
         $i = 1;
-        foreach ($this->helper->loadstream($Rdata) as $key => $value) {
-            if (isset($Rdata['stream'])) {
+
+        foreach ($this->helper->loadstream($this->Rdata) as $key => $value) {
+            if (isset($this->Rdata['stream'])) {
                 list($id, $dir) = preg_split('/-/', $value);
                 $this->getnewstr(array_merge(
-                                $this->helper->extractParamtext(substr(io_readFile($this->helper->getnewsurl(array(
+                                $this->helper->extractParamtext_feed(substr(io_readFile($this->helper->getnewsurl(array(
                                                             'dir' => $dir,
                                                             'id' => $id))), 13, -16)), array(
                     'dir' => $dir,
@@ -116,97 +135,96 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
                     'type' => 'stream')));
             } else {
                 $this->getnewstr(array_merge(
-                                $this->helper->extractParamtext(io_readFile($this->helper->getnewsurl(array(
-                                                    'dir' => $Rdata['dir'],
+                                $this->helper->extractParamtext_feed(io_readFile($this->helper->getnewsurl(array(
+                                                    'dir' => $this->Rdata['dir'],
                                                     'id' => $value)
                                 ))), array(
-                    'dir' => $Rdata['dir'],
+                    'dir' => $this->Rdata['dir'],
                     'id' => $value,
                     'trno' => $i,
                     'type' => 'dir')));
             }
             $i++;
         }
-        $tableform->addElement(form_makeCloseTag('table'));
-        $tableform->startFieldset(null);
-        $tableform->addElement(form_makeButton('submit', '', $this->getLang('newssave')));
-        $tableform->endFieldset();
-        $tableform->addElement(form_makeCloseTag('div'));
-        html_form('table', $tableform);
+        $this->tableform->addElement(form_makeCloseTag('table'));
+        $this->tableform->startFieldset(null);
+        $this->tableform->addElement(form_makeButton('submit', '', $this->getLang('newssave')));
+        $this->tableform->endFieldset();
+        $this->tableform->addElement(form_makeCloseTag('div'));
+        html_form('table', $this->tableform);
     }
 
     private function getnewstr($data) {
-       global $lang;
-        global $tableform;
-        $tableform->addElement(form_makeOpenTag('tr', array('class' => 'fksnewstr')));
-        $tableform->addElement(form_makeOpenTag('td', array('class' => "fksnewsid", 'id' => "fks_news_i" . $data['trno'])));
-        $tableform->addElement('<span>' . $data['trno'] ++ . '</span>');
-        $tableform->addElement(form_makeCloseTag('td'));
-        $tableform->addElement(form_makeOpenTag('td',array('class' => "fksnewspermnew", 'id' => "fks_news_admin_perm_new" . $i)));
-        $tableform->addElement(form_makeDatalistField("newson" . $data['trno'], 'fks_news_admin_permut_new_input' . $data['trno'], $this->helper->allNews($data["dir"]), '', 'fksnewsinputperm', array('value' => $data['id'])));
-        $tableform->addElement(form_makeCloseTag('td'));
-        $tableform->addElement(form_makeOpenTag('td'), array('class' => "fksnewsdirstream", 'id' => 'fks_dir_stream'));
-        $tableform->addElement(form_textfield(array(/* 'readonly' => 'readonly', */ 'name' => 'newsdiron' . $data['trno'], 'value' => $data['dir'])));
-        $tableform->addElement(form_makeCloseTag('td'));
-        $tableform->addElement(form_makeOpenTag('td'), array('id' => "fks_news_admin_view" . $data['trno']));
-        $tableform->addElement(form_makeListboxField('newsonR' . $data['trno'], array(
+
+
+        $this->tableform->addElement(form_makeOpenTag('tr', array('class' => 'fksnewstr')));
+        $this->tableform->addElement(form_makeOpenTag('td', array('class' => "fksnewsid", 'id' => "fks_news_i" . $data['trno'])));
+        $this->tableform->addElement('<span>' . $data['trno'] ++ . '</span>');
+        $this->tableform->addElement(form_makeCloseTag('td'));
+        $this->tableform->addElement(form_makeOpenTag('td', array('class' => "fksnewspermnew", 'id' => "fks_news_admin_perm_new" . $i)));
+        $this->tableform->addElement(form_makeDatalistField("newson" . $data['trno'], 'fks_news_admin_permut_new_input' . $data['trno'], $this->helper->allNews(), '', 'fksnewsinputperm', array('value' => $data['id'])));
+        $this->tableform->addElement(form_makeCloseTag('td'));
+        $this->tableform->addElement(form_makeOpenTag('td'), array('class' => "fksnewsdirstream", 'id' => 'fks_dir_stream'));
+        $this->tableform->addElement(form_textfield(array(/* 'readonly' => 'readonly', */ 'name' => 'newsdiron' . $data['trno'], 'value' => $data['dir'])));
+        $this->tableform->addElement(form_makeCloseTag('td'));
+        $this->tableform->addElement(form_makeOpenTag('td'), array('id' => "fks_news_admin_view" . $data['trno']));
+        $this->tableform->addElement(form_makeListboxField('newsonR' . $data['trno'], array(
             array("T", $this->getLang('display')),
             array('F', $this->getLang('nodisplay'))
                         ), '', ''));
-        $tableform->addElement(form_makeCloseTag('td'));
-        $tableform->addElement(form_makeOpenTag('td', array('class' => "fks_news_info", 'id' => 'fks_news_admin_info' . $data['trno'])));
-        $tableform->addElement(form_makeOpenTag('span', array('id' => 'fks_news_admin_info' . $data['trno'] . '_span', 'style' => 'color:#000')));
-        $tableform->addElement($this->helper->shortName($data['name'], 25));
-        $tableform->addElement(form_makeCloseTag('span'));
-        $tableform->addElement(form_makeCloseTag('td'));
-        $tableform->addElement(form_makeCloseTag('tr'));
+        $this->tableform->addElement(form_makeCloseTag('td'));
+        $this->tableform->addElement(form_makeOpenTag('td', array('class' => "fks_news_info", 'id' => 'fks_news_admin_info' . $data['trno'])));
+        $this->tableform->addElement(form_makeOpenTag('span', array('id' => 'fks_news_admin_info' . $data['trno'] . '_span', 'style' => 'color:#000')));
+        $this->tableform->addElement($this->helper->shortName($data['name'], 25));
+        $this->tableform->addElement(form_makeCloseTag('span'));
+        $this->tableform->addElement(form_makeCloseTag('td'));
+        $this->tableform->addElement(form_makeCloseTag('tr'));
         $this->makeTRdiv($data);
     }
 
     private function returnnewspermut() {
-        global $lang;
-        global $Rdata;
-        echo $this->helper->controlData();
+
+        echo $this->helper->controlData($this->Rdata);
     }
 
     private function makeTablehead() {
-        global $tableform;
-        $tableform->addElement(form_makeOpenTag('thead'));
-        $tableform->addElement(form_makeOpenTag('tr'));
-        $tableform->addElement(form_makeOpenTag('th'));
-        $tableform->addElement($this->getLang('newspermold'));
-        $tableform->addElement(form_makeCloseTag('th'));
 
-        $tableform->addElement(form_makeOpenTag('th'));
-        $tableform->addElement($this->getLang('IDnews'));
-        $tableform->addElement(form_makeCloseTag('th'));
+        $this->tableform->addElement(form_makeOpenTag('thead'));
+        $this->tableform->addElement(form_makeOpenTag('tr'));
+        $this->tableform->addElement(form_makeOpenTag('th'));
+        $this->tableform->addElement($this->getLang('newspermold'));
+        $this->tableform->addElement(form_makeCloseTag('th'));
 
-        $tableform->addElement(form_makeOpenTag('th'));
-        $tableform->addElement($this->getLang('dir'));
-        $tableform->addElement(form_makeCloseTag('th'));
+        $this->tableform->addElement(form_makeOpenTag('th'));
+        $this->tableform->addElement($this->getLang('IDnews'));
+        $this->tableform->addElement(form_makeCloseTag('th'));
 
-        $tableform->addElement(form_makeOpenTag('th'));
-        $tableform->addElement($this->getLang('newrender'));
-        $tableform->addElement(form_makeCloseTag('th'));
+        $this->tableform->addElement(form_makeOpenTag('th'));
+        $this->tableform->addElement($this->getLang('dir'));
+        $this->tableform->addElement(form_makeCloseTag('th'));
 
-        $tableform->addElement(form_makeOpenTag('th'));
-        $tableform->addElement($this->getLang('newsname'));
-        $tableform->addElement(form_makeCloseTag('th'));
+        $this->tableform->addElement(form_makeOpenTag('th'));
+        $this->tableform->addElement($this->getLang('newrender'));
+        $this->tableform->addElement(form_makeCloseTag('th'));
 
-        $tableform->addElement(form_makeCloseTag('tr'));
-        $tableform->addElement(form_makeCloseTag('thead'));
+        $this->tableform->addElement(form_makeOpenTag('th'));
+        $this->tableform->addElement($this->getLang('newsname'));
+        $this->tableform->addElement(form_makeCloseTag('th'));
+
+        $this->tableform->addElement(form_makeCloseTag('tr'));
+        $this->tableform->addElement(form_makeCloseTag('thead'));
     }
 
-    function makeTRdiv($data) {
-        global $tableform;
-        $tableform->addElement(form_makeOpenTag('div', array('class' => 'fksnewsmoreinfo', 'id' => 'fks_news_admin_info' . $data['trno'] . '_div', 'style' => ' ')));
-        $tableform->addElement($this->getLang('author') . ': ' . $data['author'] . '<br>'
+    private function makeTRdiv($data) {
+
+        $this->tableform->addElement(form_makeOpenTag('div', array('class' => 'fksnewsmoreinfo', 'id' => 'fks_news_admin_info' . $data['trno'] . '_div', 'style' => ' ')));
+        $this->tableform->addElement($this->getLang('author') . ': ' . $data['author'] . '<br>'
                 . $this->getLang('email') . ': ' . $data['email'] . '<br>'
                 . $this->getLang('date') . ': ' . $data['newsdate']);
-        $tableform->addElement(form_makeOpenTag('div', array('class' => 'fksnewsmoreinfotext')));
-        $tableform->addElement($data["text-html"]);
-        $tableform->addElement(form_makeCloseTag('div'));
-        $tableform->addElement(form_makeCloseTag('div'));
+        $this->tableform->addElement(form_makeOpenTag('div', array('class' => 'fksnewsmoreinfotext')));
+        $this->tableform->addElement($data["text-html"]);
+        $this->tableform->addElement(form_makeCloseTag('div'));
+        $this->tableform->addElement(form_makeCloseTag('div'));
     }
 
 }

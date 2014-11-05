@@ -44,8 +44,12 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
      * Handle the match
      */
     public function handle($match, $state, $pos, Doku_Handler &$handler) {
-        $to_page.=$this->helper->rendernews($this->helper->extractParamtext($match));
-        return array($state, array($to_page));
+        
+        //var_dump($this->helper->extractParamtext($match));
+       $param= $this->helper->extractParamtext_feed($match);
+        //var_dump($param);
+        
+        return array($state, array($param));
     }
 
     public function render($mode, Doku_Renderer &$renderer, $data) {
@@ -53,10 +57,14 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         if ($mode == 'xhtml') {
             /** @var Do ku_Renderer_xhtml $renderer */
             list($state, $match) = $data;
-            list($to_page) = $match;
-            $renderer->doc .= $to_page;
+            list($param) = $match;
+            $renderer->doc .= $this->helper->rendernews($param);
+            $renderer->meta['fks_news']=true;
+            
+            
         }
         return false;
     }
+    
 
 }

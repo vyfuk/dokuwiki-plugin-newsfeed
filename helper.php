@@ -18,19 +18,28 @@ if (!defined('DOKU_TAB')) {
 
 class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
+    public $Fields = array('name', 'email', 'author', 'newsdate', 'text');
     // public $this->FKSnews=new fksnews('name', 'author', 'email', 'newsdate', 'text', 'shortname', 'text-html', 'fullhtml', 'divhtml');;
     //public function __construct() {
     //    $this->FKSnews = new fksnewsfeed_news($this->getConf('wsdl'), $this->getConf('fksdb_login'), $this->getConf('fksdb_password'));
     // }
     // private $FKSnews = array('name', 'author', 'email', 'newsdate', 'text', 'shortname', 'text-html', 'fullhtml', 'divhtml');
 
+
+    public $FKS_helper;
+
+    public function __construct() {
+
+        $this->FKS_helper = $this->loadHelper('fkshelper');
+    }
+
     function getfulldata($no, $Sdata) {
 
         $data = array();
         $data['id'] = $no;
         $data['stream'] = $Sdata['stream'];
-        $data['dir'] = $Sdata['dir'];
-        $data = array_merge($data, $this->extractParamtext($this->loadnewssimple($data)));
+        //$data['dir'] = $Sdata['dir'];
+        $data = array_merge($data, $this->extractParamtext_feed($this->loadnewssimple($data)));
         $data['text-html'] = p_render("xhtml", p_get_instructions($data["text"]), $info);
         $data["fullhtml"] = $this->rendernews($data);
 
@@ -41,13 +50,19 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * changed doku text and extract for action plugin
      */
 
-    function extractParamACT($text) {
-        global $TEXT;
-        echo $text;
-        $param = $this->extractParamtext($text);
-        $TEXT = $param["text"];
-        unset($param["text"]);
+    
+
+    function extractParamtext_feed($text) {
+        global $INFO;
+
+        list($text, $param['text']) = preg_split('/\>/', str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $text), 2);
+        $param = array_merge(helper_plugin_fkshelper::extractParamtext($text), $param);
+        $param['text-html'] = p_render('xhtml',p_get_instructions($param["text"]), $INFO);
+        //var_dump($param);
+        
+        
         return $param;
+        
     }
 
     /*
@@ -56,7 +71,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      */
 
     function deletecache() {
-        global $conf;
+
         $files = glob(DOKU_INC . 'data/cache/*/*');
         foreach ($files as $file) {
             if (is_file($file)) {
@@ -70,37 +85,39 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * load file with configuration
      */
 
-    function loadstream($Sdata) {
-
-        if (isset($Sdata['stream'])) {
-            return preg_split('/;;/', substr(io_readFile(DOKU_INC . "data/pages/fksnewsfeed/streams/" . $Sdata['stream'] . ".csv", FALSE), 1, -1));
-        } else {
-            return $this->loadstreamdir($Sdata);
-        }
-    }
-
-    function loadstreamdir($Sdata) {
-        return preg_split('/;;/', substr(io_readFile(DOKU_INC . "data/pages/fksnewsfeed/" . $Sdata['dir'] . "/newsfeed.csv", FALSE), 1, -1));
+    function loadstream($s) {
+        return preg_split('/;;/', substr(io_readFile(metaFN("fksnewsfeed:streams:" . $s, ".csv"), FALSE), 1, -1));
     }
 
     /*
      * load news @i@ and return text
      */
 
-    function loadnewssimple($data) {
-        return io_readFile($this->getnewsurl($data), false);
+    function loadnewssimple($id) {
+        return io_readFile(metaFN($this->getwikinewsurl($id),".txt"), false);
     }
 
-    function renderfullnews($data) {
-        return '<div class="' . $data['even']
+    function renderfullnews($id, $even = "fkseven") {
+        /* return array('<div class="' . $even
+          . '">'
+          . p_render("xhtml", p_get_instructions(io_readFile(wikiFN($this->getwikinewsurl($id)))), $info)
+          . '</div>'
+          , 'https://scontent-a-ams.xx.fbcdn.net/hphotos-xpf1/v/t1.0-9/p417x417/10305613_818729674812956_6746118854261936113_n.jpg?oh=2a05005b093f7f6e8bf99393e98c4fa1&oe=54AB4636'
+          , TRUE); */
+
+
+        preg_match('/(?s)\<fksnewsfeed.+?\<\/fksnewsfeed\>/', io_readFile(metaFN($this->getwikinewsurl($id), '.txt')), $arr);
+
+        $r = '<div class="' . $even
                 . '">'
-                . p_render("xhtml", p_get_instructions(io_readFile($this->getnewsurl($data))), $info)
+                . p_render("xhtml", p_get_instructions($arr[0]), $info)
                 . '</div>';
+        return $r;
     }
 
-    function findimax($dir) {
+    public function findimax() {
         for ($i = 1; true; $i++) {
-            if (file_exists($this->getnewsurl(array('dir' => $dir, 'id' => $i)))) {
+            if (file_exists(metaFN($this->getwikinewsurl($i), '.txt'))) {
                 continue;
             } else {
                 $imax = $i;
@@ -118,41 +135,37 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         }
     }
 
-    function lostNews() {
-
-
+    public function lostNews() {
         $form = new Doku_Form(array('id' => "load_new", 'onsubmit' => "return false"));
         $form->startFieldset($this->getLang('findnews'));
-
-        $form->addElement($this->returnmsg('Zabudol si ake id ma tva novinka?', 0));
-
-        $form->addElement(form_makeDatalistField('news_dir_lost', 'list', $this->alldir(), $this->getLang('dir')));
+        $form->addElement($this->FKS_helper->returnmsg('Zabudol si ake id ma tva novinka?', 0));
         $form->addElement(form_makeTextField('news_id_lost', null, $this->getLang('id')));
-        //$form->addElement(form_makeDatalistField('news_id_lost', 'lost_n', $this->allNews($dir),$this->getLang('id')));
         $form->addElement(form_makeButton('submit', '', $this->getLang('findnews')));
         $form->endFieldset();
         $form->addElement(form_makeOpenTag('div', array('id' => 'lost_news')));
         $form->addElement(form_makeCloseTag('div'));
-
         html_form('editnews', $form);
     }
 
-    function allNews($dir = 'start') {
+    function allNews($dir = 'feeds') {
         $arraynews = array();
-        foreach ($this->allshortnews(array('dir' => $dir)) as $key => $value) {
-           $arraynews[]=$this->shortfilename($value,$dir,'ID_ONLY'); 
+        foreach ($this->allshortnews() as $key => $value) {
+            $arraynews[] = $this->shortfilename($value, 'fksnewsfeed/' . $dir, 'ID_ONLY');
         }
 
         return $arraynews;
     }
 
-    function shortfilename($name, $dir, $flag = 'ID_ONLY') {
+    public function shortfilename($name, $dir, $flag = 'ID_ONLY', $type = 4) {
         switch ($flag) {
             case 'ID_ONLY':
-                $n = substr($name, strlen(DOKU_INC . "data/pages/fksnewsfeed/" . $dir . "/news"), -4);
+                $n = substr($name, strlen(DOKU_INC . "data/meta/" . $dir . "/news"), -$type);
                 break;
             case 'NEWS_W_ID':
-                $n = substr($name, strlen(DOKU_INC . "data/pages/fksnewsfeed/" . $dir . "/"), -4);
+                $n = substr($name, strlen(DOKU_INC . "data/meta/" . $dir . "/"), -$type);
+                break;
+            case 'DIR_N_ID':
+                $n = substr($name, strlen(DOKU_INC . "data/meta/"), -$type);
                 break;
         }
         return $n;
@@ -172,9 +185,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * 
      */
 
-    function controlData() {
-
-        global $Rdata;
+    function controlData($Rdata) {
         for ($i = 1; true; $i++) {
             if (!array_key_exists('newson' . $i, $Rdata) && !array_key_exists('newsonR' . $i, $Rdata)) {
                 break;
@@ -220,16 +231,23 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * save a new file with value od USer
      */
 
-    function saveNewNews($Rdata) {
+    function saveNewNews($Rdata, $id) {
         global $INFO;
+        foreach ($this->Fields as $v) {
+            if (array_key_exists($v, $Rdata)) {
+                $data[$v] = $Rdata[$v];
+            } else {
+                $data[$v] = $this->getConf($v);
+            }
+        }
         $fksnews.= '<fksnewsfeed
-newsdate=' . dformat() . ';
-author=' . $INFO['userinfo']['name'] . ';
-email= ' . $INFO['userinfo']['mail'] . ';
-name=Název aktuality>
-Tady napiš text aktuality
+newsdate=' . $data['newsdate'] . ';
+author=' . $data['author'] . ';
+email= ' . $data['email'] . ';
+name=' . $data['name'] . '>
+' . $data['text'] . '
 </fksnewsfeed>';
-        $Wnews = file_put_contents($this->getnewsurl(array('id' => $Rdata['newsid'], 'dir' => $Rdata['dir'])), $fksnews);
+        $Wnews = io_saveFile(metaFN($this->getwikinewsurl($id), '.txt'), $fksnews);
         return $Wnews;
     }
 
@@ -242,9 +260,8 @@ Tady napiš text aktuality
      */
 
     function extractParamtext($text) {
-
-        list($text, $param['text']) = preg_split('/\>/', str_replace("\n", '', substr($text, 13, -15)));
-        foreach (preg_split('/;/', $text)as $key => $value) {
+        list($text, $param['text']) = preg_split('/\>/', str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $text), 2);
+        foreach (preg_split('/;/', $text)as $value) {
             list($k, $v) = preg_split('/=/', $value);
             $param[$k] = $v;
         }
@@ -261,61 +278,34 @@ Tady napiš text aktuality
 
     function shortName($name = "", $l = 25) {
         if (strlen($name) > $l) {
-            $name = substr($name, 0, $l - 3) . '...';
+            $name = mb_substr($name, 0, $l - 3) . '...';
         }
         return $name;
     }
 
     /*
-     * © Michal Červeňák
-     * 
-     * render stream or dir news
-     * 
-     */
-
-    function renderstream($Sdata) {
-
-        foreach ($this->loadstream($Sdata) as $key => $value) {
-
-            if (isset($Sdata['stream'])) {
-                list($id, $dir) = preg_split('/-/', $value);
-            } else {
-                $id = $value;
-                $dir = $Sdata['dir'];
-            }
-            if ($Sdata['feed']) {
-                if ($Sdata['feed'] % 2) {
-                    $to_page.=$this->renderfullnews(array('dir' => $dir, 'id' => $id, 'even' => 'fksnewseven'));
-                } else {
-                    $to_page.=$this->renderfullnews(array('dir' => $dir, 'id' => $id, 'even' => 'fksnewsodd'));
-                }
-
-                $Sdata['feed'] --;
-            } else {
-                break;
-            }
-        }
-        return $to_page;
-    }
-
-    /*
      * 
      * © Michal Červeňák
      * 
-     * function to rendering news (fksnewsfeed)
+     * function to rendering news to template(fksnewsfeed)
      */
 
     function rendernews($data) {
-
-        $to_page.=$this->newsdate($data['newsdate']);
-        $to_page.=$this->newsheadline($data['name']);
-        $to_page.=$this->newsarticle($data['text-html']);
-        $to_page.=$this->newsauthor($data['email'], $data['author']);
-        $to_page.='<div class="clearer"></div>';
-        return $to_page;
+        $text = io_readFile(wikiFN('system/html/newsfeed_template'));
+        
+        foreach ($this->Fields as $k) {
+            if ($k == 'text') {
+                $text = str_replace('@' . $k . '@', $data['text-html'], $text);
+            } elseif ($k == 'newsdate') {
+                $text = str_replace('@' . $k . '@', $this->newsdate($data[$k]), $text);
+            } else {
+                $text = str_replace('@' . $k . '@', $data[$k], $text);
+            }
+        }
+        return $text;
     }
 
-    function newsdate($date) {
+    private function newsdate($date) {
         $enmonth = Array(
             'January',
             'February',
@@ -345,41 +335,15 @@ Tady napiš text aktuality
         );
 
 
-        return '<div class="fksnewsdate">' . str_replace($enmonth, $langmonth, $date) . '</div>';
-    }
-
-    function newsheadline($headline) {
-        return '<div class="fksnewsheadline">'
-                . p_render("xhtml", p_get_instructions('===' . $headline . '==='), $info)
-                . '</div>';
-    }
-
-    function newsarticle($texthtml) {
-        return '<div class="fksnewsarticle">' . $texthtml . "</div>";
-    }
-
-    function newsauthor($email, $author) {
-        return '<div class="fksnewsauthor">' . p_render("xhtml", p_get_instructions('[[' . $email . '|' . $author . ']]'), $info) . '</div>';
-    }
-
-    /*
-     * © Michal Červeňák
-     * 
-     * 
-     * function to get links 
-     */
-
-    function getnewsurl($data) {
-
-        return str_replace(":", '/', DOKU_INC . 'data/pages/' . $this->getwikinewsurl($data) . '.txt');
+        return str_replace($enmonth, $langmonth, $date);
     }
 
     /*
      * get wiki URL with :
      */
 
-    function getwikinewsurl($data) {
-        return str_replace("@i@", $data['id'], 'fksnewsfeed:' . $data['dir'] . ':' . $this->getConf('newsfile'));
+    public function getwikinewsurl($id) {
+        return str_replace("@i@", $id, 'fksnewsfeed:feeds:' . $this->getConf('newsfile'));
     }
 
     /*
@@ -389,7 +353,7 @@ Tady napiš text aktuality
      * talčítko pre návrat do menu z admin prostredia (možno do pluginu fksadminpage ?FR
      */
 
-    function returnMenu($lmenu) {
+    public function returnMenu($lmenu) {
         global $lang;
         $form = new Doku_Form(array(
             'id' => "returntomenu",
@@ -409,7 +373,7 @@ Tady napiš text aktuality
      * 
      */
 
-    function changedir() {
+    public function changedir() {
         $form = new Doku_Form(array(
             'id' => "changedir",
             'method' => 'POST',
@@ -419,10 +383,10 @@ Tady napiš text aktuality
         $form->addHidden('type', 'dir');
         $form->addElement(form_makeButton('submit', '', $this->getLang('changedir')));
         $form->endFieldset();
-        html_form('changedirnews', $form);
+        //html_form('changedirnews', $form);
     }
 
-    function changedstream() {
+    public function changedstream() {
         global $lang;
         $form = new Doku_Form(array(
             'id' => "changedir",
@@ -464,32 +428,19 @@ Tady napiš text aktuality
      * 
      * 
      * 
-     * msg return html not print
-     */
-
-    function returnmsg($text, $lvl) {
-        ob_start();
-        msg($text, $lvl);
-        $msg = ob_get_contents();
-        ob_end_clean();
-        return $msg;
-    }
-
-    /*
-     * © Michal Červeňák
-     * 
-     * 
-     * 
      * msg info about set strem or dir 
      */
 
     function addlocation($Rdata) {
-        return $this->returnmsg('zobrazuje sa ' . $this->getLang($Rdata['type']) . ' <b>' . $Rdata['dir'] . $Rdata['stream'] . '</b>', 1);
+        return $this->FKS_helper->returnmsg('zobrazuje sa ' . $this->getLang($Rdata['type']) . ' <b>' . $Rdata['dir'] . $Rdata['stream'] . '</b>', 1);
     }
 
-    function allshortnews($Rdata) {
-        $allnews = glob($this->getnewsurl(array('id' => "*", 'dir' => $Rdata['dir'])));
+    function allshortnews() {
+        $allnews = glob(DOKU_INC . 'data/meta/fksnewsfeed/feeds/*.txt');
+        
         sort($allnews, SORT_NATURAL | SORT_FLAG_CASE);
+        
+        //var_dump($allnews);
         return $allnews;
     }
 

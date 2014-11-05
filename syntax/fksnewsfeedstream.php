@@ -16,6 +16,11 @@ require_once(DOKU_PLUGIN . 'syntax.php');
 
 class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin {
 
+    private $helper;
+    private $Sdata = array();
+    private $to_page =""; 
+            //array('indic' => array(), 'items' => array(), 'img' => array(), 'html_indic' => '', 'html_items' => '');
+
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
     }
@@ -45,26 +50,53 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
      */
     public function handle($match, $state, $pos, Doku_Handler &$handler) {
 
-        foreach (preg_split('/;/', substr($match, 21, -2))as $key => $value) {
-            list($k, $v) = preg_split('/=/', $value);
-            $Sdata[$k] = $v;
-        }
+        $this->Sdata = $this->helper->FKS_helper->extractParamtext(substr($match, 21, -2));
 
-        $to_page.='<div class="fksnewswrapper">'
-                . $this->helper->renderstream($Sdata)
-                . '</div>';
-        return array($state, array($to_page));
+
+        //$to_page.=$this->renderstreamB();
+
+
+        return array($state, null);
     }
 
     public function render($mode, Doku_Renderer &$renderer, $data) {
         // $data is what the function handle return'ed.
         if ($mode == 'xhtml') {
             /** @var Do ku_Renderer_xhtml $renderer */
-            list($state, $match) = $data;
-            list($to_page) = $match;
-            $renderer->doc .= $to_page;
+            list($state, ) = $data;
+
+            $renderer->doc .= '<div class="fksnewswrapper">'
+                    . $this->renderstream()
+                    . '</div>';
+            
         }
         return false;
+    }
+
+    /*
+     * © Michal Červeňák
+     * 
+     * render stream news
+     * 
+     */
+
+    private function renderstream() {
+        //var_dump($this->Sdata);
+        foreach ($this->helper->loadstream( $this->Sdata['stream']) as  $value) {
+            if ($this->Sdata['feed']) {
+                if ($this->Sdata['feed'] % 2) {
+                    $to_page.=$this->helper->renderfullnews($value, 'fksnewseven');
+                } else {
+                    $to_page.=$this->helper->renderfullnews($value, 'fksnewsodd');
+                }
+                $to_page.='<div class="fksbetween"><p></p></div>';
+
+                $this->Sdata['feed'] --;
+            } else {
+                break;
+            }
+        }
+        return $to_page;
     }
 
 }

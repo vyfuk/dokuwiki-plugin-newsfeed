@@ -4,15 +4,17 @@
  * DokuWiki Plugin fksdbexport (Action Component)
  *
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
- * @author  Michal Koutný <michal@fykos.cz>
+ * @author  Michal Červeňák <miso@fykos.cz>
  */
 // must be run within Dokuwiki
-if (!defined('DOKU_INC'))
+if (!defined('DOKU_INC')) {
     die();
+}
 
 class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
     private $modFields = array('name', 'email', 'author', 'newsdate', 'text');
+    private $helper;
 
     /**
      * Registers a callback function for a given event
@@ -25,9 +27,20 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
     }
 
     public function register(Doku_Event_Handler $controller) {
+        $controller->register_hook('HTML_SECEDIT_BUTTON', 'BEFORE', $this, 'handle_html_secedit_button');
         $controller->register_hook('HTML_EDIT_FORMSELECTION', 'BEFORE', $this, 'handle_html_edit_formselection');
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'handle_action_act_preprocess');
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_action_ajax_request');
+       
+        
+    }
+
+    public function handle_html_secedit_button(Doku_Event &$event, $param) {
+
+        if (!p_get_metadata('fks_news')) {
+            return;
+        }
+        //$event->data['name'] = $this->getLang('Edit'); // it's set in redner()
     }
 
     /**
@@ -47,14 +60,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         $event->stopPropagation();
         $event->preventDefault();
 
-        $data["fullhtml"] = $this->helper->renderfullnews(array_merge(array(
-            'dir' => $INPUT->str('dir'),
-            'id' => $INPUT->str('id'),
-            'even' => 'even'
-                        ), $this->helper->extractParamtext(io_readFile($this->helper->getnewsurl(array(
-                                            'dir' => $INPUT->str('dir'),
-                                            'id' => $INPUT->str('id'))
-        )))));
+        $data["fullhtml"] = $this->helper->renderfullnews($INPUT->str('id'), 'fkseven');
 
         require_once DOKU_INC . 'inc/JSON.php';
         $json = new JSON();
@@ -65,9 +71,12 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
     public function handle_html_edit_formselection(Doku_Event &$event, $param) {
         global $TEXT;
         global $INPUT;
-        if ($_POST['target'] !== 'plugin_fksnewsfeed') {
+        //print_r();
+        if ($INPUT->str('target') !== 'plugin_fksnewsfeed') {
+
             return;
         }
+
         $event->preventDefault();
         unset($event->data['intro_locale']);
         echo $this->locale_xhtml('edit_intro');
@@ -78,30 +87,34 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $data[$field] = $_POST[$field];
             }
         } else {
-            $data = $this->helper->extractParamACT($TEXT);
+
+            $data = $this->extractParamACT(io_readFile(metaFN($_POST["id"], ".txt")));
         }
-        $globAttr = array();
+
         $form->startFieldset('Newsfeed');
         foreach ($this->modFields as $field) {
-            $attr = $globAttr;
+
             if ($field == 'text') {
                 $value = $INPUT->post->str('wikitext', $data[$field]);
-                $form->addElement(form_makeWikiText($TEXT, $attr));
+                $form->addElement(form_makeWikiText($TEXT, array()));
             } else {
                 $value = $INPUT->post->str($field, $data[$field]);
-                $form->addElement(form_makeTextField($field, $value, $this->getLang($field), $field, null, $attr));
+                $form->addElement(form_makeTextField($field, $value, $this->getLang($field), $field, null, array()));
             }
         }
         $form->endFieldset();
     }
 
     public function handle_action_act_preprocess(Doku_Event &$event, $param) {
+global $ACT;
         if (!isset($_POST['do']['save'])) {
             return;
         }
+        global $INPUT;
         global $TEXT;
         global $ID;
-        if ($_POST["target"] == "plugin_fksnewsfeed") {
+
+        if ($INPUT->str("target") == "plugin_fksnewsfeed") {
             $data = array();
             //print_r($_REQUEST);
             foreach ($this->modFields as $field) {
@@ -120,9 +133,22 @@ email= ' . $data['email'] . ';
 name=' . $data['name'] . '>
 ' . $data['text'] . '
 </fksnewsfeed>';
-
-            $TEXT = $news;
+            io_saveFile(metaFN($_POST["id"], '.txt'), $news);
+            // $TEXT = $news;
+            unset($TEXT);
+            unset($_POST['wikitext']);
+            $ACT="show";
         }
+    }
+
+
+    private function extractParamACT($text) {
+        global $TEXT;
+        
+        $param = $this->helper->extractParamtext_feed($text);
+        $TEXT = $param["text"];
+
+        return $param;
     }
 
 }

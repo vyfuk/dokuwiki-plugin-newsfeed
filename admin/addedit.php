@@ -17,8 +17,11 @@ require_once(DOKU_PLUGIN . 'admin.php');
 
 class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
 
+    private $Rdata = array('newsdo' => null, 'newsid' => null, 'stream' => array());
+
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->FKS_helper = $this->loadHelper('fkshelper');
     }
 
     public function getMenuSort() {
@@ -35,106 +38,106 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
     }
 
     public function handle() {
-        global $lang;
+        
     }
 
     public function html() {
-        global $lang;
-        global $conf;
         global $Rdata;
-
-
         $this->helper->deletecache();
+        $Rdata = array_merge($_POST, $_GET);
+        global $INPUT;
 
-        $Rdata = $_POST;
-        /* if (!isset($Rdata['dir'])) {
-          $Rdata['dir'] = 'start';
-          } */
-        $this->helper->returnMenu('addeditmenu');
-        $this->helper->changedir();
+        foreach ($this->Rdata as $k => $v) {
+            if ($k == 'stream') {
+                $this->Rdata[$k] = $INPUT->param($k);
+            } else {
+                $this->Rdata[$k] = $INPUT->str($k);
+            }
+        }
 
+        //unset($this->Rdata);
+        $this->Rdata['dir'] = 'feeds';
 
-        switch ($Rdata['newsdo']) {
+        echo '<h1>' . $this->getLang('addmenu') . '</h1>';
+        $this->helper->FKS_helper->returnMenu();
+
+        switch ($this->Rdata['newsdo']) {
             case "add":
-                $this->returnnewsadd($Rdata['dir']);
+                $this->returnnewsadd();
             default:
-                if (isset($Rdata['type'])) {
-                    $this->getaddnews($Rdata['dir']);
-                    $this->geteditnews($Rdata['dir']);
-                }
+
+                $this->getaddnews();
+                $this->geteditnews();
         }
     }
 
     private function geteditnews() {
-        global $Rdata;
-        global $conf;
-        $Fform = new Doku_Form(array());
-        $Fform->addElement(makeHeading($this->getLang('editmenu'), array(), 2));
-        $Fform->addElement($this->helper->addlocation($Rdata));
-        $Fform->endFieldset();
-        html_form('fform', $Fform);
-
-        $arraynews = array();
-
-        foreach ( $this->helper->allshortnews($Rdata) as $key => $value) {
+        echo '<h2>' . $this->getLang('editmenu') . '</h2>';
+        
+        foreach (array_reverse($this->helper->allshortnews($this->Rdata), FALSE) as $value) {
             $form = new Doku_Form(array('id' => 'editnews', 'method' => 'POST', 'class' => 'fksreturn'));
-            $form->startFieldset($this->helper->shortfilename($value, $Rdata['dir'], $flag = 'NEWS_W_ID'));
+            $form->startFieldset($this->helper->shortfilename($value, 'fksnewsfeed/feeds', $flag = 'NEWS_W_ID'));
             $form->endFieldset();
-
-            $form->addElement('<div class="fksnewswrapper">'
-                    . $this->helper->renderfullnews(array('dir' => $Rdata['dir'], 'id' => substr(str_replace(DOKU_INC, '', $value), strlen("data/pages/fksnewsfeed/" . $Rdata['dir'] . "/news"), -4), 'even' => 'fksnewseven'))
-                    . '</div>');
-            $form->addHidden('dir', $Rdata['dir']);
+            $form->addElement(form_makeOpenTag('div', array('class' => 'fksnewswrapper')));
+            
+            $form->addElement($this->helper->renderfullnews($this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'ID_ONLY')));
+            $form->addElement(form_makeCloseTag('div'));
             $form->addHidden("do", "edit");
-            $form->addHidden('id', $this->helper->getwikinewsurl(array('id' => substr(str_replace(DOKU_INC, '', $value), strlen("data/pages/fksnewsfeed/" . $Rdata['dir'] . "/news"), -4), 'dir' => $Rdata['dir'])));
+            $form->addHidden('id', $this->helper->getwikinewsurl($this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'ID_ONLY')));
             $form->addHidden("target", "plugin_fksnewsfeed");
             $form->addElement(form_makeButton('submit', '', $this->getLang('subeditnews')));
-            ob_start();
             html_form('editnews', $form);
-            $arraynews[] = ob_get_contents();
-            ob_end_clean();
         }
-        foreach (array_reverse($arraynews, false) as $key => $value) {
-            echo $value;
-        }
-        echo '</div>';
     }
 
     private function getaddnews() {
-        global $lang;
-        global $Rdata;
-        $form = new Doku_Form(array('id' => 'addtowiki', 'method' => 'POST', 'class' => 'fksreturn'));
-        $form->addElement(makeHeading($this->getLang('addmenu'), array(), 2));
-        $form->startFieldset($this->getLang('addmenu'));
-        $form->addElement($this->helper->addlocation($Rdata));
-        $form->addElement($this->helper->returnmsg($this->getLang('addnews') . ' ' . $this->helper->findimax($Rdata['dir']), 0));
-        $form->addHidden('dir', $Rdata['dir']);
+        echo '<h2>' . $this->getLang('addmenu') . '</h2>';
+        $form = new Doku_Form(array('method' => 'POST'));
+        $form->addElement($this->helper->FKS_helper->returnmsg($this->getLang('addnews') . ' ' . $this->helper->findimax('feeds'), 0));
         $form->addHidden("newsdo", "add");
-        $form->addHidden('newsid', $this->helper->findimax($Rdata['dir']));
+        foreach (helper_plugin_fkshelper::filefromdir(metaFN('fksnewsfeed/streams',null)) as $value) {
+            
+            $form->addElement(form_makeCheckboxField("stream[" . $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID') . "]", 1, $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID')));
+        }
+        $form->addHidden('newsid', $this->helper->findimax('feeds'));
         $form->addHidden("target", "plugin_fksnewsfeed");
         $form->addElement(form_makeButton('submit', '', $this->getLang('subaddnews')));
-        $form->endFieldset();
         html_form('addnews', $form);
     }
 
     private function returnnewsadd() {
-        global $Rdata;
-        global $lang;
-        $Wdata = file_put_contents(DOKU_INC . "data/pages/fksnewsfeed/" . $Rdata['dir'] . "/newsfeed.csv", ';' . $Rdata['newsid'] . ";" . io_readFile("data/pages/fksnewsfeed/" . $Rdata['dir'] . "/newsfeed.csv", FALSE));
-
-        $Wnews = $this->helper->saveNewNews($Rdata);
-        if ($Wdata && $Wnews) {
-            msg(' written successful', 1);
-        } else {
-            msg("written failure", -1);
+        foreach ($this->Rdata["stream"] as $k => $v) {
+            if ($k) {
+                $c = '';
+                $c.=';' . $this->Rdata['newsid'] . ";";
+                $c.=io_readFile(metaFN('fksnewsfeed/streams/' . $k , ".csv"), FALSE);
+                if (io_saveFile(metaFN('fksnewsfeed/streams/' . $k , ".csv"), $c)) {
+                    msg(' written to ' . $k . ' successful', 1);
+                } else {
+                    msg("written to '.$k.' failure", -1);
+                }
+            }
+            //var_dump(io_readFile("data/pages/fksnewsfeed/streams/" . $k . ".csv", FALSE));
         }
 
-        msg($this->getLang('autoreturn'), -1);
+
+        global $INFO;
+        $Wnews = $this->helper->saveNewNews(array('author' => $INFO['userinfo']['name'],
+            'newsdate' => dformat(),
+            'email' => $INFO['userinfo']['mail'],
+            'text' => 'Tady napiš text aktuality',
+            'name' => 'Název aktuality'), $this->Rdata['newsid']);
+        if ($Wnews) {
+            msg('written into new nwes successful', 1);
+        } else {
+            msg("written into new nwes failure", -1);
+        }
+
+        //msg($this->getLang('autoreturn'), -1);
         $form = new Doku_Form(array('id' => 'addtowiki', 'method' => 'POST', 'action' => DOKU_BASE, 'class' => 'fksreturn'));
-        $form->addHidden('dir', $Rdata['dir']);
         $form->addHidden('do', "edit");
         $form->addHidden("target", "plugin_fksnewsfeed");
-        $form->addHidden('id', $this->helper->getwikinewsurl(array('id' => $Rdata['newsid'], 'dir' => $Rdata['dir'])));
+        $form->addHidden('id', $this->helper->getwikinewsurl($this->Rdata['newsid']));
 
         $form->addElement(form_makeButton('submit', '', $this->getLang('subaddwikinews')));
         html_form('addnews', $form);
