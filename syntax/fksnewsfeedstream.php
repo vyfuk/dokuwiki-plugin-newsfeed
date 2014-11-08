@@ -91,7 +91,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
                     $to_page.='fksnewsodd';
                 }
                 $to_page.= '">';
-                $to_page.=p_render("xhtml", p_get_instructions('<fksnewsfeed id=' . $value . '>'), $info);
+                $to_page.=p_render("xhtml", p_get_instructions('<fksnewsfeed id=' . $value . '/>'), $info);
                 $to_page.='</div>';
                 //$to_page.='<div class="fksbetween"><p></p></div>';
 

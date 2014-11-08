@@ -63,7 +63,8 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         require_once DOKU_INC . 'inc/JSON.php';
         $json = new JSON();
         header('Content-Type: application/json');
-        echo $json->encode($data);
+        
+        echo $json->encode(array("fullhtml"=>p_render('xhtml',  p_get_instructions($data["fullhtml"]), $info)));
     }
 
     public function handle_html_edit_formselection(Doku_Event &$event, $param) {

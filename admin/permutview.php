@@ -64,13 +64,12 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         $this->helper->FKS_helper->returnMenu('permutviewmenu');
         //$this->helper->changedir();
         $this->changedstream();
-        $this->helper->lostNews($this->Rdata["dir"]);
+        $this->lostNews($this->Rdata["dir"]);
         switch ($this->Rdata['newsdo']) {
             case "permut":
                 $this->returnnewspermut($this->Rdata["dir"]);
             default:
-                echo '<script type="text/javascript" charset="utf-8">'
-                . 'var maxfile=' . $this->helper->findimax($this->Rdata["dir"]) . ';</script>';
+               
                 //if (isset($this->Rdata['type'])) {
                     $this->getpermutnews();
                 //}
@@ -126,7 +125,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
             $form->endFieldset();
             $form->addElement(form_makeOpenTag('div', array('class' => 'fksnewswrapper')));
 
-            $form->addElement(p_render('xhtml',  p_get_instructions('<fksnewsfeed id='.$value.'>'),$info));
+            $form->addElement(p_render('xhtml',  p_get_instructions('<fksnewsfeed id='.$value.'/>'),$info));
             $form->addElement(form_makeCloseTag('div'));
             $form->addHidden("newsdo", "newsdelete");
             //$form->addHidden('id', $this->helper->getwikinewsurl($this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'ID_ONLY')));
@@ -134,6 +133,18 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
             $form->addElement(form_makeButton('submit', '', $this->getLang('subeditnews')));
             html_form('editnews', $form);
         }
+    }
+    
+    private function lostNews() {
+        $form = new Doku_Form(array('id' => "load_new", 'onsubmit' => "return false"));
+        $form->startFieldset($this->getLang('findnews'));
+        $form->addElement($this->FKS_helper->returnmsg('Zabudol si ake id ma tva novinka?', 0));
+        $form->addElement(form_makeTextField('news_id_lost', null, $this->getLang('id')));
+        $form->addElement(form_makeButton('submit', '', $this->getLang('findnews')));
+        $form->endFieldset();
+        $form->addElement(form_makeOpenTag('div', array('id' => 'lost_news')));
+        $form->addElement(form_makeCloseTag('div'));
+        html_form('editnews', $form);
     }
 
 }

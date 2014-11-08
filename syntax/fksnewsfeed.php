@@ -37,7 +37,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     }
 
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('\<fksnewsfeed.+?\>', $mode, 'plugin_fksnewsfeed_fksnewsfeed');
+        $this->Lexer->addSpecialPattern('\<fksnewsfeed.+?\/\>', $mode, 'plugin_fksnewsfeed_fksnewsfeed');
     }
 
     /**
@@ -90,19 +90,10 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     }
 
     private function newsdate($date) {
-        $enmonth = Array(
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December');
+        $enmonth = Array('January', 'February', 'March',
+            'April', 'May', 'June',
+            'July', 'August', 'September',
+            'October', 'November', 'December');
         $langmonth = Array(
             $this->getLang('jan'),
             $this->getLang('feb'),
@@ -135,9 +126,9 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
      */
 
     private function extractParamtext_feed($text) {
-        
 
-        $text = str_replace(array("\n", '<fksnewsfeed', '>'), array('', '', ''), $text);
+
+        $text = str_replace(array("\n", '<fksnewsfeed', '/>'), array('', '', ''), $text);
         $param = $this->helper->FKS_helper->extractParamtext($text);
         //$param['text-html'] = p_render('xhtml',p_get_instructions($param["text"]), $INFO);
         //var_dump($param);

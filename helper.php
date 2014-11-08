@@ -68,7 +68,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     function renderfullnews($id, $even = "fkseven") {
         $r = '<div class="' . $even
                 . '">'
-                . p_render("xhtml", p_get_instructions('<fksnewsfeed id=' . $id . '>'), $info)
+                . p_render("xhtml", p_get_instructions('<fksnewsfeed id=' . $id . '/>'), $info)
                 . '</div>';
         return $r;
     }
@@ -93,17 +93,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         }
     }
 
-    public function lostNews() {
-        $form = new Doku_Form(array('id' => "load_new", 'onsubmit' => "return false"));
-        $form->startFieldset($this->getLang('findnews'));
-        $form->addElement($this->FKS_helper->returnmsg('Zabudol si ake id ma tva novinka?', 0));
-        $form->addElement(form_makeTextField('news_id_lost', null, $this->getLang('id')));
-        $form->addElement(form_makeButton('submit', '', $this->getLang('findnews')));
-        $form->endFieldset();
-        $form->addElement(form_makeOpenTag('div', array('id' => 'lost_news')));
-        $form->addElement(form_makeCloseTag('div'));
-        html_form('editnews', $form);
-    }
+    
 
     function allNews($dir = 'feeds') {
         $arraynews = array();
