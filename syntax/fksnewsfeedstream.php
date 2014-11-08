@@ -18,8 +18,9 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
 
     private $helper;
     private $Sdata = array();
-    private $to_page =""; 
-            //array('indic' => array(), 'items' => array(), 'img' => array(), 'html_indic' => '', 'html_items' => '');
+    private $to_page = "";
+
+    //array('indic' => array(), 'items' => array(), 'img' => array(), 'html_indic' => '', 'html_items' => '');
 
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
@@ -68,7 +69,6 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
             $renderer->doc .= '<div class="fksnewswrapper">'
                     . $this->renderstream()
                     . '</div>';
-            
         }
         return false;
     }
@@ -82,14 +82,18 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
 
     private function renderstream() {
         //var_dump($this->Sdata);
-        foreach ($this->helper->loadstream( $this->Sdata['stream']) as  $value) {
+        foreach ($this->helper->loadstream($this->Sdata['stream']) as $value) {
             if ($this->Sdata['feed']) {
+                $to_page.='<div class="';
                 if ($this->Sdata['feed'] % 2) {
-                    $to_page.=$this->helper->renderfullnews($value, 'fksnewseven');
+                    $to_page.= 'fksnewseven';
                 } else {
-                    $to_page.=$this->helper->renderfullnews($value, 'fksnewsodd');
+                    $to_page.='fksnewsodd';
                 }
-                $to_page.='<div class="fksbetween"><p></p></div>';
+                $to_page.= '">';
+                $to_page.=p_render("xhtml", p_get_instructions('<fksnewsfeed id=' . $value . '>'), $info);
+                $to_page.='</div>';
+                //$to_page.='<div class="fksbetween"><p></p></div>';
 
                 $this->Sdata['feed'] --;
             } else {
@@ -98,5 +102,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
         }
         return $to_page;
     }
+
+    
 
 }

@@ -73,13 +73,13 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
 
     private function geteditnews() {
         echo '<h2>' . $this->getLang('editmenu') . '</h2>';
-        
+
         foreach (array_reverse($this->helper->allshortnews($this->Rdata), FALSE) as $value) {
             $form = new Doku_Form(array('id' => 'editnews', 'method' => 'POST', 'class' => 'fksreturn'));
             $form->startFieldset($this->helper->shortfilename($value, 'fksnewsfeed/feeds', $flag = 'NEWS_W_ID'));
             $form->endFieldset();
             $form->addElement(form_makeOpenTag('div', array('class' => 'fksnewswrapper')));
-            
+
             $form->addElement($this->helper->renderfullnews($this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'ID_ONLY')));
             $form->addElement(form_makeCloseTag('div'));
             $form->addHidden("do", "edit");
@@ -95,8 +95,8 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
         $form = new Doku_Form(array('method' => 'POST'));
         $form->addElement($this->helper->FKS_helper->returnmsg($this->getLang('addnews') . ' ' . $this->helper->findimax('feeds'), 0));
         $form->addHidden("newsdo", "add");
-        foreach (helper_plugin_fkshelper::filefromdir(metaFN('fksnewsfeed/streams',null)) as $value) {
-            
+        foreach (helper_plugin_fkshelper::filefromdir(metaFN('fksnewsfeed/streams', null)) as $value) {
+
             $form->addElement(form_makeCheckboxField("stream[" . $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID') . "]", 1, $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID')));
         }
         $form->addHidden('newsid', $this->helper->findimax('feeds'));
@@ -106,34 +106,31 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
     }
 
     private function returnnewsadd() {
-        foreach ($this->Rdata["stream"] as $k => $v) {
-            if ($k) {
-                $c = '';
-                $c.=';' . $this->Rdata['newsid'] . ";";
-                $c.=io_readFile(metaFN('fksnewsfeed/streams/' . $k , ".csv"), FALSE);
-                if (io_saveFile(metaFN('fksnewsfeed/streams/' . $k , ".csv"), $c)) {
-                    msg(' written to ' . $k . ' successful', 1);
-                } else {
-                    msg("written to '.$k.' failure", -1);
-                }
-            }
-            //var_dump(io_readFile("data/pages/fksnewsfeed/streams/" . $k . ".csv", FALSE));
-        }
-
-
         global $INFO;
         $Wnews = $this->helper->saveNewNews(array('author' => $INFO['userinfo']['name'],
             'newsdate' => dformat(),
             'email' => $INFO['userinfo']['mail'],
             'text' => 'Tady napiš text aktuality',
-            'name' => 'Název aktuality'), $this->Rdata['newsid']);
+            'name' => 'Název aktuality'), $this->helper->getwikinewsurl($this->Rdata['newsid']));
         if ($Wnews) {
-            msg('written into new nwes successful', 1);
+            msg('written into new news successful', 1);
+            if (!empty($this->Rdata["stream"])) {
+                foreach ($this->Rdata["stream"] as $k => $v) {
+                    if ($k) {
+                        $c = '';
+                        $c.=';' . $this->Rdata['newsid'] . ";";
+                        $c.=io_readFile(metaFN('fksnewsfeed/streams/' . $k, ".csv"), FALSE);
+                        if (io_saveFile(metaFN('fksnewsfeed/streams/' . $k, ".csv"), $c)) {
+                            msg(' written to ' . $k . ' successful', 1);
+                        } else {
+                            msg("written to '.$k.' failure", -1);
+                        }
+                    }
+                }
+            }
         } else {
-            msg("written into new nwes failure", -1);
+            msg("written into new news failure", -1);
         }
-
-        //msg($this->getLang('autoreturn'), -1);
         $form = new Doku_Form(array('id' => 'addtowiki', 'method' => 'POST', 'action' => DOKU_BASE, 'class' => 'fksreturn'));
         $form->addHidden('do', "edit");
         $form->addHidden("target", "plugin_fksnewsfeed");

@@ -37,18 +37,19 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     }
 
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('\<fksnewsfeed.+?\>.+?\</fksnewsfeed\>', $mode, 'plugin_fksnewsfeed_fksnewsfeed');
+        $this->Lexer->addSpecialPattern('\<fksnewsfeed.+?\>', $mode, 'plugin_fksnewsfeed_fksnewsfeed');
     }
 
     /**
      * Handle the match
      */
     public function handle($match, $state, $pos, Doku_Handler &$handler) {
-        
+
         //var_dump($this->helper->extractParamtext($match));
-       $param= $this->helper->extractParamtext_feed($match);
+        $param = $this->extractParamtext_feed($match);
         //var_dump($param);
-        
+
+
         return array($state, array($param));
     }
 
@@ -58,13 +59,91 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             /** @var Do ku_Renderer_xhtml $renderer */
             list($state, $match) = $data;
             list($param) = $match;
-            $renderer->doc .= $this->helper->rendernews($param);
-            $renderer->meta['fks_news']=true;
-            
-            
+            $renderer->doc .= $this->rendernews($param);
+            $renderer->meta['fks_news'] = true;
         }
         return false;
     }
-    
+
+    private function rendernews($param = array()) {
+
+        $ntext = $this->loadnewssimple($param["id"]);
+
+        $cleantext = str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $ntext);
+        list($params, $text) = preg_split('/\>/', $cleantext, 2);
+        $data = $this->helper->FKS_helper->extractParamtext($params);
+
+        $tpl = io_readFile(wikiFN('system/html/newsfeed_template'));
+
+
+        foreach ($this->helper->Fields as $k) {
+
+            if ($k == 'text') {
+                $tpl = str_replace('@' . $k . '@', p_render('xhtml', p_get_instructions($text), $info), $tpl);
+            } elseif ($k == 'newsdate') {
+                $tpl = str_replace('@' . $k . '@', $this->newsdate($data[$k]), $tpl);
+            } else {
+                $tpl = str_replace('@' . $k . '@', $data[$k], $tpl);
+            }
+        }
+        return $tpl;
+    }
+
+    private function newsdate($date) {
+        $enmonth = Array(
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December');
+        $langmonth = Array(
+            $this->getLang('jan'),
+            $this->getLang('feb'),
+            $this->getLang('mar'),
+            $this->getLang('apr'),
+            $this->getLang('may'),
+            $this->getLang('jun'),
+            $this->getLang('jul'),
+            $this->getLang('aug'),
+            $this->getLang('sep'),
+            $this->getLang('oct'),
+            $this->getLang('now'),
+            $this->getLang('dec')
+        );
+
+
+        return str_replace($enmonth, $langmonth, $date);
+    }
+
+    /*
+     * load news @i@ and return text
+     */
+
+    private function loadnewssimple($id) {
+        return io_readFile(metaFN($this->helper->getwikinewsurl($id), ".txt"), false);
+    }
+
+    /*
+     * changed doku text and extract for action plugin
+     */
+
+    private function extractParamtext_feed($text) {
+        
+
+        $text = str_replace(array("\n", '<fksnewsfeed', '>'), array('', '', ''), $text);
+        $param = $this->helper->FKS_helper->extractParamtext($text);
+        //$param['text-html'] = p_render('xhtml',p_get_instructions($param["text"]), $INFO);
+        //var_dump($param);
+
+
+        return $param;
+    }
 
 }

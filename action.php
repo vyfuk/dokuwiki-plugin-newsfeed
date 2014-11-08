@@ -31,8 +31,6 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         $controller->register_hook('HTML_EDIT_FORMSELECTION', 'BEFORE', $this, 'handle_html_edit_formselection');
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'handle_action_act_preprocess');
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_action_ajax_request');
-       
-        
     }
 
     public function handle_html_secedit_button(Doku_Event &$event, $param) {
@@ -84,11 +82,11 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
         if (array_key_exists('wikitext', $_POST)) {
             foreach ($this->modFields as $field) {
-                $data[$field] = $_POST[$field];
+                $data[$field] = $INPUT->param($field);
             }
         } else {
 
-            $data = $this->extractParamACT(io_readFile(metaFN($_POST["id"], ".txt")));
+            $data = $this->extractParamACT(io_readFile(metaFN($INPUT->str("id"), ".txt")));
         }
 
         $form->startFieldset('Newsfeed');
@@ -106,7 +104,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
     }
 
     public function handle_action_act_preprocess(Doku_Event &$event, $param) {
-global $ACT;
+        global $ACT;
         if (!isset($_POST['do']['save'])) {
             return;
         }
@@ -123,28 +121,29 @@ global $ACT;
                     $data[$field] = cleanText($_POST['wikitext']);
                     unset($_POST['wikitext']);
                 } else {
-                    $data[$field] = $_POST[$field];
+                    $data[$field] = $INPUT->param($field);
                 }
             }
-            $news.= '<fksnewsfeed
-newsdate=' . $data['newsdate'] . ';
-author=' . $data['author'] . ';
-email= ' . $data['email'] . ';
-name=' . $data['name'] . '>
-' . $data['text'] . '
-</fksnewsfeed>';
-            io_saveFile(metaFN($_POST["id"], '.txt'), $news);
+
+
+            $this->helper->saveNewNews(array('author' => $data['author'],
+                'newsdate' => $data['newsdate'],
+                'email' => $data['email'],
+                'text' => $data['text'],
+                'name' => $data['name']
+                    ), $_POST["id"]);
+
             // $TEXT = $news;
             unset($TEXT);
             unset($_POST['wikitext']);
-            $ACT="show";
+            $ACT = "show";
+            $ID = 'start';
         }
     }
 
-
     private function extractParamACT($text) {
         global $TEXT;
-        
+
         $param = $this->helper->extractParamtext_feed($text);
         $TEXT = $param["text"];
 
@@ -152,6 +151,3 @@ name=' . $data['name'] . '>
     }
 
 }
-
-// vim:ts=4:sw=4:et:
-
