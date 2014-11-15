@@ -20,8 +20,12 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     public $Fields = array('name', 'email', 'author', 'newsdate', 'text');
     public $FKS_helper;
+    public $simple_tpl;
+
+    const simple_tpl = "{{fksnewsfeed>id=@id@; even=@even@}}";
 
     public function __construct() {
+        $this->simple_tpl=self::simple_tpl;
 
         $this->FKS_helper = $this->loadHelper('fkshelper');
     }
@@ -65,13 +69,11 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return preg_split('/;;/', substr(io_readFile(metaFN("fksnewsfeed:streams:" . $s, ".csv"), FALSE), 1, -1));
     }
 
-    function renderfullnews($id, $even = "fkseven") {
-        $r = '<div class="' . $even
-                . '">'
-                . p_render("xhtml", p_get_instructions('<fksnewsfeed id=' . $id . '/>'), $info)
-                . '</div>';
+    /*function renderfullnews($id, $even = "fkseven") {
+        $r = p_render("xhtml", p_get_instructions(str_replace(array('@id@','@even@'), array($id,$even), self::simple_tpl)), $info);
+
         return $r;
-    }
+    }*/
 
     public function findimax() {
         for ($i = 1; true; $i++) {
@@ -92,8 +94,6 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
             return $color2;
         }
     }
-
-    
 
     function allNews($dir = 'feeds') {
         $arraynews = array();
@@ -191,13 +191,12 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 $data[$v] = $this->getConf($v);
             }
         }
-        $fksnews.= '<fksnewsfeed
-newsdate=' . $data['newsdate'] . ';
+        $fksnews.= 
+'newsdate=' . $data['newsdate'] . ';
 author=' . $data['author'] . ';
 email= ' . $data['email'] . ';
 name=' . $data['name'] . '>
-' . $data['text'] . '
-</fksnewsfeed>';
+' . $data['text'] ;
         $Wnews = io_saveFile(metaFN($link, '.txt'), $fksnews);
         return $Wnews;
     }
@@ -210,7 +209,7 @@ name=' . $data['name'] . '>
      * extract param from text
      */
 
-    function extractParamtext($text) {
+   /* function extractParamtext($text) {
         list($text, $param['text']) = preg_split('/\>/', str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $text), 2);
         foreach (preg_split('/;/', $text)as $value) {
             list($k, $v) = preg_split('/=/', $value);
@@ -218,7 +217,7 @@ name=' . $data['name'] . '>
         }
         $param['text-html'] = p_render("xhtml", p_get_instructions($param["text"]), $info);
         return $param;
-    }
+    }*/
 
     /*
      * © Michal Červeňák

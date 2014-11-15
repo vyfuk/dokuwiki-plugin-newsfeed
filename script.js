@@ -39,7 +39,7 @@ jQuery(function() {
         $infospan = $("#fks_news_admin_info" + $(this).parent().parent().parent().index() + '_span');
         $.post(
                 DOKU_BASE + 'lib/exe/ajax.php',
-                {call: 'plugin_fksnewsfeed',target:'feed', name: 'local', id: newsID}, function(data) {
+                {call: 'plugin_fksnewsfeed', target: 'feed', name: 'local', id: newsID}, function(data) {
             alert('Received response' + data);
             console.log(data);
             $infodiv.html(
@@ -66,9 +66,7 @@ jQuery(function() {
         $lostdiv = $('#lost_news');
         $.post(
                 DOKU_BASE + 'lib/exe/ajax.php',
-
-                {call: 'plugin_fksnewsfeed',target:'feed', name: 'local', id: newsID,dir:newsdir},
-
+                {call: 'plugin_fksnewsfeed', target: 'feed', name: 'local', id: newsID, dir: newsdir},
         function(data) {
             console.log(data);
             //alert('Received response' + data);
@@ -76,6 +74,28 @@ jQuery(function() {
                     + data["fullhtml"]
                     + '</div>');
             // data is array you returned with action.php
+        },
+                'json');
+
+    })
+            ;
+/**
+ * edit button for news on page
+ */
+    $('div.fksnewseven,div.fksnewsodd').mouseover(function() {
+        event.preventDefault();
+        var newsID = $(this).data("id");
+        $editdiv = $('div.fks_edit[data-id=' + $(this).data("id") + ']');
+        if ($editdiv.html() !== "") {
+            return false;
+        }
+        ;
+        
+        $.post(
+                DOKU_BASE + 'lib/exe/ajax.php',
+                {call: 'plugin_fksnewsfeed', target: 'feed', name: 'local', do: 'edit', id: newsID},
+        function(data) {
+            $editdiv.html(data["r"]);
         },
                 'json');
 
@@ -106,16 +126,7 @@ jQuery(function() {
 
 
 
-    jQuery("h1.fkshover").click(function() {
-        // var str=this.id;
-        if (jQuery("div." + this.id).is(":hidden")) {
-            jQuery("div." + this.id).slideDown();
-        } else {
-            jQuery("div." + this.id).slideUp();
-        }
-        ;
-    });
-
+    
     jQuery("td.fks_news_info").mouseover(function() {
         newsviewmore(this.id);
     });

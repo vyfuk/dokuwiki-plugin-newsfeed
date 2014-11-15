@@ -57,14 +57,37 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         }
         $event->stopPropagation();
         $event->preventDefault();
+        if ($INPUT->str('do') == 'edit') {
+            if ($_SERVER['REMOTE_USER']) {
+                $form = new Doku_Form(array('id' => 'editnews', 'method' => 'POST', 'class' => 'fksreturn'));
+                $form->addHidden("do", "edit");
+                $form->addHidden('id', $this->helper->getwikinewsurl($INPUT->str('id')));
+                $form->addHidden("target", "plugin_fksnewsfeed");
+                $form->addElement(form_makeButton('submit', '', $this->getLang('subeditnews')));
+                ob_start();
+                html_form('editnews', $form);
 
-        $data["fullhtml"] = $this->helper->renderfullnews($INPUT->str('id'), 'fkseven');
 
-        require_once DOKU_INC . 'inc/JSON.php';
-        $json = new JSON();
-        header('Content-Type: application/json');
-        
-        echo $json->encode(array("fullhtml"=>p_render('xhtml',  p_get_instructions($data["fullhtml"]), $info)));
+                $r = ob_get_contents();
+                ob_end_clean();
+            }
+
+            require_once DOKU_INC . 'inc/JSON.php';
+            $json = new JSON();
+            header('Content-Type: application/json');
+            //echo $r;
+            echo $json->encode(array("r" => $r));
+        } else {
+
+
+            $data["fullhtml"] = $this->helper->renderfullnews($INPUT->str('id'), 'fkseven');
+
+            require_once DOKU_INC . 'inc/JSON.php';
+            $json = new JSON();
+            header('Content-Type: application/json');
+
+            echo $json->encode(array("fullhtml" => p_render('xhtml', p_get_instructions($data["fullhtml"]), $info)));
+        }
     }
 
     public function handle_html_edit_formselection(Doku_Event &$event, $param) {
@@ -142,11 +165,16 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         }
     }
 
-    private function extractParamACT($text) {
+    private function extractParamACT($ntext) {
         global $TEXT;
 
-        $param = $this->helper->extractParamtext_feed($text);
-        $TEXT = $param["text"];
+
+        $cleantext = str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $ntext);
+        list($params, $text) = preg_split('/\>/', $cleantext, 2);
+        $param = $this->helper->FKS_helper->extractParamtext($params);
+
+
+        $TEXT = $text;
 
         return $param;
     }

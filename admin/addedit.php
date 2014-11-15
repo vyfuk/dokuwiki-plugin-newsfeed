@@ -75,18 +75,9 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
         echo '<h2>' . $this->getLang('editmenu') . '</h2>';
 
         foreach (array_reverse($this->helper->allshortnews($this->Rdata), FALSE) as $value) {
-            $form = new Doku_Form(array('id' => 'editnews', 'method' => 'POST', 'class' => 'fksreturn'));
-            $form->startFieldset($this->helper->shortfilename($value, 'fksnewsfeed/feeds', $flag = 'NEWS_W_ID'));
-            $form->endFieldset();
-            $form->addElement(form_makeOpenTag('div', array('class' => 'fksnewswrapper')));
-
-            $form->addElement($this->helper->renderfullnews($this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'ID_ONLY')));
-            $form->addElement(form_makeCloseTag('div'));
-            $form->addHidden("do", "edit");
-            $form->addHidden('id', $this->helper->getwikinewsurl($this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'ID_ONLY')));
-            $form->addHidden("target", "plugin_fksnewsfeed");
-            $form->addElement(form_makeButton('submit', '', $this->getLang('subeditnews')));
-            html_form('editnews', $form);
+            echo '<legend>' . $this->helper->shortfilename($value, 'fksnewsfeed/feeds', $flag = 'NEWS_W_ID') . '</legend>';
+            $n = str_replace(array('@id@', '@even@'), array($this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'ID_ONLY'), 'fksnewseven'), $this->helper->simple_tpl);
+            echo p_render("xhtml", p_get_instructions($n), $info);
         }
     }
 
@@ -95,7 +86,7 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
         $form = new Doku_Form(array('method' => 'POST'));
         $form->addElement($this->helper->FKS_helper->returnmsg($this->getLang('addnews') . ' ' . $this->helper->findimax('feeds'), 0));
         $form->addHidden("newsdo", "add");
-        foreach (helper_plugin_fkshelper::filefromdir(metaFN('fksnewsfeed/streams', null)) as $value) {
+        foreach ($this->helper->FKS_helper->filefromdir(metaFN('fksnewsfeed/streams', null)) as $value) {
 
             $form->addElement(form_makeCheckboxField("stream[" . $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID') . "]", 1, $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID')));
         }

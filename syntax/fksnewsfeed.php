@@ -16,6 +16,8 @@ require_once(DOKU_PLUGIN . 'syntax.php');
 
 class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
+    private $helper;
+
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
     }
@@ -37,7 +39,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     }
 
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('\<fksnewsfeed.+?\/\>', $mode, 'plugin_fksnewsfeed_fksnewsfeed');
+        $this->Lexer->addSpecialPattern('\{\{fksnewsfeed\>.+?\}\}', $mode, 'plugin_fksnewsfeed_fksnewsfeed');
     }
 
     /**
@@ -45,22 +47,27 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
      */
     public function handle($match, $state, $pos, Doku_Handler &$handler) {
 
-        //var_dump($this->helper->extractParamtext($match));
-        $param = $this->extractParamtext_feed($match);
-        //var_dump($param);
+
+        $text = str_replace(array("\n", '{{fksnewsfeed>', '}}'), array('', '', ''), $match);
+        /** @var id and even this NF $param */
+        $param = $this->helper->FKS_helper->extractParamtext($text);
+
 
 
         return array($state, array($param));
     }
 
     public function render($mode, Doku_Renderer &$renderer, $data) {
+
         // $data is what the function handle return'ed.
         if ($mode == 'xhtml') {
             /** @var Do ku_Renderer_xhtml $renderer */
             list($state, $match) = $data;
             list($param) = $match;
-            $renderer->doc .= $this->rendernews($param);
             $renderer->meta['fks_news'] = true;
+            $renderer->doc .= $this->rendernews($param);
+            $renderer->doc.='<div class="fks_edit" data-id="' . $param["id"] . '"></div>';
+           
         }
         return false;
     }
@@ -86,7 +93,10 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
                 $tpl = str_replace('@' . $k . '@', $data[$k], $tpl);
             }
         }
-        return $tpl;
+        if (!isset($param['even'])) {
+            $param['even'] = 'fkseven';
+        }
+        return '<div class="' . $param['even'] . '" data-id="' . $param["id"] . '">' . $tpl . '</div>';
     }
 
     private function newsdate($date) {
@@ -119,22 +129,6 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
     private function loadnewssimple($id) {
         return io_readFile(metaFN($this->helper->getwikinewsurl($id), ".txt"), false);
-    }
-
-    /*
-     * changed doku text and extract for action plugin
-     */
-
-    private function extractParamtext_feed($text) {
-
-
-        $text = str_replace(array("\n", '<fksnewsfeed', '/>'), array('', '', ''), $text);
-        $param = $this->helper->FKS_helper->extractParamtext($text);
-        //$param['text-html'] = p_render('xhtml',p_get_instructions($param["text"]), $INFO);
-        //var_dump($param);
-
-
-        return $param;
     }
 
 }
