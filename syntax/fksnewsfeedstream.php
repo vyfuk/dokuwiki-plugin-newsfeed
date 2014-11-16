@@ -18,7 +18,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
 
     private $helper;
     private $Sdata = array();
-    private $to_page = "";
+    
 
     //array('indic' => array(), 'items' => array(), 'img' => array(), 'html_indic' => '', 'html_items' => '');
 
@@ -59,8 +59,14 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
         if ($mode !== 'xhtml') {
             return;
         }
+        
+        $atr=array();
+        foreach($this->Sdata as $key=>$value){
+            $atr['data-'.$key]=$value;
+        }
+        $renderer->doc .='<div class="fks_news_stream" '.  buildAttributes($atr).'></div>';
         /** @var Do ku_Renderer_xhtml $renderer */
-        foreach ($this->helper->loadstream($this->Sdata['stream']) as $value) {
+        /*foreach ($this->helper->loadstream($this->Sdata['stream']) as $value) {
             if ($this->Sdata['feed']) {
                 if ($this->Sdata['feed'] % 2) {
                     $e = 'fksnewseven';
@@ -73,7 +79,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
             } else {
                 break;
             }
-        }
+        }*/
         return false;
     }
 

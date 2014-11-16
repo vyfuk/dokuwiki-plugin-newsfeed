@@ -77,6 +77,65 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             header('Content-Type: application/json');
             //echo $r;
             echo $json->encode(array("r" => $r));
+        } elseif ($INPUT->str('do') == 'stream') {
+            $feed = (int) $INPUT->str('feed');
+            $r = (string) "";
+
+
+            foreach ($this->helper->loadstream($INPUT->str('stream')) as $value) {
+                if ($feed) {
+                    if ($feed % 2) {
+                        $e = 'fksnewseven';
+                    } else {
+                        $e = 'fksnewsodd';
+                    }
+
+                    $n = str_replace(array('@id@', '@even@'), array($value, $e), $this->helper->simple_tpl);
+                    $r.= p_render("xhtml", p_get_instructions($n), $info);
+
+                    $feed --;
+                } else {
+                    break;
+                }
+            }
+            $r.='<div class="fks_news_more" data-stream="'.$INPUT->str('stream').'" data-view="' . (int) $INPUT->str('feed') . '">
+                    <a class="wikilink1" title="fksnewsfeed">Starší aktuality
+                    </a>
+                    </div>';
+
+            require_once DOKU_INC . 'inc/JSON.php';
+            $json = new JSON();
+            header('Content-Type: application/json');
+            //echo $r;
+            echo $json->encode(array("r" => $r));
+        } elseif ($INPUT->str('do') == 'more') {
+            $f = $this->helper->loadstream($INPUT->str('stream'));
+            $m=3 +(int)$INPUT->str('view');
+            for ($i = (int) $INPUT->str('view'); $i < $m; $i++) {
+
+                if (array_key_exists($i, $f)) {
+                    if ($i % 2) {
+                        $e = 'fksnewseven';
+                    } else {
+                        $e = 'fksnewsodd';
+                    }
+                    $n = str_replace(array('@id@', '@even@'), array($f[$i], $e), $this->helper->simple_tpl);
+                    $r.= p_render("xhtml", p_get_instructions($n), $info);
+                    
+                } else {
+                    break;
+                }
+            }
+             $r.='<div class="fks_news_more" data-stream="'.$INPUT->str('stream').'" data-view="' . $m . '">
+                    <a class="wikilink1" title="fksnewsfeed">Starší aktuality
+                    </a>
+                    </div>';
+            
+            require_once DOKU_INC . 'inc/JSON.php';
+            $json = new JSON();
+            header('Content-Type: application/json');
+            //echo $r;
+            echo $json->encode(array("r" => $r));
         } else {
 
 

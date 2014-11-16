@@ -75,7 +75,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     private function rendernews($param = array()) {
 
         $ntext = $this->loadnewssimple($param["id"]);
-
+        
         $cleantext = str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $ntext);
         list($params, $text) = preg_split('/\>/', $cleantext, 2);
         $data = $this->helper->FKS_helper->extractParamtext($params);
@@ -93,8 +93,9 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
                 $tpl = str_replace('@' . $k . '@', $data[$k], $tpl);
             }
         }
+       
         if (!isset($param['even'])) {
-            $param['even'] = 'fkseven';
+            $param['even'] = 'fksnewseven';
         }
         return '<div class="' . $param['even'] . '" data-id="' . $param["id"] . '">' . $tpl . '</div>';
     }
