@@ -82,9 +82,9 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             $r = (string) "";
 
 
-            foreach ($this->helper->loadstream($INPUT->str('stream')) as $value) {
+            foreach ($this->helper->loadstream($INPUT->str('stream')) as $key=>$value) {
                 if ($feed) {
-                    if ($feed % 2) {
+                    if ($key % 2) {
                         $e = 'fksnewseven';
                     } else {
                         $e = 'fksnewsodd';
