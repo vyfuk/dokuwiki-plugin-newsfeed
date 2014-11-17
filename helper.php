@@ -30,58 +30,20 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $this->FKS_helper = $this->loadHelper('fkshelper');
     }
 
-    /* function getfulldata($no, $Sdata) {
-
-      $data = array();
-      $data['id'] = $no;
-      $data['stream'] = $Sdata['stream'];
-      //$data['dir'] = $Sdata['dir'];
-      $data = array_merge($data, $this->extractParamtext_feed($this->loadnewssimple($data)));
-      $data['text-html'] = p_render("xhtml", p_get_instructions($data["text"]), $info);
-      $data["fullhtml"] = $this->rendernews($data);
-
-      return $data;
-      } */
-
-
-
-    /*
-
-     * delete casche when is run
-     */
-
-    function deletecache() {
-
-        $files = glob(DOKU_INC . 'data/cache/*/*');
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                unlink($file);
-            }
-        }
-        return;
-    }
-
     /*
      * load file with configuration
      */
 
-    function loadstream($s, $o = true) {
+    public function loadstream($s, $o = true) {
         if ($o) {
             return preg_split('/;;/', substr(io_readFile(metaFN("fksnewsfeed:streams:" . $s, ".csv"), FALSE), 1, -1));
         } else {
-            
-            $arr=preg_split("/\n/", substr(io_readFile(metaFN("fksnewsfeed:old-streams:" . $s, ".csv"), FALSE), 1, -1));
-            $l=  count($arr);
-            return preg_split('/;;/', substr($arr[$l-1], 1, -1));
-            
+
+            $arr = preg_split("/\n/", substr(io_readFile(metaFN("fksnewsfeed:old-streams:" . $s, ".csv"), FALSE), 1, -1));
+            $l = count($arr);
+            return preg_split('/;;/', substr($arr[$l - 1], 1, -1));
         }
     }
-
-    /* function renderfullnews($id, $even = "fkseven") {
-      $r = p_render("xhtml", p_get_instructions(str_replace(array('@id@','@even@'), array($id,$even), self::simple_tpl)), $info);
-
-      return $r;
-      } */
 
     public function findimax() {
         for ($i = 1; true; $i++) {
@@ -95,15 +57,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $imax;
     }
 
-    function fksnewsboolswitch($color1, $color2, $bool) {
-        if ($bool) {
-            return $color1;
-        } else {
-            return $color2;
-        }
-    }
-
-    function allNews($dir = 'feeds') {
+    public function allNews($dir = 'feeds') {
         $arraynews = array();
         foreach ($this->allshortnews() as $key => $value) {
             $arraynews[] = $this->shortfilename($value, 'fksnewsfeed/' . $dir, 'ID_ONLY');
@@ -127,59 +81,6 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $n;
     }
 
-    function getNewsFile($news) {
-        $id = $this->getPluginName() . ":$news";
-        return metaFN($id, '.txt');
-    }
-
-    /*
-     * © Michal Červeňák
-     * 
-     * 
-     * 
-     * Control data before wrinting
-     * 
-     */
-
-    function controlData($Rdata) {
-        for ($i = 1; true; $i++) {
-            if (!array_key_exists('newson' . $i, $Rdata) && !array_key_exists('newsonR' . $i, $Rdata)) {
-                break;
-            } else {
-                if ($Rdata['newson' . $i] && $Rdata['newsonR' . $i] == "T") {
-                    switch ($Rdata['type']) {
-                        case 'stream':
-                            $data.=';' . $Rdata['newson' . $i] . '-' . $Rdata['newsdiron' . $i] . ';';
-                            break;
-                        case 'dir':
-                            $data.=';' . $Rdata['newson' . $i] . ';';
-                            break;
-                    }
-                }
-            }
-        }
-        //echo $data;
-        msg('New data: <br>' . $data, 0);
-        if (!$data) {
-            msg($this->getLang('dataerror'), -1);
-        } else {
-            switch ($Rdata['type']) {
-                case 'stream':
-                    $wfile = file_put_contents(DOKU_INC . "data/pages/fksnewsfeed/streams/" . $Rdata['stream'] . ".csv", $data);
-                    break;
-                case 'dir':
-                    $wfile = file_put_contents(DOKU_INC . "data/pages/fksnewsfeed/" . $Rdata['dir'] . "/newsfeed.csv", $data);
-                    break;
-            }
-            if ($wfile) {
-                msg('written successful', 1);
-            } else {
-                msg("written failure", -1);
-            }
-        }
-        return;
-    }
-
     /*
      * © Michal Červeňák
      * 
@@ -187,10 +88,11 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * save a new file with value od USer
      */
 
-    function saveNewNews($Rdata, $link) {
-
-        if (file_exists(metaFN($link, '.txt'))) {
-            return FALSE;
+    public function saveNewNews($Rdata, $link, $rw = false) {
+        if (!$rw) {
+            if (file_exists(metaFN($link, '.txt'))) {
+                return FALSE;
+            }
         }
         foreach ($this->Fields as $v) {
             if (array_key_exists($v, $Rdata)) {
@@ -258,60 +160,12 @@ name=' . $data['name'] . '>
         return str_replace("@i@", $id, 'fksnewsfeed:feeds:' . $this->getConf('newsfile'));
     }
 
-    /*
-     * 
-     * © Michal Červeňák
-     * 
-     * Changing dir and stream in adminpage.
-     * 
-     */
-
-    public function changedir() {
-        $form = new Doku_Form(array(
-            'id' => "changedir",
-            'method' => 'POST',
-        ));
-        $form->startFieldset($this->getLang('changedir'));
-        $form->addElement(form_makeDatalistField('dir', 'dir', $this->alldir(), $this->getLang('dir')));
-        $form->addHidden('type', 'dir');
-        $form->addElement(form_makeButton('submit', '', $this->getLang('changedir')));
-        $form->endFieldset();
-        //html_form('changedirnews', $form);
-    }
-
-    /**
-     * © Michal Červeňák
-     * 
-     * 
-     * return all dir and streams
-
-
-      function alldir() {
-      foreach (array_filter(glob(DOKU_INC . 'data/pages/fksnewsfeed/*'), 'is_dir') as $key => $value) {
-      if ($value != DOKU_INC . 'data/pages/fksnewsfeed/streams') {
-      $dirs[$key] = str_replace(DOKU_INC . 'data/pages/fksnewsfeed/', "", $value);
-      }
-      } return $dirs;
-      }
-     */
     function allstream() {
         foreach (glob(DOKU_INC . 'data/meta/fksnewsfeed/streams/*.csv') as $key => $value) {
 
             $streams[$key] = str_replace(array(DOKU_INC . 'data/meta/fksnewsfeed/streams/', '.csv'), array("", ''), $value);
         }
         return $streams;
-    }
-
-    /*
-     * © Michal Červeňák
-     * 
-     * 
-     * 
-     * msg info about set strem or dir 
-     */
-
-    function addlocation($Rdata) {
-        return $this->FKS_helper->returnmsg('zobrazuje sa ' . $this->getLang($Rdata['type']) . ' <b>' . $Rdata['dir'] . $Rdata['stream'] . '</b>', 1);
     }
 
     function allshortnews() {

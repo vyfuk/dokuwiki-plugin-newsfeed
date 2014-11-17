@@ -172,6 +172,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         }
 
         $form->startFieldset('Newsfeed');
+        $form->addHidden('target','plugin_fksnewsfeed');
         foreach ($this->modFields as $field) {
 
             if ($field == 'text') {
@@ -193,6 +194,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         global $INPUT;
         global $TEXT;
         global $ID;
+        
 
         if ($INPUT->str("target") == "plugin_fksnewsfeed") {
             $data = array();
@@ -206,14 +208,14 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                     $data[$field] = $INPUT->param($field);
                 }
             }
-
+           
 
             $this->helper->saveNewNews(array('author' => $data['author'],
                 'newsdate' => $data['newsdate'],
                 'email' => $data['email'],
                 'text' => $data['text'],
                 'name' => $data['name']
-                    ), $_POST["id"]);
+                    ), $_POST["id"],true);
 
             // $TEXT = $news;
             unset($TEXT);
