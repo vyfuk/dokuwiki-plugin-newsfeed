@@ -18,7 +18,6 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
 
     private $helper;
     private $Sdata = array();
-    
 
     //array('indic' => array(), 'items' => array(), 'img' => array(), 'html_indic' => '', 'html_items' => '');
 
@@ -50,36 +49,21 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
      * Handle the match
      */
     public function handle($match, $state, $pos, Doku_Handler &$handler) {
-        $this->Sdata = $this->helper->FKS_helper->extractParamtext(substr($match, 21, -2));
-        return array($state, null);
+        $param = $this->helper->FKS_helper->extractParamtext(substr($match, 21, -2));
+        return array($state, array($param));
     }
 
     public function render($mode, Doku_Renderer &$renderer, $data) {
-        // $data is what the function handle return'ed.
         if ($mode !== 'xhtml') {
             return;
         }
-        
-        $atr=array();
-        foreach($this->Sdata as $key=>$value){
-            $atr['data-'.$key]=$value;
+        list($state, $match) = $data;
+        list($param) = $match;
+        $atr = array();
+        foreach ($param as $key => $value) {
+            $atr['data-' . $key] = $value;
         }
-        $renderer->doc .='<div class="fks_news_stream" '.  buildAttributes($atr).'></div>';
-        /** @var Do ku_Renderer_xhtml $renderer */
-        /*foreach ($this->helper->loadstream($this->Sdata['stream']) as $value) {
-            if ($this->Sdata['feed']) {
-                if ($this->Sdata['feed'] % 2) {
-                    $e = 'fksnewseven';
-                } else {
-                    $e = 'fksnewsodd';
-                }
-                $n = str_replace(array('@id@', '@even@'), array($value, $e), $this->helper->simple_tpl);
-                $renderer->doc .= p_render("xhtml", p_get_instructions($n), $info);
-                $this->Sdata['feed'] --;
-            } else {
-                break;
-            }
-        }*/
+        $renderer->doc .='<div class="fks_news_stream" ' . buildAttributes($atr) . '></div>';
         return false;
     }
 

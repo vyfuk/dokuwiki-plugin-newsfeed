@@ -64,7 +64,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             /** @var Do ku_Renderer_xhtml $renderer */
             list($state, $match) = $data;
             list($param) = $match;
-            $renderer->meta['fks_news'] = true;
+            
             $renderer->doc .= $this->rendernews($param);
             $renderer->doc.='<div class="fks_edit" data-id="' . $param["id"] . '"></div>';
            

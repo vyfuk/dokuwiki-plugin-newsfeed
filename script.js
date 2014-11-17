@@ -169,7 +169,7 @@ jQuery(function() {
 
     jQuery(window).load(function() {
         $('div.fks_news_stream').each(function() {
-            event.preventDefault();
+            //event.preventDefault();
             $stream = $(this);
             $(this).append('<img src="http://img.ffffound.com/static-data/assets/6/77443320c6509d6b500e288695ee953502ecbd6d_m.gif">');
             var newsSTREAM = $(this).data("stream");
@@ -195,7 +195,7 @@ jQuery(function() {
     function _edit_news() {
         $('div.fksnewseven,div.fksnewsodd').mouseover(function() {
 
-            event.preventDefault();
+           // event.preventDefault();
             var newsID = $(this).data("id");
 
             $editdiv = $('div.fks_edit[data-id=' + $(this).data("id") + ']');
@@ -215,7 +215,7 @@ jQuery(function() {
     ;
     function _more_news() {
         $('div.fks_news_more').click(function() {
-            event.preventDefault();
+            //event.preventDefault();
             
             var newsVIEW = $(this).data("view");
             var newsSTREAM = $(this).data("stream");

@@ -51,7 +51,6 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
      */
     public function handle_action_ajax_request(Doku_Event &$event, $param) {
         global $INPUT;
-
         if ($INPUT->str('target') != 'feed') {
             return;
         }
@@ -66,30 +65,23 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $form->addElement(form_makeButton('submit', '', $this->getLang('subeditnews')));
                 ob_start();
                 html_form('editnews', $form);
-
-
                 $r = ob_get_contents();
                 ob_end_clean();
             }
-
             require_once DOKU_INC . 'inc/JSON.php';
             $json = new JSON();
             header('Content-Type: application/json');
-            //echo $r;
             echo $json->encode(array("r" => $r));
         } elseif ($INPUT->str('do') == 'stream') {
             $feed = (int) $INPUT->str('feed');
             $r = (string) "";
-
-
-            foreach ($this->helper->loadstream($INPUT->str('stream'),true) as $key=>$value) {
+            foreach ($this->helper->loadstream($INPUT->str('stream'), true) as $key => $value) {
                 if ($feed) {
                     if ($key % 2) {
                         $e = 'fksnewseven';
                     } else {
                         $e = 'fksnewsodd';
                     }
-
                     $n = str_replace(array('@id@', '@even@'), array($value, $e), $this->helper->simple_tpl);
                     $r.= p_render("xhtml", p_get_instructions($n), $info);
 
@@ -98,11 +90,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                     break;
                 }
             }
-            $r.='<div class="fks_news_more" data-stream="'.$INPUT->str('stream').'" data-view="' . (int) $INPUT->str('feed') . '">
-                    <a class="wikilink1" title="fksnewsfeed">Starší aktuality
-                    </a>
-                    </div>';
-
+            $r.=$this->_add_button_more($INPUT->str('stream'), $INPUT->str('feed'));
             require_once DOKU_INC . 'inc/JSON.php';
             $json = new JSON();
             header('Content-Type: application/json');
@@ -110,7 +98,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             echo $json->encode(array("r" => $r));
         } elseif ($INPUT->str('do') == 'more') {
             $f = $this->helper->loadstream($INPUT->str('stream'));
-            $m=3 +(int)$INPUT->str('view');
+            $m = 3 + (int) $INPUT->str('view');
             for ($i = (int) $INPUT->str('view'); $i < $m; $i++) {
                 if (array_key_exists($i, $f)) {
                     if ($i % 2) {
@@ -120,43 +108,26 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                     }
                     $n = str_replace(array('@id@', '@even@'), array($f[$i], $e), $this->helper->simple_tpl);
                     $r.= p_render("xhtml", p_get_instructions($n), $info);
-                    
                 } else {
                     break;
                 }
             }
-             $r.='<div class="fks_news_more" data-stream="'.$INPUT->str('stream').'" data-view="' . $m . '">
-                    <a class="wikilink1" title="fksnewsfeed">Starší aktuality
-                    </a>
-                    </div>';
-            
+            $r.= $this->_add_button_more($INPUT->str('stream'), $m);
             require_once DOKU_INC . 'inc/JSON.php';
             $json = new JSON();
             header('Content-Type: application/json');
-            //echo $r;
             echo $json->encode(array("r" => $r));
         } else {
-
-
-            $data["fullhtml"] = $this->helper->renderfullnews($INPUT->str('id'), 'fkseven');
-
-            require_once DOKU_INC . 'inc/JSON.php';
-            $json = new JSON();
-            header('Content-Type: application/json');
-
-            echo $json->encode(array("fullhtml" => p_render('xhtml', p_get_instructions($data["fullhtml"]), $info)));
+            return;
         }
     }
 
     public function handle_html_edit_formselection(Doku_Event &$event, $param) {
         global $TEXT;
         global $INPUT;
-        //print_r();
         if ($INPUT->str('target') !== 'plugin_fksnewsfeed') {
-
             return;
         }
-
         $event->preventDefault();
         unset($event->data['intro_locale']);
         echo $this->locale_xhtml('edit_intro');
@@ -167,14 +138,12 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $data[$field] = $INPUT->param($field);
             }
         } else {
-
             $data = $this->extractParamACT(io_readFile(metaFN($INPUT->str("id"), ".txt")));
         }
 
         $form->startFieldset('Newsfeed');
-        $form->addHidden('target','plugin_fksnewsfeed');
+        $form->addHidden('target', 'plugin_fksnewsfeed');
         foreach ($this->modFields as $field) {
-
             if ($field == 'text') {
                 $value = $INPUT->post->str('wikitext', $data[$field]);
                 $form->addElement(form_makeWikiText($TEXT, array()));
@@ -194,30 +163,17 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         global $INPUT;
         global $TEXT;
         global $ID;
-        
-
         if ($INPUT->str("target") == "plugin_fksnewsfeed") {
             $data = array();
-            //print_r($_REQUEST);
             foreach ($this->modFields as $field) {
                 if ($field == 'text') {
-
-                    $data[$field] = cleanText($_POST['wikitext']);
+                    $data[$field] = cleanText($INPUT->str('wikitext'));
                     unset($_POST['wikitext']);
                 } else {
                     $data[$field] = $INPUT->param($field);
                 }
             }
-           
-
-            $this->helper->saveNewNews(array('author' => $data['author'],
-                'newsdate' => $data['newsdate'],
-                'email' => $data['email'],
-                'text' => $data['text'],
-                'name' => $data['name']
-                    ), $_POST["id"],true);
-
-            // $TEXT = $news;
+            $this->helper->saveNewNews($data, $INPUT->str('id'), true);
             unset($TEXT);
             unset($_POST['wikitext']);
             $ACT = "show";
@@ -237,6 +193,13 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         $TEXT = $text;
 
         return $param;
+    }
+
+    private function _add_button_more($stream, $more) {
+        return '<div class="fks_news_more" data-stream="' . $stream . '" data-view="' . (int) $more . '">
+                    <button class="button" title="fksnewsfeed">Starší aktuality
+                    </button>
+                    </div>';
     }
 
 }
