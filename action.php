@@ -82,7 +82,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             $r = (string) "";
 
 
-            foreach ($this->helper->loadstream($INPUT->str('stream')) as $key=>$value) {
+            foreach ($this->helper->loadstream($INPUT->str('stream'),true) as $key=>$value) {
                 if ($feed) {
                     if ($key % 2) {
                         $e = 'fksnewseven';
@@ -112,7 +112,6 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             $f = $this->helper->loadstream($INPUT->str('stream'));
             $m=3 +(int)$INPUT->str('view');
             for ($i = (int) $INPUT->str('view'); $i < $m; $i++) {
-
                 if (array_key_exists($i, $f)) {
                     if ($i % 2) {
                         $e = 'fksnewseven';

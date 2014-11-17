@@ -18,7 +18,6 @@ require_once(DOKU_PLUGIN . 'admin.php');
 class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
     private $Rdata = array('newsdo' => null, 'newsid' => null, 'stream' => array());
-
     private $tableform;
     private $helper;
 
@@ -46,10 +45,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
     }
 
     public function html() {
-        
-        global $Rdata;
-        $this->helper->deletecache();
-        $Rdata = array_merge($_POST, $_GET);
+
         global $INPUT;
 
         foreach ($this->Rdata as $k => $v) {
@@ -59,92 +55,78 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
                 $this->Rdata[$k] = $INPUT->str($k);
             }
         }
-        
+
         echo '<h1>' . $this->getLang('permutviewmenu') . '</h1>';
         $this->helper->FKS_helper->returnMenu('permutviewmenu');
-        //$this->helper->changedir();
+
         $this->changedstream();
-        $this->lostNews($this->Rdata["dir"]);
-        switch ($this->Rdata['newsdo']) {
-            case "permut":
-                $this->returnnewspermut($this->Rdata["dir"]);
-            default:
-               
-                //if (isset($this->Rdata['type'])) {
-                    $this->getpermutnews();
-                //}
-        }
+
+
+        $this->getpermutnews();
     }
 
     private function getpermutnews() {
-        $this->helper->Sdata['stream'] = $this->Rdata['stream'];
-        $this->getdeletenews();
-        
-        $Wform = new Doku_Form(array('onsubmit'=>"return false"), null, 'POST');
-        $Wform->addElement(form_makeWikiText(io_readFile(DOKU_INC . 'data/pages/fksnewsfeed/streams/' . $this->helper->Sdata['stream'] . '.csv')));
-        $Wform->addElement(form_makeButton('button', 'Ulož'));
-        $Wform->addElement(form_makeButton('button', 'Náhled'));
-        html_form('nic', $Wform);
+
+        if (isset($_POST['stream-data'])) {
+            $old = io_readFile(metaFN('fksnewsfeed:old-streams:' . $this->Rdata['stream'], '.csv'));
+            io_saveFile(metaFN('fksnewsfeed:old-streams:' . $this->Rdata['stream'], '.csv'), $old . "\n" . $_POST['stream-data']);
+            if (isset($_POST['stream-save'])) {
+                io_saveFile(metaFN('fksnewsfeed:streams:' . $this->Rdata['stream'], '.csv'), $_POST['stream-data']);
+            }
+            $display = $_POST['stream-data'];
+        } else {
+            $display = io_readFile(metaFN('fksnewsfeed:streams:' . $this->Rdata['stream'], '.csv'));
+        }
 
 
-        
-        
-        
-        
+        $form = new Doku_Form(array('id' => "save",
+            'method' => 'POST', 'action' => null));
+        $form->addHidden('stream', $this->Rdata['stream']);
+        $form->startFieldset('edit-stream');
+        $form->addElement('<textarea name="stream-data" class="wikitext">' . $display . '</textarea>');
+        $form->addElement(form_makeButton('submit', '', 'Náhľad', array()));
+        $form->endFieldset();
+        html_form('nic', $form);
+
+        foreach (preg_split('/;;/', substr($display, 1, -1)) as $value) {
+            $e = 'fksnewsodd';
+            $n = str_replace(array('@id@', '@even@'), array($value, $e), $this->helper->simple_tpl);
+            echo p_render("xhtml", p_get_instructions($n), $info);
+        }
+
+        if (isset($_POST['stream-data'])) {
+            $form = new Doku_Form(array('id' => "save",
+                'method' => 'POST', 'action' => null));
+            $form->addHidden('stream', $this->Rdata['stream']);
+            $form->addHidden('stream-save', true);
+            $form->addHidden('stream-data', $display);
+
+            $form->startFieldset('save-stream');
+
+            $form->addElement($display);
+
+            $form->addElement(form_makeButton('submit', '', 'Ulož', array()));
+            //$form->addElement(form_makeButton('submit', '', 'nahlad', array()));
+
+            $form->endFieldset();
+            html_form('nic', $form);
+        }
     }
 
-   
-
-    private function returnnewspermut() {
-
-        echo $this->helper->controlData($this->Rdata);
-    }
-
-    
     private function changedstream() {
-        
+
         $form = new Doku_Form(array(
             'id' => "changedir",
             'method' => 'POST',
         ));
         $form->startFieldset($this->getLang('changestream'));
-        //$form->addElement(form_makeDatalistField('stream', 'stream', $this->helper->allstream(), $this->getLang('stream')));
-        $form->addHidden('type', 'stream');
+        foreach ($this->helper->FKS_helper->filefromdir(metaFN('fksnewsfeed/streams', null)) as $value) {
+            $s[] = $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID');
+        }
+        $form->addElement(form_makeListboxField('stream', $s));
         $form->addElement(form_makeButton('submit', '', $this->getLang('changestream')));
         $form->endFieldset();
-        //var_dump($form);
         html_form('changedirnews', $form);
-    }
-    
-    private function getdeletenews() {
-        echo '<h2>' . $this->getLang('editmenu') . '</h2>';
-
-        foreach (array_reverse($this->helper->loadstream($this->Rdata['stream']), FALSE) as $value) {
-            $form = new Doku_Form(array('id' => 'deletenews', 'method' => 'POST', 'class' => 'fksreturn'));
-            $form->startFieldset($this->helper->shortfilename($value, 'fksnewsfeed/feeds', $flag = 'NEWS_W_ID'));
-            $form->endFieldset();
-            $form->addElement(form_makeOpenTag('div', array('class' => 'fksnewswrapper')));
-
-            $form->addElement(p_render('xhtml',  p_get_instructions('<fksnewsfeed id='.$value.'/>'),$info));
-            $form->addElement(form_makeCloseTag('div'));
-            $form->addHidden("newsdo", "newsdelete");
-            //$form->addHidden('id', $this->helper->getwikinewsurl($this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'ID_ONLY')));
-            //$form->addHidden("target", "plugin_fksnewsfeed");
-            $form->addElement(form_makeButton('submit', '', $this->getLang('subeditnews')));
-            html_form('editnews', $form);
-        }
-    }
-    
-    private function lostNews() {
-        $form = new Doku_Form(array('id' => "load_new", 'onsubmit' => "return false"));
-        $form->startFieldset($this->getLang('findnews'));
-        $form->addElement($this->FKS_helper->returnmsg('Zabudol si ake id ma tva novinka?', 0));
-        $form->addElement(form_makeTextField('news_id_lost', null, $this->getLang('id')));
-        $form->addElement(form_makeButton('submit', '', $this->getLang('findnews')));
-        $form->endFieldset();
-        $form->addElement(form_makeOpenTag('div', array('id' => 'lost_news')));
-        $form->addElement(form_makeCloseTag('div'));
-        html_form('editnews', $form);
     }
 
 }

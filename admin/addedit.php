@@ -42,11 +42,7 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
     }
 
     public function html() {
-        global $Rdata;
-        $this->helper->deletecache();
-        $Rdata = array_merge($_POST, $_GET);
         global $INPUT;
-
         foreach ($this->Rdata as $k => $v) {
             if ($k == 'stream') {
                 $this->Rdata[$k] = $INPUT->param($k);
@@ -54,18 +50,13 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
                 $this->Rdata[$k] = $INPUT->str($k);
             }
         }
-
-        //unset($this->Rdata);
         $this->Rdata['dir'] = 'feeds';
-
         echo '<h1>' . $this->getLang('addmenu') . '</h1>';
         $this->helper->FKS_helper->returnMenu();
-
         switch ($this->Rdata['newsdo']) {
             case "add":
                 $this->returnnewsadd();
             default:
-
                 $this->getaddnews();
                 $this->geteditnews();
         }
@@ -73,10 +64,10 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
 
     private function geteditnews() {
         echo '<h2>' . $this->getLang('editmenu') . '</h2>';
-
         foreach (array_reverse($this->helper->allshortnews($this->Rdata), FALSE) as $value) {
             echo '<legend>' . $this->helper->shortfilename($value, 'fksnewsfeed/feeds', $flag = 'NEWS_W_ID') . '</legend>';
-            $n = str_replace(array('@id@', '@even@'), array($this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'ID_ONLY'), 'fksnewseven'), $this->helper->simple_tpl);
+            $id = $this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'ID_ONLY');
+            $n = str_replace(array('@id@', '@even@'), array($id, 'fksnewseven'), $this->helper->simple_tpl);
             echo p_render("xhtml", p_get_instructions($n), $info);
         }
     }
@@ -84,11 +75,14 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
     private function getaddnews() {
         echo '<h2>' . $this->getLang('addmenu') . '</h2>';
         $form = new Doku_Form(array('method' => 'POST'));
-        $form->addElement($this->helper->FKS_helper->returnmsg($this->getLang('addnews') . ' ' . $this->helper->findimax('feeds'), 0));
+        $msg = $this->getLang('addnews') . ' ' . $this->helper->findimax('feeds');
+        $form->addElement($this->helper->FKS_helper->returnmsg($msg, 0));
         $form->addHidden("newsdo", "add");
-        foreach ($this->helper->FKS_helper->filefromdir(metaFN('fksnewsfeed/streams', null)) as $value) {
-
-            $form->addElement(form_makeCheckboxField("stream[" . $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID') . "]", 1, $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID')));
+        $ss = $this->helper->FKS_helper->filefromdir(metaFN('fksnewsfeed/streams', null));
+        foreach ($ss as $value) {
+            $v = "stream[" . $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID') . "]";
+            $l = $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID');
+            $form->addElement(form_makeCheckboxField($v, 1, $l));
         }
         $form->addHidden('newsid', $this->helper->findimax('feeds'));
         $form->addHidden("target", "plugin_fksnewsfeed");

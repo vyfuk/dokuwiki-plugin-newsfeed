@@ -25,7 +25,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     const simple_tpl = "{{fksnewsfeed>id=@id@; even=@even@}}";
 
     public function __construct() {
-        $this->simple_tpl=self::simple_tpl;
+        $this->simple_tpl = self::simple_tpl;
 
         $this->FKS_helper = $this->loadHelper('fkshelper');
     }
@@ -65,15 +65,23 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * load file with configuration
      */
 
-    function loadstream($s) {
-        return preg_split('/;;/', substr(io_readFile(metaFN("fksnewsfeed:streams:" . $s, ".csv"), FALSE), 1, -1));
+    function loadstream($s, $o = true) {
+        if ($o) {
+            return preg_split('/;;/', substr(io_readFile(metaFN("fksnewsfeed:streams:" . $s, ".csv"), FALSE), 1, -1));
+        } else {
+            
+            $arr=preg_split("/\n/", substr(io_readFile(metaFN("fksnewsfeed:old-streams:" . $s, ".csv"), FALSE), 1, -1));
+            $l=  count($arr);
+            return preg_split('/;;/', substr($arr[$l-1], 1, -1));
+            
+        }
     }
 
-    /*function renderfullnews($id, $even = "fkseven") {
-        $r = p_render("xhtml", p_get_instructions(str_replace(array('@id@','@even@'), array($id,$even), self::simple_tpl)), $info);
+    /* function renderfullnews($id, $even = "fkseven") {
+      $r = p_render("xhtml", p_get_instructions(str_replace(array('@id@','@even@'), array($id,$even), self::simple_tpl)), $info);
 
-        return $r;
-    }*/
+      return $r;
+      } */
 
     public function findimax() {
         for ($i = 1; true; $i++) {
@@ -191,12 +199,12 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 $data[$v] = $this->getConf($v);
             }
         }
-        $fksnews.= 
-'newsdate=' . $data['newsdate'] . ';
+        $fksnews.=
+                'newsdate=' . $data['newsdate'] . ';
 author=' . $data['author'] . ';
 email= ' . $data['email'] . ';
 name=' . $data['name'] . '>
-' . $data['text'] ;
+' . $data['text'];
         $Wnews = io_saveFile(metaFN($link, '.txt'), $fksnews);
         return $Wnews;
     }
@@ -209,15 +217,15 @@ name=' . $data['name'] . '>
      * extract param from text
      */
 
-   /* function extractParamtext($text) {
-        list($text, $param['text']) = preg_split('/\>/', str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $text), 2);
-        foreach (preg_split('/;/', $text)as $value) {
-            list($k, $v) = preg_split('/=/', $value);
-            $param[$k] = $v;
-        }
-        $param['text-html'] = p_render("xhtml", p_get_instructions($param["text"]), $info);
-        return $param;
-    }*/
+    /* function extractParamtext($text) {
+      list($text, $param['text']) = preg_split('/\>/', str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $text), 2);
+      foreach (preg_split('/;/', $text)as $value) {
+      list($k, $v) = preg_split('/=/', $value);
+      $param[$k] = $v;
+      }
+      $param['text-html'] = p_render("xhtml", p_get_instructions($param["text"]), $info);
+      return $param;
+      } */
 
     /*
      * © Michal Červeňák
@@ -287,9 +295,9 @@ name=' . $data['name'] . '>
       }
      */
     function allstream() {
-        foreach (glob(DOKU_INC . 'data/pages/fksnewsfeed/streams/*.csv') as $key => $value) {
+        foreach (glob(DOKU_INC . 'data/meta/fksnewsfeed/streams/*.csv') as $key => $value) {
 
-            $streams[$key] = str_replace(array(DOKU_INC . 'data/pages/fksnewsfeed/streams/', '.csv'), array("", ''), $value);
+            $streams[$key] = str_replace(array(DOKU_INC . 'data/meta/fksnewsfeed/streams/', '.csv'), array("", ''), $value);
         }
         return $streams;
     }
