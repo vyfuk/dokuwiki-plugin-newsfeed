@@ -14,17 +14,18 @@ div.fksnewsodd,div.fksnewseven{
     /*border: 1px solid blue;*/
     padding: 1em;  
     border-radius: 4px;
+    clear: both;
     
 }
 
 div.fksnewsodd{
 
-    background-color: rgba(200,200,255,0.6);
+    background-color: __vyfuk_back_light_1__;
 }
 
 div.fksnewseven{
 
-    background-color: rgba(200,255,200,0.6);
+    background-color: __vyfuk_back_light_2__ ;
 }
 
 div.fksnewsheadline{
