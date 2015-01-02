@@ -41,12 +41,6 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         //$event->data['name'] = $this->getLang('Edit'); // it's set in redner()
     }
 
-    public function handle_act_render(Doku_Event &$event, $param) {
-        global $INFO;
-        $this->fks_newsfeed['info'] = $INFO;
-        return;
-    }
-
     /**
      * [Custom event handler which performs action]
      *
@@ -57,14 +51,12 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
      */
     public function handle_action_ajax_request(Doku_Event &$event, $param) {
         global $INPUT;
-        global $INFO;
         if ($INPUT->str('target') != 'feed') {
             return;
         }
         $event->stopPropagation();
         $event->preventDefault();
         if ($INPUT->str('do') == 'edit') {
-            $r = "";
             if ($_SERVER['REMOTE_USER']) {
                 $form = new Doku_Form(array('id' => 'editnews', 'method' => 'POST', 'class' => 'fksreturn'));
                 $form->addHidden("do", "edit");
@@ -72,20 +64,35 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $form->addHidden("target", "plugin_fksnewsfeed");
                 $form->addElement(form_makeButton('submit', '', $this->getLang('subeditnews')));
                 ob_start();
+
                 html_form('editnews', $form);
                 $r.='<div class="secedit">';
                 $r .= ob_get_contents();
                 $r.='</div>';
                 ob_end_clean();
-                // }
             }
             require_once DOKU_INC . 'inc/JSON.php';
             $json = new JSON();
             header('Content-Type: application/json');
             echo $json->encode(array("r" => $r));
         } elseif ($INPUT->str('do') == 'stream') {
+
             $feed = (int) $INPUT->str('feed');
             $r = (string) "";
+
+            if ($_SERVER['REMOTE_USER']) {
+                $form = new Doku_Form(array('id' => 'addnews', 'method' => 'GET', 'class' => 'fksreturn'));
+                $form->addHidden("do", "admin");
+                $form->addHidden('page', 'fksnewsfeed_addedit');
+                $form->addHidden("target", "plugin_fksnewsfeed");
+                $form->addElement(form_makeButton('submit', '', $this->getLang('subaddnews')));
+                ob_start();
+                html_form('addnews', $form);
+                $r .= ob_get_contents();
+                ob_end_clean();
+            }
+
+
             foreach ($this->helper->loadstream($INPUT->str('stream'), true) as $key => $value) {
                 if ($feed) {
                     if ($key % 2) {
@@ -105,6 +112,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             require_once DOKU_INC . 'inc/JSON.php';
             $json = new JSON();
             header('Content-Type: application/json');
+            //echo $r;
             echo $json->encode(array("r" => $r));
         } elseif ($INPUT->str('do') == 'more') {
             $f = $this->helper->loadstream($INPUT->str('stream'));
@@ -167,6 +175,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
     public function handle_action_act_preprocess(Doku_Event &$event, $param) {
         global $ACT;
+
         if (!isset($_POST['do']['save'])) {
             return;
         }
