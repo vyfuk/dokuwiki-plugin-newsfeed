@@ -73,7 +73,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 $n = substr(str_replace(array(DOKU_INC . "data/meta/" . $dir . "/news"), '', $name), 0, -$type);
                 break;
             case 'NEWS_W_ID':
-                $n = substr(str_replace(array(DOKU_INC . "data/meta/" . $dir . "/"), '', $name), 0, -$type);
+                $n = substr(str_replace(array(DOKU_INC , "data/meta/" . $dir . "/"), '', $name), 0, -$type);
                 break;
             case 'DIR_N_ID':
                 $n = substr(str_replace(array(DOKU_INC . "data/meta/"), '', $name), 0, -$type);
