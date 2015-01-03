@@ -65,7 +65,7 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
     private function geteditnews() {
         echo '<h2>' . $this->getLang('editmenu') . '</h2>';
         foreach (array_reverse($this->helper->allshortnews($this->Rdata), FALSE) as $value) {
-            echo '<legend>' . $this->helper->shortfilename($value, 'fksnewsfeed/feeds', $flag = 'NEWS_W_ID') . '</legend>';
+            echo '<legend>' . $this->helper->shortfilename($value, 'fksnewsfeed/feeds',  'NEWS_W_ID') . '</legend>';
             $id = $this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'ID_ONLY');
             $n = str_replace(array('@id@', '@even@'), array($id, 'fksnewseven'), $this->helper->simple_tpl);
             echo p_render("xhtml", p_get_instructions($n), $info);
