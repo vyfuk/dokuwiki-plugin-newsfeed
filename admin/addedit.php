@@ -72,26 +72,10 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
         }
     }
 
-    private function getaddnews() {
-        echo '<h2>' . $this->getLang('addmenu') . '</h2>';
-        $form = new Doku_Form(array('method' => 'POST'));
-        $msg = $this->getLang('addnews') . ' ' . $this->helper->findimax('feeds');
-        $form->addElement($this->helper->FKS_helper->returnmsg($msg, 0));
-        $form->addHidden("newsdo", "add");
-        $ss = $this->helper->FKS_helper->filefromdir(metaFN('fksnewsfeed/streams', null));
-        foreach ($ss as $value) {
-            $v = "stream[" . $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID') . "]";
-            $l = $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID');
-            $form->addElement(form_makeCheckboxField($v, 1, $l));
-        }
-        $form->addHidden('newsid', $this->helper->findimax('feeds'));
-        $form->addHidden("target", "plugin_fksnewsfeed");
-        $form->addElement(form_makeButton('submit', '', $this->getLang('subaddnews')));
-        html_form('addnews', $form);
-    }
-
     private function returnnewsadd() {
         global $INFO;
+        $this->helper->_log_event('add', $this->Rdata['newsid']);
+
         $Wnews = $this->helper->saveNewNews(array('author' => $INFO['userinfo']['name'],
             'newsdate' => dformat(),
             'email' => $INFO['userinfo']['mail'],
@@ -107,6 +91,7 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
                         $c.=io_readFile(metaFN('fksnewsfeed/streams/' . $k, ".csv"), FALSE);
                         if (io_saveFile(metaFN('fksnewsfeed/streams/' . $k, ".csv"), $c)) {
                             msg(' written to ' . $k . ' successful', 1);
+                             
                         } else {
                             msg("written to '.$k.' failure", -1);
                         }
@@ -122,6 +107,29 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
         $form->addHidden('id', $this->helper->getwikinewsurl($this->Rdata['newsid']));
 
         $form->addElement(form_makeButton('submit', '', $this->getLang('subaddwikinews')));
+        html_form('addnews', $form);
+    }
+
+    private function getaddnews($stream = null) {
+        echo '<h2>' . $this->getLang('addmenu') . '</h2>';
+        $form = new Doku_Form(array('method' => 'POST'));
+        $msg = $this->getLang('addnews') . ' ' . $this->helper->findimax('feeds');
+        $form->addElement($this->helper->FKS_helper->returnmsg($msg, 0));
+        $form->addHidden("newsdo", "add");
+        $ss = $this->helper->FKS_helper->filefromdir(metaFN('fksnewsfeed/streams', null));
+        if (!$stream) {
+            foreach ($ss as $value) {
+
+                $v = "stream[" . $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID') . "]";
+                $l = $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID');
+                $form->addElement(form_makeCheckboxField($v, 1, $l));
+            }
+        } else {
+            $form->addHidden('stream[' . $stream . ']', 1);
+        }
+        $form->addHidden('newsid', $this->helper->findimax('feeds'));
+        $form->addHidden("target", "plugin_fksnewsfeed");
+        $form->addElement(form_makeButton('submit', '', $this->getLang('subaddnews')));
         html_form('addnews', $form);
     }
 
