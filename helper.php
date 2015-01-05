@@ -186,7 +186,7 @@ name=' . $data['name'] . '>
         $log = io_readFile(metaFN('fksnewsfeed:log', 'log'));
         $log.= "\n" . date("j, n, Y") . ' ; ' . $newsid . ' ; ' . $type . ' ; ' . $INFO['name'] . ' ; ' . $_SERVER['REMOTE_ADDR'].';'.$INFO['ip'] . ' ; ' . $INFO['user'];
 
-        var_dump($log);
+        
         io_saveFile(metaFN('fksnewsfeed:log', 'log'), $log);
     }
 
