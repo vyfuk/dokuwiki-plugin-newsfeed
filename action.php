@@ -65,7 +65,9 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $form->addElement(form_makeButton('submit', '', $this->getLang('subeditnews')));
                 ob_start();
                 html_form('editnews', $form);
-                $r = ob_get_contents();
+                $r.='<div class="secedit">';
+                $r .= ob_get_contents();
+                $r.='</div>';
                 ob_end_clean();
             }
             require_once DOKU_INC . 'inc/JSON.php';
@@ -165,7 +167,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         global $ID;
         global $INFO;
         if ($INPUT->str("target") == "plugin_fksnewsfeed") {
-             $this->helper->_log_event('edit',$INPUT->str('id'));
+            $this->helper->_log_event('edit', $INPUT->str('id'));
             $data = array();
             foreach ($this->modFields as $field) {
                 if ($field == 'text') {
