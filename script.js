@@ -1,4 +1,5 @@
 jQuery(function() {
+    var $ = jQuery;
     _edit_news();
     _more_news();
 

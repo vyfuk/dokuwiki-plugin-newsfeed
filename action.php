@@ -64,6 +64,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $form->addHidden("target", "plugin_fksnewsfeed");
                 $form->addElement(form_makeButton('submit', '', $this->getLang('subeditnews')));
                 ob_start();
+
                 html_form('editnews', $form);
                 $r.='<div class="secedit">';
                 $r .= ob_get_contents();
@@ -75,8 +76,23 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             header('Content-Type: application/json');
             echo $json->encode(array("r" => $r));
         } elseif ($INPUT->str('do') == 'stream') {
+
             $feed = (int) $INPUT->str('feed');
             $r = (string) "";
+
+            if ($_SERVER['REMOTE_USER']) {
+                $form = new Doku_Form(array('id' => 'addnews', 'method' => 'GET', 'class' => 'fksreturn'));
+                $form->addHidden("do", "admin");
+                $form->addHidden('page', 'fksnewsfeed_addedit');
+                $form->addHidden("target", "plugin_fksnewsfeed");
+                $form->addElement(form_makeButton('submit', '', $this->getLang('subaddnews')));
+                ob_start();
+                html_form('addnews', $form);
+                $r .= ob_get_contents();
+                ob_end_clean();
+            }
+
+
             foreach ($this->helper->loadstream($INPUT->str('stream'), true) as $key => $value) {
                 if ($feed) {
                     if ($key % 2) {
@@ -159,6 +175,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
     public function handle_action_act_preprocess(Doku_Event &$event, $param) {
         global $ACT;
+
         if (!isset($_POST['do']['save'])) {
             return;
         }
