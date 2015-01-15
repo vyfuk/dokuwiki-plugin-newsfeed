@@ -120,7 +120,7 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
 
             foreach ($ss as $k => $value) {
                 $select = null;
-                var_dump($this->Rdata);
+               
                 if (empty($this->Rdata['add_stream'])) {
                     if ($k == 0) {
                         $select = 'checked';
