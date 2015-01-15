@@ -17,7 +17,7 @@ require_once(DOKU_PLUGIN . 'admin.php');
 
 class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
 
-    private $Rdata = array('newsdo' => null, 'newsid' => null, 'stream' => array());
+    private $Rdata = array('newsdo' => null, 'newsid' => null, 'stream' => array(), 'add_stream' => null);
 
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
@@ -65,7 +65,7 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
     private function geteditnews() {
         echo '<h2>' . $this->getLang('editmenu') . '</h2>';
         foreach (array_reverse($this->helper->allshortnews($this->Rdata), FALSE) as $value) {
-            echo '<legend>' . $this->helper->shortfilename($value, 'fksnewsfeed/feeds',  'NEWS_W_ID') . '</legend>';
+            echo '<legend>' . $this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'NEWS_W_ID') . '</legend>';
             $id = $this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'ID_ONLY');
             $n = str_replace(array('@id@', '@even@'), array($id, 'fksnewseven'), $this->helper->simple_tpl);
             echo p_render("xhtml", p_get_instructions($n), $info);
@@ -107,6 +107,7 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
         $form->addElement(form_makeButton('submit', '', $this->getLang('subaddwikinews')));
         html_form('addnews', $form);
     }
+
     private function getaddnews($stream = null) {
 
         echo '<h2>' . $this->getLang('addmenu') . '</h2>';
@@ -118,17 +119,21 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
         if (!$stream) {
 
             foreach ($ss as $k => $value) {
-                $select = 0;
-                if ($k == 0) {
-                    if (!isset($this->Rdata['add_stream'])) {
-                        $select = 1;
+                $select = null;
+                var_dump($this->Rdata);
+                if (empty($this->Rdata['add_stream'])) {
+                    if ($k == 0) {
+                        $select = 'checked';
+                    }
+                } else {
+                    if ($this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID') == $this->Rdata['add_stream']) {
+                        $select = 'checked';
                     }
                 }
                 $v = "stream[" . $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID') . "]";
                 $l = $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID');
 
-                $form->addElement(form_makeCheckboxField($v, 1, $l, '', '', array('checked' => $select)));
-
+                $form->addElement(form_makeCheckboxField($v, 1, $l, '', '', array($select => null)));
             }
         } else {
             $form->addHidden('stream[' . $stream . ']', 1);
