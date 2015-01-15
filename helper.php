@@ -67,19 +67,21 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     }
 
     public function shortfilename($name, $dir, $flag = 'ID_ONLY', $type = 4) {
-        $doku=pathinfo(DOKU_INC);
+
+        
+        if (!preg_match('/\w*\/\z/', $dir)) {
+            $dir = $dir . DIRECTORY_SEPARATOR;
+        }
+        $doku = pathinfo(DOKU_INC);
         switch ($flag) {
             case 'ID_ONLY':
-
-                
-                $n = substr(str_replace(array(DOKU_INC . "data/meta/" . $dir . "/news"), '', $name), 0, -$type);
+                $n = substr(str_replace(array($doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . DIRECTORY_SEPARATOR . "data/meta/" . $dir . "/news"), '', $name), 0, -$type);
                 break;
             case 'NEWS_W_ID':
-                             
-                $n = substr(str_replace(array($doku['dirname'].DIRECTORY_SEPARATOR.$doku['filename'].DIRECTORY_SEPARATOR , "data/meta/" . $dir . "/"), '', $name), 0, -$type);
+                $n = substr(str_replace(array($doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . DIRECTORY_SEPARATOR, "data/meta/" . $dir . "/"), '', $name), 0, -$type);
                 break;
             case 'DIR_N_ID':
-                $n = substr(str_replace(array(DOKU_INC . "data/meta/"), '', $name), 0, -$type);
+                $n = substr(str_replace(array($doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . DIRECTORY_SEPARATOR . "data/meta/"), '', $name), 0, -$type);
 
                 break;
         }
@@ -186,12 +188,12 @@ name=' . $data['name'] . '>
 
     public function _log_event($type, $newsid) {
         global $INFO;
-        
-        $log = io_readFile(metaFN('fksnewsfeed:log', 'log'));
-        $log.= "\n" . date("j, n, Y") . ' ; ' . $newsid . ' ; ' . $type . ' ; ' . $INFO['name'] . ' ; ' . $_SERVER['REMOTE_ADDR'].';'.$INFO['ip'] . ' ; ' . $INFO['user'];
 
-        
-        io_saveFile(metaFN('fksnewsfeed:log', 'log'), $log);
+        $log = io_readFile(metaFN('fksnewsfeed:log', '.log'));
+        $newsid = preg_replace('/[A-Z]/', '', $newsid);
+        $log.= "\n" . date("Y-m-d H:i:s") . ' ; ' . $newsid . ' ; ' . $type . ' ; ' . $INFO['name'] . ' ; ' . $_SERVER['REMOTE_ADDR'] . ';' . $INFO['ip'] . ' ; ' . $INFO['user'];
+
+        io_saveFile(metaFN('fksnewsfeed:log', '.log'), $log);
     }
 
 
