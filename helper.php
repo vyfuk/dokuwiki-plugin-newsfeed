@@ -67,24 +67,25 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     }
 
     public function shortfilename($name, $dir, $flag = 'ID_ONLY', $type = 4) {
-
-        
         if (!preg_match('/\w*\/\z/', $dir)) {
-            $dir = $dir . DIRECTORY_SEPARATOR;
+            //$dir = $dir . DIRECTORY_SEPARATOR;
         }
         $doku = pathinfo(DOKU_INC);
+
+        $rep_dir = $doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . DIRECTORY_SEPARATOR . "data/meta/";
         switch ($flag) {
             case 'ID_ONLY':
-                $n = substr(str_replace(array($doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . DIRECTORY_SEPARATOR . "data/meta/" . $dir . "/news"), '', $name), 0, -$type);
+                $rep_dir.=$dir . "/news";
                 break;
             case 'NEWS_W_ID':
-                $n = substr(str_replace(array($doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . DIRECTORY_SEPARATOR, "data/meta/" . $dir . "/"), '', $name), 0, -$type);
+                $rep_dir.=$dir . "/";
                 break;
             case 'DIR_N_ID':
-                $n = substr(str_replace(array($doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . DIRECTORY_SEPARATOR . "data/meta/"), '', $name), 0, -$type);
-
+                $rep_dir.='';
                 break;
         }
+        $n = str_replace($rep_dir, '', $name);
+        $n = substr($n, 0, -$type);
         return $n;
     }
 
@@ -150,7 +151,6 @@ name=' . $data['name'] . '>
         return $name;
     }
 
-
     /*
      * 
      * © Michal Červeňák
@@ -185,7 +185,6 @@ name=' . $data['name'] . '>
         return $allnews;
     }
 
-
     public function _log_event($type, $newsid) {
         global $INFO;
 
@@ -195,6 +194,5 @@ name=' . $data['name'] . '>
 
         io_saveFile(metaFN('fksnewsfeed:log', '.log'), $log);
     }
-
 
 }
