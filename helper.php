@@ -67,15 +67,20 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     }
 
     public function shortfilename($name, $dir, $flag = 'ID_ONLY', $type = 4) {
+        $doku=pathinfo(DOKU_INC);
         switch ($flag) {
             case 'ID_ONLY':
-                $n = substr($name, strlen(DOKU_INC . "data/meta/" . $dir . "/news"), -$type);
+
+                
+                $n = substr(str_replace(array(DOKU_INC . "data/meta/" . $dir . "/news"), '', $name), 0, -$type);
                 break;
             case 'NEWS_W_ID':
-                $n = substr($name, strlen(DOKU_INC . "data/meta/" . $dir . "/"), -$type);
+                             
+                $n = substr(str_replace(array($doku['dirname'].DIRECTORY_SEPARATOR.$doku['filename'].DIRECTORY_SEPARATOR , "data/meta/" . $dir . "/"), '', $name), 0, -$type);
                 break;
             case 'DIR_N_ID':
-                $n = substr($name, strlen(DOKU_INC . "data/meta/"), -$type);
+                $n = substr(str_replace(array(DOKU_INC . "data/meta/"), '', $name), 0, -$type);
+
                 break;
         }
         return $n;
@@ -143,8 +148,7 @@ name=' . $data['name'] . '>
         return $name;
     }
 
-    
-    
+
     /*
      * 
      * © Michal Červeňák
@@ -178,5 +182,17 @@ name=' . $data['name'] . '>
         //var_dump($allnews);
         return $allnews;
     }
+
+
+    public function _log_event($type, $newsid) {
+        global $INFO;
+        
+        $log = io_readFile(metaFN('fksnewsfeed:log', 'log'));
+        $log.= "\n" . date("j, n, Y") . ' ; ' . $newsid . ' ; ' . $type . ' ; ' . $INFO['name'] . ' ; ' . $_SERVER['REMOTE_ADDR'].';'.$INFO['ip'] . ' ; ' . $INFO['user'];
+
+        
+        io_saveFile(metaFN('fksnewsfeed:log', 'log'), $log);
+    }
+
 
 }

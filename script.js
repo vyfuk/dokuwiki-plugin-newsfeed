@@ -1,12 +1,35 @@
 
-
-
 jQuery(function() {
     var $ = jQuery;
     _edit_news();
     _more_news();
 
-    
+    jQuery(window).load(function() {
+        $('div.fks_news_stream').each(function() {
+            //event.preventDefault();
+            $stream = $(this);
+            $(this).append('<img src="http://img.ffffound.com/static-data/assets/6/77443320c6509d6b500e288695ee953502ecbd6d_m.gif">');
+            var newsSTREAM = $(this).data("stream");
+            var newsFEED = $(this).data("feed");
+
+            $.post(DOKU_BASE + 'lib/exe/ajax.php',
+                    {call: 'plugin_fksnewsfeed', target: 'feed', name: 'local', do: 'stream', stream: newsSTREAM, feed: newsFEED},
+            function(data) {
+                $stream.html(data["r"]);
+                _edit_news();
+                _more_news();
+
+            },
+                    'json');
+
+        });
+
+
+        ;
+
+    })
+            ;
+
     function _edit_news() {
         $('div.fksnewseven,div.fksnewsodd').mouseover(function() {
 
@@ -49,31 +72,8 @@ jQuery(function() {
         });
     }
     ;
-    jQuery(window).load(function() {
-        $('div.fks_news_stream').each(function() {
-            
-            $stream = $(this);
-            $(this).append('<img src="http://img.ffffound.com/static-data/assets/6/77443320c6509d6b500e288695ee953502ecbd6d_m.gif">');
-            var newsSTREAM = $(this).data("stream");
-            var newsFEED = $(this).data("feed");
-
-            $.post(DOKU_BASE + 'lib/exe/ajax.php',
-                    {call: 'plugin_fksnewsfeed', target: 'feed', name: 'local', do: 'stream', stream: newsSTREAM, feed: newsFEED},
-            function(data) {
-                $stream.html(data["r"]);
-                _edit_news();
-                _more_news();
-
-            },
-                    'json');
-
-        });
 
 
-        ;
-
-    })
-            ;
 });
 
 
