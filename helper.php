@@ -72,8 +72,9 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         }
         $doku = pathinfo(DOKU_INC);
 
-        $rep_dir_base = $doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . DIRECTORY_SEPARATOR ;
-        $rep_dir="data/meta/";
+        $rep_dir_base = $doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . DIRECTORY_SEPARATOR;
+        $rep_dir_base_full = $doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . '.' . $doku['extension'] . DIRECTORY_SEPARATOR;
+        $rep_dir = "data/meta/";
         switch ($flag) {
             case 'ID_ONLY':
                 $rep_dir.=$dir . "/news";
@@ -85,7 +86,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 $rep_dir.='';
                 break;
         }
-        $n = str_replace(array($rep_dir,$rep_dir_base), '', $name);
+        $n = str_replace(array($rep_dir_base_full,$rep_dir, $rep_dir_base), '', $name);
         $n = substr($n, 0, -$type);
         return $n;
     }
