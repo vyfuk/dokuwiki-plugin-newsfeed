@@ -85,6 +85,8 @@ $lang['id']               = 'ID';
 
 $lang['findnews']              = 'nájdi novinku';
 
+$lang['old_news'] ='Starší aktuality';
+
 
 
 //Setup VIM: ex: et ts=2 enc=utf-8 :

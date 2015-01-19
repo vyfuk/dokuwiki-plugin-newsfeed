@@ -89,7 +89,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         html_form('nic', $form);
 
         foreach (preg_split('/;;/', substr($display, 1, -1)) as $value) {
-            $e = 'fksnewsodd';
+            $e = 'FKS_news_feed_odd';
             $n = str_replace(array('@id@', '@even@'), array($value, $e), $this->helper->simple_tpl);
             echo p_render("xhtml", p_get_instructions($n), $info);
         }

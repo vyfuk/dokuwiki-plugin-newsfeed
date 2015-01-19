@@ -1,7 +1,7 @@
 /* CSS Document */
 
 
-div.fksnewsodd,div.fksnewseven{
+div.FKS_news_feed_odd,div.FKS_news_feed_even{
     border-bottom: 2px solid __border__;
     margin: 0px;
     /*border: 1px solid blue;*/
@@ -11,11 +11,11 @@ div.fksnewsodd,div.fksnewseven{
     clear: both;
 }
 
-div.fksnewsodd{
+div.FKS_news_feed_odd{
     background-color: __vyfuk_back_light_1__;
 }
 
-div.fksnewseven{
+div.FKS_news_feed_even{
     background-color: __vyfuk_back_light_2__ ;
 }
 
@@ -23,9 +23,22 @@ input.FKS_newsfeed_link_inp{
     .form-control;
 }
 
-div.fks_edit{
+div.FKS_news_feed_edit{
     *{
         float: right;
+    }
+}
+div.FKS_news_feed_stream{
+    .list-group;
+}
+div.FKS_news_feed_odd,div.FKS_news_feed_even{
+    .list-group-item;
+    &:hover{
+        .active;
+    }
+    h3{
+        .list-group-item-heading;
+
     }
 }
 

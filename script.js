@@ -7,7 +7,7 @@ jQuery(function() {
     _link_news();
 
     jQuery(window).load(function() {
-        $('div.fks_news_stream').each(function() {
+        $('div.FKS_news_feed_stream').each(function() {
             //event.preventDefault();
             $stream = $(this);
             $(this).append('<img src="http://img.ffffound.com/static-data/assets/6/77443320c6509d6b500e288695ee953502ecbd6d_m.gif">');
@@ -34,12 +34,12 @@ jQuery(function() {
             ;
 
     function _edit_news() {
-        $('div.fksnewseven,div.fksnewsodd').mouseover(function() {
+        $('div.FKS_news_feed_even,div.FKS_news_feed_odd').mouseover(function() {
 
             // event.preventDefault();
             var newsID = $(this).data("id");
 
-            $editdiv = $('div.fks_edit[data-id=' + $(this).data("id") + ']');
+            $editdiv = $('div.FKS_news_feed_edit[data-id=' + $(this).data("id") + ']');
             if ($editdiv.html() !== "") {
                 return false;
             }
@@ -57,12 +57,12 @@ jQuery(function() {
     }
     ;
     function _more_news() {
-        $('div.fks_news_more').click(function() {
+        $('div.FKS_news_feed_more').click(function() {
             //event.preventDefault();
 
             var newsVIEW = $(this).data("view");
             var newsSTREAM = $(this).data("stream");
-            $streamdiv = $('div.fks_news_stream[data-stream=' + newsSTREAM + ']');
+            $streamdiv = $('div.FKS_news_feed_stream[data-stream=' + newsSTREAM + ']');
             $(this).append('<img src="http://img.ffffound.com/static-data/assets/6/77443320c6509d6b500e288695ee953502ecbd6d_m.gif">');
             $.post(DOKU_BASE + 'lib/exe/ajax.php',
                     {call: 'plugin_fksnewsfeed', target: 'feed', name: 'local', do: 'more', stream: newsSTREAM, view: newsVIEW},

@@ -115,11 +115,8 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
             foreach ($this->helper->loadstream($INPUT->str('stream'), true) as $key => $value) {
                 if ($feed) {
-                    if ($key % 2) {
-                        $e = 'fksnewseven';
-                    } else {
-                        $e = 'fksnewsodd';
-                    }
+                    $e = $this->_is_even($key);
+
                     $n = str_replace(array('@id@', '@even@'), array($value, $e), $this->helper->simple_tpl);
                     $r.= p_render("xhtml", p_get_instructions($n), $info);
 
@@ -139,11 +136,8 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             $max = (int) $this->getConf('more_news') + (int) $INPUT->str('view');
             for ($i = (int) $INPUT->str('view'); $i < $max; $i++) {
                 if (array_key_exists($i, $f)) {
-                    if ($i % 2) {
-                        $e = 'fksnewseven';
-                    } else {
-                        $e = 'fksnewsodd';
-                    }
+                    $e = $this->_is_even($i);
+
                     $n = str_replace(array('@id@', '@even@'), array($f[$i], $e), $this->helper->simple_tpl);
                     $r.= p_render("xhtml", p_get_instructions($n), $info);
                 } else {
@@ -243,8 +237,8 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
     }
 
     private function _add_button_more($stream, $more) {
-        return '<div class="fks_news_more" data-stream="' . (string) $stream . '" data-view="' . (int) $more . '">
-                    <button class="button" title="fksnewsfeed">Starší aktuality
+        return '<div class="FKS_news_feed_more" data-stream="' . (string) $stream . '" data-view="' . (int) $more . '">
+                    <button class="button" title="fksnewsfeed">'.$this->getLang('old_news').'
                     </button>
                     </div>';
     }
@@ -284,6 +278,14 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
         $id = ($enc_dec - $hash_no) / 2;
         return $id;
+    }
+
+    private function _is_even($i) {
+        if ($i % 2) {
+            return 'FKS_news_feed_even';
+        } else {
+            return 'FKS_news_feed_odd';
+        }
     }
 
 }
