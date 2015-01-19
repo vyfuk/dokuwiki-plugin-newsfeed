@@ -1,21 +1,13 @@
 /* CSS Document */
 
 
-div.FKS_news_feed_odd,div.FKS_news_feed_even{
-    border-bottom: 2px solid __border__;
-    margin: 0px;
-    /*border: 1px solid blue;*/
-    padding: 1em;  
-    border-radius: 4px;
 
-    clear: both;
-}
 
-div.FKS_news_feed_odd{
+div.FKS_newsfeed_odd{
     background-color: __vyfuk_back_light_1__;
 }
 
-div.FKS_news_feed_even{
+div.FKS_newsfeed_even{
     background-color: __vyfuk_back_light_2__ ;
 }
 
@@ -23,15 +15,22 @@ input.FKS_newsfeed_link_inp{
     .form-control;
 }
 
-div.FKS_news_feed_edit{
+div.FKS_newsfeed_edit{
     *{
         float: right;
     }
 }
-div.FKS_news_feed_stream{
+div.FKS_newsfeed_stream{
     .list-group;
 }
-div.FKS_news_feed_odd,div.FKS_news_feed_even{
+div.FKS_newsfeed_odd,div.FKS_newsfeed_even{
+    border-bottom: 2px solid __border__;
+    margin: 0px;
+    /*border: 1px solid blue;*/
+    padding: 1em;  
+    border-radius: 4px;
+
+    clear: both;
     .list-group-item;
     &:hover{
         .active;
@@ -40,5 +39,7 @@ div.FKS_news_feed_odd,div.FKS_news_feed_even{
         .list-group-item-heading;
 
     }
+    
 }
+
 

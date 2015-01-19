@@ -167,5 +167,12 @@ name=' . $data['name'] . '>
 
         io_saveFile(metaFN('fksnewsfeed:log', '.log'), $log);
     }
+    public function _is_even($i) {
+        if ($i % 2) {
+            return 'FKS_newsfeed_even';
+        } else {
+            return 'FKS_newsfeed_odd';
+        }
+    }
 
 }

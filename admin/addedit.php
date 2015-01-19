@@ -21,7 +21,7 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
 
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
-        $this->FKS_helper = $this->loadHelper('fkshelper');
+       
     }
 
     public function getMenuSort() {
@@ -67,7 +67,7 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
         foreach (array_reverse($this->helper->allshortnews($this->Rdata), FALSE) as $value) {
             echo '<legend>' . $this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'NEWS_W_ID') . '</legend>';
             $id = $this->helper->shortfilename($value, 'fksnewsfeed/feeds', 'ID_ONLY');
-            $n = str_replace(array('@id@', '@even@'), array($id, 'FKS_news_feed_even'), $this->helper->simple_tpl);
+            $n = str_replace(array('@id@', '@even@'), array($id, 'FKS_newsfeed_even'), $this->helper->simple_tpl);
             echo p_render("xhtml", p_get_instructions($n), $info);
         }
     }

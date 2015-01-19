@@ -18,13 +18,12 @@ require_once(DOKU_PLUGIN . 'admin.php');
 class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
     private $Rdata = array('newsdo' => null, 'newsid' => null, 'stream' => array());
-    private $tableform;
+
     private $helper;
 
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
 
-        $this->FKS_helper = $this->loadHelper('fkshelper');
     }
 
     public function getMenuSort() {
@@ -89,7 +88,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         html_form('nic', $form);
 
         foreach (preg_split('/;;/', substr($display, 1, -1)) as $value) {
-            $e = 'FKS_news_feed_odd';
+            $e = 'FKS_newsfeed_odd';
             $n = str_replace(array('@id@', '@even@'), array($value, $e), $this->helper->simple_tpl);
             echo p_render("xhtml", p_get_instructions($n), $info);
         }

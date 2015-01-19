@@ -66,7 +66,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             list($param) = $match;
             
             $renderer->doc .= $this->rendernews($param);
-            $renderer->doc.='<div class="FKS_news_feed_edit" data-id="' . $param["id"] . '"></div>';
+            $renderer->doc.='<div class="FKS_newsfeed_edit" data-id="' . $param["id"] . '"></div>';
            
         }
         return false;
@@ -95,7 +95,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         }
        
         if (!isset($param['even'])) {
-            $param['even'] = 'FKS_news_feed_even';
+            $param['even'] = 'FKS_newsfeed_even';
         }
         return '<div class="' . $param['even'] . '" data-id="' . $param["id"] . '">' . $tpl . '</div>';
     }
