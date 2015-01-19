@@ -13,8 +13,10 @@ if (!defined('DOKU_INC')) {
 
 class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
+    private $hash = array('pre' => null, 'pos' => null, 'hex' => null, 'hash' => null);
     private $modFields = array('name', 'email', 'author', 'newsdate', 'text');
     private $helper;
+    private $token = array('show' => false, 'id' => null);
 
     /**
      * Registers a callback function for a given event
@@ -27,18 +29,21 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
     }
 
     public function register(Doku_Event_Handler $controller) {
-        $controller->register_hook('HTML_SECEDIT_BUTTON', 'BEFORE', $this, 'handle_html_secedit_button');
+        $controller->register_hook('TPL_ACT_RENDER', 'BEFORE', $this, 'enc_tocen');
         $controller->register_hook('HTML_EDIT_FORMSELECTION', 'BEFORE', $this, 'handle_html_edit_formselection');
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'handle_action_act_preprocess');
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_action_ajax_request');
     }
 
-    public function handle_html_secedit_button(Doku_Event &$event, $param) {
+    public function enc_tocen(Doku_Event &$event, $param) {
 
-        if (!p_get_metadata('fks_news')) {
-            return;
+        if ($this->token['show']) {
+            $e = 'fksnewsodd';
+
+            $event->preventDefault();
+
+            echo p_render('xhtml', p_get_instructions(str_replace(array('@id@', '@even@'), array($this->token['id'], $e), $this->helper->simple_tpl)), $info);
         }
-        //$event->data['name'] = $this->getLang('Edit'); // it's set in redner()
     }
 
     /**
@@ -57,6 +62,8 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         $event->stopPropagation();
         $event->preventDefault();
         if ($INPUT->str('do') == 'edit') {
+            $r = '';
+
             if ($_SERVER['REMOTE_USER']) {
                 $form = new Doku_Form(array('id' => 'editnews', 'method' => 'POST', 'class' => 'fksreturn'));
                 $form->addHidden("do", "edit");
@@ -71,6 +78,19 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $r.='</div>';
                 ob_end_clean();
             }
+            if ($this->getConf('facebook_allow')) {
+                $r.= '<button class="btn btn-small btn-social btn-facebook">';
+                $r.= '<i class="fa fa-facebook"></i>';
+                $r.=' Share on FaceBook</button>';
+            }
+            if ($this->getConf('token_allow')) {
+                $link = DOKU_BASE . '?do=fksnewsfeed_token&token=' . $this->_generate_token((int) $INPUT->str('id'));
+                $r.='<button data-id="' . $INPUT->str('id') . '" class="btn btn-info FKS_newsfeed_button FKS_newsfeed_link_btn">';
+                $r.=$this->getLang('newsfeed_link');
+                $r.= '</button>';
+                $r.='<input class="FKS_newsfeed_link_inp" data-id="' . $INPUT->str('id') . '" style="display:none" type="text" value="' . $link . '" />';
+            }
+
             require_once DOKU_INC . 'inc/JSON.php';
             $json = new JSON();
             header('Content-Type: application/json');
@@ -172,30 +192,37 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
     public function handle_action_act_preprocess(Doku_Event &$event, $param) {
         global $ACT;
-        if (!isset($_POST['do']['save'])) {
-            return;
-        }
         global $INPUT;
-        global $TEXT;
-        global $ID;
-        global $INFO;
-        if ($INPUT->str("target") == "plugin_fksnewsfeed") {
-            $this->helper->_log_event('edit', $INPUT->str('id'));
 
-            $data = array();
-            foreach ($this->modFields as $field) {
-                if ($field == 'text') {
-                    $data[$field] = cleanText($INPUT->str('wikitext'));
-                    unset($_POST['wikitext']);
-                } else {
-                    $data[$field] = $INPUT->param($field);
+        if (isset($_POST['do']['save'])) {
+
+            global $INPUT;
+            global $TEXT;
+            global $ID;
+            global $INFO;
+            if ($INPUT->str("target") == "plugin_fksnewsfeed") {
+                $this->helper->_log_event('edit', $INPUT->str('id'));
+
+                $data = array();
+                foreach ($this->modFields as $field) {
+                    if ($field == 'text') {
+                        $data[$field] = cleanText($INPUT->str('wikitext'));
+                        unset($_POST['wikitext']);
+                    } else {
+                        $data[$field] = $INPUT->param($field);
+                    }
                 }
+                $this->helper->saveNewNews($data, $INPUT->str('id'), true);
+                unset($TEXT);
+                unset($_POST['wikitext']);
+                $ACT = "show";
+                $ID = 'start';
             }
-            $this->helper->saveNewNews($data, $INPUT->str('id'), true);
-            unset($TEXT);
-            unset($_POST['wikitext']);
-            $ACT = "show";
-            $ID = 'start';
+        } elseif ($ACT == 'fksnewsfeed_token') {
+            $token = $INPUT->str('token');
+            $this->token['id'] = $id = $this->_encript_hash($token, $this->getConf('no_pref'), $this->getConf('hash_no'));
+            $this->token['show'] = true;
+            //$ACT = 'show';
         }
     }
 
@@ -214,10 +241,47 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
     }
 
     private function _add_button_more($stream, $more) {
-        return '<div class="fks_news_more" data-stream="' . $stream . '" data-view="' . (int) $more . '">
+        return '<div class="fks_news_more" data-stream="' . (string) $stream . '" data-view="' . (int) $more . '">
                     <button class="button" title="fksnewsfeed">Starší aktuality
                     </button>
                     </div>';
+    }
+
+    private function _generate_token($id) {
+
+
+        $hash_no = (int) $this->getConf('hash_no');
+        $l = (int) $this->getConf('no_pref');
+
+
+        $this->hash['pre'] = $this->_generate_rand($l);
+        $this->hash['pos'] = $this->_generate_rand($l);
+        $this->hash['hex'] = dechex($hash_no + 2 * $id);
+
+        $this->hash['hash'] = $this->hash['pre'] . $this->hash['hex'] . $this->hash['pos'];
+
+        return $this->hash['hash'];
+    }
+
+    private function _generate_rand($l) {
+
+        $r = '';
+        $seed = str_split('1234567890abcdefghijklmnopqrstuvwxyz'
+                . 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'); // and any other characters
+        shuffle($seed);
+        foreach (array_rand($seed, $l) as $k) {
+            $r .= $seed[$k];
+        }
+        return $r;
+    }
+
+    private function _encript_hash($hash, $l, $hash_no) {
+        $enc_hex = substr($hash, $l, -$l);
+
+        $enc_dec = hexdec($enc_hex);
+
+        $id = ($enc_dec - $hash_no) / 2;
+        return $id;
     }
 
 }

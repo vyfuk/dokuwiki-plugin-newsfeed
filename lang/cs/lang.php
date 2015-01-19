@@ -16,9 +16,12 @@ $lang['addmenu']          = 'Přidat aktualitu';
 $lang['addeditmenu']         = 'Přidat a upravit aktuality';
 $lang['editmenu']         = 'Upravit aktuality';
 $lang['menu']             = 'Spravovat aktuality';
-$lang['permutviewmenu']       = 'Upravit zobrazovaní a pořadí aktualit';
-$lang['permutmenu']       = 'Upravit pořadí a zobrazovaní novinek';
-$lang['newssave']         = 'Uložit změny';
+$lang['permutviewmenu']       = 'Upravit pořadí aktualit';
+$lang['permutmenu']       = 'Upravit pořadí novinek';
+$lang['newsfeed_link']       = 'Link na túto aktualitu';
+
+
+$lang['newssave']         = 'Uložit  mzěny';
 
 $lang['subeditnews']      = 'Upravit novinku';
 $lang['subaddnews']       = 'Přidat novinku';
@@ -38,8 +41,6 @@ $lang['permwarning3']     = 'Každé číslo musí být při změně pořadí po
 $lang['newsfolder']       = 'složka pro ukládání novinek';
 $lang['newsfile']         = 'soubor s novinkou';
 
-$lang['readonly']         ='Úprava čísel je zakázána';
-$lang['notreadonly']      ='Úprava čísel je povolena';
 
 $lang['author']           = 'Autor';
 $lang['email']            = 'E-mail';
@@ -47,11 +48,10 @@ $lang['date']             = 'Datum';
 $lang['newsdate']         = 'Datum';
 $lang['newsname']         = 'Nadpis';
 $lang['name']             = 'Nadpis';
-$lang['viewmore']         = 'Zobrazit podrobnosti';
 
-$lang['length']           = 'Dĺžka';
-$lang['old']              = 'starých dat:';
-$lang['new']              = 'nových dat:';
+
+
+
 $lang['dataerror']        = 'Data boli medzčasom zmenené';
 
 $lang['subaddwikinews']   = 'Přejít k vytvoření aktuality';
@@ -76,12 +76,12 @@ $lang['dec']              = 'prosince';
 
 
 
-$lang['changedir']              = 'zmeniť adresár';
-$lang['changestream']              = 'zmeniť stream';
-$lang['dir']              = 'adresár';
-$lang['stream']              = 'stream';
 
-$lang['id']              = 'ID';
+$lang['changestream']     = 'zmeniť stream';
+$lang['dir']              = 'adresár';
+$lang['stream']           = 'stream';
+
+$lang['id']               = 'ID';
 
 $lang['findnews']              = 'nájdi novinku';
 
