@@ -1,12 +1,11 @@
 <?php
 
 /**
- * DokuWiki Plugin fksdbexport (Action Component)
+ * DokuWiki Plugin fksnewsfeed (Action Component)
  *
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @author  Michal Červeňák <miso@fykos.cz>
  */
-// must be run within Dokuwiki
 if (!defined('DOKU_INC')) {
     die();
 }
@@ -59,6 +58,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         if ($INPUT->str('target') != 'feed') {
             return;
         }
+        require_once DOKU_INC . 'inc/JSON.php';
         $event->stopPropagation();
         $event->preventDefault();
         if ($INPUT->str('do') == 'edit') {
@@ -74,10 +74,11 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
                 html_form('editnews', $form);
                 $r.='<div class="secedit">';
-                $r .= ob_get_contents();
+                $r.= ob_get_contents();
                 $r.='</div>';
                 ob_end_clean();
             }
+
             if ($this->getConf('facebook_allow')) {
                 $r.= '<button class="btn btn-small btn-social btn-facebook">';
                 $r.= '<i class="fa fa-facebook"></i>';
@@ -92,6 +93,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             }
 
             require_once DOKU_INC . 'inc/JSON.php';
+
             $json = new JSON();
             header('Content-Type: application/json');
             echo $json->encode(array("r" => $r));
@@ -103,6 +105,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $form->addHidden("do", "admin");
                 $form->addHidden('page', 'fksnewsfeed_addedit');
                 $form->addHidden("target", "plugin_fksnewsfeed");
+                $form->addHidden("add_stream", $INPUT->str('stream'));
                 $form->addElement(form_makeButton('submit', '', $this->getLang('subaddnews')));
                 ob_start();
                 html_form('addnews', $form);
@@ -133,8 +136,8 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             echo $json->encode(array("r" => $r));
         } elseif ($INPUT->str('do') == 'more') {
             $f = $this->helper->loadstream($INPUT->str('stream'));
-            $m = 3 + (int) $INPUT->str('view');
-            for ($i = (int) $INPUT->str('view'); $i < $m; $i++) {
+            $max = (int) $this->getConf('more_news') + (int) $INPUT->str('view');
+            for ($i = (int) $INPUT->str('view'); $i < $max; $i++) {
                 if (array_key_exists($i, $f)) {
                     if ($i % 2) {
                         $e = 'fksnewseven';
@@ -147,8 +150,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                     break;
                 }
             }
-            $r.= $this->_add_button_more($INPUT->str('stream'), $m);
-            require_once DOKU_INC . 'inc/JSON.php';
+            $r.= $this->_add_button_more($INPUT->str('stream'), $max);
             $json = new JSON();
             header('Content-Type: application/json');
             echo $json->encode(array("r" => $r));

@@ -32,6 +32,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     /*
      * load file with configuration
+     * and load old configuration file 
      */
 
     public function loadstream($s, $o = true) {
@@ -66,13 +67,15 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $arraynews;
     }
 
-    public function shortfilename($name, $dir, $flag = 'ID_ONLY', $type = 4) {
+    public function shortfilename($name, $dir = '', $flag = 'ID_ONLY', $type = 4) {
         if (!preg_match('/\w*\/\z/', $dir)) {
             //$dir = $dir . DIRECTORY_SEPARATOR;
         }
         $doku = pathinfo(DOKU_INC);
 
-        $rep_dir = $doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . DIRECTORY_SEPARATOR . "data/meta/";
+        $rep_dir_base = $doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . DIRECTORY_SEPARATOR;
+        $rep_dir_base_full = $doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . '.' . $doku['extension'] . DIRECTORY_SEPARATOR;
+        $rep_dir = "data/meta/";
         switch ($flag) {
             case 'ID_ONLY':
                 $rep_dir.=$dir . "/news";
@@ -84,7 +87,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 $rep_dir.='';
                 break;
         }
-        $n = str_replace($rep_dir, '', $name);
+        $n = str_replace(array($rep_dir_base_full, $rep_dir, $rep_dir_base), '', $name);
         $n = substr($n, 0, -$type);
         return $n;
     }
@@ -123,24 +126,6 @@ name=' . $data['name'] . '>
      * © Michal Červeňák
      * 
      * 
-     * 
-     * extract param from text
-     */
-
-    /* function extractParamtext($text) {
-      list($text, $param['text']) = preg_split('/\>/', str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $text), 2);
-      foreach (preg_split('/;/', $text)as $value) {
-      list($k, $v) = preg_split('/=/', $value);
-      $param[$k] = $v;
-      }
-      $param['text-html'] = p_render("xhtml", p_get_instructions($param["text"]), $info);
-      return $param;
-      } */
-
-    /*
-     * © Michal Červeňák
-     * 
-     * 
      * short name of news and add dots
      */
 
@@ -152,15 +137,6 @@ name=' . $data['name'] . '>
     }
 
     /*
-     * 
-     * © Michal Červeňák
-     * 
-     * function to rendering news to template(fksnewsfeed)
-     */
-
-
-
-    /*
      * get wiki URL with :
      */
 
@@ -170,18 +146,15 @@ name=' . $data['name'] . '>
 
     function allstream() {
         foreach (glob(DOKU_INC . 'data/meta/fksnewsfeed/streams/*.csv') as $key => $value) {
-
             $streams[$key] = str_replace(array(DOKU_INC . 'data/meta/fksnewsfeed/streams/', '.csv'), array("", ''), $value);
         }
         return $streams;
     }
 
     function allshortnews() {
+        $allnews = array();
         $allnews = glob(DOKU_INC . 'data/meta/fksnewsfeed/feeds/*.txt');
-
         sort($allnews, SORT_NATURAL | SORT_FLAG_CASE);
-
-        //var_dump($allnews);
         return $allnews;
     }
 
