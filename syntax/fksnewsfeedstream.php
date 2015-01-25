@@ -40,7 +40,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
     }
 
     public function getSort() {
-        return 226;
+        return 225;
     }
 
     public function connectTo($mode) {

@@ -9,7 +9,7 @@ jQuery(function() {
     jQuery(window).load(function() {
         $('div.FKS_newsfeed_stream').each(function() {
             //event.preventDefault();
-            $stream = $(this);
+            var $stream = $(this);
             $(this).append('<img src="http://img.ffffound.com/static-data/assets/6/77443320c6509d6b500e288695ee953502ecbd6d_m.gif">');
             var newsSTREAM = $(this).data("stream");
             var newsFEED = $(this).data("feed");
@@ -39,7 +39,7 @@ jQuery(function() {
             // event.preventDefault();
             var newsID = $(this).data("id");
 
-            $editdiv = $('div.FKS_newsfeed_edit[data-id=' + $(this).data("id") + ']');
+            var $editdiv = $('div.FKS_newsfeed_edit[data-id=' + $(this).data("id") + ']');
             if ($editdiv.html() !== "") {
                 return false;
             }
@@ -51,7 +51,7 @@ jQuery(function() {
                 $editdiv.html(data["r"]);
                 _link_news();
             }, 'json');
-            
+
 
         });
     }
@@ -62,7 +62,7 @@ jQuery(function() {
 
             var newsVIEW = $(this).data("view");
             var newsSTREAM = $(this).data("stream");
-            $streamdiv = $('div.FKS_newsfeed_stream[data-stream=' + newsSTREAM + ']');
+            var $streamdiv = $('div.FKS_newsfeed_stream[data-stream=' + newsSTREAM + ']');
             $(this).append('<img src="http://img.ffffound.com/static-data/assets/6/77443320c6509d6b500e288695ee953502ecbd6d_m.gif">');
             $.post(DOKU_BASE + 'lib/exe/ajax.php',
                     {call: 'plugin_fksnewsfeed', target: 'feed', name: 'local', do: 'more', stream: newsSTREAM, view: newsVIEW},
@@ -78,11 +78,13 @@ jQuery(function() {
         });
     }
     ;
-    
+
     function _link_news() {
         $('button.FKS_newsfeed_link_btn').click(function() {
-            var ID=$(this).data('id');
-            $('input.FKS_newsfeed_link_inp[data-id='+ID+']').slideToggle();
+
+            var ID = $(this).data('id');
+
+            $('input.FKS_newsfeed_link_inp[data-id=' + ID + ']').slideDown();
         });
     }
     ;
