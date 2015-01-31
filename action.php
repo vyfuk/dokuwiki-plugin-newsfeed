@@ -10,12 +10,13 @@ if (!defined('DOKU_INC')) {
     die();
 }
 
-/*
+/** $INPUT 
  * @news_do add/edit/
  * @news_id no news
  * @news_strem name of stream
  * @id news with path
- * 
+ * @news_feed how many newsfeed need display
+ * @news_view how many news is display
  */
 
 class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
@@ -67,16 +68,18 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         if ($INPUT->str('target') != 'feed') {
             return;
         }
-        require_once DOKU_INC . 'inc/JSON.php';
+
         $event->stopPropagation();
         $event->preventDefault();
-        if ($INPUT->str('do') == 'edit') {
+        require_once DOKU_INC . 'inc/JSON.php';
+        header('Content-Type: application/json');
+        if ($INPUT->str('news_do') == 'edit') {
             $r = '';
 
             if ($_SERVER['REMOTE_USER']) {
                 $form = new Doku_Form(array('id' => 'editnews', 'method' => 'POST', 'class' => 'fksreturn'));
                 $form->addHidden("do", "edit");
-                $form->addHidden('id', $this->helper->getwikinewsurl($INPUT->str('id')));
+                $form->addHidden('id', $this->helper->getwikinewsurl($INPUT->str('news_id')));
                 $form->addHidden("target", "plugin_fksnewsfeed");
                 $form->addElement(form_makeButton('submit', '', $this->getLang('subeditnews')));
                 ob_start();
@@ -88,26 +91,25 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 ob_end_clean();
             }
 
-            if ($this->getConf('facebook_allow')) {
-                $r.= '<a name="fb_share" href="https://www.facebook.com/sharer/sharer.php" class="btn btn-small btn-social btn-facebook">';
-                $r.= '<i class="fa fa-facebook"></i>';
-                $r.=' Share on FaceBook</a>';
+
+            if ($this->getConf('facebook_allow') || ($this->getConf('facebook_allow_user') && $_SERVER['REMOTE_USER'])) {
+                $fb_class='fb-share-button btn btn-small btn-social btn-facebook';
+                $fb_atr=array('data-href' => $this->_generate_token((int) $INPUT->str('news_id')));
+                $r.= html_facebook_btn('Share on FB', $fb_class,$fb_atr );
             }
-            if ($this->getConf('token_allow')) {
-                $link = $_SERVER['SERVER_NAME'] . DOKU_BASE . '?do=fksnewsfeed_token&token=' . $this->_generate_token((int) $INPUT->str('id'));
-                $r.='<button data-id="' . $INPUT->str('id') . '" class="btn btn-info FKS_newsfeed_button FKS_newsfeed_link_btn">';
-                $r.=$this->getLang('newsfeed_link');
-                $r.= '</button>';
-                $r.='<input class="FKS_newsfeed_link_inp" data-id="' . $INPUT->str('id') . '" style="display:none" type="text" value="' . $link . '" />';
+            if ($this->getConf('token_allow') || ($this->getConf('token_allow_user') && $_SERVER['REMOTE_USER'])) {
+                $r.=html_button($this->getLang('newsfeed_link'), 'btn btn-info FKS_newsfeed_button FKS_newsfeed_link_btn', array('data-id' => $INPUT->str('news_id')));
+                $link = $_SERVER['SERVER_NAME'] . DOKU_BASE . '?do=fksnewsfeed_token&token=' . $this->_generate_token((int) $INPUT->str('news_id'));
+                $r.='<input class="FKS_newsfeed_link_inp" data-id="' . $INPUT->str('news_id') . '" style="display:none" type="text" value="' . $link . '" />';
             }
 
-            require_once DOKU_INC . 'inc/JSON.php';
+
 
             $json = new JSON();
-            header('Content-Type: application/json');
+
             echo $json->encode(array("r" => $r));
-        } elseif ($INPUT->str('do') == 'stream') {
-            $feed = (int) $INPUT->str('feed');
+        } elseif ($INPUT->str('news_do') == 'stream') {
+            $feed = (int) $INPUT->str('news_feed');
             $r = (string) "";
             if ($_SERVER['REMOTE_USER']) {
                 $form = new Doku_Form(array('id' => 'addnews', 'method' => 'GET', 'class' => 'fksreturn'));
@@ -117,9 +119,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $form->addHidden('news_do', 'add');
                 $form->addHidden('news_id', $this->helper->findimax('feeds'));
                 $form->addHidden('id', $this->helper->getwikinewsurl($this->helper->findimax('feeds')));
-
-
-                $form->addHidden("news_stream", $INPUT->str('stream'));
+                $form->addHidden("news_stream", $INPUT->str('news_stream'));
                 $form->addElement(form_makeButton('submit', '', $this->getLang('subaddnews')));
                 ob_start();
                 html_form('addnews', $form);
@@ -127,7 +127,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 ob_end_clean();
             }
 
-            foreach ($this->helper->loadstream($INPUT->str('stream'), true) as $key => $value) {
+            foreach ($this->helper->loadstream($INPUT->str('news_stream'), true) as $key => $value) {
                 if ($feed) {
                     $e = $this->helper->_is_even($key);
 
@@ -139,16 +139,16 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                     break;
                 }
             }
-            $r.=$this->_add_button_more($INPUT->str('stream'), $INPUT->str('feed'));
-            require_once DOKU_INC . 'inc/JSON.php';
+            $r.=$this->_add_button_more($INPUT->str('news_stream'), $INPUT->str('news_feed'));
+
             $json = new JSON();
-            header('Content-Type: application/json');
+
 //echo $r;
             echo $json->encode(array("r" => $r));
-        } elseif ($INPUT->str('do') == 'more') {
-            $f = $this->helper->loadstream($INPUT->str('stream'));
-            $max = (int) $this->getConf('more_news') + (int) $INPUT->str('view');
-            for ($i = (int) $INPUT->str('view'); $i < $max; $i++) {
+        } elseif ($INPUT->str('news_do') == 'more') {
+            $f = $this->helper->loadstream($INPUT->str('news_stream'));
+            (int) $max = (int) $this->getConf('more_news') + (int) $INPUT->str('news_view');
+            for ($i = (int) $INPUT->str('news_view'); $i < $max; $i++) {
                 if (array_key_exists($i, $f)) {
                     $e = $this->helper->_is_even($i);
 
@@ -158,9 +158,9 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                     break;
                 }
             }
-            $r.= $this->_add_button_more($INPUT->str('stream'), $max);
+            $r.= $this->_add_button_more($INPUT->str('news_stream'), $max);
             $json = new JSON();
-            header('Content-Type: application/json');
+
             echo $json->encode(array("r" => $r));
         } else {
             return;
@@ -264,23 +264,18 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
     private function extractParamACT($ntext) {
         global $TEXT;
-
-
         $cleantext = str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $ntext);
         list($params, $text) = preg_split('/\>/', $cleantext, 2);
         $param = $this->helper->FKS_helper->extractParamtext($params);
-
-
         $TEXT = $text;
-
         return $param;
     }
 
     private function _add_button_more($stream, $more) {
-        return '<div class="FKS_newsfeed_more" data-stream="' . (string) $stream . '" data-view="' . (int) $more . '">
-                    <button class="button" title="fksnewsfeed">' . $this->getLang('old_news') . '
-                    </button>
-                    </div>';
+
+        return '<div class="FKS_newsfeed_more" data-stream="' . (string) $stream . '" data-view="' . (int) $more . '">' .
+                html_button($this->getLang('old_news'), 'button', array('title' => 'fksnewsfeed'))
+                . '</div>';
     }
 
     private function _generate_token($id) {

@@ -18,12 +18,10 @@ require_once(DOKU_PLUGIN . 'admin.php');
 class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
     private $Rdata = array('newsdo' => null, 'newsid' => null, 'stream' => array());
-
     private $helper;
 
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
-
     }
 
     public function getMenuSort() {
@@ -52,6 +50,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
                 $this->Rdata[$k] = $INPUT->param($k);
             } else {
                 $this->Rdata[$k] = $INPUT->str($k);
+                
             }
         }
 
@@ -65,22 +64,27 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
     }
 
     private function getpermutnews() {
+        global $INPUT;
 
         if (isset($_POST['stream-data'])) {
-            $old = io_readFile(metaFN('fksnewsfeed:old-streams:' . $this->Rdata['stream'], '.csv'));
-            io_saveFile(metaFN('fksnewsfeed:old-streams:' . $this->Rdata['stream'], '.csv'), $old . "\n" . $_POST['stream-data']);
+            $old_data = io_readFile(metaFN('fksnewsfeed:old-streams:' . $INPUT->str('stream'), '.csv'));
+            $new_data = $old_data . "\n" . $INPUT->str('stream-data');
+            $old_stream_path = metaFN('fksnewsfeed:old-streams:' . $INPUT->str('stream'), '.csv');
+
+            io_saveFile($old_stream_path, $new_data);
             if (isset($_POST['stream-save'])) {
-                io_saveFile(metaFN('fksnewsfeed:streams:' . $this->Rdata['stream'], '.csv'), $_POST['stream-data']);
+                $new_stream_path=metaFN('fksnewsfeed:streams:' . $INPUT->str('stream'), '.csv');
+                io_saveFile($new_stream_path, $_POST['stream-data']);
             }
-            $display = $_POST['stream-data'];
+            $display = $INPUT->str('stream-data');
         } else {
-            $display = io_readFile(metaFN('fksnewsfeed:streams:' . $this->Rdata['stream'], '.csv'));
+            $display = io_readFile(metaFN('fksnewsfeed:streams:' . $INPUT->str('stream'), '.csv'));
         }
 
 
         $form = new Doku_Form(array('id' => "save",
             'method' => 'POST', 'action' => null));
-        $form->addHidden('stream', $this->Rdata['stream']);
+        $form->addHidden('stream', $INPUT->str('stream'));
         $form->startFieldset('edit-stream');
         $form->addElement('<textarea name="stream-data" class="wikitext">' . $display . '</textarea>');
         $form->addElement(form_makeButton('submit', '', 'Náhľad', array()));
@@ -96,7 +100,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         if (isset($_POST['stream-data'])) {
             $form = new Doku_Form(array('id' => "save",
                 'method' => 'POST', 'action' => null));
-            $form->addHidden('stream', $this->Rdata['stream']);
+            $form->addHidden('stream', $INPUT->str('stream'));
             $form->addHidden('stream-save', true);
             $form->addHidden('stream-data', $display);
 
@@ -105,7 +109,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
             $form->addElement($display);
 
             $form->addElement(form_makeButton('submit', '', 'Ulož', array()));
-            //$form->addElement(form_makeButton('submit', '', 'nahlad', array()));
+
 
             $form->endFieldset();
             html_form('nic', $form);
@@ -122,7 +126,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         foreach ($this->helper->FKS_helper->filefromdir(metaFN('fksnewsfeed/streams', null)) as $value) {
             $s[] = $this->helper->shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID');
         }
-        $form->addElement(form_makeListboxField('stream', $s));
+        $form->addElement(form_makeListboxField('stream', array_merge(array(' '), $s)));
         $form->addElement(form_makeButton('submit', '', $this->getLang('changestream')));
         $form->endFieldset();
         html_form('changedirnews', $form);
