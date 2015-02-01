@@ -51,6 +51,7 @@ foreach (helper_plugin_fksnewsfeed::loadstream($INPUT->str('stream')) as $value)
     
     $cleantext = str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $ntext);
     list($params, $text) = preg_split('/\>/', $cleantext, 2);
+    
     $param = helper_plugin_fkshelper::extractParamtext($params);
 
     
@@ -72,23 +73,14 @@ foreach (helper_plugin_fksnewsfeed::loadstream($INPUT->str('stream')) as $value)
 
 
 //var_dump($rss)
-;
-echo $rss->createFeed($opt['feed_type'], 'utf-8');
 
+$feeds= $rss->createFeed($opt['feed_type'], 'utf-8');
+
+print $feeds;
 class fksnewsfeedrss extends DokuWikiFeedCreator {
 
     public function FKS_newsfeed_add_item(DokuWikiFeedCreator $rss, $data) {
 
-        //    title	The title of the item.	Venice Film Festival Tries to Quit Sinking
-//link	The URL of the item.	http://www.nytimes.com/2002/09/07/movies/07FEST.html
-//description	The item synopsis.	Some of the most heated chatter at the Venice Film Festival this week was about the way that the arrival of the stars at the Palazzo del Cinema was being staged.
-//author	Email address of the author of the item. More.	oprah@oxygen.net
-//category	Includes the item in one or more categories. More.	Simpsons Characters
-//comments	URL of a page for comments relating to the item. More.	http://www.myblog.org/cgi-local/mt/mt-comments.cgi?entry_id=290
-//enclosure	Describes a media object that is attached to the item. More.	<enclosure url="http://live.curry.com/mp3/celebritySCms.mp3" length="1069871" type="audio/mpeg"/>
-//guid	A string that uniquely identifies the item. More.	<guid isPermaLink="true">http://inessential.com/2002/09/01.php#a2</guid>
-//pubDate	Indicates when the item was published. More.	Sun, 19 May 2002 15:21:36 GMT
-//source
     }
 
 }
