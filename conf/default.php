@@ -13,7 +13,15 @@ $conf['more_news']  = 3;
 
 $conf['hash_no']=42;
 $conf['no_pref']=10;
+
+
 $conf['token_allow']=1;
+$conf['token_allow_user']=1;
+
 $conf['facebook_allow']=1;
+$conf['facebook_allow_user']=1;
+
+$conf['rss_allow_user']=1;
+$conf['rss_allow']=1;
 
 

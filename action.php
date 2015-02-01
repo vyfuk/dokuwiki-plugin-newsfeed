@@ -127,10 +127,10 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $r .= ob_get_contents();
                 ob_end_clean();
             }
-            if (!$this->getConf('rss')) {
+            if ($this->getConf('rss_allow') || ($_SERVER['REMOTE_USER'] && $this->getConf('rss_allow_user'))) {
                 $r.='<div class="input-group">';
 
-                $r.='<input class="FKS_newsfeed_rss_inp" data-id="rss" style="display:none" type="text" value="'.DOKU_URL.'lib/plugins/fksnewsfeed/rss.php?stream=' . $INPUT->str('news_stream') . '" />';
+                $r.='<input class="FKS_newsfeed_rss_inp" data-id="rss" style="display:none" type="text" value="' . DOKU_URL . 'lib/plugins/fksnewsfeed/rss.php?stream=' . $INPUT->str('news_stream') . '" />';
                 $r.='<span class="input-group-btn">';
                 $r.=html_button('RSS', 'FKS_newsfeed_rss_btn btn btn-rss');
                 $r.= '</span></div>';
@@ -216,16 +216,10 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
     public function handle_action_act_preprocess(Doku_Event &$event, $param) {
         global $INPUT;
         global $ACT;
-
-
         if ($INPUT->str("target") == "plugin_fksnewsfeed") {
-
             global $TEXT;
             global $ID;
             global $INFO;
-
-
-
             if ($INPUT->str('news_do') == 'add') {
 
 

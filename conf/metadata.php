@@ -6,7 +6,22 @@
  * and open the template in the editor.
  */
 
-$meta['newsfolder'] = array('string');
-$meta['newsfile'] = array('string');
-$meta['editnumber']  = array('onoff');
+$meta['newsfolder'] = array('string','_caution' => 'danger');
+$meta['newsfile'] = array('string','_caution' => 'danger');
+
+
+$meta['more_news']  = array('numeric');
+
+$meta['hash_no']=array('numeric','_caution' => 'warning');
+$meta['no_pref']=array('numeric','_caution' => 'warning');
+
+
+$meta['token_allow']=array('onoff');
+$meta['token_allow_user']=array('onoff');
+
+$meta['facebook_allow']=array('onoff');
+$meta['facebook_allow_user']=array('onoff');
+
+$meta['rss_allow_user']=array('onoff');
+$meta['rss_allow']=array('onoff');
 
