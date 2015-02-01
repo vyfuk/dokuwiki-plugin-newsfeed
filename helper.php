@@ -141,7 +141,7 @@ name=' . $data['name'] . '>
      */
 
     public function getwikinewsurl($id) {
-        return str_replace("@i@", $id, 'fksnewsfeed:feeds:news@i@');
+        return str_replace("@i@", $id, 'fksnewsfeed:feeds:' . $this->getConf('newsfile'));
     }
 
     function allstream() {

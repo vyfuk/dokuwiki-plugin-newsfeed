@@ -43,16 +43,17 @@ if (empty($INPUT->str('stream'))) {
 
 foreach (helper_plugin_fksnewsfeed::loadstream($INPUT->str('stream')) as $value) {
 
-    //var_dump($value);
-    $url = metaFN(helper_plugin_fksnewsfeed::getwikinewsurl($value), '.txt');
-    //var_dump($url);
+    
+    $helper= new helper_plugin_fksnewsfeed;
+    $url = metaFN($helper->getwikinewsurl($value), '.txt');
+    
     $ntext = io_readFile($url);
-    //var_dump($ntext);
+    
     $cleantext = str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $ntext);
     list($params, $text) = preg_split('/\>/', $cleantext, 2);
     $param = helper_plugin_fkshelper::extractParamtext($params);
 
-    //var_dump($param);
+    
     
     $data = new UniversalFeedCreator();
     $data->pubDate = $param['newsdate'];
@@ -65,13 +66,7 @@ foreach (helper_plugin_fksnewsfeed::loadstream($INPUT->str('stream')) as $value)
     $data->webmaster='miso@fykos.cz';
     $data->category=$INPUT->str('stream'); 
     /*
-
-      'link' => $action->_generate_token($value),
-      'editor' => $param['author'],
-      editorEmail
-      'sum' => $param['name'],
-      'extra' => '',
-      'perms' => 255); */
+ */
     $rss->addItem($data);
 }
 

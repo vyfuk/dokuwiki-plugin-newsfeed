@@ -130,7 +130,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             if (!$this->getConf('rss')) {
                 $r.='<div class="input-group">';
 
-                $r.='<input class="FKS_newsfeed_rss_inp" data-id="rss" style="display:none" type="text" value="http://localhost/html/miso_web/lib/plugins/fksnewsfeed/rss.php?stream=' . $INPUT->str('news_stream') . '" />';
+                $r.='<input class="FKS_newsfeed_rss_inp" data-id="rss" style="display:none" type="text" value="'.DOKU_URL.'lib/plugins/fksnewsfeed/rss.php?stream=' . $INPUT->str('news_stream') . '" />';
                 $r.='<span class="input-group-btn">';
                 $r.=html_button('RSS', 'FKS_newsfeed_rss_btn btn btn-rss');
                 $r.= '</span></div>';
