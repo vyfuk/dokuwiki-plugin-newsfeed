@@ -2,7 +2,7 @@
 
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     
+ * @author     Michal Červeňák <miso@fykos.cz> 
  */
 // must be run within Dokuwiki
 if (!defined('DOKU_INC')) {

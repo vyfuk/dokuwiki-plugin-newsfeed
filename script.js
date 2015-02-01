@@ -1,4 +1,8 @@
-
+/**
+ * JavaScript for doku plugin FKSnewsfeed
+ * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
 jQuery(function() {
 
     var $ = jQuery;
@@ -21,6 +25,7 @@ jQuery(function() {
                 _edit_news();
                 _more_news();
                 _link_news();
+                _link_rss() ;
             },
                     'json');
         });
@@ -75,6 +80,14 @@ jQuery(function() {
         $('button.FKS_newsfeed_link_btn').click(function() {
             var ID = $(this).data('id');
             $('input.FKS_newsfeed_link_inp[data-id=' + ID + ']').slideDown();
+        }
+        );
+    }
+    ;
+    function _link_rss() {
+        $('button.FKS_newsfeed_rss_btn').click(function() {
+            
+            $('input.FKS_newsfeed_rss_inp').slideDown();
         }
         );
     }

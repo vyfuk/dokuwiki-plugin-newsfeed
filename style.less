@@ -1,6 +1,8 @@
-/* CSS Document */
-
-
+/**
+* LESS & CSS for doku plugin FKSnewsfeed 
+* @author Michal Červeňák
+* Use bootstrap
+*/
 
 
 div.FKS_newsfeed_odd{
@@ -11,8 +13,11 @@ div.FKS_newsfeed_even{
     background-color: __vyfuk_back_light_2__ ;
 }
 
-input.FKS_newsfeed_link_inp{
+input.FKS_newsfeed_link_inp,input.FKS_newsfeed_rss_inp{
     .form-control;
+}
+input.FKS_newsfeed_rss_inp{
+    float: right;
 }
 
 div.FKS_newsfeed_edit{
@@ -26,7 +31,7 @@ div.FKS_newsfeed_stream{
 div.FKS_newsfeed_odd,div.FKS_newsfeed_even{
     border-bottom: 2px solid __border__;
     margin: 0px;
-    /*border: 1px solid blue;*/
+
     padding: 1em;  
     border-radius: 4px;
 
@@ -42,4 +47,20 @@ div.FKS_newsfeed_odd,div.FKS_newsfeed_even{
 
 }
 
+.btn-rss,.FKS_newsfeed_rss_inp{
+    color:white!important;
+    background-color: #ff6600!important;
+    float:right;
 
+
+    &:before{
+
+        content: url('images/rss.png');
+    }
+    &:hover{
+        background-color: #d8791e;
+        color:white;
+    }
+
+
+}

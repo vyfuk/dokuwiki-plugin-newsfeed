@@ -2,7 +2,7 @@
 
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Esther Brunner <wikidesign@gmail.com>
+ * @author     Michal Červeňák <miso@fykos.cz>
  */
 // must be run within Dokuwiki
 if (!defined('DOKU_INC')) {
@@ -141,7 +141,7 @@ name=' . $data['name'] . '>
      */
 
     public function getwikinewsurl($id) {
-        return str_replace("@i@", $id, 'fksnewsfeed:feeds:' . $this->getConf('newsfile'));
+        return str_replace("@i@", $id, 'fksnewsfeed:feeds:news@i@');
     }
 
     function allstream() {

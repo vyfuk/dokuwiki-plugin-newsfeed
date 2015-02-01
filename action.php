@@ -18,7 +18,6 @@ if (!defined('DOKU_INC')) {
  * @news_feed how many newsfeed need display
  * @news_view how many news is display
  */
-
 class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
     private $hash = array('pre' => null, 'pos' => null, 'hex' => null, 'hash' => null);
@@ -50,6 +49,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             $e = $this->helper->_is_even($this->token['id']);
 
             $event->preventDefault();
+
 
             echo p_render('xhtml', p_get_instructions(str_replace(array('@id@', '@even@'), array($this->token['id'], $e), $this->helper->simple_tpl)), $info);
         }
@@ -93,13 +93,13 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
 
             if ($this->getConf('facebook_allow') || ($this->getConf('facebook_allow_user') && $_SERVER['REMOTE_USER'])) {
-                $fb_class='fb-share-button btn btn-small btn-social btn-facebook';
-                $fb_atr=array('data-href' => $this->_generate_token((int) $INPUT->str('news_id')));
-                $r.= html_facebook_btn('Share on FB', $fb_class,$fb_atr );
+                $fb_class = 'fb-share-button btn btn-small btn-social btn-facebook';
+                $fb_atr = array('data-href' => $this->_generate_token((int) $INPUT->str('news_id')));
+                $r.= html_facebook_btn('Share on FB', $fb_class, $fb_atr);
             }
             if ($this->getConf('token_allow') || ($this->getConf('token_allow_user') && $_SERVER['REMOTE_USER'])) {
                 $r.=html_button($this->getLang('newsfeed_link'), 'btn btn-info FKS_newsfeed_button FKS_newsfeed_link_btn', array('data-id' => $INPUT->str('news_id')));
-                $link = $_SERVER['SERVER_NAME'] . DOKU_BASE . '?do=fksnewsfeed_token&token=' . $this->_generate_token((int) $INPUT->str('news_id'));
+                $link = $this->_generate_token((int) $INPUT->str('news_id'));
                 $r.='<input class="FKS_newsfeed_link_inp" data-id="' . $INPUT->str('news_id') . '" style="display:none" type="text" value="' . $link . '" />';
             }
 
@@ -111,6 +111,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         } elseif ($INPUT->str('news_do') == 'stream') {
             $feed = (int) $INPUT->str('news_feed');
             $r = (string) "";
+
             if ($_SERVER['REMOTE_USER']) {
                 $form = new Doku_Form(array('id' => 'addnews', 'method' => 'GET', 'class' => 'fksreturn'));
                 $form->addHidden("do", "edit");
@@ -126,6 +127,15 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $r .= ob_get_contents();
                 ob_end_clean();
             }
+            if (!$this->getConf('rss')) {
+                $r.='<div class="input-group">';
+
+                $r.='<input class="FKS_newsfeed_rss_inp" data-id="rss" style="display:none" type="text" value="http://localhost/html/miso_web/lib/plugins/fksnewsfeed/rss.php?stream=' . $INPUT->str('news_stream') . '" />';
+                $r.='<span class="input-group-btn">';
+                $r.=html_button('RSS', 'FKS_newsfeed_rss_btn btn btn-rss');
+                $r.= '</span></div>';
+            }
+
 
             foreach ($this->helper->loadstream($INPUT->str('news_stream'), true) as $key => $value) {
                 if ($feed) {
@@ -204,20 +214,20 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
     }
 
     public function handle_action_act_preprocess(Doku_Event &$event, $param) {
-        global $ACT;
         global $INPUT;
+        global $ACT;
 
 
         if ($INPUT->str("target") == "plugin_fksnewsfeed") {
-            global $INPUT;
+
             global $TEXT;
             global $ID;
             global $INFO;
-            global $ACT;
 
-//$this->helper->_log_event('edit', $INPUT->str('id'));
+
+
             if ($INPUT->str('news_do') == 'add') {
-                //var_dump($INPUT);
+
 
                 $Wnews = $this->helper->saveNewNews(array('author' => $INFO['userinfo']['name'],
                     'newsdate' => dformat(),
@@ -278,7 +288,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 . '</div>';
     }
 
-    private function _generate_token($id) {
+    public function _generate_token($id) {
 
 
         $hash_no = (int) $this->getConf('hash_no');
@@ -291,7 +301,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
         $this->hash['hash'] = $this->hash['pre'] . $this->hash['hex'] . $this->hash['pos'];
 
-        return $this->hash['hash'];
+        return DOKU_URL . '?do=fksnewsfeed_token&token=' . $this->hash['hash'];
     }
 
     private function _generate_rand($l) {
