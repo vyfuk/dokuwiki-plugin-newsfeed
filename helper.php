@@ -20,7 +20,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     public $Fields = array('name', 'email', 'author', 'newsdate', 'text');
     public $FKS_helper;
-    public $simple_tpl;
+    public static $simple_tpl;
 
     const simple_tpl = "{{fksnewsfeed>id=@id@; even=@even@}}";
 
@@ -30,22 +30,30 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $this->FKS_helper = $this->loadHelper('fkshelper');
     }
 
-    /*
+    /**
+     * @author Michal Červeňák <miso@fykos.cz>
+     * @param string $s 
+     * @param bool $o
+     * @return void
      * load file with configuration
      * and load old configuration file 
      */
-
-    public function loadstream($s, $o = true) {
+    public static function loadstream($s, $o = true) {
         if ($o) {
-            return preg_split('/;;/', substr(io_readFile(metaFN("fksnewsfeed:streams:" . $s, ".csv"), FALSE), 1, -1));
+            return (array) preg_split('/;;/', substr(io_readFile(metaFN("fksnewsfeed:streams:" . $s, ".csv"), FALSE), 1, -1));
         } else {
 
             $arr = preg_split("/\n/", substr(io_readFile(metaFN("fksnewsfeed:old-streams:" . $s, ".csv"), FALSE), 1, -1));
             $l = count($arr);
-            return preg_split('/;;/', substr($arr[$l - 1], 1, -1));
+            return (array) preg_split('/;;/', substr($arr[$l - 1], 1, -1));
         }
     }
 
+    /**
+     * Find no news 
+     * @author Michal Červeňák <miso@fykos.cz>
+     * @return int
+     */
     public function findimax() {
         for ($i = 1; true; $i++) {
             if (file_exists(metaFN($this->getwikinewsurl($i), '.txt'))) {
@@ -55,19 +63,32 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 break;
             }
         }
-        return $imax;
+        return (int) $imax;
     }
 
-    public function allNews($dir = 'feeds') {
+    /**
+     * @author Michal Červeňák <miso@fykos.cz>
+     * @param string $dir
+     * @return array
+     */
+    public static function allNews($dir = 'feeds') {
         $arraynews = array();
         foreach ($this->allshortnews() as $key => $value) {
             $arraynews[] = $this->shortfilename($value, 'fksnewsfeed/' . $dir, 'ID_ONLY');
         }
 
-        return $arraynews;
+        return (array) $arraynews;
     }
 
-    public function shortfilename($name, $dir = '', $flag = 'ID_ONLY', $type = 4) {
+    /**
+     * @author Michal Červeňák <miso@fykos.cz>
+     * @param string $name
+     * @param string $dir
+     * @param flag $flag
+     * @param int $type
+     * @return string
+     */
+    public static function shortfilename($name, $dir = '', $flag = 'ID_ONLY', $type = 4) {
         if (!preg_match('/\w*\/\z/', $dir)) {
             //$dir = $dir . DIRECTORY_SEPARATOR;
         }
@@ -89,16 +110,18 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         }
         $n = str_replace(array($rep_dir_base_full, $rep_dir, $rep_dir_base), '', $name);
         $n = substr($n, 0, -$type);
-        return $n;
+        return (string) $n;
     }
 
-    /*
-     * © Michal Červeňák
+    /**
+     * save a new news or rewrite old
+     * @author Michal Červeňák <miso@fykos.cz>
+     * @return bool is write ok
+     * @param array $Rdata params to save
+     * @param string $link path to news
+     * @param bool $rw rewrite?
      * 
-     * 
-     * save a new file with value od USer
      */
-
     public function saveNewNews($Rdata, $link, $rw = false) {
         if (!$rw) {
             if (file_exists(metaFN($link, '.txt'))) {
@@ -119,46 +142,65 @@ email= ' . $data['email'] . ';
 name=' . $data['name'] . '>
 ' . $data['text'];
         $Wnews = io_saveFile(metaFN($link, '.txt'), $fksnews);
-        return $Wnews;
+        return (bool) $Wnews;
     }
 
-    /*
-     * © Michal Červeňák
-     * 
-     * 
+    /**
      * short name of news and add dots
+     * 
+     * @author Michal Červeňák <miso@fykos.cz>
+     * @param string $name text to short
+     * @param int $l length of output
+     * @return string shorted text
+     * 
+     * 
      */
-
-    function shortName($name = "", $l = 25) {
+    public static function shortName($name = "", $l = 25) {
         if (strlen($name) > $l) {
             $name = mb_substr($name, 0, $l - 3) . '...';
         }
-        return $name;
+        return (string) $name;
     }
 
-    /*
-     * get wiki URL with :
+    /**
+     * @author Michal Červeňák <miso@fykos.cz>
+     * @param int $id no of news
+     * @return string path news
      */
-
     public function getwikinewsurl($id) {
-        return str_replace("@i@", $id, 'fksnewsfeed:feeds:' . $this->getConf('newsfile'));
+        return (string) str_replace("@i@", $id, 'fksnewsfeed:feeds:' . $this->getConf('newsfile'));
     }
 
-    function allstream() {
+    /**
+     * @author Michal Červeňák <miso@fykos.cz>
+     * @return array all stream from dir
+     */
+    public static function allstream() {
         foreach (glob(DOKU_INC . 'data/meta/fksnewsfeed/streams/*.csv') as $key => $value) {
             $streams[$key] = str_replace(array(DOKU_INC . 'data/meta/fksnewsfeed/streams/', '.csv'), array("", ''), $value);
         }
-        return $streams;
+        return (array) $streams;
     }
 
-    function allshortnews() {
-        $allnews = array();
+    /**
+     * @author Michal Červeňák <miso@fykos.cz>
+     * @return array
+     */
+    public static function allshortnews() {
+
         $allnews = glob(DOKU_INC . 'data/meta/fksnewsfeed/feeds/*.txt');
         sort($allnews, SORT_NATURAL | SORT_FLAG_CASE);
-        return $allnews;
+        return (array) $allnews;
     }
 
-    public function _log_event($type, $newsid) {
+    /**
+     * @author Michal Červeňák <miso@fykos.cz>
+     * @global type $INFO
+     * @param string $type action 
+     * @param string $newsid
+     * @return void
+     */
+    public static function _log_event($type, $newsid) {
         global $INFO;
 
         $log = io_readFile(metaFN('fksnewsfeed:log', '.log'));
@@ -166,8 +208,15 @@ name=' . $data['name'] . '>
         $log.= "\n" . date("Y-m-d H:i:s") . ' ; ' . $newsid . ' ; ' . $type . ' ; ' . $INFO['name'] . ' ; ' . $_SERVER['REMOTE_ADDR'] . ';' . $INFO['ip'] . ' ; ' . $INFO['user'];
 
         io_saveFile(metaFN('fksnewsfeed:log', '.log'), $log);
+        return;
     }
-    public function _is_even($i) {
+
+    /**
+     * @author Michal Červeňák <miso@fykos.cz>
+     * @param int $i
+     * @return string
+     */
+    public static function _is_even($i) {
         if ($i % 2) {
             return 'FKS_newsfeed_even';
         } else {

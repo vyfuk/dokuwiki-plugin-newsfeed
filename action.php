@@ -14,7 +14,7 @@ if (!defined('DOKU_INC')) {
  * @news_do add/edit/
  * @news_id no news
  * @news_strem name of stream
- * @id news with path
+ * @id news with path same as doku @ID
  * @news_feed how many newsfeed need display
  * @news_view how many news is display
  */
@@ -118,6 +118,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
                 $form->addHidden("target", "plugin_fksnewsfeed");
                 $form->addHidden('news_do', 'add');
+
                 $form->addHidden('news_id', $this->helper->findimax('feeds'));
                 $form->addHidden('id', $this->helper->getwikinewsurl($this->helper->findimax('feeds')));
                 $form->addHidden("news_stream", $INPUT->str('news_stream'));
@@ -272,9 +273,15 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         list($params, $text) = preg_split('/\>/', $cleantext, 2);
         $param = $this->helper->FKS_helper->extractParamtext($params);
         $TEXT = $text;
-        return $param;
+        return (array) $param;
     }
 
+    /**
+     * @author Michal Červeňák <miso@fykos.cz>
+     * @param string $stream
+     * @param int $more
+     * @return string
+     */
     private function _add_button_more($stream, $more) {
 
         return '<div class="FKS_newsfeed_more" data-stream="' . (string) $stream . '" data-view="' . (int) $more . '">' .
@@ -307,7 +314,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         foreach (array_rand($seed, $l) as $k) {
             $r .= $seed[$k];
         }
-        return $r;
+        return (string) $r;
     }
 
     private function _encript_hash($hash, $l, $hash_no) {
@@ -316,7 +323,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         $enc_dec = hexdec($enc_hex);
 
         $id = ($enc_dec - $hash_no) / 2;
-        return $id;
+        return (int) $id;
     }
 
 }

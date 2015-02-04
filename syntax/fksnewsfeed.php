@@ -62,12 +62,11 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         // $data is what the function handle return'ed.
         if ($mode == 'xhtml') {
             /** @var Do ku_Renderer_xhtml $renderer */
-            list($state, $match) = $data;
+            list(, $match) = $data;
             list($param) = $match;
-            
+
             $renderer->doc .= $this->rendernews($param);
             $renderer->doc.='<div class="FKS_newsfeed_edit" data-id="' . $param["id"] . '"></div>';
-           
         }
         return false;
     }
@@ -75,7 +74,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     private function rendernews($param = array()) {
 
         $ntext = $this->loadnewssimple($param["id"]);
-        
+
         $cleantext = str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $ntext);
         list($params, $text) = preg_split('/\>/', $cleantext, 2);
         $data = $this->helper->FKS_helper->extractParamtext($params);
@@ -93,7 +92,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
                 $tpl = str_replace('@' . $k . '@', $data[$k], $tpl);
             }
         }
-       
+
         if (!isset($param['even'])) {
             $param['even'] = 'FKS_newsfeed_even';
         }
@@ -121,15 +120,17 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         );
 
 
-        return str_replace($enmonth, $langmonth, $date);
+        return (string) str_replace($enmonth, $langmonth, $date);
     }
 
-    /*
+    /**
      * load news @i@ and return text
+     * @author     Michal Červeňák <miso@fykos.cz>
+     * @param int $id
+     * @return string
      */
-
     private function loadnewssimple($id) {
-        return io_readFile(metaFN($this->helper->getwikinewsurl($id), ".txt"), false);
+        return (string) io_readFile(metaFN($this->helper->getwikinewsurl($id), ".txt"), false);
     }
 
 }
