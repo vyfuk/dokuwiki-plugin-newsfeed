@@ -67,7 +67,10 @@ jQuery(function() {
                     {call: 'plugin_fksnewsfeed', target: 'feed', name: 'local', news_do: 'more', news_stream: newsSTREAM, news_view: newsVIEW},
             $.proxy(function(data) {
                 $(this).html("");
-                $streamdiv.html($streamdiv.html() + data["r"]);
+                $streamdiv.html($streamdiv.html() + data["news"]);
+                if(data['more']){
+                    $('div.FKS_newsfeed_more[data-stream='+newsSTREAM+']').remove();
+                }
                 _edit_news();
                 _more_news();
                 _link_news();

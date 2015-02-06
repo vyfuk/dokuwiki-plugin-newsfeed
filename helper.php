@@ -20,7 +20,8 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     public $Fields = array('name', 'email', 'author', 'newsdate', 'text');
     public $FKS_helper;
-    public static $simple_tpl;
+    public $simple_tpl;
+    
 
     const simple_tpl = "{{fksnewsfeed>id=@id@; even=@even@}}";
 

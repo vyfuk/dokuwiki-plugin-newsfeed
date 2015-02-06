@@ -81,7 +81,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $form->addHidden("do", "edit");
                 $form->addHidden('id', $this->helper->getwikinewsurl($INPUT->str('news_id')));
                 $form->addHidden("target", "plugin_fksnewsfeed");
-                $form->addElement(form_makeButton('submit', '', $this->getLang('subeditnews')));
+                $form->addElement(form_makeButton('submit', '', $this->getLang('btn_edit_news')));
                 ob_start();
 
                 html_form('editnews', $form);
@@ -98,7 +98,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $r.= html_facebook_btn('Share on FB', $fb_class, $fb_atr);
             }
             if ($this->getConf('token_allow') || ($this->getConf('token_allow_user') && $_SERVER['REMOTE_USER'])) {
-                $r.=html_button($this->getLang('newsfeed_link'), 'btn btn-info FKS_newsfeed_button FKS_newsfeed_link_btn', array('data-id' => $INPUT->str('news_id')));
+                $r.=html_button($this->getLang('btn_newsfeed_link'), 'btn btn-info FKS_newsfeed_button FKS_newsfeed_link_btn', array('data-id' => $INPUT->str('news_id')));
                 $link = $this->_generate_token((int) $INPUT->str('news_id'));
                 $r.='<input class="FKS_newsfeed_link_inp" data-id="' . $INPUT->str('news_id') . '" style="display:none" type="text" value="' . $link . '" />';
             }
@@ -159,6 +159,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         } elseif ($INPUT->str('news_do') == 'more') {
             $f = $this->helper->loadstream($INPUT->str('news_stream'));
             (int) $max = (int) $this->getConf('more_news') + (int) $INPUT->str('news_view');
+            $more=false;
             for ($i = (int) $INPUT->str('news_view'); $i < $max; $i++) {
                 if (array_key_exists($i, $f)) {
                     $e = $this->helper->_is_even($i);
@@ -166,13 +167,15 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                     $n = str_replace(array('@id@', '@even@'), array($f[$i], $e), $this->helper->simple_tpl);
                     $r.= p_render("xhtml", p_get_instructions($n), $info);
                 } else {
+                    $more=true;
+                    $r.='<div class="FKS_newsfeed_more_msg">'.$this->getLang('no_more').'</div>';
                     break;
                 }
             }
             $r.= $this->_add_button_more($INPUT->str('news_stream'), $max);
             $json = new JSON();
 
-            echo $json->encode(array("r" => $r));
+            echo $json->encode(array("news" => $r,'more'=>$more));
         } else {
             return;
         }
@@ -285,7 +288,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
     private function _add_button_more($stream, $more) {
 
         return '<div class="FKS_newsfeed_more" data-stream="' . (string) $stream . '" data-view="' . (int) $more . '">' .
-                html_button($this->getLang('old_news'), 'button', array('title' => 'fksnewsfeed'))
+                html_button($this->getLang('btn_more_news'), 'button', array('title' => 'fksnewsfeed'))
                 . '</div>';
     }
 
@@ -296,26 +299,16 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         $l = (int) $this->getConf('no_pref');
 
 
-        $this->hash['pre'] = $this->_generate_rand($l);
-        $this->hash['pos'] = $this->_generate_rand($l);
+        $this->hash['pre'] = $this->helper->FKS_helper->_generate_rand($l);
+        $this->hash['pos'] = $this->helper->FKS_helper->_generate_rand($l);
         $this->hash['hex'] = dechex($hash_no + 2 * $id);
 
         $this->hash['hash'] = $this->hash['pre'] . $this->hash['hex'] . $this->hash['pos'];
 
-        return DOKU_URL . '?do=fksnewsfeed_token&token=' . $this->hash['hash'];
+        return (string) DOKU_URL . '?do=fksnewsfeed_token&token=' . $this->hash['hash'];
     }
 
-    private function _generate_rand($l) {
-
-        $r = '';
-        $seed = str_split('1234567890abcdefghijklmnopqrstuvwxyz'
-                . 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'); // and any other characters
-        shuffle($seed);
-        foreach (array_rand($seed, $l) as $k) {
-            $r .= $seed[$k];
-        }
-        return (string) $r;
-    }
+    
 
     private function _encript_hash($hash, $l, $hash_no) {
         $enc_hex = substr($hash, $l, -$l);

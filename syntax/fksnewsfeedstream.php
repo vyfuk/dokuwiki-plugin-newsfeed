@@ -32,7 +32,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
     }
 
     public function getPType() {
-        return 'normal';
+        return 'block';
     }
 
     public function getAllowedTypes() {

@@ -12,36 +12,29 @@ $lang['direction']  = 'ltr';
  
 // for admin plugins, the menu prompt to be displayed in the admin menu
 // if set here, the plugin doesn't need to override the getMenuText() method
-$lang['addmenu']          = 'Přidat aktualitu'; 
-$lang['addeditmenu']         = 'Přidat a upravit aktuality';
-$lang['editmenu']         = 'Upravit aktuality';
-$lang['menu']             = 'Spravovat aktuality';
-$lang['permutviewmenu']       = 'Upravit pořadí aktualit';
-$lang['permutmenu']       = 'Upravit pořadí novinek';
-$lang['newsfeed_link']       = 'Link na túto aktualitu';
+/*
+ * Admin plugin add-edit
+ */
+$lang['addmenu']            = 'Přidat aktualitu'; 
+$lang['editmenu']           = 'Upravit aktuality';
+$lang['add_n_edit_menu']    = 'Přidat a upravit aktuality';
 
+/*
+ * Admin plugin permut
+ */
+$lang['permut_menu']         = 'Upravit pořadí aktualit';
+/*
+ * Add edit 
+ */
+$lang['btn_edit_news']       = 'Upravit aktualitu';
+$lang['btn_add_news']        = 'Přidat aktualitu';
+$lang['btn_get_add_news']    = 'Přejít k vytvoření aktuality';
+$lang['btn_more_news']       ='Starší aktuality';
+$lang['btn_newsfeed_link']   = 'Link na túto aktualitu';
 
-$lang['newssave']         = 'Uložit  mzěny';
-
-$lang['subeditnews']      = 'Upravit novinku';
-$lang['subaddnews']       = 'Přidat novinku';
-$lang['addnews']          = 'Přidat novinku číslo: ';
-
-$lang['display']          = 'Zobrazit';
-$lang['nodisplay']        = 'Nezobrazovat';
-
-$lang['IDnews']           = 'číslo novinky ';
-$lang['newspermold']      = 'staré pořadí';
-$lang['newspermnew']      = 'nové pořadí ';
-$lang['newrender']        = 'zobrazovaní ';
-$lang['permwarning1']     = 'Upozornění!!';
-$lang['permwarning2']     = 'Pokud nevíte, jak se přesně mění pořadí aktualit, tak jej prosím neměňte a stěžujte si Mišovi.';
-$lang['permwarning3']     = 'Každé číslo musí být při změně pořadí použito právě jednou a nesmí se žádné vynechat. Číslo musí mít i aktualita, která se právě nezobrazuje.';
-
-$lang['newsfolder']       = 'složka pro ukládání novinek';
-$lang['newsfile']         = 'soubor s novinkou';
-
-
+/*
+ * label to form
+ */
 $lang['author']           = 'Autor';
 $lang['email']            = 'E-mail';
 $lang['date']             = 'Datum';
@@ -50,15 +43,9 @@ $lang['newsname']         = 'Nadpis';
 $lang['name']             = 'Nadpis';
 
 
-
-
-$lang['dataerror']        = 'Data boli medzčasom zmenené';
-
-$lang['subaddwikinews']   = 'Přejít k vytvoření aktuality';
-
-$lang['returntomenu']     = 'Návrat do menu';
-$lang['autoreturn']       = 'Stránka bude přesměrována během pěti sekund.';
-
+/**
+ * date for syntax plugin
+ */
 $lang['jan']              = 'ledna';
 $lang['feb']              = 'února';
 $lang['mar']              = 'března';
@@ -76,16 +63,25 @@ $lang['dec']              = 'prosince';
 
 
 
+/*
+ * Waring & info
+ */
+$lang['change_stream']     = 'zmeniť stream';
+$lang['add_news']          = 'Přidat aktualitu číslo: ';
+$lang['no_more']           ='Niesu žiadné dalšie aktuality na zobrazenie';
+$lang['returntomenu']      = 'Návrat do menu';
+$lang['autoreturn']        = 'Stránka bude přesměrována během pěti sekund.';
+/**
 
-$lang['changestream']     = 'zmeniť stream';
-$lang['dir']              = 'adresár';
-$lang['stream']           = 'stream';
 
-$lang['id']               = 'ID';
 
-$lang['findnews']              = 'nájdi novinku';
 
-$lang['old_news'] ='Starší aktuality';
+
+
+
+
+
+
 
 
 

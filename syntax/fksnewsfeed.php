@@ -27,7 +27,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     }
 
     public function getPType() {
-        return 'normal';
+        return 'block';
     }
 
     public function getAllowedTypes() {
