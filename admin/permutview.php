@@ -54,8 +54,8 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
     private function getpermutnews() {
         global $INPUT;
         global $lang;
-
-        if (!empty($INPUT->str('stream-data'))) {
+        $set_stream_data = $INPUT->str('stream-data');
+        if (!empty($set_stream_data)) {
             $old_data = io_readFile(metaFN('fksnewsfeed:old-streams:' . $INPUT->str('stream'), '.csv'));
             $new_data = $old_data . "\n" . $INPUT->str('stream-data');
             $old_stream_path = metaFN('fksnewsfeed:old-streams:' . $INPUT->str('stream'), '.csv');
