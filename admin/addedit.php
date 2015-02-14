@@ -77,7 +77,8 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
             'name' => 'Název aktuality'), $this->helper->getwikinewsurl($INPUT->str('newsid')));
         if ($Wnews) {
             msg('written into new news successful', 1);
-            if (!empty($INPUT->str("stream"))) {
+            $set_stream=empty($INPUT->str("stream"));
+            if (!$set_stream) {
                 foreach ($INPUT->param("stream") as $k => $v) {
                     if ($k) {
                         $c = '';
