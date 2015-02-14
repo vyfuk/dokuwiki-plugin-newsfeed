@@ -115,7 +115,8 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
         $allstream = helper_plugin_fksnewsfeed::allstream();
         foreach ($allstream as $k => $value) {
             $select = null;
-            if (empty($INPUT->str('add_stream'))) {
+            $set_add_stream= $INPUT->str('add_stream');
+            if (empty($set_add_stream)) {
                 if ($k == 0) {
                     $select = 'checked';
                 }
