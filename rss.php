@@ -37,7 +37,8 @@ $rss->cssStyleSheet = DOKU_URL . 'lib/exe/css.php?s=feed';
 
 $rss->image = $image;
 global $INPUT;
-if (empty($INPUT->str('stream'))) {
+$set_stream=$INPUT->str('stream');
+if (empty($set_stream)) {
     exit('<error>RSS feed is disabled.</error>');
 }
 
