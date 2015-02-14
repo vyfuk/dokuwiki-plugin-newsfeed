@@ -66,7 +66,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             list($param) = $match;
 
             $renderer->doc .= $this->rendernews($param);
-            $renderer->doc.='<div class="FKS_newsfeed_edit" data-id="' . $param["id"] . '"></div>';
+            
         }
         return false;
     }
@@ -74,7 +74,9 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     private function rendernews($param = array()) {
 
         $ntext = $this->loadnewssimple($param["id"]);
-
+        if (!$ntext) {
+            return '<div class="FKS_newsfeed_exist_msg">'.$this->getLang('news_non_exist').'</div>';;
+        }
         $cleantext = str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $ntext);
         list($params, $text) = preg_split('/\>/', $cleantext, 2);
         $data = $this->helper->FKS_helper->extractParamtext($params);
@@ -96,7 +98,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         if (!isset($param['even'])) {
             $param['even'] = 'FKS_newsfeed_even';
         }
-        return '<div class="' . $param['even'] . '" data-id="' . $param["id"] . '">' . $tpl . '</div>';
+        return '<div class="' . $param['even'] . '" data-id="' . $param["id"] . '">' . $tpl . '</div><div class="FKS_newsfeed_edit" data-id="' . $param["id"] . '"></div>';
     }
 
     private function newsdate($date) {
@@ -130,7 +132,12 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
      * @return string
      */
     private function loadnewssimple($id) {
-        return (string) io_readFile(metaFN($this->helper->getwikinewsurl($id), ".txt"), false);
+        $path = metaFN($this->helper->getwikinewsurl($id), ".txt");
+        if (file_exists($path)) {
+            return (string) io_readFile($path, false);
+        } else {
+            return FALSE;
+        }
     }
 
 }

@@ -3,19 +3,19 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author Michal Červeňák <miso@fykos.cz>
  */
+
 jQuery(function() {
 
     var $ = jQuery;
     _edit_news();
     _more_news();
     _link_news();
-    jQuery(window).load(function() {
+    $(window).load(function() {
         $('div.FKS_newsfeed_stream').each(function() {
-
             var $stream = $(this);
             $(this).append(_add_load_bar());
             _start_load_animation();
-            
+
             var newsSTREAM = $(this).data("stream");
             var newsFEED = $(this).data("feed");
             $.post(DOKU_BASE + 'lib/exe/ajax.php',
@@ -25,7 +25,7 @@ jQuery(function() {
                 _edit_news();
                 _more_news();
                 _link_news();
-                _link_rss() ;
+                _link_rss();
             },
                     'json');
         });
@@ -34,8 +34,6 @@ jQuery(function() {
             ;
     function _edit_news() {
         $('div.FKS_newsfeed_even,div.FKS_newsfeed_odd').mouseover(function() {
-
-            // event.preventDefault();
             var newsID = $(this).data("id");
             var $editdiv = $('div.FKS_newsfeed_edit[data-id=' + $(this).data("id") + ']');
             if ($editdiv.html() !== "") {
@@ -61,15 +59,13 @@ jQuery(function() {
             var $streamdiv = $('div.FKS_newsfeed_stream[data-stream=' + newsSTREAM + ']');
             $(this).append(_add_load_bar());
             _start_load_animation();
-           
-            //$(this).append('<img src="http://img.ffffound.com/static-data/assets/6/77443320c6509d6b500e288695ee953502ecbd6d_m.gif">');
             $.post(DOKU_BASE + 'lib/exe/ajax.php',
                     {call: 'plugin_fksnewsfeed', target: 'feed', name: 'local', news_do: 'more', news_stream: newsSTREAM, news_view: newsVIEW},
             $.proxy(function(data) {
                 $(this).html("");
                 $streamdiv.html($streamdiv.html() + data["news"]);
-                if(data['more']){
-                    $('div.FKS_newsfeed_more[data-stream='+newsSTREAM+']').remove();
+                if (data['more']) {
+                    $('div.FKS_newsfeed_more[data-stream=' + newsSTREAM + ']').remove();
                 }
                 _edit_news();
                 _more_news();
@@ -89,7 +85,7 @@ jQuery(function() {
     ;
     function _link_rss() {
         $('button.FKS_newsfeed_rss_btn').click(function() {
-            
+
             $('input.FKS_newsfeed_rss_inp').slideDown();
         }
         );
@@ -119,9 +115,9 @@ jQuery(function() {
         var $load = $('.progress-bar');
         console.log($load.css("width"));
         $load.animate({
-            width: 99+"%"
+            width: 99 + "%"
 
-        }, 4000,"linear");
+        }, 4000, "linear");
         ;
     }
     ;

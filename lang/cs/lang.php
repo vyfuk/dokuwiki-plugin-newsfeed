@@ -72,6 +72,10 @@ $lang['no_more']           ='Niesu žiadné dalšie aktuality na zobrazenie';
 $lang['returntomenu']      = 'Návrat do menu';
 $lang['autoreturn']        = 'Stránka bude přesměrována během pěti sekund.';
 /**
+ * @TODO vymyslieť niečo pekné!
+ */
+$lang['news_non_exist']    = 'Ops!';
+/**
 
 
 

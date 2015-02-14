@@ -21,7 +21,6 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public $Fields = array('name', 'email', 'author', 'newsdate', 'text');
     public $FKS_helper;
     public $simple_tpl;
-    
 
     const simple_tpl = "{{fksnewsfeed>id=@id@; even=@even@}}";
 
@@ -178,7 +177,10 @@ name=' . $data['name'] . '>
      */
     public static function allstream() {
         foreach (glob(DOKU_INC . 'data/meta/fksnewsfeed/streams/*.csv') as $key => $value) {
-            $streams[$key] = str_replace(array(DOKU_INC . 'data/meta/fksnewsfeed/streams/', '.csv'), array("", ''), $value);
+            $sh = self::shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID', 4);
+          
+            $streams[$key]=$sh;
+            //$streams[$key] = str_replace(array(DOKU_INC . 'data/meta/fksnewsfeed/streams/', '.csv'), array("", ''), $value);
         }
         return (array) $streams;
     }
