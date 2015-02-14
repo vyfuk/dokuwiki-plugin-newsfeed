@@ -17,7 +17,6 @@ require_once(DOKU_PLUGIN . 'admin.php');
 
 class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
-    
     private $helper;
 
     public function __construct() {
@@ -42,9 +41,9 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
     }
 
     public function html() {
- 
 
-        ptln('<h1>' . $this->getLang('permut_menu') . '</h1>',0);
+
+        ptln('<h1>' . $this->getLang('permut_menu') . '</h1>', 0);
         $this->helper->FKS_helper->returnMenu('permut_menu');
 
         $this->changedstream();
@@ -62,8 +61,9 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
             $old_stream_path = metaFN('fksnewsfeed:old-streams:' . $INPUT->str('stream'), '.csv');
 
             io_saveFile($old_stream_path, $new_data);
-            if (!empty($INPUT->str('stream-save'))) {
-                $new_stream_path=metaFN('fksnewsfeed:streams:' . $INPUT->str('stream'), '.csv');
+            $set_save_stream = $INPUT->str('stream-save');
+            if (!empty($set_save_stream)) {
+                $new_stream_path = metaFN('fksnewsfeed:streams:' . $INPUT->str('stream'), '.csv');
                 io_saveFile($new_stream_path, $INPUT->str('stream-data'));
             }
             $display = $INPUT->str('stream-data');
@@ -86,8 +86,8 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
             $n = str_replace(array('@id@', '@even@'), array($value, $e), $this->helper->simple_tpl);
             echo p_render("xhtml", p_get_instructions($n), $info);
         }
-
-        if (!empty($INPUT->str('stream-data'))) {
+        $set_stream_data = $INPUT->str('stream-data');
+        if (!empty($set_stream_data)) {
             $form = new Doku_Form(array('id' => "save",
                 'method' => 'POST', 'action' => null));
             $form->addHidden('stream', $INPUT->str('stream'));
@@ -113,8 +113,8 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
             'method' => 'POST',
         ));
         $form->startFieldset($this->getLang('change_stream'));
-        
-         
+
+
         $form->addElement(form_makeListboxField('stream', array_merge(array(' '), helper_plugin_fksnewsfeed::allstream())));
         $form->addElement(form_makeButton('submit', '', $this->getLang('change_stream')));
         $form->endFieldset();
