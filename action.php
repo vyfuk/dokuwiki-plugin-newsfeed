@@ -122,7 +122,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $form->addHidden('news_id', $this->helper->findimax('feeds'));
                 $form->addHidden('id', $this->helper->getwikinewsurl($this->helper->findimax('feeds')));
                 $form->addHidden("news_stream", $INPUT->str('news_stream'));
-                $form->addElement(form_makeButton('submit', '', $this->getLang('subaddnews')));
+                $form->addElement(form_makeButton('submit', '', $this->getLang('btn_add_news')));
                 ob_start();
                 html_form('addnews', $form);
                 $r .= ob_get_contents();
@@ -159,7 +159,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         } elseif ($INPUT->str('news_do') == 'more') {
             $f = $this->helper->loadstream($INPUT->str('news_stream'));
             (int) $max = (int) $this->getConf('more_news') + (int) $INPUT->str('news_view');
-            $more=false;
+            $more = false;
             for ($i = (int) $INPUT->str('news_view'); $i < $max; $i++) {
                 if (array_key_exists($i, $f)) {
                     $e = $this->helper->_is_even($i);
@@ -167,15 +167,15 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                     $n = str_replace(array('@id@', '@even@'), array($f[$i], $e), $this->helper->simple_tpl);
                     $r.= p_render("xhtml", p_get_instructions($n), $info);
                 } else {
-                    $more=true;
-                    $r.='<div class="FKS_newsfeed_more_msg">'.$this->getLang('no_more').'</div>';
+                    $more = true;
+                    $r.='<div class="FKS_newsfeed_more_msg">' . $this->getLang('no_more') . '</div>';
                     break;
                 }
             }
             $r.= $this->_add_button_more($INPUT->str('news_stream'), $max);
             $json = new JSON();
 
-            echo $json->encode(array("news" => $r,'more'=>$more));
+            echo $json->encode(array('news' => $r, 'more' => $more));
         } else {
             return;
         }
@@ -274,7 +274,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         global $TEXT;
         $cleantext = str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $ntext);
         list($params, $text) = preg_split('/\>/', $cleantext, 2);
-        $param = $this->helper->FKS_helper->extractParamtext($params);
+        $param = helper_plugin_fkshelper::extractParamtext($params);
         $TEXT = $text;
         return (array) $param;
     }
@@ -299,16 +299,14 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         $l = (int) $this->getConf('no_pref');
 
 
-        $this->hash['pre'] = $this->helper->FKS_helper->_generate_rand($l);
-        $this->hash['pos'] = $this->helper->FKS_helper->_generate_rand($l);
+        $this->hash['pre'] = helper_plugin_fkshelper::_generate_rand($l);
+        $this->hash['pos'] = helper_plugin_fkshelper::_generate_rand($l);
         $this->hash['hex'] = dechex($hash_no + 2 * $id);
 
         $this->hash['hash'] = $this->hash['pre'] . $this->hash['hex'] . $this->hash['pos'];
 
         return (string) DOKU_URL . '?do=fksnewsfeed_token&token=' . $this->hash['hash'];
     }
-
-    
 
     private function _encript_hash($hash, $l, $hash_no) {
         $enc_hex = substr($hash, $l, -$l);

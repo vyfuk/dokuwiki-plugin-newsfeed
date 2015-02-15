@@ -24,4 +24,6 @@ $conf['facebook_allow_user']=1;
 $conf['rss_allow_user']=1;
 $conf['rss_allow']=1;
 
+$conf['tpl']='system:html:newsfeed_template';
+
 

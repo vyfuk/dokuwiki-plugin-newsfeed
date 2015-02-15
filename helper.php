@@ -54,9 +54,9 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @author Michal Červeňák <miso@fykos.cz>
      * @return int
      */
-    public function findimax() {
+    public static function findimax() {
         for ($i = 1; true; $i++) {
-            if (file_exists(metaFN($this->getwikinewsurl($i), '.txt'))) {
+            if (file_exists(metaFN(self::getwikinewsurl($i), '.txt'))) {
                 continue;
             } else {
                 $imax = $i;
@@ -73,8 +73,8 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      */
     public static function allNews($dir = 'feeds') {
         $arraynews = array();
-        foreach ($this->allshortnews() as $key => $value) {
-            $arraynews[] = $this->shortfilename($value, 'fksnewsfeed/' . $dir, 'ID_ONLY');
+        foreach (self::allshortnews() as $key => $value) {
+            $arraynews[] = self::shortfilename($value, 'fksnewsfeed/' . $dir, 'ID_ONLY');
         }
 
         return (array) $arraynews;
@@ -167,8 +167,8 @@ name=' . $data['name'] . '>
      * @param int $id no of news
      * @return string path news
      */
-    public function getwikinewsurl($id) {
-        return (string) str_replace("@i@", $id, 'fksnewsfeed:feeds:' . $this->getConf('newsfile'));
+    public static function getwikinewsurl($id) {
+        return (string) str_replace("@i@", $id, 'fksnewsfeed:feeds:news@i@');
     }
 
     /**

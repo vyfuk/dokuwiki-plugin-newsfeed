@@ -12,18 +12,18 @@ $lang['direction']  = 'ltr';
  
 // for admin plugins, the menu prompt to be displayed in the admin menu
 // if set here, the plugin doesn't need to override the getMenuText() method
-/*
+/**
  * Admin plugin add-edit
  */
 $lang['addmenu']            = 'Přidat aktualitu'; 
 $lang['editmenu']           = 'Upravit aktuality';
 $lang['add_n_edit_menu']    = 'Přidat a upravit aktuality';
 
-/*
+/**
  * Admin plugin permut
  */
 $lang['permut_menu']         = 'Upravit pořadí aktualit';
-/*
+/**
  * Add edit 
  */
 $lang['btn_edit_news']       = 'Upravit aktualitu';
@@ -32,7 +32,7 @@ $lang['btn_get_add_news']    = 'Přejít k vytvoření aktuality';
 $lang['btn_more_news']       ='Starší aktuality';
 $lang['btn_newsfeed_link']   = 'Link na túto aktualitu';
 
-/*
+/**
  * label to form
  */
 $lang['author']           = 'Autor';
@@ -63,7 +63,7 @@ $lang['dec']              = 'prosince';
 
 
 
-/*
+/**
  * Waring & info
  */
 $lang['change_stream']     = 'zmeniť stream';
@@ -75,19 +75,5 @@ $lang['autoreturn']        = 'Stránka bude přesměrována během pěti sekund.
  * @TODO vymyslieť niečo pekné!
  */
 $lang['news_non_exist']    = 'Ops!';
-/**
 
-
-
-
-
-
-
-
-
-
-
-
-
-//Setup VIM: ex: et ts=2 enc=utf-8 :
 

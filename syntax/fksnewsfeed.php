@@ -66,7 +66,6 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             list($param) = $match;
 
             $renderer->doc .= $this->rendernews($param);
-            
         }
         return false;
     }
@@ -75,14 +74,19 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
         $ntext = $this->loadnewssimple($param["id"]);
         if (!$ntext) {
-            return '<div class="FKS_newsfeed_exist_msg">'.$this->getLang('news_non_exist').'</div>';;
+            return '<div class="FKS_newsfeed_exist_msg">' . $this->getLang('news_non_exist') . '</div>';
+            
         }
         $cleantext = str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $ntext);
         list($params, $text) = preg_split('/\>/', $cleantext, 2);
         $data = $this->helper->FKS_helper->extractParamtext($params);
 
-        $tpl = io_readFile(wikiFN('system/html/newsfeed_template'));
-
+        $tpl_path = wikiFN($this->getConf('tpl'));
+        if (!file_exists($tpl_path)) {
+            $def_tpl = DOKU_PLUGIN . plugin_directory('fksnewsfeed') . '/tpl.html';
+            io_saveFile($tpl_path, io_readFile($def_tpl));
+        }
+        $tpl = io_readFile($tpl_path);
 
         foreach ($this->helper->Fields as $k) {
 
