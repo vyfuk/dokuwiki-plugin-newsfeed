@@ -178,8 +178,8 @@ name=' . $data['name'] . '>
     public static function allstream() {
         foreach (glob(DOKU_INC . 'data/meta/fksnewsfeed/streams/*.csv') as $key => $value) {
             $sh = self::shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID', 4);
-          
-            $streams[$key]=$sh;
+
+            $streams[$key] = $sh;
             //$streams[$key] = str_replace(array(DOKU_INC . 'data/meta/fksnewsfeed/streams/', '.csv'), array("", ''), $value);
         }
         return (array) $streams;
@@ -225,6 +225,15 @@ name=' . $data['name'] . '>
         } else {
             return 'FKS_newsfeed_odd';
         }
+    }
+
+    public static function _extract_param_news($text) {
+
+        list($params, $text) = explode('>', str_replace(array('<fksnewsfeed', '</fksnewsfeed>'), '', $text));
+
+        $param = helper_plugin_fkshelper::extractParamtext($params);
+        $text = trim($text);
+        return array($param, $text);
     }
 
 }

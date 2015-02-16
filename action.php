@@ -272,10 +272,8 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
 
     private function extractParamACT($ntext) {
         global $TEXT;
-        $cleantext = str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $ntext);
-        list($params, $text) = preg_split('/\>/', $cleantext, 2);
-        $param = helper_plugin_fkshelper::extractParamtext($params);
-        $TEXT = $text;
+        list($param, $TEXT) = helper_plugin_fksnewsfeed::_extract_param_news($ntext);
+
         return (array) $param;
     }
 

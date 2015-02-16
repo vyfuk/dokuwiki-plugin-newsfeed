@@ -77,9 +77,8 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             return '<div class="FKS_newsfeed_exist_msg">' . $this->getLang('news_non_exist') . '</div>';
             
         }
-        $cleantext = str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $ntext);
-        list($params, $text) = preg_split('/\>/', $cleantext, 2);
-        $data = $this->helper->FKS_helper->extractParamtext($params);
+        
+        list($data, $text)= helper_plugin_fksnewsfeed::_extract_param_news($ntext);
 
         $tpl_path = wikiFN($this->getConf('tpl'));
         if (!file_exists($tpl_path)) {
@@ -124,8 +123,6 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $this->getLang('now'),
             $this->getLang('dec')
         );
-
-
         return (string) str_replace($enmonth, $langmonth, $date);
     }
 
