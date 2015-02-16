@@ -62,7 +62,7 @@ foreach (helper_plugin_fksnewsfeed::loadstream($INPUT->str('stream')) as $value)
     $data->title = $param['name'];
     $action = new action_plugin_fksnewsfeed();
     $data->link=$action->_generate_token($value);
-    $data->description=$text;
+    $data->description=  p_render('text', p_get_instructions($text), $info);
     $data->editor=$param['author'];
     $data->editorEmail=$param['email'];
     $data->webmaster='miso@fykos.cz';
