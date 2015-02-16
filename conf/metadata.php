@@ -23,5 +23,7 @@ $meta['facebook_allow']=array('onoff');
 $meta['facebook_allow_user']=array('onoff');
 
 $meta['rss_allow_user']=array('onoff');
+$meta['rss_allow_all']=array('onoff');
+
 $meta['rss_allow']=array('onoff');
 

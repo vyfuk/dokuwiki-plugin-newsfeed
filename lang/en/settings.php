@@ -21,5 +21,7 @@ $lang['token_allow_user']='Allow token for login users';
 $lang['facebook_allow']='Allow share on FB for all';
 $lang['facebook_allow_user']='Allow share on FB  for login users';
 
-$lang['rss_allow_user']='Allow RSS for all';
-$lang['rss_allow']='Allow RSS for login users';
+$lang['rss_allow_all']='Allow RSS for all';
+$lang['rss_allow_user']='Allow RSS for login users';
+
+$lang['rss_allow']='Rewrite Doku RSS';

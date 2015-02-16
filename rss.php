@@ -22,11 +22,6 @@ if (!actionOK('rss')) {
     echo '<error>RSS feed is disabled.</error>';
     exit;
 }
-
-
-
-
-
 $rss = new DokuWikiFeedCreator();
 $rss->title = $conf['title'];
 
@@ -37,51 +32,36 @@ $rss->cssStyleSheet = DOKU_URL . 'lib/exe/css.php?s=feed';
 
 $rss->image = $image;
 global $INPUT;
-$set_stream=$INPUT->str('stream');
+$set_stream = $INPUT->str('stream');
 if (empty($set_stream)) {
     exit('<error>RSS feed is disabled.</error>');
 }
 
 foreach (helper_plugin_fksnewsfeed::loadstream($INPUT->str('stream')) as $value) {
-
     
-    $helper= new helper_plugin_fksnewsfeed;
-    $url = metaFN($helper->getwikinewsurl($value), '.txt');
+    $ntext = syntax_plugin_fksnewsfeed_fksnewsfeed::loadnewssimple($value);
     
-    $ntext = io_readFile($url);
-    
-    $cleantext = str_replace(array("\n", '<fksnewsfeed', '</fksnewsfeed>'), array('', '', ''), $ntext);
-    list($params, $text) = preg_split('/\>/', $cleantext, 2);
-    
-    $param = helper_plugin_fkshelper::extractParamtext($params);
-
-    
+    list($param, $text) = helper_plugin_fksnewsfeed::_extract_param_news($ntext);
     
     $data = new UniversalFeedCreator();
     $data->pubDate = $param['newsdate'];
     $data->title = $param['name'];
     $action = new action_plugin_fksnewsfeed();
-    $data->link=$action->_generate_token($value);
-    $data->description=  p_render('text', p_get_instructions($text), $info);
-    $data->editor=$param['author'];
-    $data->editorEmail=$param['email'];
-    $data->webmaster='miso@fykos.cz';
-    $data->category=$INPUT->str('stream'); 
+    $data->link = $action->_generate_token($value);
+    $data->description = p_render('text', p_get_instructions($text), $info);
+    $data->editor = $param['author'];
+    $data->editorEmail = $param['email'];
+    $data->webmaster = 'miso@fykos.cz';
+    $data->category = $INPUT->str('stream');
     /*
- */
+     */
     $rss->addItem($data);
 }
 
 
 //var_dump($rss)
 
-$feeds= $rss->createFeed($opt['feed_type'], 'utf-8');
+$feeds = $rss->createFeed($opt['feed_type'], 'utf-8');
 
 print $feeds;
-class fksnewsfeedrss extends DokuWikiFeedCreator {
 
-    public function FKS_newsfeed_add_item(DokuWikiFeedCreator $rss, $data) {
-
-    }
-
-}

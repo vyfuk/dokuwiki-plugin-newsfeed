@@ -226,7 +226,11 @@ name=' . $data['name'] . '>
             return 'FKS_newsfeed_odd';
         }
     }
-
+/**
+ * @author Michal Červeňák <miso@fykos.cz>
+ * @param string $text text to parse
+ * @return list $param,$text
+ */
     public static function _extract_param_news($text) {
 
         list($params, $text) = explode('>', str_replace(array('<fksnewsfeed', '</fksnewsfeed>'), '', $text));

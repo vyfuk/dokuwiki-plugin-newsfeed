@@ -72,7 +72,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
     private function rendernews($param = array()) {
 
-        $ntext = $this->loadnewssimple($param["id"]);
+        $ntext = self::loadnewssimple($param["id"]);
         if (!$ntext) {
             return '<div class="FKS_newsfeed_exist_msg">' . $this->getLang('news_non_exist') . '</div>';
             
@@ -132,8 +132,8 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
      * @param int $id
      * @return string
      */
-    private function loadnewssimple($id) {
-        $path = metaFN($this->helper->getwikinewsurl($id), ".txt");
+    public static function loadnewssimple($id) {
+        $path = metaFN(helper_plugin_fksnewsfeed::getwikinewsurl($id), ".txt");
         if (file_exists($path)) {
             return (string) io_readFile($path, false);
         } else {

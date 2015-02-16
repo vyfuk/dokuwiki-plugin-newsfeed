@@ -21,5 +21,7 @@ $lang['token_allow_user']='Povoliť pristup k tokenu prihaseným uživateľom';
 $lang['facebook_allow']='Povoliť zdieľanie na FB všetkým';
 $lang['facebook_allow_user']='Povoliť zdieľanie na FB prihaseným uživateľom';
 
-$lang['rss_allow_user']='Povoliť RSS všetkým';
-$lang['rss_allow']='Povoliť RSS prihaseným uživateľom';
+$lang['rss_allow_all']='Povoliť RSS všetkým';
+$lang['rss_allow_user']='Povoliť RSS prihaseným uživateľom';
+
+$lang['rss_allow']='Prepisovať RSS';
