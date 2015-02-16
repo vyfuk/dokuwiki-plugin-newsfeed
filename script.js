@@ -70,6 +70,7 @@ jQuery(function() {
                 _edit_news();
                 _more_news();
                 _link_news();
+                _link_rss();
             }, this)
                     , 'json');
         });
@@ -113,7 +114,7 @@ jQuery(function() {
     }
     function _start_load_animation() {
         var $load = $('.progress-bar');
-        console.log($load.css("width"));
+        
         $load.animate({
             width: 99 + "%"
 
