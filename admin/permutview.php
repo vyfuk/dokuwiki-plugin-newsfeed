@@ -81,11 +81,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         $form->endFieldset();
         html_form('nic', $form);
 
-        foreach (preg_split('/;;/', substr($display, 1, -1)) as $value) {
-            $e = 'FKS_newsfeed_odd';
-            $n = str_replace(array('@id@', '@even@'), array($value, $e), $this->helper->simple_tpl);
-            echo p_render("xhtml", p_get_instructions($n), $info);
-        }
+        
         $set_stream_data = $INPUT->str('stream-data');
         if (!empty($set_stream_data)) {
             $form = new Doku_Form(array('id' => "save",
@@ -103,6 +99,11 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
 
             $form->endFieldset();
             html_form('nic', $form);
+        }
+        foreach (preg_split('/;;/', substr($display, 1, -1)) as $value) {
+            $e = 'FKS_newsfeed_odd';
+            $n = str_replace(array('@id@', '@even@'), array($value, $e), $this->helper->simple_tpl);
+            echo p_render("xhtml", p_get_instructions($n), $info);
         }
     }
 

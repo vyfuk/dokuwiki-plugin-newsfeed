@@ -98,8 +98,6 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         $rss->link = DOKU_URL;
         $rss->syndicationURL = DOKU_URL . 'lib/plugins/fksnewsfeed/rss.php';
         $rss->cssStyleSheet = DOKU_URL . 'lib/exe/css.php?s=feed';
-
-
         $rss->image = $image;
         global $INPUT;
         $set_stream = $INPUT->str('stream');
@@ -138,14 +136,12 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
         if ($INPUT->str('target') != 'feed') {
             return;
         }
-
         $event->stopPropagation();
         $event->preventDefault();
         require_once DOKU_INC . 'inc/JSON.php';
         header('Content-Type: application/json');
         if ($INPUT->str('news_do') == 'edit') {
             $r = '';
-
             if ($_SERVER['REMOTE_USER']) {
                 $form = new Doku_Form(array('id' => 'editnews', 'method' => 'POST', 'class' => 'fksreturn'));
                 $form->addHidden("do", "edit");
@@ -153,14 +149,12 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $form->addHidden("target", "plugin_fksnewsfeed");
                 $form->addElement(form_makeButton('submit', '', $this->getLang('btn_edit_news')));
                 ob_start();
-
                 html_form('editnews', $form);
                 $r.='<div class="secedit FKS_newsfeed_secedit">';
                 $r.= ob_get_contents();
                 $r.='</div>';
                 ob_end_clean();
             }
-
             if ($this->getConf('facebook_allow_all') || ($this->getConf('facebook_allow_user') && $_SERVER['REMOTE_USER'])) {
                 $fb_class = 'fb-share-button btn btn-small btn-social btn-facebook';
                 $fb_atr = array('data-href' => $this->_generate_token((int) $INPUT->str('news_id')));
@@ -171,16 +165,12 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $link = $this->_generate_token((int) $INPUT->str('news_id'));
                 $r.='<input class="FKS_newsfeed_link_inp" data-id="' . $INPUT->str('news_id') . '" style="display:none" type="text" value="' . $link . '" />';
             }
-
-
-
             $json = new JSON();
 
             echo $json->encode(array("r" => $r));
         } elseif ($INPUT->str('news_do') == 'stream') {
             $feed = (int) $INPUT->str('news_feed');
             $r = (string) "";
-
             if ($_SERVER['REMOTE_USER']) {
                 $form = new Doku_Form(array('id' => 'addnews', 'method' => 'GET', 'class' => 'fksreturn'));
                 $form->addHidden("do", "edit");
@@ -189,7 +179,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $form->addHidden('news_do', 'add');
 
                 $form->addHidden('news_id', $this->helper->findimax('feeds'));
-               
+
                 $form->addHidden("news_stream", $INPUT->str('news_stream'));
                 $form->addElement(form_makeButton('submit', '', $this->getLang('btn_add_news')));
                 ob_start();
@@ -312,28 +302,37 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             global $ID;
             global $INFO;
             if ($INPUT->str('news_do') == 'add') {
-                
-
                 $Wnews = $this->helper->saveNewNews(array('author' => $INFO['userinfo']['name'],
                     'newsdate' => dformat(),
                     'email' => $INFO['userinfo']['mail'],
                     'text' => 'Tady napiš text aktuality',
                     'name' => 'Název aktuality'), $this->helper->getwikinewsurl($INPUT->str('news_id')));
                 if ($Wnews) {
-                    $c = '';
-                    $c.=';' . $INPUT->str('news_id') . ";";
-                    $c.=io_readFile(metaFN('fksnewsfeed/streams/' . $INPUT->str('news_stream'), ".csv"), FALSE);
-                    if (io_saveFile(metaFN('fksnewsfeed/streams/' . $INPUT->str('news_stream'), ".csv"), $c)) {
-                        msg(' written successful', 1);
+                    if (is_array($INPUT->param('news_stream'))) {
+                        foreach ($INPUT->param('news_stream') as $k => $v) {
+                            if ($v == 1) {
+                                $arr[] = $k;
+                            }
+                        }
                     } else {
-                        msg("written failure", -1);
+                        $arr[] = $INPUT->str('news_stream');
+                    }
+
+                    foreach ($arr as $key => $value) {
+                        $c = '';
+                        $c.=';' . $INPUT->str('news_id') . ";";
+                        $c.=io_readFile(metaFN('fksnewsfeed/streams/' . $value, ".csv"), FALSE);
+                        if (io_saveFile(metaFN('fksnewsfeed/streams/' . $value, ".csv"), $c)) {
+                            msg(' written successful', 1);
+                        } else {
+                            msg("written failure", -1);
+                        }
                     }
                 } else {
                     msg("written into new news failure", -1);
                 }
             }
             if (isset($_POST['do']['save'])) {
-
                 $data = array();
                 foreach ($this->modFields as $field) {
                     if ($field == 'text') {
@@ -362,7 +361,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
      * @param type $ntext
      * @return type
      */
-    private function extractParamACT($ntext) {
+    private static function extractParamACT($ntext) {
         global $TEXT;
         list($param, $TEXT) = helper_plugin_fksnewsfeed::_extract_param_news($ntext);
 
@@ -404,7 +403,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
      * @param type $hash_no
      * @return type
      */
-    private function _encript_hash($hash, $l, $hash_no) {
+    private static function _encript_hash($hash, $l, $hash_no) {
         $enc_hex = substr($hash, $l, -$l);
         $enc_dec = hexdec($enc_hex);
         $id = ($enc_dec - $hash_no) / 2;
