@@ -149,7 +149,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             if ($_SERVER['REMOTE_USER']) {
                 $form = new Doku_Form(array('id' => 'editnews', 'method' => 'POST', 'class' => 'fksreturn'));
                 $form->addHidden("do", "edit");
-                $form->addHidden('id', $this->helper->getwikinewsurl($INPUT->str('news_id')));
+                $form->addHidden('news_id', $INPUT->str('news_id'));
                 $form->addHidden("target", "plugin_fksnewsfeed");
                 $form->addElement(form_makeButton('submit', '', $this->getLang('btn_edit_news')));
                 ob_start();
@@ -189,7 +189,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $form->addHidden('news_do', 'add');
 
                 $form->addHidden('news_id', $this->helper->findimax('feeds'));
-                $form->addHidden('id', $this->helper->getwikinewsurl($this->helper->findimax('feeds')));
+               
                 $form->addHidden("news_stream", $INPUT->str('news_stream'));
                 $form->addElement(form_makeButton('submit', '', $this->getLang('btn_add_news')));
                 ob_start();
@@ -275,12 +275,12 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                 $data[$field] = $INPUT->param($field);
             }
         } else {
-            $news_path = $INPUT->str("id");
+            $news_path = helper_plugin_fksnewsfeed::getwikinewsurl($INPUT->str("news_id"));
             $data = $this->extractParamACT(io_readFile(metaFN($news_path, ".txt")));
         }
 
         $form->startFieldset('Newsfeed');
-        $form->addHidden('id', $news_path);
+        $form->addHidden('news_id', $INPUT->str("news_id"));
         $form->addHidden('target', 'plugin_fksnewsfeed');
         foreach ($this->modFields as $field) {
             if ($field == 'text') {
@@ -312,7 +312,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
             global $ID;
             global $INFO;
             if ($INPUT->str('news_do') == 'add') {
-
+                
 
                 $Wnews = $this->helper->saveNewNews(array('author' => $INFO['userinfo']['name'],
                     'newsdate' => dformat(),
@@ -343,7 +343,7 @@ class action_plugin_fksnewsfeed extends DokuWiki_Action_Plugin {
                         $data[$field] = $INPUT->param($field);
                     }
                 }
-                $this->helper->saveNewNews($data, $INPUT->str('id'), true);
+                $this->helper->saveNewNews($data, $this->helper->getwikinewsurl($INPUT->str('news_id')), true);
                 unset($TEXT);
                 unset($_POST['wikitext']);
                 $ACT = "show";

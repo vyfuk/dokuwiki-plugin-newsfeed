@@ -69,12 +69,12 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
     private function returnnewsadd() {
         global $INFO;
         global $INPUT;
-        $this->helper->_log_event('add', $INPUT->str('newsid'));
+        $this->helper->_log_event('add', $INPUT->str('news_id'));
         $Wnews = $this->helper->saveNewNews(array('author' => $INFO['userinfo']['name'],
             'newsdate' => dformat(),
             'email' => $INFO['userinfo']['mail'],
             'text' => 'Tady napiš text aktuality',
-            'name' => 'Název aktuality'), $this->helper->getwikinewsurl($INPUT->str('newsid')));
+            'name' => 'Název aktuality'), $this->helper->getwikinewsurl($INPUT->str('news_id')));
         if ($Wnews) {
             msg('written into new news successful', 1);
             $set_stream=$INPUT->str("stream");
@@ -131,7 +131,7 @@ class admin_plugin_fksnewsfeed_addedit extends DokuWiki_Admin_Plugin {
             $form->addElement(form_makeCheckboxField($v, 1, $l, '', '', array($select => null)));
         }
 
-        $form->addHidden('newsid', $this->helper->findimax('feeds'));
+        $form->addHidden('news_id', $this->helper->findimax('feeds'));
         $form->addHidden("target", "plugin_fksnewsfeed");
         $form->addElement(form_makeButton('submit', '', $this->getLang('btn_add_news')));
         html_form('addnews', $form);
