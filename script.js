@@ -26,6 +26,7 @@ jQuery(function() {
                 _more_news();
                 _link_news();
                 _link_rss();
+                 _news_manage();
             },
                     'json');
         });
@@ -71,6 +72,7 @@ jQuery(function() {
                 _more_news();
                 _link_news();
                 _link_rss();
+                _news_manage();
             }, this)
                     , 'json');
         });
@@ -82,6 +84,12 @@ jQuery(function() {
             $('input.FKS_newsfeed_link_inp[data-id=' + ID + ']').slideDown();
         }
         );
+    }
+    ;
+    function _news_manage() {
+        $('.FSK_newsfeed_manage_btn').click(function() {
+            $('.FKS_newsfeed_manage').slideDown();
+        });
     }
     ;
     function _link_rss() {
@@ -114,7 +122,7 @@ jQuery(function() {
     }
     function _start_load_animation() {
         var $load = $('.progress-bar');
-        
+
         $load.animate({
             width: 99 + "%"
 

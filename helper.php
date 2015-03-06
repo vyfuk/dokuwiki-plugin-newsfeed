@@ -220,17 +220,15 @@ name=' . $data['name'] . '>
      * @return string
      */
     public static function _is_even($i) {
-        if ($i % 2) {
-            return 'FKS_newsfeed_even';
-        } else {
-            return 'FKS_newsfeed_odd';
-        }
+
+        return 'FKS_newsfeed_' . helper_plugin_fkshelper::_is_even($i);
     }
-/**
- * @author Michal Červeňák <miso@fykos.cz>
- * @param string $text text to parse
- * @return list $param,$text
- */
+
+    /**
+     * @author Michal Červeňák <miso@fykos.cz>
+     * @param string $text text to parse
+     * @return list $param,$text
+     */
     public static function _extract_param_news($text) {
 
         list($params, $text) = explode('>', str_replace(array('<fksnewsfeed', '</fksnewsfeed>'), '', $text));
@@ -238,6 +236,21 @@ name=' . $data['name'] . '>
         $param = helper_plugin_fkshelper::extractParamtext($params);
         $text = trim($text);
         return array($param, $text);
+    }
+    
+    /**
+     * 
+     * @param type $id
+     * @return type
+     */
+    public function _generate_token($id) {
+        $hash_no = (int) $this->getConf('hash_no');
+        $l = (int) $this->getConf('no_pref');
+        $this->hash['pre'] = helper_plugin_fkshelper::_generate_rand($l);
+        $this->hash['pos'] = helper_plugin_fkshelper::_generate_rand($l);
+        $this->hash['hex'] = dechex($hash_no + 2 * $id);
+        $this->hash['hash'] = $this->hash['pre'] . $this->hash['hex'] . $this->hash['pos'];
+        return (string) DOKU_URL . '?do=fksnewsfeed_token&token=' . $this->hash['hash'];
     }
 
 }

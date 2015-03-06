@@ -29,8 +29,10 @@ $lang['permut_menu']         = 'Upravit pořadí aktualit';
 $lang['btn_edit_news']       = 'Upravit aktualitu';
 $lang['btn_add_news']        = 'Přidat aktualitu';
 $lang['btn_get_add_news']    = 'Přejít k vytvoření aktuality';
-$lang['btn_more_news']       ='Starší aktuality';
+$lang['btn_more_news']       = 'Starší aktuality';
 $lang['btn_newsfeed_link']   = 'Link na túto aktualitu';
+$lang['btn_delete_news']     = 'Upraviť stream';
+$lang['btn_manage_stream']     = 'Spravovať stream';
 
 /**
  * label to form
@@ -71,6 +73,9 @@ $lang['add_news']          = 'Přidat aktualitu číslo: ';
 $lang['no_more']           ='Niesu žiadné dalšie aktuality na zobrazenie';
 $lang['returntomenu']      = 'Návrat do menu';
 $lang['autoreturn']        = 'Stránka bude přesměrována během pěti sekund.';
+
+$lang['info_delete_news']='Spravovať tento stream: <ul><li>Upraviť poradie aktualít</li><li>Upraviť zobrazovnie</li></ul>';
+$lang['info_add_news']='Pridať novú aktualitu do tohoto streamu';
 /**
  * @TODO vymyslieť niečo pekné!
  */

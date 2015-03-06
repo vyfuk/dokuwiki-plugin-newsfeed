@@ -81,11 +81,13 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         $form->endFieldset();
         html_form('nic', $form);
 
-        
+
         $set_stream_data = $INPUT->str('stream-data');
         if (!empty($set_stream_data)) {
-            $form = new Doku_Form(array('id' => "save",
-                'method' => 'POST', 'action' => null));
+            $form = new Doku_Form(array(
+                'id' => "save",
+                'method' => 'POST',
+                'action' => null));
             $form->addHidden('stream', $INPUT->str('stream'));
             $form->addHidden('stream-save', true);
             $form->addHidden('stream-data', $display);
