@@ -46,31 +46,32 @@
     }
 
 }
-
-.btn-rss,.FKS_newsfeed_rss_inp{
-    color:white!important;
-    background-color: #d8791e!important;
-    float:right;
-
-
-    &:before{
-
-        content: url('images/rss.png');
-    }
-    &:hover{
-       background-color: #ff6600!important;
-        color:white;
+.FKS_newsfeed_rss{
+    span{
+        &:before{
+            content: url('images/rss.png');
+        }
+        color:white!important;
+        background-color: #ff6600!important;
     }
 
+    span,input{
+        border-color:#d8791e;
+        color:ff6600!important;
+        &:hover,&:active,&:focus{
+            border-color:#ff6600;           
+        }
+    }
 
 }
+
 .FKS_newsfeed_more_msg{
-   clear: both;
+    clear: both;
     .alert ;
     .alert-info;
 }
 .FKS_newsfeed_exist_msg{
-    
+
     .alert ;
     .alert-danger;
 }

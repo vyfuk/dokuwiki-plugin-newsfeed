@@ -75,6 +75,7 @@ class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
     public function encript_token(Doku_Event &$event, $param) {
         global $ACT;
         global $INPUT;
+        
         if ($ACT != 'fksnewsfeed_token') {
             return;
         }

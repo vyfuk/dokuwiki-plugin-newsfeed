@@ -10,7 +10,6 @@ if (!defined('DOKU_INC')) {
     die;
 }
 
-
 /** $INPUT 
  * @news_do add/edit/
  * @news_id no news
@@ -53,7 +52,6 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
      *                           handler was registered]
      * @return void
      */
-    
     public function ajax_stream(Doku_Event &$event, $param) {
         global $INPUT;
         if ($INPUT->str('target') != 'feed') {
@@ -105,18 +103,18 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                 $r.=html_close_tag('div');
             }
             if ($this->getConf('rss_allow') || ($_SERVER['REMOTE_USER'] && $this->getConf('rss_allow_user'))) {
-                $r.='<div class="input-group">';
+
+
+                $r.=html_open_tag('div', array('class' => 'form-group FKS_newsfeed_rss'));
+                $r.=html_open_tag('div', array('class' => 'input-group'));
+                $r.=html_open_tag('span', array('class' => 'input-group-addon'));
+                $r.='RSS' . html_close_tag('span');
                 $r.=html_make_tag('input', array(
-                    'class' => 'FKS_newsfeed_rss_inp',
+                    'class' => 'form-control',
                     'data-id' => 'rss',
-                    'style' => 'display:none',
                     'type' => 'text',
                     'value' => DOKU_URL . 'feed.php?stream=' . $INPUT->str('news_stream')));
-
-                $r.='<span class="input-group-btn">';
-                $r.=html_button('RSS', 'FKS_newsfeed_rss_btn btn btn-rss');
-                $r.=html_close_tag('span');
-                $r.=html_close_tag('div');
+                $r.=html_close_tag('div') . html_close_tag('div');
             }
 
 
@@ -166,7 +164,9 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                     $r.= p_render("xhtml", p_get_instructions($n), $info);
                 } else {
                     $more = true;
-                    $r.='<div class="FKS_newsfeed_more_msg">' . $this->getLang('no_more') . '</div>';
+                    $r.= html_open_tag('div', array('class' => 'FKS_newsfeed_more_msg'));
+                    $r.=$this->getLang('no_more');
+                    $r.=html_close_tag('div');
                     break;
                 }
             }
@@ -201,9 +201,9 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
 
                 ob_start();
                 html_form('editnews', $form);
-                $r.='<div class="secedit FKS_newsfeed_secedit">';
+                $r.=html_open_tag('div', array('class' => 'secedit FKS_newsfeed_secedit'));
                 $r.= ob_get_contents();
-                $r.='</div>';
+                $r.=html_close_tag('div');
                 ob_end_clean();
             }
             if ($this->getConf('facebook_allow_all') || ($this->getConf('facebook_allow_user') && $_SERVER['REMOTE_USER'])) {
@@ -214,7 +214,12 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
             if ($this->getConf('token_allow') || ($this->getConf('token_allow_user') && $_SERVER['REMOTE_USER'])) {
                 $r.=html_button($this->getLang('btn_newsfeed_link'), 'btn btn-info FKS_newsfeed_button FKS_newsfeed_link_btn', array('data-id' => $INPUT->str('news_id')));
                 $link = $this->helper->_generate_token((int) $INPUT->str('news_id'));
-                $r.='<input class="FKS_newsfeed_link_inp" data-id="' . $INPUT->str('news_id') . '" style="display:none" type="text" value="' . $link . '" />';
+                $r.=html_make_tag('input', array(
+                    'class' => 'FKS_newsfeed_link_inp',
+                    'data-id' => $INPUT->str('news_id'),
+                    'style' => 'display:none',
+                    'type' => 'text',
+                    'value' => $link));
             }
             $json = new JSON();
 
@@ -232,9 +237,12 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
      */
     private function _add_button_more($stream, $more) {
 
-        return '<div class="FKS_newsfeed_more" data-stream="' . (string) $stream . '" data-view="' . (int) $more . '">' .
+        return html_open_tag('div', array(
+                    'class' => 'FKS_newsfeed_more',
+                    'data-stream' => (string) $stream,
+                    'data-view' => (int) $more)) .
                 html_button($this->getLang('btn_more_news'), 'button', array('title' => 'fksnewsfeed'))
-                . '</div>';
+                . html_close_tag('div');
     }
 
 }
