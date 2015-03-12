@@ -27,12 +27,12 @@ $lang['permut_menu']         = 'Edit order newsfeed';
  * Add edit 
  */
 $lang['btn_edit_news']       = 'Edit this newsfeed';
-$lang['btn_add_news']        = 'Edit newsfeed';
+$lang['btn_add_news']        = 'Add newsfeed';
 $lang['btn_get_add_news']    = 'Add newsfeed';
-$lang['btn_more_news']       = 'oldes newsfeed';
+$lang['btn_more_news']       = 'Oldes newsfeed';
 $lang['btn_newsfeed_link']   = 'Link to this newsfeed';
 $lang['btn_delete_news']     = 'Edit stream';
-$lang['btn_manage_stream']     = 'Manage stream';
+$lang['btn_manage_stream']   = 'Manage stream';
 
 /**
  * label to form
@@ -70,12 +70,12 @@ $lang['dec']              = 'December';
  */
 $lang['change_stream']     = 'Change stream';
 $lang['add_news']          = 'Add newsfeed NO: ';
-$lang['no_more']           ='There are no more news to display';
+$lang['no_more']           = 'There are no more news to display';
 $lang['returntomenu']      = 'Return to menu';
 
 
-$lang['info_delete_news']='Manage this stream: <ul><li>Edit order newsfeed</li><li>Edit display</li></ul>';
-$lang['info_add_news']='Add news to this stream';
+$lang['info_delete_news']  = 'Manage this stream: <ul><li>Edit order newsfeed</li><li>Edit display</li></ul>';
+$lang['info_add_news']     = 'Add news to this stream';
 /**
  * @TODO vymyslieť niečo pekné!
  */

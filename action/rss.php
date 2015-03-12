@@ -20,7 +20,7 @@ if (!defined('DOKU_INC')) {
  */
 class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
 
-    private $helper;
+    public $helper;
 
     /**
      * Registers a callback function for a given event
@@ -55,15 +55,22 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
      */
     public function rss_generate(Doku_Event &$event, $param) {
         if (!$this->getConf('rss_allow')) {
-            exit('<error>RSS no stream.</error>');
+            return;
         }
         global $conf;
         global $rss;
         global $data;
         global $opt;
+        global $image;
+        
+        global $INPUT;
+        $set_stream = $INPUT->str('stream');
+        if (empty($set_stream)) {
+            return;
+        }
 
         unset($rss, $data);
-        session_write_close();
+        
 
 
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -77,19 +84,15 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
         $rss->syndicationURL = DOKU_URL . 'lib/plugins/fksnewsfeed/rss.php';
         $rss->cssStyleSheet = DOKU_URL . 'lib/exe/css.php?s=feed';
         $rss->image = $image;
-        global $INPUT;
-        $set_stream = $INPUT->str('stream');
-        if (empty($set_stream)) {
-            exit('<error>RSS no stream.</error>');
-        }
+
         foreach (helper_plugin_fksnewsfeed::loadstream($INPUT->str('stream')) as $value) {
             $ntext = syntax_plugin_fksnewsfeed_fksnewsfeed::loadnewssimple($value);
             list($param, $text) = helper_plugin_fksnewsfeed::_extract_param_news($ntext);
             $data = new UniversalFeedCreator();
             $data->pubDate = $param['newsdate'];
             $data->title = $param['name'];
-            $action = new action_plugin_fksnewsfeed();
-            $data->link = $action->helper->_generate_token($value);
+    
+            $data->link = $this->helper->_generate_token($value);
             $data->description = p_render('text', p_get_instructions($text), $info);
             $data->editor = $param['author'];
             $data->editorEmail = $param['email'];
@@ -99,6 +102,7 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
         }
         $feeds = $rss->createFeed($opt['feed_type'], 'utf-8');
         print $feeds;
+        exit;
     }
 
 }
