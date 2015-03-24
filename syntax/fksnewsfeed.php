@@ -72,13 +72,13 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
     private function rendernews($param = array()) {
 
-        $ntext = self::loadnewssimple($param["id"]);
-        if (!$ntext) {
+        $data = $this->helper->load_news_simple($param["id"]);
+        if (empty($data)) {
             return '<div class="FKS_newsfeed_exist_msg">' . $this->getLang('news_non_exist') . '</div>';
-            
         }
-        
-        list($data, $text)= helper_plugin_fksnewsfeed::_extract_param_news($ntext);
+
+        $text = $data['text'];
+        $data['newsdate'] = $data['date'];
 
         $tpl_path = wikiFN($this->getConf('tpl'));
         if (!file_exists($tpl_path)) {
@@ -126,19 +126,5 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         return (string) str_replace($enmonth, $langmonth, $date);
     }
 
-    /**
-     * load news @i@ and return text
-     * @author     Michal Červeňák <miso@fykos.cz>
-     * @param int $id
-     * @return string
-     */
-    public static function loadnewssimple($id) {
-        $path = metaFN(helper_plugin_fksnewsfeed::getwikinewsurl($id), ".txt");
-        if (file_exists($path)) {
-            return (string) io_readFile($path, false);
-        } else {
-            return FALSE;
-        }
-    }
 
 }

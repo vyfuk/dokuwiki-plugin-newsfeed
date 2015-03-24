@@ -62,17 +62,13 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
         global $data;
         global $opt;
         global $image;
-        
+
         global $INPUT;
         $set_stream = $INPUT->str('stream');
         if (empty($set_stream)) {
             return;
         }
-
         unset($rss, $data);
-        
-
-
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Pragma: public');
         header('Content-Type: application/xml; charset=utf-8');
@@ -91,7 +87,7 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
             $data = new UniversalFeedCreator();
             $data->pubDate = $param['newsdate'];
             $data->title = $param['name'];
-    
+
             $data->link = $this->helper->_generate_token($value);
             $data->description = p_render('text', p_get_instructions($text), $info);
             $data->editor = $param['author'];

@@ -73,9 +73,12 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                 $data[$field] = $INPUT->param($field);
             }
         } else {
-            $news_path = helper_plugin_fksnewsfeed::getwikinewsurl($INPUT->str("news_id"));
-            if (file_exists($news_path)) {
-                $data = $this->extractParamACT(io_readFile(metaFN($news_path, ".txt")));
+            $max_id=  $this->helper->findimax();  
+            
+            
+            if ($max_id > $INPUT->str('news_id')) {
+                $data = $this->helper->load_news_simple($INPUT->str("news_id"));
+                $TEXT = $data['text'];
             } else {
                 $data = array('author' => $INFO['userinfo']['name'],
                     'newsdate' => dformat(),
@@ -117,6 +120,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
     public function save_news(Doku_Event &$event, $param) {
         global $INPUT;
         global $ACT;
+
         if ($INPUT->str("target") == "plugin_fksnewsfeed") {
             global $TEXT;
             global $ID;
@@ -130,34 +134,32 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                         $data[$field] = $INPUT->param($field);
                     }
                 }
-                $Wnews = $this->helper->saveNewNews($data, $this->helper->getwikinewsurl($INPUT->str('news_id')), true);
-
+                
                 if ($INPUT->str('news_do') == 'add') {
-
-                    if ($Wnews) {
-                        if (is_array($INPUT->param('news_stream'))) {
-                            foreach ($INPUT->param('news_stream') as $k => $v) {
-                                if ($v == 1) {
-                                    $arr[] = $k;
-                                }
-                            }
-                        } else {
-                            $arr[] = $INPUT->str('news_stream');
-                        }
-
-                        foreach ($arr as $key => $value) {
-                            $c = '';
-                            $c.=';' . $INPUT->str('news_id') . ";";
-                            $c.=io_readFile(metaFN('fksnewsfeed/streams/' . $value, ".csv"), FALSE);
-                            if (io_saveFile(metaFN('fksnewsfeed/streams/' . $value, ".csv"), $c)) {
-                                msg(' written successful', 1);
-                            } else {
-                                msg("written failure", -1);
+                    $this->helper->saveNewNews($data, $INPUT->str('news_id'), FALSE);
+                    
+                    if (is_array($INPUT->param('news_stream'))) {
+                        foreach ($INPUT->param('news_stream') as $k => $v) {
+                            if ($v == 1) {
+                                $arr[] = $k;
                             }
                         }
                     } else {
-                        msg("written into new news failure", -1);
+                        $arr[] = $INPUT->str('news_stream');
                     }
+
+                    foreach ($arr as $key => $value) {
+                        $c = '';
+                        $c.=';' . $INPUT->str('news_id') . ";";
+                        $c.=io_readFile(metaFN('fksnewsfeed/streams/' . $value, ".csv"), FALSE);
+                        if (io_saveFile(metaFN('fksnewsfeed/streams/' . $value, ".csv"), $c)) {
+                            msg(' written successful', 1);
+                        } else {
+                            msg("written failure", -1);
+                        }
+                    }
+                }else{
+                    $this->helper->saveNewNews($data, $INPUT->str('news_id'), true);
                 }
                 unset($TEXT);
                 unset($_POST['wikitext']);
@@ -275,17 +277,6 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         }
     }
 
-    /**
-     * 
-     * @global type $TEXT
-     * @param type $ntext
-     * @return type
-     */
-    private static function extractParamACT($ntext) {
-        global $TEXT;
-        list($param, $TEXT) = helper_plugin_fksnewsfeed::_extract_param_news($ntext);
-
-        return (array) $param;
-    }
+   
 
 }
