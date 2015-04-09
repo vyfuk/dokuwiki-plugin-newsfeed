@@ -80,7 +80,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                 $form->addHidden('do', 'edit');
                 $form->addHidden('target', 'plugin_fksnewsfeed');
                 $form->addHidden('news_do', 'add');
-                $form->addHidden('news_id', $this->helper->findimax('feeds'));
+                $form->addHidden('news_id', $this->helper->findimax());
                 $form->addHidden('news_stream', $INPUT->str('news_stream'));
                 $form->addElement(form_makeButton('submit', '', $this->getLang('btn_add_news')));
                 ob_start();

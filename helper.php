@@ -21,13 +21,24 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public $Fields = array('name', 'email', 'author', 'newsdate', 'text');
     public $FKS_helper;
     public $simple_tpl;
+    public $sqlite;
 
     const simple_tpl = "{{fksnewsfeed>id=@id@; even=@even@}}";
 
     public function __construct() {
         $this->simple_tpl = self::simple_tpl;
-
         $this->FKS_helper = $this->loadHelper('fkshelper');
+
+        $this->sqlite = $this->loadHelper('sqlite', false);
+        $pluginName = $this->getPluginName();
+        if (!$this->sqlite) {
+            msq($pluginName . ': This plugin requires the sqlite plugin. Please install it.');
+            return;
+        }
+        if (!$this->sqlite->init('fksnewsfeed', DOKU_PLUGIN . $pluginName . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR)) {
+            msq($pluginName . ': Cannot initialize database.');
+            return;
+        }
     }
 
     /**
@@ -54,15 +65,11 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @author Michal Červeňák <miso@fykos.cz>
      * @return int
      */
-    public static function findimax() {
-        for ($i = 1; true; $i++) {
-            if (file_exists(metaFN(self::getwikinewsurl($i), '.txt'))) {
-                continue;
-            } else {
-                $imax = $i;
-                break;
-            }
-        }
+    public function findimax() {
+        $sql2 = 'select max(id)  from fks_newsfeed_news';
+        $res = $this->sqlite->query($sql2);
+        $imax = $this->sqlite->res2single($res);
+        $imax++;
         return (int) $imax;
     }
 
@@ -118,16 +125,12 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @author Michal Červeňák <miso@fykos.cz>
      * @return bool is write ok
      * @param array $Rdata params to save
-     * @param string $link path to news
+     * @param string $id path to news
      * @param bool $rw rewrite?
      * 
      */
-    public function saveNewNews($Rdata, $link, $rw = false) {
-        if (!$rw) {
-            if (file_exists(metaFN($link, '.txt'))) {
-                return FALSE;
-            }
-        }
+    public function saveNewNews($Rdata, $id = 0, $rw = false) {
+
         foreach ($this->Fields as $v) {
             if (array_key_exists($v, $Rdata)) {
                 $data[$v] = $Rdata[$v];
@@ -135,14 +138,22 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 $data[$v] = $this->getConf($v);
             }
         }
-        $fksnews.=
-                'newsdate=' . $data['newsdate'] . ';
-author=' . $data['author'] . ';
-email= ' . $data['email'] . ';
-name=' . $data['name'] . '>
-' . $data['text'];
-        $Wnews = io_saveFile(metaFN($link, '.txt'), $fksnews);
-        return (bool) $Wnews;
+
+        $image = '';
+        $date = $data['newsdate'];
+        $author = $data['author'];
+        $email = $data['email'];
+        $name = $data['name'];
+        $text = $data['text'];
+        if (!$rw) {
+            $sql = 'insert into fks_newsfeed_news (id,name, author, email,date,text,image) values(?,?,?,?,?,?,?)';
+            $this->sqlite->query($sql, $id, $name, $author, $email, $date, $text, $image);
+        } else {
+            $sql = 'update fks_newsfeed_news set name=?, author=?, email=?, date=?, text=?, image=? where id=? ';
+            $res=$this->sqlite->query($sql, $name, $author, $email, $date, $text, $image,$id);
+            
+        }
+        return;
     }
 
     /**
@@ -237,7 +248,7 @@ name=' . $data['name'] . '>
         $text = trim($text);
         return array($param, $text);
     }
-    
+
     /**
      * 
      * @param type $id
@@ -251,6 +262,20 @@ name=' . $data['name'] . '>
         $this->hash['hex'] = dechex($hash_no + 2 * $id);
         $this->hash['hash'] = $this->hash['pre'] . $this->hash['hex'] . $this->hash['pos'];
         return (string) DOKU_URL . '?do=fksnewsfeed_token&token=' . $this->hash['hash'];
+    }
+
+    /**
+     * load news @i@ and return text
+     * @author     Michal Červeňák <miso@fykos.cz>
+     * @param int $id
+     * @return string
+     */
+    public function load_news_simple($id) {
+        $sql = 'SELECT * from fks_newsfeed_news where id=' . $id . '';
+        $res = $this->sqlite->query($sql);
+        foreach ($this->sqlite->res2arr($res) as $row) {
+            return $row;
+        }
     }
 
 }
