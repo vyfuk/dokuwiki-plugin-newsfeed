@@ -32,11 +32,11 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $this->sqlite = $this->loadHelper('sqlite', false);
         $pluginName = $this->getPluginName();
         if (!$this->sqlite) {
-            msq($pluginName . ': This plugin requires the sqlite plugin. Please install it.');
+            msg($pluginName . ': This plugin requires the sqlite plugin. Please install it.');
             return;
         }
         if (!$this->sqlite->init('fksnewsfeed', DOKU_PLUGIN . $pluginName . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR)) {
-            msq($pluginName . ': Cannot initialize database.');
+            msg($pluginName . ': Cannot initialize database.');
             return;
         }
     }

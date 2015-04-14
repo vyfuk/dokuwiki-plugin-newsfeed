@@ -68,7 +68,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
 
             $feed = (int) $INPUT->str('news_feed');
             $r = (string) "";
-            if ($_SERVER['REMOTE_USER']) {
+            if (auth_quickaclcheck('start') >= $this->getConf('perm_add')) {
                 $r.=html_button($this->getLang('btn_manage_stream'), 'btn btn-warning FSK_newsfeed_manage_btn', array());
 
                 $r.=html_open_tag('div', array('class' => 'FKS_newsfeed_manage', 'style' => 'display:none'));
@@ -87,7 +87,8 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                 html_form('addnews', $form);
                 $r .= ob_get_contents();
                 ob_end_clean();
-
+            }
+            if (auth_quickaclcheck('start') >= $this->getConf('perm_manage')) {
                 $r.=html_open_tag('div', array('class' => 'alert alert-info', 'role' => 'alert'));
                 $r.=$this->getLang('info_delete_news');
                 $r.=html_close_tag('div');
@@ -102,7 +103,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                 ob_end_clean();
                 $r.=html_close_tag('div');
             }
-            if ($this->getConf('rss_allow') || ($_SERVER['REMOTE_USER'] && $this->getConf('rss_allow_user'))) {
+            if (auth_quickaclcheck('start') >= $this->getConf('perm_rss')) {
 
 
                 $r.=html_open_tag('div', array('class' => 'form-group FKS_newsfeed_rss'));
@@ -192,7 +193,10 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
             $event->stopPropagation();
             $event->preventDefault();
             $r = '';
-            if ($_SERVER['REMOTE_USER']) {
+           
+            
+            
+            if (auth_quickaclcheck('start') >= AUTH_EDIT) {
                 $form = new Doku_Form(array('id' => 'editnews', 'method' => 'POST', 'class' => 'fksreturn'));
                 $form->addHidden("do", "edit");
                 $form->addHidden('news_id', $INPUT->str('news_id'));
@@ -206,12 +210,12 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                 $r.=html_close_tag('div');
                 ob_end_clean();
             }
-            if ($this->getConf('facebook_allow_all') || ($this->getConf('facebook_allow_user') && $_SERVER['REMOTE_USER'])) {
+            if (auth_quickaclcheck('start') >= $this->getConf('perm_fb')) {
                 $fb_class = 'fb-share-button btn btn-small btn-social btn-facebook';
                 $fb_atr = array('data-href' => $this->helper->_generate_token((int) $INPUT->str('news_id')));
                 $r.= html_facebook_btn('Share on FB', $fb_class, $fb_atr);
             }
-            if ($this->getConf('token_allow') || ($this->getConf('token_allow_user') && $_SERVER['REMOTE_USER'])) {
+            if (auth_quickaclcheck('start') >= $this->getConf('perm_link')) {
                 $r.=html_button($this->getLang('btn_newsfeed_link'), 'btn btn-info FKS_newsfeed_button FKS_newsfeed_link_btn', array('data-id' => $INPUT->str('news_id')));
                 $link = $this->helper->_generate_token((int) $INPUT->str('news_id'));
                 $r.=html_make_tag('input', array(
