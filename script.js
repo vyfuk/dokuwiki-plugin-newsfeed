@@ -11,6 +11,7 @@ jQuery(function() {
     _more_news();
     _link_news();
     $(window).load(function() {
+        
         $('div.FKS_newsfeed_stream').each(function() {
             var $stream = $(this);
             $(this).append(_add_load_bar());

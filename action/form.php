@@ -55,7 +55,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
      * @param type $param
      * @return type
      */
-    public function form_to_news(Doku_Event &$event, $param) {
+    public function form_to_news(Doku_Event &$event) {
         global $TEXT;
         global $INPUT;
 
@@ -117,7 +117,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         $form->endFieldset();
     }
 
-    public function save_news(Doku_Event &$event, $param) {
+    public function save_news() {
         global $INPUT;
         global $ACT;
 
@@ -148,7 +148,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                         $arr[] = $INPUT->str('news_stream');
                     }
 
-                    foreach ($arr as $key => $value) {
+                    foreach ($arr as $value) {
                         $c = '';
                         $c.=';' . $INPUT->str('news_id') . ";";
                         $c.=io_readFile(metaFN('fksnewsfeed/streams/' . $value, ".csv"), FALSE);
@@ -179,20 +179,18 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
      * @param Doku_Event $event
      * @param type $param
      */
-    public function add_to_stream(Doku_Event &$event, $param) {
+    public function add_to_stream() {
         global $INPUT;
-        global $ACT;
+       
         if ($INPUT->str("target") == "plugin_fksnewsfeed") {
-            global $TEXT;
-            global $ID;
-            global $INFO;
+            
 
             if ($INPUT->str('news_do') == 'delete') {
                 $this->delete['delete'] = true;
 
 
                 global $INPUT;
-                global $lang;
+              
 
                 $this->delete['data']['news_stream-data'] = $INPUT->str('news_stream-data');
                 if ($this->delete['data']['news_stream-data']) {
@@ -216,7 +214,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         }
     }
 
-    public function stream_delete(Doku_Event &$event, $param) {
+    public function stream_delete(Doku_Event &$event) {
         if (!$this->delete['delete']) {
             return;
         }

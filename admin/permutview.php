@@ -31,7 +31,7 @@ class admin_plugin_fksnewsfeed_permutview extends DokuWiki_Admin_Plugin {
         return false;
     }
 
-    public function getMenuText($language) {
+    public function getMenuText() {
         $menutext = $this->getLang('permut_menu');
         return $menutext;
     }

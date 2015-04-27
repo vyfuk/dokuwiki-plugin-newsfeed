@@ -53,7 +53,7 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
      * @param Doku_Event $event
      * @param type $param
      */
-    public function rss_generate(Doku_Event &$event, $param) {
+    public function rss_generate() {
         if (!$this->getConf('rss_allow')) {
             return;
         }

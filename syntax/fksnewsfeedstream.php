@@ -40,7 +40,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
     }
 
     public function getSort() {
-        return 225;
+        return 3;
     }
 
     public function connectTo($mode) {
@@ -50,8 +50,8 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
     /**
      * Handle the match
      */
-    public function handle($match, $state, $pos, Doku_Handler &$handler) {
-        $param = $this->helper->FKS_helper->extractParamtext(substr($match, 21, -2));
+    public function handle($match, $state) {
+        $param = helper_plugin_fkshelper::extractParamtext(substr($match, 21, -2));
         return array($state, array($param));
     }
 
@@ -59,7 +59,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
         if ($mode !== 'xhtml') {
             return;
         }
-        list($state, $match) = $data;
+        list(, $match) = $data;
         list($param) = $match;
         $atr = array();
         foreach ($param as $key => $value) {

@@ -35,7 +35,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     }
 
     public function getSort() {
-        return 226;
+        return 24;
     }
 
     public function connectTo($mode) {
@@ -45,7 +45,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     /**
      * Handle the match
      */
-    public function handle($match, $state, $pos, Doku_Handler &$handler) {
+    public function handle($match, $state) {
 
 
         $text = str_replace(array("\n", '{{fksnewsfeed>', '}}'), array('', '', ''), $match);
@@ -80,14 +80,17 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         $text = $data['text'];
         $data['newsdate'] = $data['date'];
 
+        // if template not found use default 
         $tpl_path = wikiFN($this->getConf('tpl'));
         if (!file_exists($tpl_path)) {
             $def_tpl = DOKU_PLUGIN . plugin_directory('fksnewsfeed') . '/tpl.html';
             io_saveFile($tpl_path, io_readFile($def_tpl));
         }
+        
+        //load empty template 
         $tpl = io_readFile($tpl_path);
-
-        foreach ($this->helper->Fields as $k) {
+        
+        foreach (helper_plugin_fksnewsfeed::$Fields as $k) {
 
             if ($k == 'text') {
                 $tpl = str_replace('@' . $k . '@', p_render('xhtml', p_get_instructions($text), $info), $tpl);

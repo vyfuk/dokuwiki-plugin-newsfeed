@@ -18,12 +18,14 @@ if (!defined('DOKU_TAB')) {
 
 class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
-    public $Fields = array('name', 'email', 'author', 'newsdate', 'text');
+    public static $Fields = array('name', 'email', 'author', 'newsdate', 'text');
     public $FKS_helper;
     public $simple_tpl;
     public $sqlite;
 
     const simple_tpl = "{{fksnewsfeed>id=@id@; even=@even@}}";
+    
+    const db_table_feed = "fks_newsfeed_news";
 
     public function __construct() {
         $this->simple_tpl = self::simple_tpl;
@@ -66,26 +68,14 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @return int
      */
     public function findimax() {
-        $sql2 = 'select max(id)  from fks_newsfeed_news';
+        $sql2 = 'select max(id) '.self::db_table_feed;
         $res = $this->sqlite->query($sql2);
         $imax = $this->sqlite->res2single($res);
         $imax++;
         return (int) $imax;
     }
 
-    /**
-     * @author Michal Červeňák <miso@fykos.cz>
-     * @param string $dir
-     * @return array
-     */
-    public static function allNews($dir = 'feeds') {
-        $arraynews = array();
-        foreach (self::allshortnews() as $key => $value) {
-            $arraynews[] = self::shortfilename($value, 'fksnewsfeed/' . $dir, 'ID_ONLY');
-        }
-
-        return (array) $arraynews;
-    }
+    
 
     /**
      * @author Michal Červeňák <miso@fykos.cz>
@@ -116,8 +106,8 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 break;
         }
         $n = str_replace(array($rep_dir_base_full, $rep_dir, $rep_dir_base), '', $name);
-        $n = substr($n, 0, -$type);
-        return (string) $n;
+        
+        return (string) substr($n, 0, -$type);
     }
 
     /**
@@ -146,11 +136,11 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $name = $data['name'];
         $text = $data['text'];
         if (!$rw) {
-            $sql = 'insert into fks_newsfeed_news (id,name, author, email,date,text,image) values(?,?,?,?,?,?,?)';
+            $sql = 'insert into '.self::db_table_feed.' (id,name, author, email,newsdate,text,image) values(?,?,?,?,?,?,?)';
             $this->sqlite->query($sql, $id, $name, $author, $email, $date, $text, $image);
         } else {
-            $sql = 'update fks_newsfeed_news set name=?, author=?, email=?, date=?, text=?, image=? where id=? ';
-            $res=$this->sqlite->query($sql, $name, $author, $email, $date, $text, $image,$id);
+            $sql = 'update '.self::db_table_feed.' set name=?, author=?, email=?, newsdate=?, text=?, image=? where id=? ';
+            $this->sqlite->query($sql, $name, $author, $email, $date, $text, $image,$id);
             
         }
         return;
@@ -175,15 +165,6 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     /**
      * @author Michal Červeňák <miso@fykos.cz>
-     * @param int $id no of news
-     * @return string path news
-     */
-    public static function getwikinewsurl($id) {
-        return (string) str_replace("@i@", $id, 'fksnewsfeed:feeds:news@i@');
-    }
-
-    /**
-     * @author Michal Červeňák <miso@fykos.cz>
      * @return array all stream from dir
      */
     public static function allstream() {
@@ -196,16 +177,6 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return (array) $streams;
     }
 
-    /**
-     * @author Michal Červeňák <miso@fykos.cz>
-     * @return array
-     */
-    public static function allshortnews() {
-
-        $allnews = glob(DOKU_INC . 'data/meta/fksnewsfeed/feeds/*.txt');
-        sort($allnews, SORT_NATURAL | SORT_FLAG_CASE);
-        return (array) $allnews;
-    }
 
     /**
      * @author Michal Červeňák <miso@fykos.cz>
@@ -218,8 +189,8 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         global $INFO;
 
         $log = io_readFile(metaFN('fksnewsfeed:log', '.log'));
-        $newsid = preg_replace('/[A-Z]/', '', $newsid);
-        $log.= "\n" . date("Y-m-d H:i:s") . ' ; ' . $newsid . ' ; ' . $type . ' ; ' . $INFO['name'] . ' ; ' . $_SERVER['REMOTE_ADDR'] . ';' . $INFO['ip'] . ' ; ' . $INFO['user'];
+        $news_id = preg_replace('/[A-Z]/', '', $newsid);
+        $log.= "\n" . date("Y-m-d H:i:s") . ' ; ' . $news_id . ' ; ' . $type . ' ; ' . $INFO['name'] . ' ; ' . $_SERVER['REMOTE_ADDR'] . ';' . $INFO['ip'] . ' ; ' . $INFO['user'];
 
         io_saveFile(metaFN('fksnewsfeed:log', '.log'), $log);
         return;
@@ -235,19 +206,6 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return 'FKS_newsfeed_' . helper_plugin_fkshelper::_is_even($i);
     }
 
-    /**
-     * @author Michal Červeňák <miso@fykos.cz>
-     * @param string $text text to parse
-     * @return list $param,$text
-     */
-    public static function _extract_param_news($text) {
-
-        list($params, $text) = explode('>', str_replace(array('<fksnewsfeed', '</fksnewsfeed>'), '', $text));
-
-        $param = helper_plugin_fkshelper::extractParamtext($params);
-        $text = trim($text);
-        return array($param, $text);
-    }
 
     /**
      * 
@@ -274,6 +232,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $sql = 'SELECT * from fks_newsfeed_news where id=' . $id . '';
         $res = $this->sqlite->query($sql);
         foreach ($this->sqlite->res2arr($res) as $row) {
+           
             return $row;
         }
     }
