@@ -121,7 +121,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      */
     public function saveNewNews($Rdata, $id = 0, $rw = false) {
 
-        foreach ($this->Fields as $v) {
+        foreach (self::$Fields as $v) {
             if (array_key_exists($v, $Rdata)) {
                 $data[$v] = $Rdata[$v];
             } else {
@@ -129,19 +129,25 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
             }
         }
 
-        $image = '';
+        $image = ':';
         $date = $data['newsdate'];
         $author = $data['author'];
         $email = $data['email'];
         $name = $data['name'];
         $text = $data['text'];
+        
+        
+        
         if (!$rw) {
             $sql = 'insert into '.self::db_table_feed.' (id,name, author, email,newsdate,text,image) values(?,?,?,?,?,?,?)';
+            
             $this->sqlite->query($sql, $id, $name, $author, $email, $date, $text, $image);
+           
         } else {
             $sql = 'update '.self::db_table_feed.' set name=?, author=?, email=?, newsdate=?, text=?, image=? where id=? ';
+           
             $this->sqlite->query($sql, $name, $author, $email, $date, $text, $image,$id);
-            
+             
         }
         return;
     }
