@@ -68,7 +68,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @return int
      */
     public function findimax() {
-        $sql2 = 'select max(id) '.self::db_table_feed;
+        $sql2 = 'select max(id) from '.self::db_table_feed;
         $res = $this->sqlite->query($sql2);
         $imax = $this->sqlite->res2single($res);
         $imax++;
