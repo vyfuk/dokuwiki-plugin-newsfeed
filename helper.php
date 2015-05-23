@@ -5,40 +5,40 @@
  * @author     Michal Červeňák <miso@fykos.cz>
  */
 // must be run within Dokuwiki
-if (!defined('DOKU_INC')) {
+if(!defined('DOKU_INC')){
     die();
 }
 
-if (!defined('DOKU_LF')) {
-    define('DOKU_LF', "\n");
+if(!defined('DOKU_LF')){
+    define('DOKU_LF',"\n");
 }
-if (!defined('DOKU_TAB')) {
-    define('DOKU_TAB', "\t");
+if(!defined('DOKU_TAB')){
+    define('DOKU_TAB',"\t");
 }
 
 class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
-    public static $Fields = array('name', 'email', 'author', 'newsdate', 'text');
+    public static $Fields = array('name','email','author','newsdate','text');
     public $FKS_helper;
     public $simple_tpl;
     public $sqlite;
 
     const simple_tpl = "{{fksnewsfeed>id=@id@; even=@even@}}";
-    
     const db_table_feed = "fks_newsfeed_news";
+    const db_table_dependence = "fks_newsfeed_dependence";
 
     public function __construct() {
         $this->simple_tpl = self::simple_tpl;
         $this->FKS_helper = $this->loadHelper('fkshelper');
 
-        $this->sqlite = $this->loadHelper('sqlite', false);
+        $this->sqlite = $this->loadHelper('sqlite',false);
         $pluginName = $this->getPluginName();
-        if (!$this->sqlite) {
-            msg($pluginName . ': This plugin requires the sqlite plugin. Please install it.');
+        if(!$this->sqlite){
+            msg($pluginName.': This plugin requires the sqlite plugin. Please install it.');
             return;
         }
-        if (!$this->sqlite->init('fksnewsfeed', DOKU_PLUGIN . $pluginName . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR)) {
-            msg($pluginName . ': Cannot initialize database.');
+        if(!$this->sqlite->init('fksnewsfeed',DOKU_PLUGIN.$pluginName.DIRECTORY_SEPARATOR.'db'.DIRECTORY_SEPARATOR)){
+            msg($pluginName.': Cannot initialize database.');
             return;
         }
     }
@@ -51,14 +51,14 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * load file with configuration
      * and load old configuration file 
      */
-    public static function loadstream($s, $o = true) {
-        if ($o) {
-            return (array) preg_split('/;;/', substr(io_readFile(metaFN("fksnewsfeed:streams:" . $s, ".csv"), FALSE), 1, -1));
-        } else {
+    public static function loadstream($s,$o = true) {
+        if($o){
+            return (array) preg_split('/;;/',substr(io_readFile(metaFN("fksnewsfeed:streams:".$s,".csv"),FALSE),1,-1));
+        }else{
 
-            $arr = preg_split("/\n/", substr(io_readFile(metaFN("fksnewsfeed:old-streams:" . $s, ".csv"), FALSE), 1, -1));
+            $arr = preg_split("/\n/",substr(io_readFile(metaFN("fksnewsfeed:old-streams:".$s,".csv"),FALSE),1,-1));
             $l = count($arr);
-            return (array) preg_split('/;;/', substr($arr[$l - 1], 1, -1));
+            return (array) preg_split('/;;/',substr($arr[$l - 1],1,-1));
         }
     }
 
@@ -75,8 +75,6 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return (int) $imax;
     }
 
-    
-
     /**
      * @author Michal Červeňák <miso@fykos.cz>
      * @param string $name
@@ -85,29 +83,29 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @param int $type
      * @return string
      */
-    public static function shortfilename($name, $dir = '', $flag = 'ID_ONLY', $type = 4) {
-        if (!preg_match('/\w*\/\z/', $dir)) {
+    public static function shortfilename($name,$dir = '',$flag = 'ID_ONLY',$type = 4) {
+        if(!preg_match('/\w*\/\z/',$dir)){
             //$dir = $dir . DIRECTORY_SEPARATOR;
         }
         $doku = pathinfo(DOKU_INC);
 
-        $rep_dir_base = $doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . DIRECTORY_SEPARATOR;
-        $rep_dir_base_full = $doku['dirname'] . DIRECTORY_SEPARATOR . $doku['filename'] . '.' . $doku['extension'] . DIRECTORY_SEPARATOR;
+        $rep_dir_base = $doku['dirname'].DIRECTORY_SEPARATOR.$doku['filename'].DIRECTORY_SEPARATOR;
+        $rep_dir_base_full = $doku['dirname'].DIRECTORY_SEPARATOR.$doku['filename'].'.'.$doku['extension'].DIRECTORY_SEPARATOR;
         $rep_dir = "data/meta/";
         switch ($flag) {
             case 'ID_ONLY':
-                $rep_dir.=$dir . "/news";
+                $rep_dir.=$dir."/news";
                 break;
             case 'NEWS_W_ID':
-                $rep_dir.=$dir . "/";
+                $rep_dir.=$dir."/";
                 break;
             case 'DIR_N_ID':
                 $rep_dir.='';
                 break;
         }
-        $n = str_replace(array($rep_dir_base_full, $rep_dir, $rep_dir_base), '', $name);
-        
-        return (string) substr($n, 0, -$type);
+        $n = str_replace(array($rep_dir_base_full,$rep_dir,$rep_dir_base),'',$name);
+
+        return (string) substr($n,0,-$type);
     }
 
     /**
@@ -119,12 +117,12 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @param bool $rw rewrite?
      * 
      */
-    public function saveNewNews($Rdata, $id = 0, $rw = false) {
+    public function saveNewNews($Rdata,$id = 0,$rw = false) {
 
         foreach (self::$Fields as $v) {
-            if (array_key_exists($v, $Rdata)) {
+            if(array_key_exists($v,$Rdata)){
                 $data[$v] = $Rdata[$v];
-            } else {
+            }else{
                 $data[$v] = $this->getConf($v);
             }
         }
@@ -135,19 +133,17 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $email = $data['email'];
         $name = $data['name'];
         $text = $data['text'];
-        
-        
-        
-        if (!$rw) {
+
+
+
+        if(!$rw){
             $sql = 'insert into '.self::db_table_feed.' (id,name, author, email,newsdate,text,image) values(?,?,?,?,?,?,?)';
-            
-            $this->sqlite->query($sql, $id, $name, $author, $email, $date, $text, $image);
-           
-        } else {
+
+            $this->sqlite->query($sql,$id,$name,$author,$email,$date,$text,$image);
+        }else{
             $sql = 'update '.self::db_table_feed.' set name=?, author=?, email=?, newsdate=?, text=?, image=? where id=? ';
-           
-            $this->sqlite->query($sql, $name, $author, $email, $date, $text, $image,$id);
-             
+
+            $this->sqlite->query($sql,$name,$author,$email,$date,$text,$image,$id);
         }
         return;
     }
@@ -162,9 +158,9 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * 
      * 
      */
-    public static function shortName($name = "", $l = 25) {
-        if (strlen($name) > $l) {
-            $name = mb_substr($name, 0, $l - 3) . '...';
+    public static function shortName($name = "",$l = 25) {
+        if(strlen($name) > $l){
+            $name = mb_substr($name,0,$l - 3).'...';
         }
         return (string) $name;
     }
@@ -174,15 +170,14 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @return array all stream from dir
      */
     public static function allstream() {
-        foreach (glob(DOKU_INC . 'data/meta/fksnewsfeed/streams/*.csv') as $key => $value) {
-            $sh = self::shortfilename($value, 'fksnewsfeed/streams', 'NEWS_W_ID', 4);
+        foreach (glob(DOKU_INC.'data/meta/fksnewsfeed/streams/*.csv') as $key => $value) {
+            $sh = self::shortfilename($value,'fksnewsfeed/streams','NEWS_W_ID',4);
 
             $streams[$key] = $sh;
             //$streams[$key] = str_replace(array(DOKU_INC . 'data/meta/fksnewsfeed/streams/', '.csv'), array("", ''), $value);
         }
         return (array) $streams;
     }
-
 
     /**
      * @author Michal Červeňák <miso@fykos.cz>
@@ -191,14 +186,14 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @param string $newsid
      * @return void
      */
-    public static function _log_event($type, $newsid) {
+    public static function _log_event($type,$newsid) {
         global $INFO;
 
-        $log = io_readFile(metaFN('fksnewsfeed:log', '.log'));
-        $news_id = preg_replace('/[A-Z]/', '', $newsid);
-        $log.= "\n" . date("Y-m-d H:i:s") . ' ; ' . $news_id . ' ; ' . $type . ' ; ' . $INFO['name'] . ' ; ' . $_SERVER['REMOTE_ADDR'] . ';' . $INFO['ip'] . ' ; ' . $INFO['user'];
+        $log = io_readFile(metaFN('fksnewsfeed:log','.log'));
+        $news_id = preg_replace('/[A-Z]/','',$newsid);
+        $log.= "\n".date("Y-m-d H:i:s").' ; '.$news_id.' ; '.$type.' ; '.$INFO['name'].' ; '.$_SERVER['REMOTE_ADDR'].';'.$INFO['ip'].' ; '.$INFO['user'];
 
-        io_saveFile(metaFN('fksnewsfeed:log', '.log'), $log);
+        io_saveFile(metaFN('fksnewsfeed:log','.log'),$log);
         return;
     }
 
@@ -209,9 +204,8 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      */
     public static function _is_even($i) {
 
-        return 'FKS_newsfeed_' . helper_plugin_fkshelper::_is_even($i);
+        return 'FKS_newsfeed_'.helper_plugin_fkshelper::_is_even($i);
     }
-
 
     /**
      * 
@@ -224,8 +218,8 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $this->hash['pre'] = helper_plugin_fkshelper::_generate_rand($l);
         $this->hash['pos'] = helper_plugin_fkshelper::_generate_rand($l);
         $this->hash['hex'] = dechex($hash_no + 2 * $id);
-        $this->hash['hash'] = $this->hash['pre'] . $this->hash['hex'] . $this->hash['pos'];
-        return (string) DOKU_URL . '?do=fksnewsfeed_token&token=' . $this->hash['hash'];
+        $this->hash['hash'] = $this->hash['pre'].$this->hash['hex'].$this->hash['pos'];
+        return (string) DOKU_URL.'?do=fksnewsfeed_token&token='.$this->hash['hash'];
     }
 
     /**
@@ -235,12 +229,45 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @return string
      */
     public function load_news_simple($id) {
-        $sql = 'SELECT * from fks_newsfeed_news where id=' . $id . '';
+        $sql = 'SELECT * FROM '.self::db_table_feed.' where id='.$id.'';
         $res = $this->sqlite->query($sql);
         foreach ($this->sqlite->res2arr($res) as $row) {
-           
+
             return $row;
         }
+    }
+
+    public function all_values($field) {
+        $values = array();
+        $sql = 'SELECT t.? FROM '.self::db_table_feed.' t GROUP BY t.?';
+        $res = $this->sqlite->query($sql,$field,$field);
+        foreach ($this->sqlite->res2arr($res) as $row) {
+            $values[] = $row[$field];
+        }
+        return $values;
+    }
+
+    public function all_dependence($stream) {
+        $streams = array();
+        $sql = 'SELECT * FROM '.self::db_table_dependence.' t WHERE t.dependence_to=?';
+        $res = $this->sqlite->query($sql,$stream);
+        foreach ($this->sqlite->res2arr($res) as $row) {
+          
+            $streams[] = $row['dependence_from'];
+        }
+        return $streams;
+        
+    }
+
+    public function create_dependence($stream,&$arr) {
+        foreach ($this->all_dependence($stream)as $new_stream) {
+            if(!in_array($new_stream,$arr)){
+                $arr[] = $new_stream;
+                $this->create_dependence($new_stream,$arr);
+            }
+        }
+        
+        
     }
 
 }

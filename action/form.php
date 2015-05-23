@@ -6,7 +6,7 @@
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @author  Michal Červeňák <miso@fykos.cz>
  */
-if (!defined('DOKU_INC')) {
+if(!defined('DOKU_INC')){
     die();
 }
 
@@ -20,7 +20,8 @@ if (!defined('DOKU_INC')) {
  */
 class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
-    private $modFields = array('name', 'email', 'author', 'newsdate', 'text');
+    private $modFields = array('name','email','author','newsdate','text','image');
+    private $cartesField = array('email','author');
     private $helper;
     private $delete;
 
@@ -40,10 +41,10 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
      */
     public function register(Doku_Event_Handler $controller) {
 
-        $controller->register_hook('HTML_EDIT_FORMSELECTION', 'BEFORE', $this, 'form_to_news');
-        $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'save_news');
-        $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'add_to_stream');
-        $controller->register_hook('TPL_ACT_RENDER', 'BEFORE', $this, 'stream_delete');
+        $controller->register_hook('HTML_EDIT_FORMSELECTION','BEFORE',$this,'form_to_news');
+        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'save_news');
+        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'add_to_stream');
+        $controller->register_hook('TPL_ACT_RENDER','BEFORE',$this,'stream_delete');
     }
 
     /**
@@ -58,9 +59,9 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
     public function form_to_news(Doku_Event &$event) {
         global $TEXT;
         global $INPUT;
-
+        var_dump($INPUT);
         global $INFO;
-        if ($INPUT->str('target') !== 'plugin_fksnewsfeed') {
+        if($INPUT->str('target') !== 'plugin_fksnewsfeed'){
             return;
         }
         $event->preventDefault();
@@ -68,52 +69,41 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         echo $this->locale_xhtml('edit_intro');
         $form = $event->data['form'];
 
-        if (array_key_exists('wikitext', $_POST)) {
+        if(array_key_exists('wikitext',$_POST)){
             foreach ($this->modFields as $field) {
                 $data[$field] = $INPUT->param($field);
             }
-        } else {
-            $max_id=  $this->helper->findimax();  
-            
-            
-            if ($max_id > $INPUT->str('news_id')) {
+        }else{
+            $max_id = $this->helper->findimax();
+
+
+            if($max_id > $INPUT->str('news_id')){
                 $data = $this->helper->load_news_simple($INPUT->str("news_id"));
                 $TEXT = $data['text'];
-            } else {
-                $data = array('author' => $INFO['userinfo']['name'],
-                    'newsdate' => dformat(),
-                    'email' => $INFO['userinfo']['mail'],
-                    'text' => 'Tady napiš text aktuality',
-                    'name' => 'Název aktuality');
-                $TEXT = 'Tady napiš text aktuality';
+            }else{
+                list($data,$TEXT) = $this->create_default();
             }
         }
 
         $form->startFieldset('Newsfeed');
-        $form->addHidden('news_id', $INPUT->str("news_id"));
-        $form->addHidden('target', 'plugin_fksnewsfeed');
-
-        $form->addHidden('news_do', $INPUT->str('news_do'));
-        if (is_array($INPUT->param('news_stream'))) {
-            foreach ($INPUT->param('news_stream') as $k => $v) {
-                if ($v == 1) {
-                    $form->addHidden('news_stream[' . $k . ']', 1);
-                }
-            }
-        } else {
-            $form->addHidden('news_stream[' . $INPUT->param('news_stream') . ']', 1);
-        }
-
+        $form->addHidden('target','plugin_fksnewsfeed');
+        $form->addHidden('news_id',$INPUT->str("news_id"));
+        $form->addHidden('news_do',$INPUT->str('news_do'));
+        $form->addHidden('news_stream',$INPUT->str('news_stream'));
 
         foreach ($this->modFields as $field) {
-            if ($field == 'text') {
-                $value = $INPUT->post->str('wikitext', $data[$field]);
-                $form->addElement(form_makeWikiText($TEXT, array()));
-            } else {
-                $value = $INPUT->post->str($field, $data[$field]);
-                $form->addElement(form_makeTextField($field, $value, $this->getLang($field), $field, null, array()));
+            if($field == 'text'){
+                $value = $INPUT->post->str('wikitext',$data[$field]);
+                $form->addElement(form_makeWikiText($TEXT,array()));
+            }else{
+                $value = $INPUT->post->str($field,$data[$field]);
+                $form->addElement(form_makeTextField($field,$value,$this->getLang($field),$field,null,array('list' => 'news_list_'.$field)));
             }
         }
+        foreach ($this->cartesField as $field) {
+            $form->addElement(form_makeDataList('news_list_'.$field,$this->helper->all_values($field)));
+        }
+
         $form->endFieldset();
     }
 
@@ -121,45 +111,32 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         global $INPUT;
         global $ACT;
 
-        if ($INPUT->str("target") == "plugin_fksnewsfeed") {
+        if($INPUT->str("target") == "plugin_fksnewsfeed"){
             global $TEXT;
             global $ID;
-            if (isset($_POST['do']['save'])) {
+            if(isset($_POST['do']['save'])){
                 $data = array();
                 foreach ($this->modFields as $field) {
-                    if ($field == 'text') {
+                    if($field == 'text'){
                         $data[$field] = cleanText($INPUT->str('wikitext'));
                         unset($_POST['wikitext']);
-                    } else {
+                    }else{
                         $data[$field] = $INPUT->param($field);
                     }
                 }
-                
-                if ($INPUT->str('news_do') == 'add') {
-                    $this->helper->saveNewNews($data, $INPUT->str('news_id'), FALSE);
-                    
-                    if (is_array($INPUT->param('news_stream'))) {
-                        foreach ($INPUT->param('news_stream') as $k => $v) {
-                            if ($v == 1) {
-                                $arr[] = $k;
-                            }
-                        }
-                    } else {
-                        $arr[] = $INPUT->str('news_stream');
-                    }
 
-                    foreach ($arr as $value) {
-                        $c = '';
-                        $c.=';' . $INPUT->str('news_id') . ";";
-                        $c.=io_readFile(metaFN('fksnewsfeed/streams/' . $value, ".csv"), FALSE);
-                        if (io_saveFile(metaFN('fksnewsfeed/streams/' . $value, ".csv"), $c)) {
-                            msg(' written successful', 1);
-                        } else {
-                            msg("written failure", -1);
-                        }
+                if($INPUT->str('news_do') == 'add'){
+                    $this->helper->saveNewNews($data,$INPUT->str('news_id'),FALSE);
+
+                    $arrs = array();
+                    $this->helper->create_dependence($INPUT->str('news_stream'),$arrs);
+
+                    
+                    foreach ($arrs as $arr) {
+                        $this->save_to_stream($arr,$INPUT->str('news_id'));
                     }
                 }else{
-                    $this->helper->saveNewNews($data, $INPUT->str('news_id'), true);
+                    $this->helper->saveNewNews($data,$INPUT->str('news_id'),true);
                 }
                 unset($TEXT);
                 unset($_POST['wikitext']);
@@ -167,6 +144,28 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                 $ID = 'start';
             }
         }
+    }
+
+    private function save_to_stream($stream,$id) {
+        $c = '';
+        $c.=';'.$id.";";
+        $c.=io_readFile(metaFN('fksnewsfeed/streams/'.$stream,".csv"),FALSE);
+        if(io_saveFile(metaFN('fksnewsfeed/streams/'.$stream,".csv"),$c)){
+            msg(' written successful',1);
+        }else{
+            msg("written failure",-1);
+        }
+    }
+
+    private function create_default() {
+        return array(
+            array('author' => $INFO['userinfo']['name'],
+                'newsdate' => dformat(),
+                'email' => $INFO['userinfo']['mail'],
+                'text' => $this->getLang('news_text'),
+                'name' => $this->getLang('news_name'),
+                'image' => ':'),
+            $this->getLang('news_text'));
     }
 
     /**
@@ -181,32 +180,32 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
      */
     public function add_to_stream() {
         global $INPUT;
-       
-        if ($INPUT->str("target") == "plugin_fksnewsfeed") {
-            
 
-            if ($INPUT->str('news_do') == 'delete') {
+        if($INPUT->str("target") == "plugin_fksnewsfeed"){
+
+
+            if($INPUT->str('news_do') == 'delete'){
                 $this->delete['delete'] = true;
 
 
                 global $INPUT;
-              
+
 
                 $this->delete['data']['news_stream-data'] = $INPUT->str('news_stream-data');
-                if ($this->delete['data']['news_stream-data']) {
-                    $old_data = io_readFile(metaFN('fksnewsfeed:old-streams:' . $INPUT->str('news_stream'), '.csv'));
-                    $new_data = $old_data . "\n" . $this->delete['data']['news_stream-data'];
-                    $old_stream_path = metaFN('fksnewsfeed:old-streams:' . $INPUT->str('news_stream'), '.csv');
+                if($this->delete['data']['news_stream-data']){
+                    $old_data = io_readFile(metaFN('fksnewsfeed:old-streams:'.$INPUT->str('news_stream'),'.csv'));
+                    $new_data = $old_data."\n".$this->delete['data']['news_stream-data'];
+                    $old_stream_path = metaFN('fksnewsfeed:old-streams:'.$INPUT->str('news_stream'),'.csv');
 
-                    io_saveFile($old_stream_path, $new_data);
+                    io_saveFile($old_stream_path,$new_data);
                     $set_save_stream = $INPUT->str('news_stream-save');
-                    if (!empty($set_save_stream)) {
-                        $new_stream_path = metaFN('fksnewsfeed:streams:' . $INPUT->str('news_stream'), '.csv');
-                        io_saveFile($new_stream_path, $this->delete['data']['news_stream-data']);
+                    if(!empty($set_save_stream)){
+                        $new_stream_path = metaFN('fksnewsfeed:streams:'.$INPUT->str('news_stream'),'.csv');
+                        io_saveFile($new_stream_path,$this->delete['data']['news_stream-data']);
                     }
                     $display = $INPUT->str('news_stream-data');
-                } else {
-                    $display = io_readFile(metaFN('fksnewsfeed:streams:' . $INPUT->str('news_stream'), '.csv'));
+                }else{
+                    $display = io_readFile(metaFN('fksnewsfeed:streams:'.$INPUT->str('news_stream'),'.csv'));
                 }
                 $this->delete['data']['news_stream'] = $INPUT->str('news_stream');
                 $this->delete['data']['news_stream-data'] = $display;
@@ -215,14 +214,14 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
     }
 
     public function stream_delete(Doku_Event &$event) {
-        if (!$this->delete['delete']) {
+        if(!$this->delete['delete']){
             return;
         }
         $event->preventDefault();
         global $INPUT;
         global $lang;
 
-        echo '<h1>' . $this->getLang('permut_menu') . ':' . $this->delete['data']['news_stream'] . '</h1>';
+        echo '<h1>'.$this->getLang('permut_menu').':'.$this->delete['data']['news_stream'].'</h1>';
 
         echo html_open_tag('legend');
         echo $this->getLang('btn_delete_news');
@@ -230,20 +229,20 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
 
         $form = new Doku_Form(array('id' => "save",
-            'method' => 'POST', 'action' => null));
+            'method' => 'POST','action' => null));
         $form->startFieldset(null);
-        $form->addHidden('stream', $INPUT->str('news_stream'));
+        $form->addHidden('stream',$INPUT->str('news_stream'));
 
-        $form->addHidden("target", "plugin_fksnewsfeed");
-        $form->addHidden('news_do', 'delete');
-        $form->addElement('<textarea name="news_stream-data" class="wikitext">' . $this->delete['data']['news_stream-data'] . '</textarea>');
-        $form->addElement(form_makeButton('submit', '', $lang['btn_preview'], array()));
+        $form->addHidden("target","plugin_fksnewsfeed");
+        $form->addHidden('news_do','delete');
+        $form->addElement('<textarea name="news_stream-data" class="wikitext">'.$this->delete['data']['news_stream-data'].'</textarea>');
+        $form->addElement(form_makeButton('submit','',$lang['btn_preview'],array()));
         $form->endFieldset();
-        html_form('nic', $form);
+        html_form('nic',$form);
 
 
         $set_stream_data = $this->delete['data']['news_stream-data'];
-        if (!empty($set_stream_data)) {
+        if(!empty($set_stream_data)){
             echo html_open_tag('legend');
             echo $lang['btn_save'];
             echo html_close_tag('legend');
@@ -254,27 +253,25 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                 'method' => 'POST',
                 'action' => null));
             $form->startFieldset(null);
-            $form->addHidden('news_stream', $this->delete['data']['news_stream']);
-            $form->addHidden('news_stream-save', true);
-            $form->addHidden('news_stream-data', $this->delete['data']['news_stream-data']);
+            $form->addHidden('news_stream',$this->delete['data']['news_stream']);
+            $form->addHidden('news_stream-save',true);
+            $form->addHidden('news_stream-data',$this->delete['data']['news_stream-data']);
             $form->addElement($this->delete['data']['news_stream-data']);
-            $form->addElement(form_makeButton('submit', '', $lang['btn_save'], array()));
+            $form->addElement(form_makeButton('submit','',$lang['btn_save'],array()));
             $form->endFieldset();
 
-            html_form('nic', $form);
+            html_form('nic',$form);
         }
 
         echo html_open_tag('legend');
         echo $lang['btn_preview'];
         echo html_close_tag('legend');
 
-        foreach (preg_split('/;;/', substr($this->delete['data']['news_stream-data'], 1, -1)) as $value) {
+        foreach (preg_split('/;;/',substr($this->delete['data']['news_stream-data'],1,-1)) as $value) {
             $e = 'FKS_newsfeed_odd';
-            $n = str_replace(array('@id@', '@even@'), array($value, $e), $this->helper->simple_tpl);
-            echo p_render("xhtml", p_get_instructions($n), $info);
+            $n = str_replace(array('@id@','@even@'),array($value,$e),$this->helper->simple_tpl);
+            echo p_render("xhtml",p_get_instructions($n),$info);
         }
     }
-
-   
 
 }

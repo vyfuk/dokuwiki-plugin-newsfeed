@@ -43,6 +43,7 @@ $lang['date']             = 'Datum';
 $lang['newsdate']         = 'Datum';
 $lang['newsname']         = 'Nadpis';
 $lang['name']             = 'Nadpis';
+$lang['image']            = 'obrázek';
 
 
 /**
@@ -76,6 +77,9 @@ $lang['autoreturn']        = 'Stránka bude přesměrována během pěti sekund.
 
 $lang['info_delete_news']='Spravovať tento stream: <ul><li>Upraviť poradie aktualít</li><li>Upraviť zobrazovnie</li></ul>';
 $lang['info_add_news']='Pridať novú aktualitu do tohoto streamu';
+
+$lang['news_text']='Tady napiš text aktuality';
+$lang['news_name']='Název aktuality';
 /**
  * @TODO vymyslieť niečo pekné!
  */
