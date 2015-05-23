@@ -80,14 +80,16 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                 $form->addHidden('do', 'edit');
                 $form->addHidden('target', 'plugin_fksnewsfeed');
                 $form->addHidden('news_do', 'add');
-                $form->addHidden('news_id', $this->helper->findimax());
+                $form->addHidden('news_id', ($this->helper->findimax()+1));
                 $form->addHidden('news_stream', $INPUT->str('news_stream'));
                 $form->addElement(form_makeButton('submit', '', $this->getLang('btn_add_news')));
                 ob_start();
                 html_form('addnews', $form);
                 $r .= ob_get_contents();
                 ob_end_clean();
+                $r.=html_close_tag('div');
             }
+            /*
             if (auth_quickaclcheck('start') >= $this->getConf('perm_manage')) {
                 $r.=html_open_tag('div', array('class' => 'alert alert-info', 'role' => 'alert'));
                 $r.=$this->getLang('info_delete_news');
@@ -101,8 +103,8 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                 html_form('addnews', $form2);
                 $r .= ob_get_contents();
                 ob_end_clean();
-                $r.=html_close_tag('div');
-            }
+                
+            }*/
             if (auth_quickaclcheck('start') >= $this->getConf('perm_rss')) {
 
 
@@ -120,10 +122,12 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
 
 
             foreach ($this->helper->loadstream($INPUT->str('news_stream'), true) as $key => $value) {
+                $id=$value['news_id'];
+                
                 if ($feed) {
                     $e = $this->helper->_is_even($key);
 
-                    $n = str_replace(array('@id@', '@even@'), array($value, $e), $this->helper->simple_tpl);
+                    $n = str_replace(array('@id@', '@even@'), array($id, $e), $this->helper->simple_tpl);
                     $r.= p_render("xhtml", p_get_instructions($n), $info);
 
                     $feed --;
@@ -161,7 +165,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                 if (array_key_exists($i, $f)) {
                     $e = $this->helper->_is_even($i);
 
-                    $n = str_replace(array('@id@', '@even@'), array($f[$i], $e), $this->helper->simple_tpl);
+                    $n = str_replace(array('@id@', '@even@'), array($f[$i]['news_id'], $e), $this->helper->simple_tpl);
                     $r.= p_render("xhtml", p_get_instructions($n), $info);
                 } else {
                     $more = true;

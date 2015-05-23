@@ -59,8 +59,6 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
     public function form_to_news(Doku_Event &$event) {
         global $TEXT;
         global $INPUT;
-        var_dump($INPUT);
-        global $INFO;
         if($INPUT->str('target') !== 'plugin_fksnewsfeed'){
             return;
         }
@@ -74,7 +72,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                 $data[$field] = $INPUT->param($field);
             }
         }else{
-            $max_id = $this->helper->findimax();
+            $max_id = ($this->helper->findimax()+1);
 
 
             if($max_id > $INPUT->str('news_id')){
@@ -124,19 +122,20 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                         $data[$field] = $INPUT->param($field);
                     }
                 }
-
                 if($INPUT->str('news_do') == 'add'){
-                    $this->helper->saveNewNews($data,$INPUT->str('news_id'),FALSE);
+                   $id= $this->helper->saveNewNews($data,$INPUT->str('news_id'),FALSE);
 
-                    $arrs = array();
+                    $arrs = array($INPUT->str('news_stream'));
                     $this->helper->create_dependence($INPUT->str('news_stream'),$arrs);
-
+                    var_dump($arrs);
                     
                     foreach ($arrs as $arr) {
-                        $this->save_to_stream($arr,$INPUT->str('news_id'));
+                        $this->helper->save_to_stream($arr,$id);
                     }
+                    
+                   
                 }else{
-                    $this->helper->saveNewNews($data,$INPUT->str('news_id'),true);
+                   $this->helper->saveNewNews($data,$INPUT->str('news_id'),true);
                 }
                 unset($TEXT);
                 unset($_POST['wikitext']);
@@ -146,18 +145,10 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         }
     }
 
-    private function save_to_stream($stream,$id) {
-        $c = '';
-        $c.=';'.$id.";";
-        $c.=io_readFile(metaFN('fksnewsfeed/streams/'.$stream,".csv"),FALSE);
-        if(io_saveFile(metaFN('fksnewsfeed/streams/'.$stream,".csv"),$c)){
-            msg(' written successful',1);
-        }else{
-            msg("written failure",-1);
-        }
-    }
+    
 
     private function create_default() {
+        global $INFO;
         return array(
             array('author' => $INFO['userinfo']['name'],
                 'newsdate' => dformat(),
