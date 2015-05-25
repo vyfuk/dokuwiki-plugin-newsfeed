@@ -6,13 +6,13 @@
  */
 // must be run within Dokuwiki
 
-if (!defined('DOKU_INC')) {
+if(!defined('DOKU_INC')){
     die();
 }
-if (!defined('DOKU_PLUGIN')) {
-    define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
+if(!defined('DOKU_PLUGIN')){
+    define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
 }
-require_once(DOKU_PLUGIN . 'syntax.php');
+require_once(DOKU_PLUGIN.'syntax.php');
 
 class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
@@ -31,7 +31,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     }
 
     public function getAllowedTypes() {
-        return array('formatting', 'substition', 'disabled');
+        return array('formatting','substition','disabled');
     }
 
     public function getSort() {
@@ -39,79 +39,64 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     }
 
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('\{\{fksnewsfeed\>.+?\}\}', $mode, 'plugin_fksnewsfeed_fksnewsfeed');
+        $this->Lexer->addSpecialPattern('\{\{fksnewsfeed\>.+?\}\}',$mode,'plugin_fksnewsfeed_fksnewsfeed');
     }
 
     /**
      * Handle the match
      */
-    public function handle($match, $state) {
-
-
-        $text = str_replace(array("\n", '{{fksnewsfeed>', '}}'), array('', '', ''), $match);
+    public function handle($match,$state) {
+        $text = str_replace(array("\n",'{{fksnewsfeed>','}}'),array('','',''),$match);
         /** @var id and even this NF $param */
         $param = $this->helper->FKS_helper->extractParamtext($text);
-
-
-
-        return array($state, array($param));
+        return array($state,array($param));
     }
 
-    public function render($mode, Doku_Renderer &$renderer, $data) {
-
+    public function render($mode,Doku_Renderer &$renderer,$data) {
         // $data is what the function handle return'ed.
-        if ($mode == 'xhtml') {
+        if($mode == 'xhtml'){
             /** @var Do ku_Renderer_xhtml $renderer */
-            list(, $match) = $data;
-            list($param) = $match;
-
+            list(,list($param) ) = $data;
             $renderer->doc .= $this->rendernews($param);
         }
         return false;
     }
 
     private function rendernews($param = array()) {
-
         $data = $this->helper->load_news_simple($param["id"]);
-        if (empty($data)) {
-            return '<div class="FKS_newsfeed_exist_msg">' . $this->getLang('news_non_exist') . '</div>';
+        if(empty($data)){
+            return '<div class="FKS_newsfeed_exist_msg">'.$this->getLang('news_non_exist').'</div>';
         }
-
-        $text = $data['text'];
-        $data['newsdate'] = $data['date'];
-
         // if template not found use default 
         $tpl_path = wikiFN($this->getConf('tpl'));
-        if (!file_exists($tpl_path)) {
-            $def_tpl = DOKU_PLUGIN . plugin_directory('fksnewsfeed') . '/tpl.html';
-            io_saveFile($tpl_path, io_readFile($def_tpl));
+        if(!file_exists($tpl_path)){
+            $def_tpl = DOKU_PLUGIN.plugin_directory('fksnewsfeed').'/tpl.html';
+            io_saveFile($tpl_path,io_readFile($def_tpl));
         }
-        
         //load empty template 
         $tpl = io_readFile($tpl_path);
-        
+
+
+        $data['text'] = p_render('xhtml',p_get_instructions($data['text']),$info);
+        $data['newsdate'] = $this->newsdate($data['newsdate']);
+        $img_attr = array('style'=>'width:100%;');
+        $data['image'] = '<img src="'.ml($data['image']).'" alt="newsfeed" '.buildAttributes($img_attr).'>';
+
+
         foreach (helper_plugin_fksnewsfeed::$Fields as $k) {
-
-            if ($k == 'text') {
-                $tpl = str_replace('@' . $k . '@', p_render('xhtml', p_get_instructions($text), $info), $tpl);
-            } elseif ($k == 'newsdate') {
-                $tpl = str_replace('@' . $k . '@', $this->newsdate($data[$k]), $tpl);
-            } else {
-                $tpl = str_replace('@' . $k . '@', $data[$k], $tpl);
-            }
+            $tpl = str_replace('@'.$k.'@',$data[$k],$tpl);
         }
-
-        if (!isset($param['even'])) {
+        if(!isset($param['even'])){
             $param['even'] = 'FKS_newsfeed_even';
         }
-        return '<div class="' . $param['even'] . '" data-id="' . $param["id"] . '">' . $tpl . '</div><div class="FKS_newsfeed_edit" data-id="' . $param["id"] . '"></div>';
+        return '<div class="'.$param['even'].'" data-id="'.$param["id"].'">'.$tpl.'</div><div class="FKS_newsfeed_edit" data-id="'.$param["id"].'"></div>';
     }
 
     private function newsdate($date) {
-        $enmonth = Array('January', 'February', 'March',
-            'April', 'May', 'June',
-            'July', 'August', 'September',
-            'October', 'November', 'December');
+        $enmonth = Array('January','February','March',
+            'April','May','June',
+            'July','August','September',
+            'October','November','December');
         $langmonth = Array(
             $this->getLang('jan'),
             $this->getLang('feb'),
@@ -126,8 +111,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $this->getLang('now'),
             $this->getLang('dec')
         );
-        return (string) str_replace($enmonth, $langmonth, $date);
+        return (string) str_replace($enmonth,$langmonth,$date);
     }
-
 
 }

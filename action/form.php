@@ -20,8 +20,8 @@ if(!defined('DOKU_INC')){
  */
 class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
-    private $modFields = array('name','email','author','newsdate','text','image');
-    private $cartesField = array('email','author');
+    private static $modFields;
+    private static $cartesField = array('email','author');
     private $helper;
     private $delete;
 
@@ -33,6 +33,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
      */
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
+        self::$modFields = helper_plugin_fksnewsfeed::$Fields;
     }
 
     /**
@@ -63,8 +64,6 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
             return;
         }
         $event->preventDefault();
-        unset($event->data['intro_locale']);
-        echo $this->locale_xhtml('edit_intro');
         $form = $event->data['form'];
 
         if(array_key_exists('wikitext',$_POST)){
@@ -72,10 +71,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                 $data[$field] = $INPUT->param($field);
             }
         }else{
-            $max_id = ($this->helper->findimax()+1);
-
-
-            if($max_id > $INPUT->str('news_id')){
+            if($INPUT->int('news_id') != null){
                 $data = $this->helper->load_news_simple($INPUT->str("news_id"));
                 $TEXT = $data['text'];
             }else{
@@ -89,19 +85,20 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         $form->addHidden('news_do',$INPUT->str('news_do'));
         $form->addHidden('news_stream',$INPUT->str('news_stream'));
 
-        foreach ($this->modFields as $field) {
+        foreach (self::$modFields as $field) {
             if($field == 'text'){
                 $value = $INPUT->post->str('wikitext',$data[$field]);
+                $form->addElement(html_open_tag('div',array('class' => 'clearer')));
+                $form->addElement(html_close_tag('div'));
                 $form->addElement(form_makeWikiText($TEXT,array()));
             }else{
                 $value = $INPUT->post->str($field,$data[$field]);
                 $form->addElement(form_makeTextField($field,$value,$this->getLang($field),$field,null,array('list' => 'news_list_'.$field)));
             }
         }
-        foreach ($this->cartesField as $field) {
+        foreach (self::$cartesField as $field) {
             $form->addElement(form_makeDataList('news_list_'.$field,$this->helper->all_values($field)));
         }
-
         $form->endFieldset();
     }
 
@@ -114,7 +111,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
             global $ID;
             if(isset($_POST['do']['save'])){
                 $data = array();
-                foreach ($this->modFields as $field) {
+                foreach (self::$modFields as $field) {
                     if($field == 'text'){
                         $data[$field] = cleanText($INPUT->str('wikitext'));
                         unset($_POST['wikitext']);
@@ -123,29 +120,23 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                     }
                 }
                 if($INPUT->str('news_do') == 'add'){
-                   $id= $this->helper->saveNewNews($data,$INPUT->str('news_id'),FALSE);
-
-                    $arrs = array($INPUT->str('news_stream'));
-                    $this->helper->create_dependence($INPUT->str('news_stream'),$arrs);
-                    var_dump($arrs);
-                    
+                    $id = $this->helper->saveNewNews($data,$INPUT->str('news_id'),FALSE);
+                    $stream_id = $this->helper->stream_to_id($INPUT->str('news_stream'));
+                    $arrs = array($stream_id);
+                    $this->helper->create_dependence($stream_id,$arrs);
                     foreach ($arrs as $arr) {
                         $this->helper->save_to_stream($arr,$id);
                     }
-                    
-                   
                 }else{
-                   $this->helper->saveNewNews($data,$INPUT->str('news_id'),true);
+                    $this->helper->saveNewNews($data,$INPUT->str('news_id'),true);
                 }
                 unset($TEXT);
                 unset($_POST['wikitext']);
-                $ACT = "show";
+                $ACT = 'show';
                 $ID = 'start';
             }
         }
     }
-
-    
 
     private function create_default() {
         global $INFO;
@@ -155,7 +146,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                 'email' => $INFO['userinfo']['mail'],
                 'text' => $this->getLang('news_text'),
                 'name' => $this->getLang('news_name'),
-                'image' => ':'),
+                'image' => ''),
             $this->getLang('news_text'));
     }
 
@@ -177,11 +168,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
             if($INPUT->str('news_do') == 'delete'){
                 $this->delete['delete'] = true;
-
-
                 global $INPUT;
-
-
                 $this->delete['data']['news_stream-data'] = $INPUT->str('news_stream-data');
                 if($this->delete['data']['news_stream-data']){
                     $old_data = io_readFile(metaFN('fksnewsfeed:old-streams:'.$INPUT->str('news_stream'),'.csv'));
@@ -257,12 +244,24 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         echo html_open_tag('legend');
         echo $lang['btn_preview'];
         echo html_close_tag('legend');
+        echo '<div class="FKS_newsfeed_delete_stream">';
+        $i = 0;
+        foreach ($this->helper->loadstream($INPUT->str('news_stream'),true) as $key => $value) {
+            $id = $value['news_id'];
 
-        foreach (preg_split('/;;/',substr($this->delete['data']['news_stream-data'],1,-1)) as $value) {
-            $e = 'FKS_newsfeed_odd';
-            $n = str_replace(array('@id@','@even@'),array($value,$e),$this->helper->simple_tpl);
+            $e = $this->helper->_is_even($key);
+            $n = str_replace(array('@id@','@even@'),array($id,$e),$this->helper->simple_tpl);
+            echo html_open_tag('div',array(
+                'class' => 'FKS_newsfeed_delete_stream_news',
+                'data-index' => $i,
+                'data-id' => $value['news_id']));
+           
+            echo '<div class="FKS_newsfeed_delete_stream_news_weight"><label>Weight</label><input  name="weight" value="'.$value['weight'].'" /></div>';
             echo p_render("xhtml",p_get_instructions($n),$info);
+            echo '</div>';
+            $i++;
         }
+        echo'</div>';
     }
 
 }

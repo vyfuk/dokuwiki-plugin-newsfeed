@@ -44,7 +44,7 @@ $lang['newsdate']         = 'Date';
 $lang['newsname']         = 'Headline';
 $lang['name']             = 'Headline';
 
-
+$lang['image']             = 'Image';
 /**
  * date for syntax plugin
  */
