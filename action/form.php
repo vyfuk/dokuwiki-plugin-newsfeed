@@ -44,7 +44,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
         $controller->register_hook('HTML_EDIT_FORMSELECTION','BEFORE',$this,'form_to_news');
         $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'save_news');
-        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'add_to_stream');
+        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'update_order_save');
         $controller->register_hook('TPL_ACT_RENDER','BEFORE',$this,'stream_delete');
     }
 
@@ -160,108 +160,63 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
      * @param Doku_Event $event
      * @param type $param
      */
-    public function add_to_stream() {
+    public function update_order_save() {
         global $INPUT;
 
         if($INPUT->str("target") == "plugin_fksnewsfeed"){
-
-
-            if($INPUT->str('news_do') == 'delete'){
-                $this->delete['delete'] = true;
-                global $INPUT;
-                $this->delete['data']['news_stream-data'] = $INPUT->str('news_stream-data');
-                if($this->delete['data']['news_stream-data']){
-                    $old_data = io_readFile(metaFN('fksnewsfeed:old-streams:'.$INPUT->str('news_stream'),'.csv'));
-                    $new_data = $old_data."\n".$this->delete['data']['news_stream-data'];
-                    $old_stream_path = metaFN('fksnewsfeed:old-streams:'.$INPUT->str('news_stream'),'.csv');
-
-                    io_saveFile($old_stream_path,$new_data);
-                    $set_save_stream = $INPUT->str('news_stream-save');
-                    if(!empty($set_save_stream)){
-                        $new_stream_path = metaFN('fksnewsfeed:streams:'.$INPUT->str('news_stream'),'.csv');
-                        io_saveFile($new_stream_path,$this->delete['data']['news_stream-data']);
-                    }
-                    $display = $INPUT->str('news_stream-data');
-                }else{
-                    $display = io_readFile(metaFN('fksnewsfeed:streams:'.$INPUT->str('news_stream'),'.csv'));
+            if($INPUT->str('news_do') == 'order_save'){
+                foreach ($INPUT->param('weight') as $key => $value) {
+                    $this->helper->update_stream($value,$key);
                 }
-                $this->delete['data']['news_stream'] = $INPUT->str('news_stream');
-                $this->delete['data']['news_stream-data'] = $display;
             }
         }
+        global $ACT;
+        $ACT = 'view';
     }
 
     public function stream_delete(Doku_Event &$event) {
-        if(!$this->delete['delete']){
+        global $INPUT;
+        if($INPUT->str('news_do') != 'order'){
             return;
         }
         $event->preventDefault();
-        global $INPUT;
+
         global $lang;
+        echo'<div class="FKS_newsfeed_order_add">';
+        $form2 = new Doku_Form(array('id' => 'add'));
+        $form2->addElement(form_makeTextField('weight',0,$this->getLang('weight')));
+        $form2->addHidden('news_stream',$INPUT->str('news_stream'));
+        $form2->addElement(form_makeTextField('news_id',0,'ID'));
+        $form2->addElement(form_makeButton('button',null));
+        html_form('nic',$form2);
+        echo '</div>';
 
-        echo '<h1>'.$this->getLang('permut_menu').':'.$this->delete['data']['news_stream'].'</h1>';
-
-        echo html_open_tag('legend');
-        echo $this->getLang('btn_delete_news');
-        echo html_close_tag('legend');
 
 
         $form = new Doku_Form(array('id' => "save",
             'method' => 'POST','action' => null));
         $form->startFieldset(null);
-        $form->addHidden('stream',$INPUT->str('news_stream'));
+        $form->addHidden('news_stream',$INPUT->str('news_stream'));
 
         $form->addHidden("target","plugin_fksnewsfeed");
-        $form->addHidden('news_do','delete');
-        $form->addElement('<textarea name="news_stream-data" class="wikitext">'.$this->delete['data']['news_stream-data'].'</textarea>');
-        $form->addElement(form_makeButton('submit','',$lang['btn_preview'],array()));
+        $form->addHidden('news_do','order_save');
+
+
+        $form->addElement(form_makeButton('submit','',$lang['btn_save'],array()));
+        $form->addElement(html_open_tag('div',array('class' => 'FKS_newsfeed_delete_stream')));
+
+
+
+        foreach ($this->helper->loadstream($INPUT->str('news_stream'),true) as $key => $value) {
+            $news_id = $value['news_id'];
+            $order_id = $value['order_id'];
+            $weight = $value['weight'];
+            $news = $this->helper->create_order_div($news_id,$order_id,$weight,$key);
+            $form->addElement($news);
+        }
         $form->endFieldset();
         html_form('nic',$form);
-
-
-        $set_stream_data = $this->delete['data']['news_stream-data'];
-        if(!empty($set_stream_data)){
-            echo html_open_tag('legend');
-            echo $lang['btn_save'];
-            echo html_close_tag('legend');
-
-
-            $form = new Doku_Form(array(
-                'id' => "save",
-                'method' => 'POST',
-                'action' => null));
-            $form->startFieldset(null);
-            $form->addHidden('news_stream',$this->delete['data']['news_stream']);
-            $form->addHidden('news_stream-save',true);
-            $form->addHidden('news_stream-data',$this->delete['data']['news_stream-data']);
-            $form->addElement($this->delete['data']['news_stream-data']);
-            $form->addElement(form_makeButton('submit','',$lang['btn_save'],array()));
-            $form->endFieldset();
-
-            html_form('nic',$form);
-        }
-
-        echo html_open_tag('legend');
-        echo $lang['btn_preview'];
-        echo html_close_tag('legend');
-        echo '<div class="FKS_newsfeed_delete_stream">';
-        $i = 0;
-        foreach ($this->helper->loadstream($INPUT->str('news_stream'),true) as $key => $value) {
-            $id = $value['news_id'];
-
-            $e = $this->helper->_is_even($key);
-            $n = str_replace(array('@id@','@even@'),array($id,$e),$this->helper->simple_tpl);
-            echo html_open_tag('div',array(
-                'class' => 'FKS_newsfeed_delete_stream_news',
-                'data-index' => $i,
-                'data-id' => $value['news_id']));
-           
-            echo '<div class="FKS_newsfeed_delete_stream_news_weight"><label>Weight</label><input  name="weight" value="'.$value['weight'].'" /></div>';
-            echo p_render("xhtml",p_get_instructions($n),$info);
-            echo '</div>';
-            $i++;
-        }
-        echo'</div>';
+        $form->addElement('</div>');
     }
 
 }

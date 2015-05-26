@@ -131,9 +131,9 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 $data[$v] = $this->getConf($v);
             }
         }
-       
-        
-        $image =$data['image'];
+
+
+        $image = $data['image'];
         $date = $data['newsdate'];
         $author = $data['author'];
         $email = $data['email'];
@@ -250,7 +250,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     }
 
     public function all_dependence($stream_id) {
-        
+
         $stream_ids = array();
         $sql = 'SELECT * FROM '.self::db_table_dependence.' t WHERE t.dependence_to=?';
         $res = $this->sqlite->query($sql,$stream_id);
@@ -271,14 +271,38 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         }
     }
 
-    public function save_to_stream($stream_id,$id) {
-        
-        $sql2 = 'select max(weight) from '.self::db_table_order.' where stream_id=?';
-        $res2 = $this->sqlite->query($sql2,$stream_id);
-        $weight = (int) $this->sqlite->res2single($res2);
-        $weight+=10;
+    public function save_to_stream($stream_id,$id,$weight = null) {
+        if($weight === null){
+            $sql2 = 'select max(weight) from '.self::db_table_order.' where stream_id=?';
+            $res2 = $this->sqlite->query($sql2,$stream_id);
+            $weight = (int) $this->sqlite->res2single($res2);
+            $weight+=10;
+        }
+
         $sql3 = 'INSERT INTO '.self::db_table_order.' (news_id,stream_id,weight) values(?,?,?)';
         $this->sqlite->query($sql3,$id,$stream_id,$weight);
+        $sql4 = 'SELECT max(order_id) from '.self::db_table_order.'';
+        $res4 = $this->sqlite->query($sql4);
+        return (int) $this->sqlite->res2single($res4);
+    }
+
+    public function update_stream($weigth,$order_id) {
+        $sql = 'UPDATE '.self::db_table_order.' SET weight=? WHERE order_id=?';
+        return $this->sqlite->query($sql,$weigth,$order_id);
+    }
+
+    public function create_order_div($news_id,$order_id,$weight,$k = 0) {
+        $form = "";
+        $e = $this->_is_even($k);
+        $n = str_replace(array('@id@','@even@'),array($news_id,$e),$this->simple_tpl);
+        $form.= '<div class="FKS_newsfeed_delete_stream_news" data-index="'.$order_id.'" data-id="'.$news_id.'">';
+        $form.='<div class="FKS_newsfeed_delete_stream_news_weight">';
+        $form.='<span>'.$this->getLang('weight').'</span><input class="edit" name="weight['.$order_id.']" value="'.$weight.'">';
+        $form.='</div>';
+
+        $form.=p_render("xhtml",p_get_instructions($n),$info);
+        $form.='</div>';
+        return $form;
     }
 
 }

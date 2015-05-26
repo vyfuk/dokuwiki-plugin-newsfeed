@@ -42,6 +42,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         $controller->register_hook('AJAX_CALL_UNKNOWN','BEFORE',$this,'ajax_stream');
         $controller->register_hook('AJAX_CALL_UNKNOWN','BEFORE',$this,'ajax_more');
         $controller->register_hook('AJAX_CALL_UNKNOWN','BEFORE',$this,'ajax_edit');
+        $controller->register_hook('AJAX_CALL_UNKNOWN','BEFORE',$this,'ajax_add');
     }
 
     /**
@@ -93,22 +94,21 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                 $r .= ob_get_contents();
                 ob_end_clean();
             }
-            
-              if (auth_quickaclcheck('start') >= $this->getConf('perm_manage')) {
-              $r.=html_open_tag('div', array('class' => 'alert alert-info', 'role' => 'alert'));
-              $r.=$this->getLang('info_delete_news');
-              $r.=html_close_tag('div');
-              $form2 = new Doku_Form(array('id' => 'addnews', 'method' => 'GET', 'class' => 'fksreturn'));
-              $form2->addHidden('target', 'plugin_fksnewsfeed');
-              $form2->addHidden('news_do', 'delete');
-              $form2->addHidden('news_stream', $INPUT->str('news_stream'));
-              $form2->addElement(form_makeButton('submit', '', $this->getLang('btn_delete_news')));
-              ob_start();
-              html_form('addnews', $form2);
-              $r .= ob_get_contents();
-              ob_end_clean();
 
-              } 
+            if(auth_quickaclcheck('start') >= $this->getConf('perm_manage')){
+                $r.=html_open_tag('div',array('class' => 'alert alert-info','role' => 'alert'));
+                $r.=$this->getLang('info_delete_news');
+                $r.=html_close_tag('div');
+                $form2 = new Doku_Form(array('id' => 'addnews','method' => 'GET','class' => 'fksreturn'));
+                $form2->addHidden('target','plugin_fksnewsfeed');
+                $form2->addHidden('news_do','order');
+                $form2->addHidden('news_stream',$INPUT->str('news_stream'));
+                $form2->addElement(form_makeButton('submit','',$this->getLang('btn_delete_news')));
+                ob_start();
+                html_form('addnews',$form2);
+                $r .= ob_get_contents();
+                ob_end_clean();
+            }
             if($in_manage){
                 $r.=html_close_tag('div');
                 $in_manage = FALSE;
@@ -230,6 +230,29 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         }else{
             return;
         }
+    }
+
+    public function ajax_add(Doku_Event &$event,$param) {
+        global $INPUT;
+
+        if($INPUT->str('target') != 'feed'){
+            return;
+        }
+        require_once DOKU_INC.'inc/JSON.php';
+        header('Content-Type: application/json');
+
+        if($INPUT->str('news_do') == 'add'){
+            $event->stopPropagation();
+            $event->preventDefault();
+            $weight = $INPUT->str('news_weight');
+            $news_id = $INPUT->str('news_id');
+            $stream_id = $this->helper->stream_to_id($INPUT->str('news_stream'));
+            $order_id = $this->helper->save_to_stream($stream_id,$news_id,$weight);
+            $r['order_div'] = $this->helper->create_order_div($news_id,$order_id,$weight);
+        }
+        $json = new JSON();
+
+        echo $json->encode($r);
     }
 
     /**
