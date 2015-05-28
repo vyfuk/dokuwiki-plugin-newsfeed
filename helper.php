@@ -62,7 +62,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      */
     public function loadstream($stream) {
         $stream_id = $this->stream_to_id($stream);
-        $sql = 'SELECT * FROM '.self::db_table_order.' where stream_id=? ORDER BY weight';
+        $sql = 'SELECT * FROM '.self::db_table_order.' where stream_id=? AND weight != 0 ORDER BY weight';
         $res = $this->sqlite->query($sql,$stream_id);
         return (array) array_reverse($this->sqlite->res2arr($res));
     }
@@ -296,7 +296,10 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $e = $this->_is_even($k);
         $n = str_replace(array('@id@','@even@'),array($news_id,$e),$this->simple_tpl);
         $form.= '<div class="FKS_newsfeed_delete_stream_news" data-index="'.$order_id.'" data-id="'.$news_id.'">';
-        $form.='<div class="FKS_newsfeed_delete_stream_news_weight">';
+        $form.='<div class="FKS_newsfeed_delete_stream_news_weight">           
+                <button type="button" class="close FKS_newsfeed_delete_news" >
+  <span aria-hidden="true">&times;</span>
+</button>';
         $form.='<span>'.$this->getLang('weight').'</span><input class="edit" name="weight['.$order_id.']" value="'.$weight.'">';
         $form.='</div>';
 

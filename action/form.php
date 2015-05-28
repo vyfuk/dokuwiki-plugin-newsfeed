@@ -168,44 +168,77 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                 foreach ($INPUT->param('weight') as $key => $value) {
                     $this->helper->update_stream($value,$key);
                 }
+                global $ACT;
+                $ACT = 'view';
             }
         }
-        global $ACT;
-        $ACT = 'view';
     }
 
     public function stream_delete(Doku_Event &$event) {
         global $INPUT;
+        if($INPUT->str("target") != "plugin_fksnewsfeed"){
+            return;
+        }
         if($INPUT->str('news_do') != 'order'){
+            return;
+        }
+        if(auth_quickaclcheck('start') < $this->getConf('perm_manage')){
             return;
         }
         $event->preventDefault();
 
-        global $lang;
-        echo'<div class="FKS_newsfeed_order_add">';
+
+
+
+        echo '<h1>'.$this->getLang('menu_manage_stream').'<small>stream:'.$INPUT->str('news_stream').'</small></h1>';
+        echo '<p>'.$this->getLang('info_namage_news');
+        echo '<ul>';
+        echo '<li><a href="#menu_create_news">'.$this->getLang('menu_create_news').'</a></li>';
+        echo '<li><a href="#menu_add_to_stream">'.$this->getLang('menu_add_to_stream').'</a></li>';
+        echo '<li><a href="#menu_delete_order">'.$this->getLang('menu_change_order').'</a></li>';
+       
+        echo '</ul></p>';
+
+
+
+
+        echo '<h2 id="menu_create_news">'.$this->getLang('menu_create_news').'</h2>';
+        echo '<p>'.$this->getLang('info_create_news').'</p>';
+
+        $form3 = new Doku_Form(array('id' => 'addnews','method' => 'GET','class' => 'fksreturn'));
+        $form3->addHidden('do','edit');
+        $form3->addHidden('target','plugin_fksnewsfeed');
+        $form3->addHidden('news_do','add');
+        $form3->addHidden('news_id',0);
+        $form3->addHidden('news_stream',$INPUT->str('news_stream'));
+        $form3->addElement(form_makeButton('submit','',$this->getLang('btn_create_news')));
+
+        html_form('addnews',$form3);
+
+
+
+
+        echo '<h2 id="menu_add_to_stream">'.$this->getLang('menu_add_to_stream').'</h2>';
+        echo '<div class="FKS_newsfeed_order_add">';
         $form2 = new Doku_Form(array('id' => 'add'));
         $form2->addElement(form_makeTextField('weight',0,$this->getLang('weight')));
         $form2->addHidden('news_stream',$INPUT->str('news_stream'));
         $form2->addElement(form_makeTextField('news_id',0,'ID'));
-        $form2->addElement(form_makeButton('button',null));
+        $form2->addElement(form_makeButton('button',null,$this->getLang('btn_add_to_stream')));
         html_form('nic',$form2);
         echo '</div>';
 
 
-
+        echo '<h2 id="menu_delete_order">'.$this->getLang('menu_change_order').'</h2>';
+        echo '<p>'.$this->getLang('info_change_order').'</p>';
         $form = new Doku_Form(array('id' => "save",
             'method' => 'POST','action' => null));
-        $form->startFieldset(null);
-        $form->addHidden('news_stream',$INPUT->str('news_stream'));
 
+        $form->addHidden('news_stream',$INPUT->str('news_stream'));
         $form->addHidden("target","plugin_fksnewsfeed");
         $form->addHidden('news_do','order_save');
-
-
-        $form->addElement(form_makeButton('submit','',$lang['btn_save'],array()));
+        $form->addElement(form_makeButton('submit','',$this->getLang('btn_change_order'),array()));
         $form->addElement(html_open_tag('div',array('class' => 'FKS_newsfeed_delete_stream')));
-
-
 
         foreach ($this->helper->loadstream($INPUT->str('news_stream'),true) as $key => $value) {
             $news_id = $value['news_id'];
@@ -214,9 +247,8 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
             $news = $this->helper->create_order_div($news_id,$order_id,$weight,$key);
             $form->addElement($news);
         }
-        $form->endFieldset();
-        html_form('nic',$form);
         $form->addElement('</div>');
+        html_form('nic',$form);
     }
 
 }

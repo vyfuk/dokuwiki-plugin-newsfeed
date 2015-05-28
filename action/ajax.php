@@ -69,50 +69,12 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
 
             $feed = (int) $INPUT->str('news_feed');
             $r = (string) "";
-            $in_manage = false;
-            if(auth_quickaclcheck('start') >= $this->getConf('perm_add')){
-                if(!$in_manage){
-                    $r.=html_button($this->getLang('btn_manage_stream'),'btn btn-warning FSK_newsfeed_manage_btn',array());
-                    $in_manage = true;
-                }
 
-
-                $r.=html_open_tag('div',array('class' => 'FKS_newsfeed_manage','style' => 'display:none'));
-                $r.=html_open_tag('div',array('class' => 'alert alert-warning alert-dismissible','role' => 'alert'));
-
-                $r.=$this->getLang('info_add_news');
-                $r.=html_close_tag('div');
-                $form = new Doku_Form(array('id' => 'addnews','method' => 'GET','class' => 'fksreturn'));
-                $form->addHidden('do','edit');
-                $form->addHidden('target','plugin_fksnewsfeed');
-                $form->addHidden('news_do','add');
-                $form->addHidden('news_id',0);
-                $form->addHidden('news_stream',$INPUT->str('news_stream'));
-                $form->addElement(form_makeButton('submit','',$this->getLang('btn_add_news')));
-                ob_start();
-                html_form('addnews',$form);
-                $r .= ob_get_contents();
-                ob_end_clean();
-            }
 
             if(auth_quickaclcheck('start') >= $this->getConf('perm_manage')){
-                $r.=html_open_tag('div',array('class' => 'alert alert-info','role' => 'alert'));
-                $r.=$this->getLang('info_delete_news');
-                $r.=html_close_tag('div');
-                $form2 = new Doku_Form(array('id' => 'addnews','method' => 'GET','class' => 'fksreturn'));
-                $form2->addHidden('target','plugin_fksnewsfeed');
-                $form2->addHidden('news_do','order');
-                $form2->addHidden('news_stream',$INPUT->str('news_stream'));
-                $form2->addElement(form_makeButton('submit','',$this->getLang('btn_delete_news')));
-                ob_start();
-                html_form('addnews',$form2);
-                $r .= ob_get_contents();
-                ob_end_clean();
+                $r.=$this->_get_manage_btn($INPUT->str('news_stream'));
             }
-            if($in_manage){
-                $r.=html_close_tag('div');
-                $in_manage = FALSE;
-            }
+
             if(auth_quickaclcheck('start') >= $this->getConf('perm_rss')){
 
 
@@ -247,7 +209,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
             $weight = $INPUT->str('news_weight');
             $news_id = $INPUT->str('news_id');
             $stream_id = $this->helper->stream_to_id($INPUT->str('news_stream'));
-            $order_id = $this->helper->save_to_stream($stream_id,$news_id,$weight);
+            $order_id = $this->helper->save_to_stream($stream_id,$news_id,0);
             $r['order_div'] = $this->helper->create_order_div($news_id,$order_id,$weight);
         }
         $json = new JSON();
@@ -269,6 +231,19 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                     'data-view' => (int) $more)).
                 html_button($this->getLang('btn_more_news'),'button',array('title' => 'fksnewsfeed'))
                 .html_close_tag('div');
+    }
+
+    private function _get_manage_btn($stream) {
+        $form2 = new Doku_Form(array('id' => 'addnews','method' => 'GET','class' => 'fksreturn'));
+        $form2->addHidden('target','plugin_fksnewsfeed');
+        $form2->addHidden('news_do','order');
+        $form2->addHidden('news_stream',$stream);
+        $form2->addElement(form_makeButton('submit','',$this->getLang('btn_manage_stream')));
+        ob_start();
+        html_form('addnews',$form2);
+        $r = ob_get_contents();
+        ob_end_clean();
+        return $r;
     }
 
 }
