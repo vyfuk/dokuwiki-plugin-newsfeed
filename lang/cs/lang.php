@@ -23,6 +23,7 @@ $lang['newsdate']         = 'Datum';
 $lang['newsname']         = 'Nadpis';
 $lang['name']             = 'Nadpis';
 $lang['image']            = 'Obrázek';
+$lang['category']         = 'Kategória';
 $lang['weight']           = 'Váha';
 /**
  * date for syntax plugin
@@ -52,7 +53,7 @@ $lang['js']['oRlyDelete'] = $lang['o_rly_delete'];
 /**
  * to create news
  */
-$lang['menu_create_news'] = 'Create new feed';
+$lang['menu_create_news'] = 'Vytvoriť novinku';
 $lang['btn_create_news'] = $lang['menu_create_news'] ;
 $lang['info_create_news'] ='';
 /**
@@ -64,12 +65,12 @@ $lang['info_manage_news'] = 'Spravovať tento stream:';
 /**
  * add_to_stream
  */
-$lang['menu_add_to_stream']='PridaŤ novinku do streamu';
+$lang['menu_add_to_stream']='Pridať novinku do streamu';
 $lang['btn_add_to_stream'] = $lang['menu_add_to_stream'];
 $lang['info_add_to_stream'] = '';
 /**
  * change order
  */
 $lang['menu_change_order'] = 'Upravit pořadí alebo zmazať novinku';
-$lang['btn_change_order'] = 'Zmeniť order';
+$lang['btn_change_order'] = 'Zmeniť pořadí';
 $lang['info_change_order'] = '';

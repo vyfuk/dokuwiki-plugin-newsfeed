@@ -6,8 +6,8 @@
  */
 
 // keys need to match the config setting name
-$lang['newsfolder'] = 'Priečinok na ukladanie novinky';
-$lang['newsfile'] = 'Názov súboru s novinkou';
+//$lang['newsfolder'] = 'Priečinok na ukladanie novinky';
+//$lang['newsfile'] = 'Názov súboru s novinkou';
 
 $lang['more_news']  = 'Počet dalších noviek';
 

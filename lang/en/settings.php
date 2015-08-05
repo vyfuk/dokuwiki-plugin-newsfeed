@@ -5,11 +5,8 @@
  * @author 
  */
 
-// keys need to match the config setting name
-$lang['newsfolder'] = 'Dir for save news';
-$lang['newsfile'] = 'Name of news file';
 
-$lang['more_news']  = 'Number display more news';
+$lang['more_news']  = 'Number of display more news';
 
 $lang['hash_no']='Number to generate token';
 $lang['no_pref']='Length of pre and post -fix ';

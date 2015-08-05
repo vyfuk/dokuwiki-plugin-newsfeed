@@ -18,10 +18,11 @@ if(!defined('DOKU_TAB')){
 
 class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
-    public static $Fields = array('name','email','author','newsdate','image','text');
+    public static $Fields = array('name','email','author','newsdate','image','category','text');
     public $FKS_helper;
     public $simple_tpl;
     public $sqlite;
+    public $errors;
 
     const simple_tpl = "{{fksnewsfeed>id=@id@; even=@even@}}";
     const db_table_feed = "fks_newsfeed_news";
@@ -33,6 +34,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public function __construct() {
         $this->simple_tpl = self::simple_tpl;
         $this->FKS_helper = $this->loadHelper('fkshelper');
+        $this->errors = array();
 
         $this->sqlite = $this->loadHelper('sqlite',false);
         $pluginName = $this->getPluginName();
@@ -46,10 +48,23 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         }
     }
 
-    public function stream_to_id($stream) {
+    /**
+     * 
+     * @param type $stream
+     * @return type
+     */
+    public function StreamToID($stream) {
         $sql1 = 'select stream_id from '.self::db_table_stream.' where name=?';
         $res1 = $this->sqlite->query($sql1,$stream);
-        return (int) $this->sqlite->res2single($res1);
+        $stream_id = $this->sqlite->res2single($res1);
+        if($stream_id == 0){
+            $this->errors[] = _('Stream dont\' exist');
+        }
+        return (int) $stream_id;
+    }
+
+    public function stream_to_id($stream) {
+        return $this->StreamToID($stream);
     }
 
     /**
@@ -60,8 +75,8 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * load file with configuration
      * and load old configuration file 
      */
-    public function loadstream($stream) {
-        $stream_id = $this->stream_to_id($stream);
+    public function LoadStream($stream) {
+        $stream_id = $this->StreamToID($stream);
         $sql = 'SELECT * FROM '.self::db_table_order.' where stream_id=? AND weight != 0 ORDER BY weight';
         $res = $this->sqlite->query($sql,$stream_id);
         return (array) array_reverse($this->sqlite->res2arr($res));
@@ -72,12 +87,16 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @author Michal Červeňák <miso@fykos.cz>
      * @return int
      */
-    public function findimax() {
+    public function FindMax() {
         $sql2 = 'select max(news_id) from '.self::db_table_feed;
         $res = $this->sqlite->query($sql2);
         $imax = $this->sqlite->res2single($res);
 
         return (int) $imax;
+    }
+
+    public function findimax() {
+        return $this->FindMax();
     }
 
     /**
@@ -117,36 +136,27 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * save a new news or rewrite old
      * @author Michal Červeňák <miso@fykos.cz>
      * @return bool is write ok
-     * @param array $Rdata params to save
+     * @param array $data params to save
      * @param string $id path to news
      * @param bool $rw rewrite?
      * 
      */
-    public function saveNewNews($Rdata,$id = 0,$rw = false) {
-
-        foreach (self::$Fields as $v) {
-            if(array_key_exists($v,$Rdata)){
-                $data[$v] = $Rdata[$v];
-            }else{
-                $data[$v] = $this->getConf($v);
-            }
-        }
-
-
+    public function SaveNews($data,$id = 0,$rw = false) {
         $image = $data['image'];
         $date = $data['newsdate'];
         $author = $data['author'];
         $email = $data['email'];
         $name = $data['name'];
         $text = $data['text'];
+        $category = $data['category'];
         if(!$rw){
-            $sql = 'INSERT INTO '.self::db_table_feed.' (name, author, email,newsdate,text,image) VALUES(?,?,?,?,?,?) ;';
-            $this->sqlite->query($sql,$name,$author,$email,$date,$text,$image);
-            return $this->findimax();
+            $sql = 'INSERT INTO '.self::db_table_feed.' (name, author, email,newsdate,text,image,category) VALUES(?,?,?,?,?,?,?) ;';
+            $this->sqlite->query($sql,$name,$author,$email,$date,$text,$image,$category);
+            return $this->FindMax();
         }else{
-            $sql = 'UPDATE '.self::db_table_feed.' SET name=?, author=?, email=?, newsdate=?, text=?, image=? where news_id=? ';
+            $sql = 'UPDATE '.self::db_table_feed.' SET name=?, author=?, email=?, newsdate=?, text=?, image=?,category=? where news_id=? ';
 
-            $this->sqlite->query($sql,$name,$author,$email,$date,$text,$image,$id);
+            $this->sqlite->query($sql,$name,$author,$email,$date,$text,$image,$category,$id);
             return $id;
         }
     }
@@ -161,7 +171,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * 
      * 
      */
-    public static function shortName($name = "",$l = 25) {
+    public static function ShortName($name = "",$l = 25) {
         if(strlen($name) > $l){
             $name = mb_substr($name,0,$l - 3).'...';
         }
@@ -172,14 +182,14 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @author Michal Červeňák <miso@fykos.cz>
      * @return array all stream from dir
      */
-    public static function allstream() {
+    public function AllStream() {
         $streams = array();
         $sql = 'SELECT s.name FROM '.self::db_table_stream.' s';
         $res = $this->sqlite->query($sql);
         foreach ($this->sqlite->res2arr($res) as $row) {
             $streams[] = $row['name'];
         }
-        return$streams;
+        return $streams;
     }
 
     /**
@@ -206,7 +216,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @return string
      */
     public static function _is_even($i) {
-        return 'FKS_newsfeed_'.helper_plugin_fkshelper::_is_even($i);
+        return helper_plugin_fkshelper::_is_even($i);
     }
 
     /**
@@ -228,9 +238,9 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * load news @i@ and return text
      * @author     Michal Červeňák <miso@fykos.cz>
      * @param int $id
-     * @return string
+     * @return array
      */
-    public function load_news_simple($id) {
+    public function LoadSimpleNews($id) {
         $sql = 'SELECT * FROM '.self::db_table_feed.' where news_id='.$id.'';
         $res = $this->sqlite->query($sql);
         foreach ($this->sqlite->res2arr($res) as $row) {
@@ -240,6 +250,10 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     }
 
     public function all_values($field) {
+        return $$this->AllValues($field);
+    }
+
+    public function AllValues($field) {
         $values = array();
         $sql = 'SELECT t.? FROM '.self::db_table_feed.' t GROUP BY t.?';
         $res = $this->sqlite->query($sql,$field,$field);
@@ -249,29 +263,61 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $values;
     }
 
-    public function all_dependence($stream_id) {
+    public function AllParentDependence($stream_id) {
 
         $stream_ids = array();
-        $sql = 'SELECT * FROM '.self::db_table_dependence.' t WHERE t.dependence_to=?';
+        $sql = 'SELECT * FROM '.self::db_table_dependence.' t WHERE t.parent=?';
         $res = $this->sqlite->query($sql,$stream_id);
         foreach ($this->sqlite->res2arr($res) as $row) {
 
-            $stream_ids[] = $row['dependence_from'];
+            $stream_ids[] = $row['child'];
+        }
+        return $stream_ids;
+    }
+
+    public function AllChildDependence($stream_id) {
+
+        $stream_ids = array();
+        $sql = 'SELECT * FROM '.self::db_table_dependence.' t WHERE t.child=?';
+        $res = $this->sqlite->query($sql,$stream_id);
+        foreach ($this->sqlite->res2arr($res) as $row) {
+
+            $stream_ids[] = $row['parent'];
         }
         return $stream_ids;
     }
 
     public function create_dependence($stream_id,&$arr) {
+        $this->FullParentDependence($stream_id,$arr);
+    }
 
-        foreach ($this->all_dependence($stream_id)as $new_stream_id) {
+    public function FullParentDependence($stream_id,&$arr) {
+        foreach ($this->AllParentDependence($stream_id)as $new_stream_id) {
             if(!in_array($new_stream_id,$arr)){
                 $arr[] = $new_stream_id;
-                $this->create_dependence($new_stream_id,$arr);
+
+                $this->FullParentDependence($new_stream_id,$arr);
+            }
+        }
+    }
+
+    public function FullChildDependence($stream_id,&$arr) {
+
+        foreach ($this->AllChildDependence($stream_id)as $new_stream_id) {
+            if(!in_array($new_stream_id,$arr)){
+                $arr[] = $new_stream_id;
+
+                $this->FullChildDependence($new_stream_id,$arr);
             }
         }
     }
 
     public function save_to_stream($stream_id,$id,$weight = null) {
+        return (int) $this->SaveIntoStream($stream_id,$id,$weight);
+    }
+
+    public function SaveIntoStream($stream_id,$id,$weight = null) {
+
         if($weight === null){
             $sql2 = 'select max(weight) from '.self::db_table_order.' where stream_id=?';
             $res2 = $this->sqlite->query($sql2,$stream_id);
@@ -287,6 +333,10 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     }
 
     public function update_stream($weigth,$order_id) {
+        return $this->UpdateWeight($weigth,$order_id);
+    }
+
+    public function UpdateWeight($weigth,$order_id) {
         $sql = 'UPDATE '.self::db_table_order.' SET weight=? WHERE order_id=?';
         return $this->sqlite->query($sql,$weigth,$order_id);
     }
@@ -295,17 +345,47 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $form = "";
         $e = $this->_is_even($k);
         $n = str_replace(array('@id@','@even@'),array($news_id,$e),$this->simple_tpl);
-        $form.= '<div class="FKS_newsfeed_delete_stream_news" data-index="'.$order_id.'" data-id="'.$news_id.'">';
-        $form.='<div class="FKS_newsfeed_delete_stream_news_weight">           
-                <button type="button" class="close FKS_newsfeed_delete_news" >
+        $form.= '<div class="simple_order_div" data-index="'.$order_id.'" data-id="'.$news_id.'">';
+        $form.='<div class="delete_news">           
+                <button type="button" class="close" >
   <span aria-hidden="true">&times;</span>
 </button>';
         $form.='<span>'.$this->getLang('weight').'</span><input class="edit" name="weight['.$order_id.']" value="'.$weight.'">';
         $form.='</div>';
-
+        $info = array();
         $form.=p_render("xhtml",p_get_instructions($n),$info);
         $form.='</div>';
         return $form;
+    }
+
+    /**
+     * TODO!!!
+     */
+    public function CreateStream($stream_name) {
+
+        $sql1 = 'insert into '.self::db_table_stream.' (name) VALUES(?);';
+        $this->sqlite->query($sql1,$stream_name);
+
+        $stream_id = $this->StreamToID($stream_name);
+        return $stream_id;
+    }
+
+    public function IDtoStream($id) {
+        $sql1 = 'select name from '.self::db_table_stream.' where stream_id=?';
+        $res1 = $this->sqlite->query($sql1,$id);
+        $stream_name = $this->sqlite->res2single($res1);
+        if($stream_name == 0){
+            $this->errors[] = _('Stream dont\' exist');
+        }
+        return (string) $stream_name;
+    }
+
+    public function CreateDependence($parent,$child) {
+        $sql1 = 'insert into '.self::db_table_dependence.' (parent,child) VALUES(?,?);';
+        $this->sqlite->query($sql1,$parent,$child);
+
+
+        return true;
     }
 
 }

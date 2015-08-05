@@ -21,7 +21,7 @@ if(!defined('DOKU_INC')){
 class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
     private static $modFields;
-    private static $cartesField = array('email','author');
+    private static $cartesField = array('email','author','category');
     private $helper;
     private $delete;
 
@@ -72,10 +72,10 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
             }
         }else{
             if($INPUT->int('news_id') != null){
-                $data = $this->helper->load_news_simple($INPUT->str("news_id"));
+                $data = $this->helper->LoadSimpleNews($INPUT->str("news_id"));
                 $TEXT = $data['text'];
             }else{
-                list($data,$TEXT) = $this->create_default();
+                list($data,$TEXT) = $this->CreateDefault();
             }
         }
 
@@ -84,7 +84,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         $form->addHidden('news_id',$INPUT->str("news_id"));
         $form->addHidden('news_do',$INPUT->str('news_do'));
         $form->addHidden('news_stream',$INPUT->str('news_stream'));
-
+        
         foreach (self::$modFields as $field) {
             if($field == 'text'){
                 $value = $INPUT->post->str('wikitext',$data[$field]);
@@ -92,14 +92,16 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                 $form->addElement(html_close_tag('div'));
                 $form->addElement(form_makeWikiText($TEXT,array()));
             }else{
+               
                 $value = $INPUT->post->str($field,$data[$field]);
                 $form->addElement(form_makeTextField($field,$value,$this->getLang($field),$field,null,array('list' => 'news_list_'.$field)));
             }
         }
         foreach (self::$cartesField as $field) {
-            $form->addElement(form_makeDataList('news_list_'.$field,$this->helper->all_values($field)));
+            $form->addElement(form_makeDataList('news_list_'.$field,$this->helper->AllValues($field)));
         }
         $form->endFieldset();
+        
     }
 
     public function save_news() {
@@ -119,16 +121,16 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                         $data[$field] = $INPUT->param($field);
                     }
                 }
-                if($INPUT->str('news_do') == 'add'){
-                    $id = $this->helper->saveNewNews($data,$INPUT->str('news_id'),FALSE);
-                    $stream_id = $this->helper->stream_to_id($INPUT->str('news_stream'));
+                if($INPUT->str('news_do') == 'create'){
+                    $id = $this->helper->SaveNews($data,$INPUT->str('news_id'),FALSE);
+                    $stream_id = $this->helper->StreamToID($INPUT->str('news_stream'));
                     $arrs = array($stream_id);
-                    $this->helper->create_dependence($stream_id,$arrs);
+                    $this->helper->FullParentDependence($stream_id,$arrs);
                     foreach ($arrs as $arr) {
-                        $this->helper->save_to_stream($arr,$id);
+                        $this->helper->SaveIntoStream($arr,$id);
                     }
                 }else{
-                    $this->helper->saveNewNews($data,$INPUT->str('news_id'),true);
+                    $this->helper->SaveNews($data,$INPUT->str('news_id'),true);
                 }
                 unset($TEXT);
                 unset($_POST['wikitext']);
@@ -138,7 +140,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         }
     }
 
-    private function create_default() {
+    private function CreateDefault() {
         global $INFO;
         return array(
             array('author' => $INFO['userinfo']['name'],
@@ -146,7 +148,8 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                 'email' => $INFO['userinfo']['mail'],
                 'text' => $this->getLang('news_text'),
                 'name' => $this->getLang('news_name'),
-                'image' => ''),
+                'image' => '',
+                'category'=>''),
             $this->getLang('news_text'));
     }
 
@@ -166,7 +169,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         if($INPUT->str("target") == "plugin_fksnewsfeed"){
             if($INPUT->str('news_do') == 'order_save'){
                 foreach ($INPUT->param('weight') as $key => $value) {
-                    $this->helper->update_stream($value,$key);
+                    $this->helper->UpdateWeight($value,$key);
                 }
                 global $ACT;
                 $ACT = 'view';
@@ -187,7 +190,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         }
         $event->preventDefault();
 
-
+        echo '<div class="FKS_newsfeed">';
 
 
         echo '<h1>'.$this->getLang('menu_manage_stream').'<small>stream:'.$INPUT->str('news_stream').'</small></h1>';
@@ -195,8 +198,8 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         echo '<ul>';
         echo '<li><a href="#menu_create_news">'.$this->getLang('menu_create_news').'</a></li>';
         echo '<li><a href="#menu_add_to_stream">'.$this->getLang('menu_add_to_stream').'</a></li>';
-        echo '<li><a href="#menu_delete_order">'.$this->getLang('menu_change_order').'</a></li>';
-       
+        echo '<li><a href="#menu_change_order">'.$this->getLang('menu_change_order').'</a></li>';
+
         echo '</ul></p>';
 
 
@@ -205,31 +208,31 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         echo '<h2 id="menu_create_news">'.$this->getLang('menu_create_news').'</h2>';
         echo '<p>'.$this->getLang('info_create_news').'</p>';
 
-        $form3 = new Doku_Form(array('id' => 'addnews','method' => 'GET','class' => 'fksreturn'));
+        $form3 = new Doku_Form(array('method' => 'GET'));
         $form3->addHidden('do','edit');
         $form3->addHidden('target','plugin_fksnewsfeed');
-        $form3->addHidden('news_do','add');
+        $form3->addHidden('news_do','create');
         $form3->addHidden('news_id',0);
         $form3->addHidden('news_stream',$INPUT->str('news_stream'));
         $form3->addElement(form_makeButton('submit','',$this->getLang('btn_create_news')));
 
-        html_form('addnews',$form3);
+        html_form('create_news',$form3);
 
 
 
 
         echo '<h2 id="menu_add_to_stream">'.$this->getLang('menu_add_to_stream').'</h2>';
-        echo '<div class="FKS_newsfeed_order_add">';
-        $form2 = new Doku_Form(array('id' => 'add'));
+        echo '<div class="add_to_stream">';
+        $form2 = new Doku_Form(array());
         $form2->addElement(form_makeTextField('weight',0,$this->getLang('weight')));
         $form2->addHidden('news_stream',$INPUT->str('news_stream'));
         $form2->addElement(form_makeTextField('news_id',0,'ID'));
         $form2->addElement(form_makeButton('button',null,$this->getLang('btn_add_to_stream')));
-        html_form('nic',$form2);
+        html_form('add_to_stream',$form2);
         echo '</div>';
 
 
-        echo '<h2 id="menu_delete_order">'.$this->getLang('menu_change_order').'</h2>';
+        echo '<h2 id="menu_change_order">'.$this->getLang('menu_change_order').'</h2>';
         echo '<p>'.$this->getLang('info_change_order').'</p>';
         $form = new Doku_Form(array('id' => "save",
             'method' => 'POST','action' => null));
@@ -238,7 +241,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         $form->addHidden("target","plugin_fksnewsfeed");
         $form->addHidden('news_do','order_save');
         $form->addElement(form_makeButton('submit','',$this->getLang('btn_change_order'),array()));
-        $form->addElement(html_open_tag('div',array('class' => 'FKS_newsfeed_delete_stream')));
+        $form->addElement(html_open_tag('div',array('class' => 'order_stream')));
 
         foreach ($this->helper->loadstream($INPUT->str('news_stream'),true) as $key => $value) {
             $news_id = $value['news_id'];
@@ -249,6 +252,8 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         }
         $form->addElement('</div>');
         html_form('nic',$form);
+
+        echo '</div>';
     }
 
 }

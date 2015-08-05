@@ -71,7 +71,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
         <p>Good luck without JavaScript</p>', -1) .
                 '</noscript>';
 
-        $renderer->doc .='<div class="FKS_newsfeed_stream" ' . buildAttributes($atr) . '></div>';
+        $renderer->doc .='<div class="FKS_newsfeed"><div class="stream" ' . buildAttributes($atr) . '></div></div>';
         return false;
     }
 
