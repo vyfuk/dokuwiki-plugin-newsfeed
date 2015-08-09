@@ -71,7 +71,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @author Michal Červeňák <miso@fykos.cz>
      * @param string $s 
      * @param bool $o
-     * @return void
+     * @return array
      * load file with configuration
      * and load old configuration file 
      */
@@ -194,24 +194,6 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     /**
      * @author Michal Červeňák <miso@fykos.cz>
-     * @global type $INFO
-     * @param string $type action 
-     * @param string $newsid
-     * @return void
-     */
-    public static function _log_event($type,$newsid) {
-        global $INFO;
-
-        $log = io_readFile(metaFN('fksnewsfeed:log','.log'));
-        $news_id = preg_replace('/[A-Z]/','',$newsid);
-        $log.= "\n".date("Y-m-d H:i:s").' ; '.$news_id.' ; '.$type.' ; '.$INFO['name'].' ; '.$_SERVER['REMOTE_ADDR'].';'.$INFO['ip'].' ; '.$INFO['user'];
-
-        io_saveFile(metaFN('fksnewsfeed:log','.log'),$log);
-        return;
-    }
-
-    /**
-     * @author Michal Červeňák <miso@fykos.cz>
      * @param int $i
      * @return string
      */
@@ -227,11 +209,11 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public function _generate_token($id) {
         $hash_no = (int) $this->getConf('hash_no');
         $l = (int) $this->getConf('no_pref');
-        $this->hash['pre'] = helper_plugin_fkshelper::_generate_rand($l);
-        $this->hash['pos'] = helper_plugin_fkshelper::_generate_rand($l);
-        $this->hash['hex'] = dechex($hash_no + 2 * $id);
-        $this->hash['hash'] = $this->hash['pre'].$this->hash['hex'].$this->hash['pos'];
-        return (string) DOKU_URL.'?do=fksnewsfeed_token&token='.$this->hash['hash'];
+        $pre = helper_plugin_fkshelper::_generate_rand($l);
+        $pos = helper_plugin_fkshelper::_generate_rand($l);
+        $hex = dechex($hash_no + 2 * $id);
+        $hash = $pre.$hex.$pos;
+        return (string) DOKU_URL.'?do=fksnewsfeed_token&token='.$hash;
     }
 
     /**
@@ -253,6 +235,11 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $$this->AllValues($field);
     }
 
+    /**
+     * 
+     * @param string $field name of field
+     * @return array
+     */
     public function AllValues($field) {
         $values = array();
         $sql = 'SELECT t.? FROM '.self::db_table_feed.' t GROUP BY t.?';
@@ -263,6 +250,11 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $values;
     }
 
+    /**
+     * 
+     * @param type $stream_id
+     * @return array
+     */
     public function AllParentDependence($stream_id) {
 
         $stream_ids = array();
@@ -275,6 +267,11 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $stream_ids;
     }
 
+    /**
+     * 
+     * @param int $stream_id 
+     * @return array of stream ID
+     */
     public function AllChildDependence($stream_id) {
 
         $stream_ids = array();
@@ -291,6 +288,11 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $this->FullParentDependence($stream_id,$arr);
     }
 
+    /**
+     * 
+     * @param type $stream_id
+     * @param type $arr
+     */
     public function FullParentDependence($stream_id,&$arr) {
         foreach ($this->AllParentDependence($stream_id)as $new_stream_id) {
             if(!in_array($new_stream_id,$arr)){
@@ -301,6 +303,11 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         }
     }
 
+    /**
+     * 
+     * @param type $stream_id
+     * @param type $arr
+     */
     public function FullChildDependence($stream_id,&$arr) {
 
         foreach ($this->AllChildDependence($stream_id)as $new_stream_id) {
@@ -316,12 +323,18 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return (int) $this->SaveIntoStream($stream_id,$id,$weight);
     }
 
+    /**
+     * 
+     * @param type $stream_id
+     * @param type $id
+     * @param type $weight
+     * @return type
+     */
     public function SaveIntoStream($stream_id,$id,$weight = null) {
-
         if($weight === null){
-            $sql2 = 'select max(weight) from '.self::db_table_order.' where stream_id=?';
-            $res2 = $this->sqlite->query($sql2,$stream_id);
-            $weight = (int) $this->sqlite->res2single($res2);
+            $sql = 'select max(weight) from '.self::db_table_order.' where stream_id=?';
+            $res = $this->sqlite->query($sql,$stream_id);
+            $weight = (int) $this->sqlite->res2single($res);
             $weight+=10;
         }
 
@@ -336,6 +349,12 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $this->UpdateWeight($weigth,$order_id);
     }
 
+    /**
+     * 
+     * @param type $weigth
+     * @param type $order_id
+     * @return type
+     */
     public function UpdateWeight($weigth,$order_id) {
         $sql = 'UPDATE '.self::db_table_order.' SET weight=? WHERE order_id=?';
         return $this->sqlite->query($sql,$weigth,$order_id);
@@ -362,16 +381,21 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * TODO!!!
      */
     public function CreateStream($stream_name) {
-
-        $sql1 = 'insert into '.self::db_table_stream.' (name) VALUES(?);';
+        $sql1 = 'INSERT INTO '.self::db_table_stream.' (name) VALUES(?);';
         $this->sqlite->query($sql1,$stream_name);
-
         $stream_id = $this->StreamToID($stream_name);
         return $stream_id;
     }
 
+    /**
+     * return name of stream.
+     * @author Michal Cervenak <miso@fykos.cz>
+     * 
+     * @param int $id referent id of stream
+     * @return string
+     */
     public function IDtoStream($id) {
-        $sql1 = 'select name from '.self::db_table_stream.' where stream_id=?';
+        $sql1 = 'SELECT name FROM '.self::db_table_stream.' where stream_id=?';
         $res1 = $this->sqlite->query($sql1,$id);
         $stream_name = $this->sqlite->res2single($res1);
         if($stream_name == 0){
@@ -380,12 +404,18 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return (string) $stream_name;
     }
 
+    /**
+     * Create dependence betwen parent and child stream 
+     * @author Michal Cervenak <miso@fykos.cz>
+     * 
+     * @param int $parent id of parent stream
+     * @param int $child id of child stream
+     * @return boolean 
+     */
     public function CreateDependence($parent,$child) {
         $sql1 = 'insert into '.self::db_table_dependence.' (parent,child) VALUES(?,?);';
-        $this->sqlite->query($sql1,$parent,$child);
-
-
-        return true;
+        $r = $this->sqlite->query($sql1,$parent,$child);
+        return (bool) $r;
     }
 
 }

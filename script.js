@@ -30,7 +30,8 @@ jQuery(function () {
                         name: 'local',
                         news_do: 'stream',
                         news_stream: $(this).data("stream"),
-                        news_feed: $(this).data("feed")
+                        news_feed_s: 0,
+                        news_feed_l: $(this).data("feed")
                     },
             function (data) {
                 $stream.html(data["r"]);
@@ -38,11 +39,11 @@ jQuery(function () {
                     'json');
         });
     });
-    $FKS_newsfeed.find(FKS_newsfeed.div_more_news).find('button.button').live("click", function () {        
+    $FKS_newsfeed.find(FKS_newsfeed.div_more_news).find('button.button').live("click", function () {
         var $div_more_news = $(this).parent(FKS_newsfeed.div_more_news);
         var $streamdiv = $(this).parents(FKS_newsfeed.div_stream);
         $div_more_news.html("");
-        $div_more_news.append(_add_load_bar());        
+        $div_more_news.append(_add_load_bar());
         $.post(DOKU_BASE + 'lib/exe/ajax.php',
                 {
                     call: 'plugin_fksnewsfeed',
@@ -50,11 +51,13 @@ jQuery(function () {
                     name: 'local',
                     news_do: 'more',
                     news_stream: $div_more_news.data("stream"),
-                    news_view: $div_more_news.data("view")
+                    news_view: $div_more_news.data("view"),
+                    news_feed_s: $div_more_news.data("view"),
+                    news_feed_l: 3
                 },
         function (data) {
             $div_more_news.html("");
-            $streamdiv.append(data["news"]);
+            $streamdiv.append(data["r"]);
             if (data['more']) {
                 $FKS_newsfeed.find(FKS_newsfeed.div_more_news).remove();
             }
@@ -72,7 +75,7 @@ jQuery(function () {
                     call: 'plugin_fksnewsfeed',
                     target: 'feed',
                     name: 'local',
-                    news_do: 'add',
+                    news_do: 'weight_add',
                     news_id: $add_to_stream.find('input[name=news_id]').val(),
                     news_weight: $add_to_stream.find('input[name=weight]').val(),
                     news_stream: $add_to_stream.find('input[name=news_stream]').val()
@@ -93,13 +96,13 @@ jQuery(function () {
     });
     function _add_load_bar() {
         return '<div class="load" style="text-align:center;clear:both">' +
-                '<img src="'+DOKU_BASE+'lib/plugins/fksnewsfeed/images/load.gif" alt="load">' +
+                '<img src="' + DOKU_BASE + 'lib/plugins/fksnewsfeed/images/load.gif" alt="load">' +
                 '</div>';
     }
     /**
      * button to delete newsfeed on manage
      */
-    $FKS_newsfeed.find(FKS_newsfeed.div_delete_news).find('button').live("click",function () {
+    $FKS_newsfeed.find(FKS_newsfeed.div_delete_news).find('button').live("click", function () {
         if (confirm(LANG.plugins.fksnewsfeed.oRlyDelete)) {
             $(this).parent(FKS_newsfeed.div_delete_weight).children('input.edit').val(0);
             $(this).parents(FKS_newsfeed.div_simple_order).slideUp();
@@ -113,13 +116,13 @@ jQuery(function () {
             var index = $(this).data("index");
             weights[index] = {id: $(this).data("id"), weight: Number($(this).find('input.edit').val()), index: index};
         });
-        weights.sort(sortByWeight); 
+        weights.sort(sortByWeight);
         var pos = 0;
         for (var k in weights) {
             var news = weights[k];
-            
+
             $FKS_newsfeed.find(FKS_newsfeed.div_simple_order + '[data-index=' + news.index + ']').each(function () {
-                
+
                 $(this).animate({top: pos}, "slow");
                 var height = $(this).height();
                 pos += height;
@@ -127,8 +130,8 @@ jQuery(function () {
             });
         }
         $FKS_newsfeed.find(FKS_newsfeed.div_order_stream).css({height: pos});
-        $input.one("change",function () {
-            sortNewsDivs();            
+        $input.one("change", function () {
+            sortNewsDivs();
         });
     }
     function sortByWeight(a, b) {

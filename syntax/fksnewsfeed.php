@@ -48,7 +48,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     public function handle($match,$state) {
         $text = str_replace(array("\n",'{{fksnewsfeed>','}}'),array('','',''),$match);
         /** @var id and even this NF $param */
-        $param = $this->helper->FKS_helper->extractParamtext($text);
+        $param = $this->helper->FKS_helper->ExtractParamtext($text);
         return array($state,array($param));
     }
 

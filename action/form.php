@@ -23,7 +23,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
     private static $modFields;
     private static $cartesField = array('email','author','category');
     private $helper;
-    private $delete;
+   
 
     /**
      * Registers a callback function for a given event

@@ -1,0 +1,2 @@
+  * Syntax plugin fksnewsfeed -> add parameter edit/not-edit
+  * IF is not set param "feed" load default. 

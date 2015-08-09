@@ -10,9 +10,9 @@ $lang['direction']  = 'ltr';
 /**
  * other buttons
  */
-$lang['addmenu']            = 'Přidat aktualitu'; 
-$lang['editmenu']           = 'Upravit aktuality';
-$lang['add_n_edit_menu']    = 'Přidat a upravit aktuality';
+$lang['btn_edit_news']      = 'Upraviť túto novinku';
+$lang['btn_more_news']      = 'Staršie novinky';
+$lang['btn_newsfeed_link']  = 'Link na túto novinku';
 /**
  * label to form
  */
@@ -25,6 +25,9 @@ $lang['name']             = 'Nadpis';
 $lang['image']            = 'Obrázek';
 $lang['category']         = 'Kategória';
 $lang['weight']           = 'Váha';
+
+
+$lang['stream']='stream';
 /**
  * date for syntax plugin
  */
@@ -74,3 +77,26 @@ $lang['info_add_to_stream'] = '';
 $lang['menu_change_order'] = 'Upravit pořadí alebo zmazať novinku';
 $lang['btn_change_order'] = 'Zmeniť pořadí';
 $lang['info_change_order'] = '';
+/**
+ * for admin dependence
+ */
+$lang['dep_menu']='Upravit závyslosti streamov';
+$lang['dep_create']='Vytvoriť novú závyslosť';
+$lang['dep_created']='Závysloť bola vytvorená';
+$lang['dep_exist']='závysloť už existuje';
+$lang['dep_full_info']='Novinka pridaná do rodičovského streamu sa automaticky pridá aj do detského streamu. <br />
+                Novinka pridaná do detského streamu sa v rodičovskom nezobrazí.';
+$lang['dep_parent_info']='Stream od ktorého sa dedí "rodič"';
+$lang['dep_child_info']='Stream do ktorého sa dedí "dieťa"';
+$lang['dep_list']='Zoznam Streamov a ich závyslostí';
+$lang['dep_list_parent']='Od tohoto streamu priamo dedí, je rodič voči:';
+$lang['dep_list_child']='Do tohoto streamu priamo dedí, je dieťa voči:';
+$lang['dep_list_parent_full']='Od tohoto streamu celkovo dedí, je (pra)rodič voči:';
+$lang['dep_list_child_full']='Do tohoto streamu celkovo dedí, je (pra)dieťa voči:';
+
+/**
+ * for admin stream
+ */
+$lang['stream_create']='Create stream';
+$lang['stream_list']='List of streams';
+$lang['stream_delete']='Remove stream';

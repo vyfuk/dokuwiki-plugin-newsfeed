@@ -1,11 +1,12 @@
 CREATE TABLE fks_newsfeed_news(
 'news_id' INTEGER PRIMARY KEY AUTOINCREMENT,
-'name' VARCHAR,
-'author' VARCHAR,
-'email' VARCHAR,
+'name' TEXT,
+'author' TEXT,
+'email' TEXT,
 'text' TEXT,
 'newsdate' TEXT,
-'image' VARCHAR
+'image' TEXT,
+'category' TEXT
 );
 
 CREATE TABLE fks_newsfeed_stream(
@@ -15,10 +16,10 @@ CREATE TABLE fks_newsfeed_stream(
 
 CREATE TABLE fks_newsfeed_dependence(
 'dependence_id' INTEGER PRIMARY KEY AUTOINCREMENT,
-'dependence_from' INTEGER,
-'dependence_to' INTEGER,
-FOREIGN KEY(dependence_from) REFERENCES fks_newsfeed_stream(stream_id),
-FOREIGN KEY(dependence_to) REFERENCES fks_newsfeed_stream(stream_id)
+'parent' INTEGER,
+'child' INTEGER,
+FOREIGN KEY(child) REFERENCES fks_newsfeed_stream(stream_id),
+FOREIGN KEY(parent) REFERENCES fks_newsfeed_stream(stream_id)
 );
 
 CREATE TABLE fks_newsfeed_order(
@@ -29,13 +30,3 @@ CREATE TABLE fks_newsfeed_order(
 FOREIGN KEY(news_id) REFERENCES fks_newsfeed_news(news_id),
 FOREIGN KEY(stream_id) REFERENCES fks_newsfeed_stream(stream_id)
 );
-
-CREATE VIEW v_dependence AS
-select s_from.name as 'dependence_from' ,s_to.name as 'dependence_to' 
-from fks_newsfeed_dependence  d
-join fks_newsfeed_stream s_from ON d.dependence_from=s_from.stream_id 
-join fks_newsfeed_stream s_to ON d.dependence_to=s_to.stream_id 
-;
-
-
-
