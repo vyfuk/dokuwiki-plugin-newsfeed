@@ -1,136 +1,142 @@
 /**
- * JavaScript for doku plugin FKSnewsfeed
+ * JavaScript for DokuWiki plugin FKSnewsfeed
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author Michal Červeňák <miso@fykos.cz>
  */
 
-jQuery(function() {
+/* global LANG, DOKU_BASE */
 
+jQuery(function () {
     var $ = jQuery;
-    _edit_news();
-    _more_news();
-    _link_news();
-    $(window).load(function() {
-        
-        $('div.FKS_newsfeed_stream').each(function() {
+    var FKS_newsfeed = {
+        div_simple_order: 'div.simple_order_div',
+        div_delete_news: 'div.delete_news',
+        div_order_stream: 'div.order_stream',
+        div_add_to_stream: 'div.add_to_stream',
+        div_more_news: 'div.more_news',
+        div_feed: 'div.even,div.odd',
+        div_stream: 'div.stream'
+    };
+    var $FKS_newsfeed = $('div.FKS_newsfeed');
+    $(window).load(function () {
+        sortNewsDivs();
+        $FKS_newsfeed.find(FKS_newsfeed.div_stream).each(function () {
             var $stream = $(this);
             $(this).append(_add_load_bar());
-            _start_load_animation();
-
-            var newsSTREAM = $(this).data("stream");
-            var newsFEED = $(this).data("feed");
             $.post(DOKU_BASE + 'lib/exe/ajax.php',
-                    {call: 'plugin_fksnewsfeed', target: 'feed', name: 'local', news_do: 'stream', news_stream: newsSTREAM, news_feed: newsFEED},
-            function(data) {
+                    {
+                        call: 'plugin_fksnewsfeed',
+                        target: 'feed',
+                        name: 'local',
+                        news_do: 'stream',
+                        news_stream: $(this).data("stream"),
+                        news_feed_s: 0,
+                        news_feed_l: $(this).data("feed")
+                    },
+            function (data) {
                 $stream.html(data["r"]);
-                _edit_news();
-                _more_news();
-                _link_news();
-                _link_rss();
-                 _news_manage();
             },
                     'json');
         });
-        ;
-    })
-            ;
-    function _edit_news() {
-        $('div.FKS_newsfeed_even,div.FKS_newsfeed_odd').mouseover(function() {
-            var newsID = $(this).data("id");
-            var $editdiv = $('div.FKS_newsfeed_edit[data-id=' + $(this).data("id") + ']');
-            if ($editdiv.html() !== "") {
-                return false;
+    });
+    $FKS_newsfeed.find(FKS_newsfeed.div_more_news).find('button.button').live("click", function () {
+        var $div_more_news = $(this).parent(FKS_newsfeed.div_more_news);
+        var $streamdiv = $(this).parents(FKS_newsfeed.div_stream);
+        $div_more_news.html("");
+        $div_more_news.append(_add_load_bar());
+        $.post(DOKU_BASE + 'lib/exe/ajax.php',
+                {
+                    call: 'plugin_fksnewsfeed',
+                    target: 'feed',
+                    name: 'local',
+                    news_do: 'more',
+                    news_stream: $div_more_news.data("stream"),
+                    news_view: $div_more_news.data("view"),
+                    news_feed_s: $div_more_news.data("view"),
+                    news_feed_l: 3
+                },
+        function (data) {
+            $div_more_news.html("");
+            $streamdiv.append(data["r"]);
+            if (data['more']) {
+                $FKS_newsfeed.find(FKS_newsfeed.div_more_news).remove();
             }
-            ;
-            $.post(DOKU_BASE + 'lib/exe/ajax.php',
-                    {call: 'plugin_fksnewsfeed', target: 'feed', name: 'local', news_do: 'edit', news_id: newsID},
-            function(data) {
-                $editdiv.html(data["r"]);
-                _link_news();
-                _news_share_FB();
-            }, 'json');
-        });
-    }
-    ;
-    function _more_news() {
-        $('div.FKS_newsfeed_more').click(function() {
-            //event.preventDefault();
-
-            var newsVIEW = $(this).data("view");
-            var newsSTREAM = $(this).data("stream");
-            var $streamdiv = $('div.FKS_newsfeed_stream[data-stream=' + newsSTREAM + ']');
-            $(this).append(_add_load_bar());
-            _start_load_animation();
-            $.post(DOKU_BASE + 'lib/exe/ajax.php',
-                    {call: 'plugin_fksnewsfeed', target: 'feed', name: 'local', news_do: 'more', news_stream: newsSTREAM, news_view: newsVIEW},
-            $.proxy(function(data) {
-                $(this).html("");
-                $streamdiv.html($streamdiv.html() + data["news"]);
-                if (data['more']) {
-                    $('div.FKS_newsfeed_more[data-stream=' + newsSTREAM + ']').remove();
-                }
-                _edit_news();
-                _more_news();
-                _link_news();
-                _link_rss();
-                _news_manage();
-            }, this)
-                    , 'json');
-        });
-    }
-    ;
-    function _link_news() {
-        $('button.FKS_newsfeed_link_btn').click(function() {
-            var ID = $(this).data('id');
-            $('input.FKS_newsfeed_link_inp[data-id=' + ID + ']').slideDown();
         }
-        );
-    }
-    ;
-    function _news_manage() {
-        $('.FSK_newsfeed_manage_btn').click(function() {
-            $('.FKS_newsfeed_manage').slideDown();
-        });
-    }
-    ;
-    function _link_rss() {
-        $('button.FKS_newsfeed_rss_btn').click(function() {
-
-            $('input.FKS_newsfeed_rss_inp').slideDown();
-        }
-        );
-    }
-    ;
-    function _news_share_FB() {
-        (function(d, s, id) {
-            var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id))
-                return;
-            js = d.createElement(s);
-            js.id = id;
-            js.src = "//connect.facebook.net/en_PI/sdk.js#xfbml=1&version=v2.0";
-            fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
-    }
-    ;
+        , 'json');
+    });
+    /**
+     * 
+     * button to add news to strem
+     */
+    var $add_to_stream = $FKS_newsfeed.find(FKS_newsfeed.div_add_to_stream);
+    $add_to_stream.find('input.button').click(function () {
+        $.post(DOKU_BASE + 'lib/exe/ajax.php',
+                {
+                    call: 'plugin_fksnewsfeed',
+                    target: 'feed',
+                    name: 'local',
+                    news_do: 'weight_add',
+                    news_id: $add_to_stream.find('input[name=news_id]').val(),
+                    news_weight: $add_to_stream.find('input[name=weight]').val(),
+                    news_stream: $add_to_stream.find('input[name=news_stream]').val()
+                },
+        function (data) {
+            $FKS_newsfeed.find(FKS_newsfeed.div_order_stream).append(data["order_div"]);
+            sortNewsDivs();
+        }, 'json');
+    });
+    $FKS_newsfeed.find('button.link_btn').live("click", function (event) {
+        $(this).parent('div').children('input').slideToggle();
+    });
+    /*
+     * @TODO 
+     */
+    $('button.FKS_newsfeed_rss_btn').live("click", function () {
+        $('input.FKS_newsfeed_rss_inp').slideDown();
+    });
     function _add_load_bar() {
-
-        return '<div class="progress">' +
-                '<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 30%">' +
-                '<span class="sr-only"></span>' +
-                '</div>' +
+        return '<div class="load" style="text-align:center;clear:both">' +
+                '<img src="' + DOKU_BASE + 'lib/plugins/fksnewsfeed/images/load.gif" alt="load">' +
                 '</div>';
     }
-    function _start_load_animation() {
-        var $load = $('.progress-bar');
+    /**
+     * button to delete newsfeed on manage
+     */
+    $FKS_newsfeed.find(FKS_newsfeed.div_delete_news).find('button').live("click", function () {
+        if (confirm(LANG.plugins.fksnewsfeed.oRlyDelete)) {
+            $(this).parent(FKS_newsfeed.div_delete_weight).children('input.edit').val(0);
+            $(this).parents(FKS_newsfeed.div_simple_order).slideUp();
+            sortNewsDivs();
+        }
+    });
+    function sortNewsDivs() {
+        var $input = $FKS_newsfeed.find(FKS_newsfeed.div_delete_news).find('input');
+        var weights = new Array();
+        $FKS_newsfeed.find(FKS_newsfeed.div_simple_order).each(function () {
+            var index = $(this).data("index");
+            weights[index] = {id: $(this).data("id"), weight: Number($(this).find('input.edit').val()), index: index};
+        });
+        weights.sort(sortByWeight);
+        var pos = 0;
+        for (var k in weights) {
+            var news = weights[k];
 
-        $load.animate({
-            width: 99 + "%"
+            $FKS_newsfeed.find(FKS_newsfeed.div_simple_order + '[data-index=' + news.index + ']').each(function () {
 
-        }, 4000, "linear");
-        ;
+                $(this).animate({top: pos}, "slow");
+                var height = $(this).height();
+                pos += height;
+                pos += 50;
+            });
+        }
+        $FKS_newsfeed.find(FKS_newsfeed.div_order_stream).css({height: pos});
+        $input.one("change", function () {
+            sortNewsDivs();
+        });
     }
-    ;
+    function sortByWeight(a, b) {
+        return((a.weight < b.weight) ? 1 : ((a.weight > b.weight) ? -1 : 0));
+    }
     return true;
 });
 

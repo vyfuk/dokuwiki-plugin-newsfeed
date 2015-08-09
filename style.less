@@ -1,92 +1,113 @@
 /**
-* LESS & CSS for doku plugin FKSnewsfeed 
-* @author Michal Červeňák
-* Use bootstrap
+* LESS & CSS for DokuWiki plugin FKSnewsfeed 
+* @author Michal Červeňák <miso@fykos.cz>
+* 
 */
+@rss_color : #ff8811;
 
+.FKS_newsfeed{
+    .odd,.even{
+        border-style: solid;
+        border-width: 1px;
+        &:hover{
 
-.FKS_newsfeed_odd{
-    background-color: __vyfuk_back_light_1__;
-}
-
-.FKS_newsfeed_even{
-    background-color: __vyfuk_back_light_2__ ;
-}
-
-.FKS_newsfeed_link_inp,.FKS_newsfeed_rss_inp{
-    .form-control;
-}
-.FKS_newsfeed_rss_inp{
-    float: right;
-}
-
-.FKS_newsfeed_edit{
-    *{
-        float: right;
-    }
-}
-.FKS_newsfeed_stream{
-    .list-group;
-}
-.FKS_newsfeed_odd,div.FKS_newsfeed_even{
-    border-bottom: 2px solid __border__;
-    margin: 0px;
-
-    padding: 1em;  
-    border-radius: 4px;
-
-    clear: both;
-    .list-group-item;
-    &:hover{
-        .active;
-    }
-    h3{
-        .list-group-item-heading;
-
-    }
-
-}
-.FKS_newsfeed_rss{
-    span{
-        &:before{
-            content: url('images/rss.png');
+            background-color: #f3f3f3;
         }
-        color:white!important;
-        background-color: #ff6600!important;
-    }
+        margin: 0px;
+        padding: 1em;  
+        border-radius: 4px;
+        clear: both;
+        .author{
+            float: right;
+        }
+        .date{
+            float: right;
+            font-weight: bold;
+        }
+        &.default{
+            border-color:@ini_text_alt; 
+            &:hover{
+                border-color: darken(@ini_text_alt,10%);
 
-    span,input{
-        border-color:#d8791e;
-        color:ff6600!important;
-        &:hover,&:active,&:focus{
-            border-color:#ff6600;           
+            }
         }
     }
+    .edit{
+        padding-bottom: .5em;
+    }
+    .order_stream{
+        .simple_order_div{
+            position: absolute;
+            width: 100%;
+        }
+        position: relative;
+        width: 100%;
+    }
+    .rss {
+        &>*{
+            border: solid 1px darken(@rss_color,10%);
+            height: 2.5em;
+        }
+        div{
+            width: 15%;
+            border-top-left-radius:  5px;
+            border-bottom-left-radius: 5px;
+            padding: .5em;     
+            float: left;
+            text-align: center;
+            span{
+                &:before{
+                    content: url('images/rss.png');
+                }
+                color: white;
+                font-weight: bold;
+            }
+            background-color: @rss_color;
 
-}
-
-.FKS_newsfeed_more_msg{
-    clear: both;
-    .alert ;
-    .alert-info;
-}
-.FKS_newsfeed_exist_msg{
-
-    .alert ;
-    .alert-danger;
-}
-
-.FKS_newsfeed_secedit{
-    float:right;
-    .button{
-        .btn;
-        .btn-warning;
+        }
+        &:hover{
+            div{
+               // background-color: lighten(@rss_color,10%);
+                background-color: darken(@rss_color,10%);
+            }
+        }
+        input{
+            padding-left: .5em;
+            border-top-right-radius:   5px;
+            border-bottom-right-radius: 5px;
+            width: 85%;
+        }
+        margin-bottom: 1em;
+    }
+    .msg{
+        border-color: orangered;
+        border-radius: 5px;
+        border-width: 1px;
+        border-style: solid;
+        padding: 1em;
+        margin-bottom: 1em;
+        font-weight: bold;
+        color: orangered;
     }
 }
-.FKS_newsfeed_manage{
-    .alert{
-        margin-bottom: 0px;
-        margin-top:20px;
-    }
+.code{
+    font-family: monospace,serif;
+    background-color: #eee;
+    padding: .5em;
+    margin-bottom: 1em;
 }
-
+.blue{
+    color: blue;
+}
+.green{
+    color: green;
+}
+.red{
+    color: red;
+}
+.orange{
+    color: orange;
+}
+.grey{
+    color:grey;
+}

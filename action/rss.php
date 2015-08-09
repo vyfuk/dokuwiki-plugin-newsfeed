@@ -6,7 +6,7 @@
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @author  Michal Červeňák <miso@fykos.cz>
  */
-if (!defined('DOKU_INC')) {
+if(!defined('DOKU_INC')){
     die();
 }
 
@@ -40,7 +40,7 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
         /**
          * RSS
          */
-        $controller->register_hook('FEED_OPTS_POSTPROCESS', 'BEFORE', $this, 'rss_generate');
+        $controller->register_hook('FEED_OPTS_POSTPROCESS','BEFORE',$this,'rss_generate');
     }
 
     /**
@@ -54,9 +54,10 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
      * @param type $param
      */
     public function rss_generate() {
-        if (!$this->getConf('rss_allow')) {
-            return;
-        }
+        //if (!$this->getConf('rss_allow')) {
+        //    return;
+        //}
+
         global $conf;
         global $rss;
         global $data;
@@ -65,38 +66,37 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
 
         global $INPUT;
         $set_stream = $INPUT->str('stream');
-        if (empty($set_stream)) {
+        if(empty($set_stream)){
             return;
         }
-        unset($rss, $data);
+        unset($rss,$data);
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Pragma: public');
         header('Content-Type: application/xml; charset=utf-8');
         header('X-Robots-Tag: noindex');
         $rss = new DokuWikiFeedCreator();
         $rss->title = $conf['title'];
-
         $rss->link = DOKU_URL;
-        $rss->syndicationURL = DOKU_URL . 'lib/plugins/fksnewsfeed/rss.php';
-        $rss->cssStyleSheet = DOKU_URL . 'lib/exe/css.php?s=feed';
+        $rss->syndicationURL = DOKU_URL.'lib/plugins/fksnewsfeed/rss.php';
+        $rss->cssStyleSheet = DOKU_URL.'lib/exe/css.php?s=feed';
         $rss->image = $image;
-
-        foreach (helper_plugin_fksnewsfeed::loadstream($INPUT->str('stream')) as $value) {
-            $ntext = syntax_plugin_fksnewsfeed_fksnewsfeed::loadnewssimple($value);
-            list($param, $text) = helper_plugin_fksnewsfeed::_extract_param_news($ntext);
+       
+        $ids = $this->helper->LoadStream($INPUT->str('stream'));
+        foreach ($ids as $id) {
+            $param = $this->helper->LoadSimpleNews($id['news_id']);
             $data = new UniversalFeedCreator();
             $data->pubDate = $param['newsdate'];
             $data->title = $param['name'];
-
-            $data->link = $this->helper->_generate_token($value);
-            $data->description = p_render('text', p_get_instructions($text), $info);
+            $data->link = $this->helper->_generate_token($id['news_id']);
+            $info = array();
+            $data->description = p_render('text',p_get_instructions($param['text']),$info);
             $data->editor = $param['author'];
             $data->editorEmail = $param['email'];
             $data->webmaster = 'miso@fykos.cz';
-            $data->category = $INPUT->str('stream');
+            $data->category = $param['category'];
             $rss->addItem($data);
         }
-        $feeds = $rss->createFeed($opt['feed_type'], 'utf-8');
+        $feeds = $rss->createFeed($opt['feed_type'],'utf-8');
         print $feeds;
         exit;
     }

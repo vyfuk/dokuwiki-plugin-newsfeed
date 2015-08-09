@@ -6,20 +6,17 @@
  */
 // must be run within Dokuwiki
 
-if (!defined('DOKU_INC')) {
+if(!defined('DOKU_INC')){
     die();
 }
-if (!defined('DOKU_PLUGIN')) {
-    define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
+if(!defined('DOKU_PLUGIN')){
+    define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
 }
-require_once(DOKU_PLUGIN . 'syntax.php');
+require_once(DOKU_PLUGIN.'syntax.php');
 
 class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin {
 
     private $helper;
-
-   
-
 
     //array('indic' => array(), 'items' => array(), 'img' => array(), 'html_indic' => '', 'html_items' => '');
 
@@ -36,7 +33,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
     }
 
     public function getAllowedTypes() {
-        return array('formatting', 'substition', 'disabled');
+        return array('formatting','substition','disabled');
     }
 
     public function getSort() {
@@ -44,34 +41,32 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
     }
 
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('\{\{fksnewsfeed-stream>.+?\}\}', $mode, 'plugin_fksnewsfeed_fksnewsfeedstream');
+        $this->Lexer->addSpecialPattern('\{\{fksnewsfeed-stream>.+?\}\}',$mode,'plugin_fksnewsfeed_fksnewsfeedstream');
     }
 
     /**
      * Handle the match
      */
-    public function handle($match, $state) {
-        $param = helper_plugin_fkshelper::extractParamtext(substr($match, 21, -2));
-        return array($state, array($param));
+    public function handle($match,$state) {
+        $param = helper_plugin_fkshelper::ExtractParamtext(substr($match,21,-2));
+        return array($state,array($param));
     }
 
-    public function render($mode, Doku_Renderer &$renderer, $data) {
-        if ($mode !== 'xhtml') {
+    public function render($mode,Doku_Renderer &$renderer,$data) {
+        if($mode !== 'xhtml'){
             return;
         }
-        list(, $match) = $data;
+        list(,$match) = $data;
         list($param) = $match;
         $atr = array();
         foreach ($param as $key => $value) {
-            $atr['data-' . $key] = $value;
+            $atr['data-'.$key] = $value;
         }
-
-        $renderer->doc .='<noscript>' .
+        $renderer->doc .='<noscript>'.
                 helper_plugin_fkshelper::returnmsg('<h1>O RLY?</h1>
-        <p>Good luck without JavaScript</p>', -1) .
+        <p>Good luck without JavaScript</p>',-1).
                 '</noscript>';
-
-        $renderer->doc .='<div class="FKS_newsfeed_stream" ' . buildAttributes($atr) . '></div>';
+        $renderer->doc .='<div class="FKS_newsfeed"><div class="stream" '.buildAttributes($atr).'></div></div>';
         return false;
     }
 

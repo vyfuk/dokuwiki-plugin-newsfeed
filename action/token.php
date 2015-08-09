@@ -59,6 +59,7 @@ class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
         if ($this->token['show']) {
             $e = $this->helper->_is_even($this->token['id']);
             $event->preventDefault();
+            $info=array();
             echo p_render('xhtml', p_get_instructions(str_replace(array('@id@', '@even@'), array($this->token['id'], $e), $this->helper->simple_tpl)), $info);
         }
     }
