@@ -12,7 +12,7 @@ $lang['direction']  = 'ltr';
  */
 $lang['btn_edit_news']      = 'Upravit tuto novinku';
 $lang['btn_more_news']      = 'Starší novinky';
-$lang['btn_newsfeed_link']  = 'Link na tuto novinku';
+$lang['btn_newsfeed_link']  = 'Odkaz na tuto novinku';
 /**
  * label to form
  */
@@ -74,7 +74,7 @@ $lang['info_add_to_stream'] = '';
 /**
  * change order
  */
-$lang['menu_change_order'] = 'Upravit pořadí a/nebo smazat novinku';
+$lang['menu_change_order'] = 'Upravit pořadí novinky nebo ji smazat';
 $lang['btn_change_order'] = 'Změnit pořadí';
 $lang['info_change_order'] = '';
 /**
@@ -89,10 +89,10 @@ $lang['dep_full_info']='Novinka přidaná do mateřského vlákna se automaticky
 $lang['dep_parent_info']='Vlákno od kterého se dědí "matka"';
 $lang['dep_child_info']='Vlákno do kterého se dědí "dcera"';
 $lang['dep_list']='Seznam vláken a jejich závislostí';
-$lang['dep_list_parent']='Od tohoto vlákna přímo dědí, je matka voči:';
-$lang['dep_list_child']='Do tohoto vlákna přímo dědí, je dcera voči:';
-$lang['dep_list_parent_full']='Od tohoto vlákna celkovo dědí, je matka/babička vůči:';
-$lang['dep_list_child_full']='Do tohoto vlákna celkovo dědí, je dcera/vnučka vůči:';
+$lang['dep_list_parent']='Od tohoto vlákna přímo dědí, je matka vůči:';
+$lang['dep_list_child']='Do tohoto vlákna přímo dědí, je dcera vůči:';
+$lang['dep_list_parent_full']='Od tohoto vlákna celkově dědí, je matka/babička vůči:';
+$lang['dep_list_child_full']='Do tohoto vlákna celkově dědí, je dcera/vnučka vůči:';
 
 /**
  * for admin stream
