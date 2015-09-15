@@ -66,6 +66,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
             $r = (string) "";
             if($INPUT->str('news_do') == 'stream'){
                 if(auth_quickaclcheck('start') >= $this->getConf('perm_manage')){
+                    $this->PrintCreateBtn($r,$INPUT->str('news_stream'));
                     $this->PrintManageBtn($r,$INPUT->str('news_stream'));
                 }
                 if(auth_quickaclcheck('start') >= $this->getConf('perm_rss')){
@@ -179,6 +180,24 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
             'type' => 'text',
             'value' => DOKU_URL.'feed.php?stream='.$stream));
         $r.=html_close_tag('div');
+    }
+
+    private function PrintCreateBtn(&$r,$stream) {
+        $r.='<h2 id="menu_create_news">'.$this->getLang('menu_create_news').'</h2>';
+        $r.'<p>'.$this->getLang('info_create_news').'</p>';
+
+        $form3 = new Doku_Form(array('method' => 'GET'));
+        $form3->addHidden('do','edit');
+        $form3->addHidden('target','plugin_fksnewsfeed');
+        $form3->addHidden('news_do','create');
+        $form3->addHidden('news_id',0);
+        $form3->addHidden('news_stream',$stream);
+        $form3->addElement(form_makeButton('submit','',$this->getLang('btn_create_news')));
+
+        ob_start();
+        html_form('create_news',$form3);
+        $r.=ob_get_contents();
+        ob_clean();
     }
 
 }

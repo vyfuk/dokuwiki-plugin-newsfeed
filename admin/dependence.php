@@ -80,7 +80,7 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
 
         $form->addElement(form_makeButton('submit','',$lang['btn_save'],array()));
         html_form('nic',$form);
-        ptln('<h2 id="dep_list">'.$this->getLang('dep_stream_list').':</h2>');
+        ptln('<h2 id="dep_list">'.$this->getLang('dep_list').':</h2>');
         ptln('<ul>');
         foreach ($streams as $stream) {
             $stream_id = $this->helper->StreamToID($stream);
@@ -88,13 +88,13 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
             $pdep = $this->helper->AllParentDependence($stream_id,'p');
             if(!empty($pdep)){
 
-                ptln('<label>'.$this->getLang('dep_list_parent').'</label>');
+                ptln('<span>'.$this->getLang('dep_list_parent').'</span>');
                 ptln('<ul>');
                 foreach ($pdep as $d) {
                     ptln('<li>'.$this->helper->IDToStream($d).'</li>');
                 }
                 ptln('</ul>');
-                ptln('<label>'.$this->getLang('dep_list_parent_full').'</label>');
+                ptln('<span>'.$this->getLang('dep_list_parent_full').'</span>');
                 ptln('<ul>');
                 $fpdep = array();
                 $this->helper->FullParentDependence($stream_id,$fpdep);
@@ -105,13 +105,13 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
             }
             $cdep = $this->helper->AllChildDependence($stream_id,'p');
             if(!empty($cdep)){
-                ptln('<label>'.$this->getLang('dep_list_child').'</label>');
+                ptln('<span>'.$this->getLang('dep_list_child').'</span>');
                 ptln('<ul>');
                 foreach ($cdep as $d) {
                     ptln('<li>'.$this->helper->IDToStream($d).'</li>');
                 }
                 ptln('</ul>');
-                ptln('<label>'.$this->getLang('dep_list_child_full').'</label>');
+                ptln('<span>'.$this->getLang('dep_list_child_full').'</span>');
                 ptln('<ul>');
                 $fcdep = array();
                 $this->helper->FullChildDependence($stream_id,$fcdep);
@@ -126,7 +126,7 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
         }
         ptln('</ul>');
 
-        ptln('<h2 id="dep_delete">'.'Zmazať závyslosť'.'</h2>',5);
+        ptln('<h2 id="dep_delete">'.$this->getLang('dep_delete').'</h2>',5);
         ptln('<div class="level2">',6);
         ptln('<p>',7);
         echo 'Ak chcete zmazať závysloť streamov prosím požite rozhranie <a href="'.DOKU_BASE.'?do=admin&page=sqlite">SQLite</a>.<br />

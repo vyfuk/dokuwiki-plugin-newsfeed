@@ -73,9 +73,9 @@ class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
         ptln('<h2 id="stream_list">Zoznam Streamov</h2>',1);
         ptln('<ul>');
         foreach ($streams as $stream) {
-            ptln('<li><label>'.$stream);
+            ptln('<li><span>'.$stream);
             ptln('<input type="text" class="edit" value="{{fksnewsfeed-stream>stream='.$stream.';feed=5}}" />');
-            ptln('</label></li>');
+            ptln('</span></li>');
         }
         ptln('</ul>');
         ptln('<h2 id="stream_delete">'.'Zmazať stream'.'</h2>');

@@ -134,6 +134,8 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     }
 
     private function newsdate($date) {
+        
+       return date('d\.m\. Y', strtotime($date));
         $enmonth = Array('January','February','March',
             'April','May','June',
             'July','August','September',

@@ -93,7 +93,7 @@ $lang['dep_list_parent']='Od tohoto streamu priamo dedí, je rodič voči:';
 $lang['dep_list_child']='Do tohoto streamu priamo dedí, je dieťa voči:';
 $lang['dep_list_parent_full']='Od tohoto streamu celkovo dedí, je (pra)rodič voči:';
 $lang['dep_list_child_full']='Do tohoto streamu celkovo dedí, je (pra)dieťa voči:';
-
+$lang['dep_delete']="Zmazať závyslosť";
 /**
  * for admin stream
  */

@@ -21,7 +21,7 @@ if(!defined('DOKU_INC')){
 class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
     private static $modFields;
-    private static $cartesField = array('email','author','category');
+    private static $cartesField = array('email','author');
     private $helper;
    
 
@@ -91,8 +91,13 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                 $form->addElement(html_open_tag('div',array('class' => 'clearer')));
                 $form->addElement(html_close_tag('div'));
                 $form->addElement(form_makeWikiText($TEXT,array()));
-            }else{
-               
+            }elseif($field=='newsdate'){
+                $value = $INPUT->post->str($field,$data[$field]);
+                 $form->addElement(form_makeField('datetime-local',$field,$value,$this->getLang($field)));
+
+            }elseif($field=='category'){
+                $form->addElement(form_makeListboxField($field,array('default','DSEF','TSAF','important'),null,$this->getLang($field)));
+            }else {              
                 $value = $INPUT->post->str($field,$data[$field]);
                 $form->addElement(form_makeTextField($field,$value,$this->getLang($field),$field,null,array('list' => 'news_list_'.$field)));
             }
@@ -144,7 +149,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         global $INFO;
         return array(
             array('author' => $INFO['userinfo']['name'],
-                'newsdate' => dformat(),
+                'newsdate' => date('Y-m-d\TH:i:s'),
                 'email' => $INFO['userinfo']['mail'],
                 'text' => $this->getLang('news_text'),
                 'name' => $this->getLang('news_name'),
@@ -194,33 +199,6 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
 
         echo '<h1>'.$this->getLang('menu_manage_stream').'<small>stream:'.$INPUT->str('news_stream').'</small></h1>';
-        echo '<p>'.$this->getLang('info_namage_news');
-        echo '<ul>';
-        echo '<li><a href="#menu_create_news">'.$this->getLang('menu_create_news').'</a></li>';
-        echo '<li><a href="#menu_add_to_stream">'.$this->getLang('menu_add_to_stream').'</a></li>';
-        echo '<li><a href="#menu_change_order">'.$this->getLang('menu_change_order').'</a></li>';
-
-        echo '</ul></p>';
-
-
-
-
-        echo '<h2 id="menu_create_news">'.$this->getLang('menu_create_news').'</h2>';
-        echo '<p>'.$this->getLang('info_create_news').'</p>';
-
-        $form3 = new Doku_Form(array('method' => 'GET'));
-        $form3->addHidden('do','edit');
-        $form3->addHidden('target','plugin_fksnewsfeed');
-        $form3->addHidden('news_do','create');
-        $form3->addHidden('news_id',0);
-        $form3->addHidden('news_stream',$INPUT->str('news_stream'));
-        $form3->addElement(form_makeButton('submit','',$this->getLang('btn_create_news')));
-
-        html_form('create_news',$form3);
-
-
-
-
         echo '<h2 id="menu_add_to_stream">'.$this->getLang('menu_add_to_stream').'</h2>';
         echo '<div class="add_to_stream">';
         $form2 = new Doku_Form(array());
