@@ -87,9 +87,16 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
                 if($k == 'image'){
                     if($data['image'] != ""){
                         $data['image'] = '<img src="'.ml($data['image']).'" alt="newsfeed" '.buildAttributes($img_attr).'>';
+                        $tpl = str_replace('@'.$k.'@',$data[$k],$tpl);
                     }else{
                         continue;
                     }
+                }
+                if($k == 'text'){
+                    $info = array();
+                    $data['text'] = p_render('xhtml',p_get_instructions($data['text']),$info);
+                    $tpl = str_replace('@'.$k.'@',$data[$k],$tpl);
+                    continue;
                 }
                 $data[$k] = htmlspecialchars($data[$k]);
                 if($k == 'category'){
@@ -98,9 +105,6 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
                     }
                 }elseif($k == 'newsdate'){
                     $data['newsdate'] = $this->newsdate($data['newsdate']);
-                }elseif($k == 'text'){
-                    $info = array();
-                    $data['text'] = p_render('xhtml',p_get_instructions($data['text']),$info);
                 }
 
                 $tpl = str_replace('@'.$k.'@',$data[$k],$tpl);
