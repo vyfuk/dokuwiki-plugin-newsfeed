@@ -75,19 +75,34 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             }
             //load empty template 
             $tpl = io_readFile($tpl_path);
-            $info=array();
-            $data['text'] = p_render('xhtml',p_get_instructions($data['text']),$info);
-            $data['newsdate'] = $this->newsdate($data['newsdate']);
+
+
+            //var_dump($data);
+
             $img_attr = array('style' => 'width:100%;');
-            if($data['image'] != ""){
-                $data['image'] = '<img src="'.ml($data['image']).'" alt="newsfeed" '.buildAttributes($img_attr).'>';
-            }else{
-                $data['image'] = '';
-            }
-            if($data['category'] == ""){
-                $data['category'] = 'default';
-            }
+
+
+
             foreach (helper_plugin_fksnewsfeed::$Fields as $k) {
+                if($k == 'image'){
+                    if($data['image'] != ""){
+                        $data['image'] = '<img src="'.ml($data['image']).'" alt="newsfeed" '.buildAttributes($img_attr).'>';
+                    }else{
+                        continue;
+                    }
+                }
+                $data[$k] = htmlspecialchars($data[$k]);
+                if($k == 'category'){
+                    if($data['category'] == ""){
+                        $data['category'] = 'default';
+                    }
+                }elseif($k == 'newsdate'){
+                    $data['newsdate'] = $this->newsdate($data['newsdate']);
+                }elseif($k == 'text'){
+                    $info = array();
+                    $data['text'] = p_render('xhtml',p_get_instructions($data['text']),$info);
+                }
+
                 $tpl = str_replace('@'.$k.'@',$data[$k],$tpl);
             }
             if(!isset($param['even'])){
@@ -134,8 +149,8 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     }
 
     private function newsdate($date) {
-        
-       return date('d\.m\. Y', strtotime($date));
+        //var_dump(strtotime($date));
+        return date('d\.m\. Y',strtotime($date));
         $enmonth = Array('January','February','March',
             'April','May','June',
             'July','August','September',
