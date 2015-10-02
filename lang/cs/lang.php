@@ -62,7 +62,7 @@ $lang['info_create_news'] ='';
 /**
  * manage stream
  */
-$lang['menu_manage_stream'] = 'Spravovat vlákno (najdeš tam i vytvoření novinky)';
+$lang['menu_manage_stream'] = 'Spravovat vlákno';
 $lang['btn_manage_stream'] = $lang['menu_manage_stream'];
 $lang['info_manage_news'] = 'Spravovat toto vlákno:';
 /**
