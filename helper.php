@@ -24,7 +24,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public $sqlite;
     public $errors;
 
-    const simple_tpl = "{{fksnewsfeed>id=@id@; even=@even@}}";
+    const simple_tpl = "{{fksnewsfeed>id=@id@; even=@even@; edited=@edited@}}";
     const db_table_feed = "fks_newsfeed_news";
     const db_table_dependence = "fks_newsfeed_dependence";
     const db_table_order = "fks_newsfeed_order";
@@ -348,6 +348,15 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public function update_stream($weigth,$order_id) {
         return $this->UpdateWeight($weigth,$order_id);
     }
+    
+    /**
+     * 
+     */
+    public function CleanOrder(){
+        $sql='DELETE FROM '.self::db_table_order.' WHERE weight=0;';
+        return $this->sqlite->query($sql);
+        
+    }
 
     /**
      * 
@@ -363,7 +372,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public function create_order_div($news_id,$order_id,$weight,$k = 0) {
         $form = "";
         $e = $this->_is_even($k);
-        $n = str_replace(array('@id@','@even@'),array($news_id,$e),$this->simple_tpl);
+        $n = str_replace(array('@id@','@even@','@edited@'),array($news_id,$e,'false'),$this->simple_tpl);
         $form.= '<div class="simple_order_div" data-index="'.$order_id.'" data-id="'.$news_id.'">';
         $form.='<div class="delete_news">           
                 <button type="button" class="close" >

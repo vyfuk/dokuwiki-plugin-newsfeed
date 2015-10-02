@@ -106,7 +106,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
     }
 
     public function PrintNews($id,$e) {
-        $n = str_replace(array('@id@','@even@'),array($id,$e),$this->helper->simple_tpl);
+        $n = str_replace(array('@id@','@even@','@edited@'),array($id,$e,'true'),$this->helper->simple_tpl);
         $info = array();
         return p_render("xhtml",p_get_instructions($n),$info);
     }

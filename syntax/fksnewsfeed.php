@@ -112,14 +112,17 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             if(!isset($param['even'])){
                 $param['even'] = 'even';
             }
-            $renderer->doc.= '<div class="'.$param['even'].' '.$data['category'].'" data-id="'.$param["id"].'">'.$tpl.'</div>
-                <div class="edit" data-id="'.$param["id"].'">'.$this->BtnEditNews($param["id"]).'</div>';
+            $renderer->doc.= '<div class="'.$param['even'].' '.$data['category'].'" data-id="'.$param["id"].'">'.$tpl.'</div>';
+            if($param['edited'] === 'true'){
+                $renderer->doc.= '<div class="edit" data-id="'.$param["id"].'">'.$this->BtnEditNews($param["id"]).'</div>';
+            }
         }
         return false;
     }
 
     private function BtnEditNews($id) {
         $r = '';
+
         if(auth_quickaclcheck('start') >= AUTH_EDIT){
             $form = new Doku_Form(array('id' => 'editnews','method' => 'POST','class' => 'fksreturn'));
             $form->addHidden("do","edit");
@@ -142,12 +145,10 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         if(auth_quickaclcheck('start') >= $this->getConf('perm_link')){
             $r.=html_button($this->getLang('btn_newsfeed_link'),'button link_btn',array('data-id' => $id));
             $link = $this->helper->_generate_token((int) $id);
-            $r.=html_make_tag('input',array(
-                'class' => 'link_inp edit',
-                'data-id' => $id,
-                'style' => 'display:none',
-                'type' => 'text',
-                'value' => $link));
+            $r.='<span contenteditable="true" class="link_inp edit" style="display:none" data-id="'.$id.'">'.$link.'</span>';
+                
+                
+                
         }
         return $r;
     }
@@ -155,11 +156,21 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     private function newsdate($date) {
         //var_dump(strtotime($date));
         return date('d\.m\. Y',strtotime($date));
-        $enmonth = Array('January','February','March',
-            'April','May','June',
-            'July','August','September',
-            'October','November','December');
-        $langmonth = Array(
+        $enmonth = array(
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December'
+            );
+        $langmonth = array(
             $this->getLang('jan'),
             $this->getLang('feb'),
             $this->getLang('mar'),

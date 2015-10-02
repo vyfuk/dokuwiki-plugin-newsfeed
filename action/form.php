@@ -177,7 +177,8 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                     $this->helper->UpdateWeight($value,$key);
                 }
                 global $ACT;
-                $ACT = 'view';
+                $this->helper->CleanOrder();
+                $ACT = 'show';
             }
         }
     }
@@ -198,20 +199,20 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         echo '<div class="FKS_newsfeed">';
 
 
-        echo '<h1>'.$this->getLang('menu_manage_stream').'<small>stream:'.$INPUT->str('news_stream').'</small></h1>';
-        echo '<h2 id="menu_add_to_stream">'.$this->getLang('menu_add_to_stream').'</h2>';
-        echo '<div class="add_to_stream">';
+        ptln('<h1>'.$this->getLang('menu_manage_stream').' <small>stream:'.$INPUT->str('news_stream').'</small></h1>');
+        ptln('<h2 id="menu_add_to_stream">'.$this->getLang('menu_add_to_stream').'</h2>');
+        ptln('<div class="add_to_stream">');
         $form2 = new Doku_Form(array());
         $form2->addElement(form_makeTextField('weight',0,$this->getLang('weight')));
         $form2->addHidden('news_stream',$INPUT->str('news_stream'));
         $form2->addElement(form_makeTextField('news_id',0,'ID'));
         $form2->addElement(form_makeButton('button',null,$this->getLang('btn_add_to_stream')));
         html_form('add_to_stream',$form2);
-        echo '</div>';
+        ptln('</div>');
 
 
-        echo '<h2 id="menu_change_order">'.$this->getLang('menu_change_order').'</h2>';
-        echo '<p>'.$this->getLang('info_change_order').'</p>';
+        ptln('<h2 id="menu_change_order">'.$this->getLang('menu_change_order').'</h2>');
+        ptln('<p>'.$this->getLang('info_change_order').'</p>');
         $form = new Doku_Form(array('id' => "save",
             'method' => 'POST','action' => null));
 
@@ -231,7 +232,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         $form->addElement('</div>');
         html_form('nic',$form);
 
-        echo '</div>';
+        ptln('</div>');
     }
 
 }

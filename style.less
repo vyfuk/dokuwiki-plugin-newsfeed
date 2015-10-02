@@ -4,37 +4,66 @@
 * 
 */
 @rss_color : #ff8811;
+@FKS_newsfeed_padding: 1em;
 
 .FKS_newsfeed{
     margin-top:1em;
     .odd,.even{
-        border-style: solid;
-        border-width: 1px;
         &:hover{
 
             background-color: #f3f3f3;
         }
+        h3{
+            padding: @FKS_newsfeed_padding;
+            color: white;
+            background-color: @ini_text_alt;
+
+        }
+        border-color: @ini_text_alt;
+        border-style: solid;
+        border-width: 1px;
         margin: 0px;
-        padding: 1em;  
+        //padding: 1em;  
         border-radius: 4px;
         clear: both;
         .author{
             float: right;
+            padding-bottom: @FKS_newsfeed_padding;
+            padding-right: @FKS_newsfeed_padding;
         }
         .date{
-            float: right;
+            &:before{
+                content: "";
+            }
+            //float: right;
+            padding-left: @FKS_newsfeed_padding;
+            color: #aaa;
             font-weight: bold;
         }
+        .article{
+            padding: @FKS_newsfeed_padding;
+        }
+
+        /*for new class of feed*/
         &.default{
             border-color:@ini_text_alt; 
             &:hover{
                 border-color: darken(@ini_text_alt,10%);
-
             }
+            h3{
+                background-color: @ini_text_alt ; 
+            }
+
+
         }
     }
     .edit{
+        span{
+            padding: .25em;
+
+        }
         padding-bottom: .5em;
+
     }
     .order_stream{
         .simple_order_div{
@@ -68,7 +97,7 @@
         }
         &:hover{
             div{
-               // background-color: lighten(@rss_color,10%);
+                // background-color: lighten(@rss_color,10%);
                 background-color: darken(@rss_color,10%);
             }
         }

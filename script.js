@@ -86,7 +86,7 @@ jQuery(function () {
         }, 'json');
     });
     $FKS_newsfeed.find('button.link_btn').live("click", function (event) {
-        $(this).parent('div').children('input').slideToggle();
+        $(this).parent('div').children('span').slideToggle();
     });
     /*
      * @TODO 
