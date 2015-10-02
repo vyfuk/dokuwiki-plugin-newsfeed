@@ -4,27 +4,19 @@
 * 
 */
 @rss_color : #ff8811;
-@FKS_newsfeed_padding: 1em;
+@FKS_newsfeed_padding: .5em;
 
 .FKS_newsfeed{
     margin-top:1em;
     .odd,.even{
         &:hover{
-
             background-color: #f3f3f3;
-        }
-        h3{
-            padding: @FKS_newsfeed_padding;
-            color: white;
-            background-color: @ini_text_alt;
-
-        }
+        }        
         border-color: @ini_text_alt;
         border-style: solid;
         border-width: 1px;
         margin: 0px;
-        //padding: 1em;  
-        border-radius: 4px;
+        //border-radius: 4px;
         clear: both;
         .author{
             float: right;
@@ -37,34 +29,74 @@
             }
             //float: right;
             padding-left: @FKS_newsfeed_padding;
-            color: #aaa;
+            padding-right: @FKS_newsfeed_padding;
+
+            float: right;
+            display: flex;
             font-weight: bold;
         }
         .article{
             padding: @FKS_newsfeed_padding;
+            p{
+                padding: 0;
+                margin: 0;
+                text-align: justify;
+            }
+        }
+        .edit{
+            span{
+                padding: .25em;
+
+            }
+            padding-bottom: .5em;
+            button{
+                float: left;
+
+            }
+            .secedit{
+                input.button{
+                    font-size: 100%;
+                }
+                float: left;
+                margin-top: 0;
+            }
+
         }
 
+
+
+        .headline{
+            padding: @FKS_newsfeed_padding;
+            color: white;
+            background-color: @ini_text_alt;
+            h3{
+                display: inline;
+                margin: 0;
+            }
+
+        }
         /*for new class of feed*/
         &.default{
             border-color:@ini_text_alt; 
             &:hover{
                 border-color: darken(@ini_text_alt,10%);
             }
-            h3{
+            .headline{
                 background-color: @ini_text_alt ; 
             }
-
-
         }
-    }
-    .edit{
-        span{
-            padding: .25em;
-
+        &.DSEF{
+            border-color:#11da75; 
+            &:hover{
+                border-color: darken(#11da75,10%);
+            }
+            .headline{
+                background-color: #11da75 ; 
+            }
         }
-        padding-bottom: .5em;
-
+        margin-bottom: 1em;
     }
+
     .order_stream{
         .simple_order_div{
             position: absolute;

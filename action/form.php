@@ -93,10 +93,11 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                 $form->addElement(form_makeWikiText($TEXT,array()));
             }elseif($field=='newsdate'){
                 $value = $INPUT->post->str($field,$data[$field]);
-                 $form->addElement(form_makeField('datetime-local',$field,$value,$this->getLang($field)));
+                 $form->addElement(form_makeField('datetime-local',$field,$value,$this->getLang($field),null,null,array('step'=>1)));
 
             }elseif($field=='category'){
-                $form->addElement(form_makeListboxField($field,array('default','DSEF','TSAF','important'),null,$this->getLang($field)));
+                $value = $INPUT->post->str($field,$data[$field]);
+                $form->addElement(form_makeListboxField($field,array('default','DSEF','TSAF','important'),$value,$this->getLang($field)));
             }else {              
                 $value = $INPUT->post->str($field,$data[$field]);
                 $form->addElement(form_makeTextField($field,$value,$this->getLang($field),$field,null,array('list' => 'news_list_'.$field)));

@@ -112,10 +112,15 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             if(!isset($param['even'])){
                 $param['even'] = 'even';
             }
-            $renderer->doc.= '<div class="'.$param['even'].' '.$data['category'].'" data-id="'.$param["id"].'">'.$tpl.'</div>';
+
             if($param['edited'] === 'true'){
-                $renderer->doc.= '<div class="edit" data-id="'.$param["id"].'">'.$this->BtnEditNews($param["id"]).'</div>';
+                $edit = '<div class="edit" data-id="'.$param["id"].'">'.$this->BtnEditNews($param["id"]).'</div>';
+            }else{
+                $edit = '';
             }
+
+            $tpl = str_replace('@edit@',$edit,$tpl);
+            $renderer->doc.= '<div class="'.$param['even'].' '.$data['category'].'" data-id="'.$param["id"].'">'.$tpl.'</div>';
         }
         return false;
     }
@@ -146,9 +151,6 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $r.=html_button($this->getLang('btn_newsfeed_link'),'button link_btn',array('data-id' => $id));
             $link = $this->helper->_generate_token((int) $id);
             $r.='<span contenteditable="true" class="link_inp edit" style="display:none" data-id="'.$id.'">'.$link.'</span>';
-                
-                
-                
         }
         return $r;
     }
@@ -169,7 +171,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             'October',
             'November',
             'December'
-            );
+        );
         $langmonth = array(
             $this->getLang('jan'),
             $this->getLang('feb'),
