@@ -378,7 +378,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 <button type="button" class="close" >
   <span aria-hidden="true">&times;</span>
 </button>';
-        $form.='<span>'.$this->getLang('weight').'</span><input class="edit" name="weight['.$order_id.']" value="'.$weight.'">';
+        $form.='<span>'.$this->getLang('weight').'</span><input type="number" class="edit" name="weight['.$order_id.']" value="'.$weight.'">';
         $form.='</div>';
         $info = array();
         $form.=p_render("xhtml",p_get_instructions($n),$info);
