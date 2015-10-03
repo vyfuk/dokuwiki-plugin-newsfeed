@@ -75,7 +75,7 @@ $lang['info_add_to_stream'] = '';
  * change order
  */
 $lang['menu_change_order'] = 'Upravit pořadí novinky nebo ji smazat';
-$lang['btn_change_order'] = 'Změnit pořadí';
+$lang['btn_change_order'] = 'Uložit změny';
 $lang['info_change_order'] = '';
 /**
  * for admin dependence
