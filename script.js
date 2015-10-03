@@ -86,6 +86,7 @@ jQuery(function () {
         }, 'json');
     });
     $FKS_newsfeed.find('button.link_btn').live("click", function (event) {
+        $(this).toggleClass('active');
         $(this).parent('div').children('span').slideToggle();
     });
     /*
@@ -139,12 +140,3 @@ jQuery(function () {
     }
     return true;
 });
-
-
-
-
-
-
-
-
-

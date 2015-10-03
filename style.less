@@ -7,10 +7,10 @@
 @FKS_newsfeed_padding: .5em;
 
 .FKS_newsfeed{
-    margin-top:1em;
+    
     .odd,.even{
         &:hover{
-            background-color: #f3f3f3;
+           // background-color: #f3f3f3;
         }        
         border-color: @ini_text_alt;
         border-style: solid;
@@ -46,17 +46,35 @@
         .edit{
             span{
                 padding: .25em;
+                clear: both;
+                float: left;
 
             }
-            padding-bottom: .5em;
+            //padding-bottom: .5em;
             button{
                 float: left;
 
+            }
+            button,input.button{
+                background: white;
+                border: solid 1px #ddd;
+                color:#ccc;
+                padding: .5em;
+                transition-duration: .2s;
+                &:hover,&.active{
+                    
+                    border: solid 1px #999;
+                    color:black;
+                    padding: .5em; 
+                    transition-duration: .2s;
+                } 
+                
             }
             .secedit{
                 input.button{
                     font-size: 100%;
                 }
+
                 float: left;
                 margin-top: 0;
             }
@@ -151,6 +169,8 @@
         font-weight: bold;
         color: rgba(255,128,128,0.6);
     }
+    margin-top:1em;
+    margin:.5em;
 }
 .code{
     font-family: monospace,serif;
