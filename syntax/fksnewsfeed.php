@@ -157,7 +157,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
     private function newsdate($date) {
         //var_dump(strtotime($date));
-        return date('d\.m\. Y',strtotime($date));
+        $date = date('d\. F Y',strtotime($date));
         $enmonth = array(
             'January',
             'February',

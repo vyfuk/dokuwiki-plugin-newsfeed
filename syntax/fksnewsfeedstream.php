@@ -62,10 +62,11 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
         foreach ($param as $key => $value) {
             $atr['data-'.$key] = $value;
         }
+        /*
         $renderer->doc .='<noscript>'.
                 helper_plugin_fkshelper::returnmsg('<h1>O RLY?</h1>
         <p>Good luck without JavaScript</p>',-1).
-                '</noscript>';
+                '</noscript>';*/
         $renderer->doc .='<div class="FKS_newsfeed"><div class="stream" '.buildAttributes($atr).'></div></div>';
         return false;
     }
