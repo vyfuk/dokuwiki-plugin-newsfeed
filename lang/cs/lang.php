@@ -68,7 +68,7 @@ $lang['info_manage_news'] = 'Spravovat toto vlákno:';
 /**
  * add_to_stream
  */
-$lang['menu_add_to_stream']='Přidat novinku do vlákna';
+$lang['menu_add_to_stream']='Přidat existujúci novinku do vlákna';
 $lang['btn_add_to_stream'] = $lang['menu_add_to_stream'];
 $lang['info_add_to_stream'] = '';
 /**
