@@ -348,19 +348,13 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @param type $weight
      * @return type
      */
-    public function SaveIntoStream($stream_id,$id,$weight = null) {
-        if($weight === null){
-            $sql = 'select max(weight) from '.self::db_table_order.' where stream_id=?';
-            $res = $this->sqlite->query($sql,$stream_id);
-            $weight = (int) $this->sqlite->res2single($res);
-            $weight+=10;
-        }
+    public function SaveIntoStream($stream_id,$id) {
+        
 
-        $sql3 = 'INSERT INTO '.self::db_table_order.' (news_id,stream_id) values(?,?)';
-        $this->sqlite->query($sql3,$id,$stream_id,$weight);
-        $sql4 = 'SELECT max(order_id) from '.self::db_table_order.'';
-        $res4 = $this->sqlite->query($sql4);
-        return (int) $this->sqlite->res2single($res4);
+        $sql3 = 'INSERT INTO '.self::db_table_order.' (news_id,stream_id,priority) values(?,?,?)';
+        $this->sqlite->query($sql3,$id,$stream_id,0);
+        
+        return (int) 1;
     }
 
     public function update_stream($weigth,$order_id) {
