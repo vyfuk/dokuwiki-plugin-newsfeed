@@ -39,7 +39,15 @@ jQuery(function () {
                     'json');
         });
     });
+    
+     $FKS_newsfeed.find('.priority_btn').live("click", function () {
+         $(this).parent().find('.priority').slideToggle();
+         
+         
+     });
+    
     $FKS_newsfeed.find(FKS_newsfeed.div_more_news).find('button.button').live("click", function () {
+        //$FKS_newsfeed.find(FKS_newsfeed.div_more_news).find('button.button').waypoint(function(){
         var $div_more_news = $(this).parent(FKS_newsfeed.div_more_news);
         var $streamdiv = $(this).parents(FKS_newsfeed.div_stream);
         $div_more_news.html("");

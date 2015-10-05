@@ -26,7 +26,12 @@ CREATE TABLE fks_newsfeed_order(
 'order_id' INTEGER PRIMARY KEY AUTOINCREMENT,
 'news_id' INTEGER,
 'stream_id' INTEGER,
-'weight' INTEGER,
+'priority' INTEGER, 
+'priority_from' INTEGER,
+'priority_to' INTEGER,
 FOREIGN KEY(news_id) REFERENCES fks_newsfeed_news(news_id),
 FOREIGN KEY(stream_id) REFERENCES fks_newsfeed_stream(stream_id)
 );
+
+
+

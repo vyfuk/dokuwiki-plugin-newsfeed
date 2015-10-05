@@ -59,7 +59,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         require_once DOKU_INC.'inc/JSON.php';
 
         if($INPUT->str('news_do') == 'stream' || $INPUT->str('news_do') == 'more'){
-            header('Content-Type: application/json');
+            //header('Content-Type: application/json');
             $event->stopPropagation();
             $event->preventDefault();
 
@@ -67,14 +67,14 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
             if($INPUT->str('news_do') == 'stream'){
                 if(auth_quickaclcheck('start') >= $this->getConf('perm_manage')){
                     $this->PrintCreateBtn($r,$INPUT->str('news_stream'));
-                    $this->PrintManageBtn($r,$INPUT->str('news_stream'));
+                   // $this->PrintManageBtn($r,$INPUT->str('news_stream'));
                 }
                 if(auth_quickaclcheck('start') >= $this->getConf('perm_rss')){
                     $this->PrintRSS($r,$INPUT->str('news_stream'));
                 }
             }
             $news = $this->helper->LoadStream($INPUT->str('news_stream'),true);
-            $more = $this->PrintStream($news,$r,(int) $INPUT->str('news_feed_s',0),(int) $INPUT->str('news_feed_l',3));
+            $more = $this->PrintStream($news,$r,(int) $INPUT->str('news_feed_s',0),(int) $INPUT->str('news_feed_l',3),$INPUT->str('news_stream'));
             $json = new JSON();
             $er = "";
             foreach ($this->helper->errors as $erro) {
@@ -87,12 +87,12 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         }
     }
 
-    public function PrintStream($news,&$r,$s = 0,$l = 5) {
+    public function PrintStream($news,&$r,$s = 0,$l = 5,$stream="") {
         global $INPUT;
         $more = false;
         for ($i = $s; $i < min(array($s + $l,(count($news)))); $i++) {
             $e = $this->helper->_is_even($i);
-            $r.=$this->PrintNews($news[$i]['news_id'],$e);
+            $r.=$this->PrintNews($news[$i]['news_id'],$e,$stream);
         }
         if($l + $s >= count($news)){
             $more = true;
@@ -105,8 +105,8 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         return $more;
     }
 
-    public function PrintNews($id,$e) {
-        $n = str_replace(array('@id@','@even@','@edited@'),array($id,$e,'true'),$this->helper->simple_tpl);
+    public function PrintNews($id,$e,$stream) {
+        $n = str_replace(array('@id@','@even@','@edited@','@stream@'),array($id,$e,'true',$stream),$this->helper->simple_tpl);
         $info = array();
         return p_render("xhtml",p_get_instructions($n),$info);
     }

@@ -23,7 +23,6 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
     private static $modFields;
     private static $cartesField = array('email','author');
     private $helper;
-   
 
     /**
      * Registers a callback function for a given event
@@ -45,6 +44,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         $controller->register_hook('HTML_EDIT_FORMSELECTION','BEFORE',$this,'form_to_news');
         $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'save_news');
         $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'update_order_save');
+        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'SavePriority');
         $controller->register_hook('TPL_ACT_RENDER','BEFORE',$this,'stream_delete');
     }
 
@@ -57,6 +57,25 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
      * @param type $param
      * @return type
      */
+    public function SavePriority(Doku_Event &$event) {
+        global $INPUT;
+        
+
+        if($INPUT->str('target') !== 'plugin_fksnewsfeed'){
+            return;
+        }
+        if($INPUT->str('news_do') !== 'priority'){
+            return;
+        }
+        
+        $stream_id = $this->helper->streamTOID($INPUT->str('news_stream'));
+
+
+        if($this->helper->SavePriority($INPUT->str('news_id'),$stream_id,floor($INPUT->str('priority')),$INPUT->str('priority_form'),$INPUT->str('priority_to'))){
+            msg('priority has been saved');
+        }
+    }
+
     public function form_to_news(Doku_Event &$event) {
         global $TEXT;
         global $INPUT;
@@ -84,21 +103,20 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         $form->addHidden('news_id',$INPUT->str("news_id"));
         $form->addHidden('news_do',$INPUT->str('news_do'));
         $form->addHidden('news_stream',$INPUT->str('news_stream'));
-        
+
         foreach (self::$modFields as $field) {
             if($field == 'text'){
                 $value = $INPUT->post->str('wikitext',$data[$field]);
                 $form->addElement(html_open_tag('div',array('class' => 'clearer')));
                 $form->addElement(html_close_tag('div'));
                 $form->addElement(form_makeWikiText($TEXT,array()));
-            }elseif($field=='newsdate'){
+            }elseif($field == 'newsdate'){
                 $value = $INPUT->post->str($field,$data[$field]);
-                 $form->addElement(form_makeField('datetime-local',$field,$value,$this->getLang($field),null,null,array('step'=>1)));
-
-            }elseif($field=='category'){
+                $form->addElement(form_makeField('datetime-local',$field,$value,$this->getLang($field),null,null,array('step' => 1)));
+            }elseif($field == 'category'){
                 $value = $INPUT->post->str($field,$data[$field]);
                 $form->addElement(form_makeListboxField($field,array('default','DSEF','TSAF','important'),$value,$this->getLang($field)));
-            }else {              
+            }else{
                 $value = $INPUT->post->str($field,$data[$field]);
                 $form->addElement(form_makeTextField($field,$value,$this->getLang($field),$field,null,array('list' => 'news_list_'.$field)));
             }
@@ -107,7 +125,6 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
             $form->addElement(form_makeDataList('news_list_'.$field,$this->helper->AllValues($field)));
         }
         $form->endFieldset();
-        
     }
 
     public function save_news() {
@@ -155,7 +172,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                 'text' => $this->getLang('news_text'),
                 'name' => $this->getLang('news_name'),
                 'image' => '',
-                'category'=>''),
+                'category' => ''),
             $this->getLang('news_text'));
     }
 

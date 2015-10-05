@@ -57,7 +57,7 @@ class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
             //$event->preventDefault();
             $info = array();
             echo '<div class="FKS_newsfeed">';
-            echo p_render('xhtml',p_get_instructions(str_replace(array('@id@','@even@','@edited@'),array($this->token['id'],$e,'false'),$this->helper->simple_tpl)),$info);
+            echo p_render('xhtml',p_get_instructions(str_replace(array('@id@','@even@','@edited@','@stream@'),array($this->token['id'],$e,'false',''),$this->helper->simple_tpl)),$info);
             echo'</div>';
             $event->advise_after();
         }

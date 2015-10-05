@@ -77,7 +77,6 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $tpl = io_readFile($tpl_path);
 
 
-            //var_dump($data);
 
             $img_attr = array('style' => 'width:100%;');
 
@@ -114,7 +113,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             }
 
             if($param['edited'] === 'true'){
-                $edit = '<div class="edit" data-id="'.$param["id"].'">'.$this->BtnEditNews($param["id"]).'</div>';
+                $edit = '<div class="edit" data-id="'.$param["id"].'">'.$this->BtnEditNews($param["id"]).$this->getPriorityField($param["id"],$param['stream']).'</div>';
             }else{
                 $edit = '';
             }
@@ -123,6 +122,42 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $renderer->doc.= '<div class="'.$param['even'].' '.$data['category'].'" data-id="'.$param["id"].'">'.$tpl.'</div>';
         }
         return false;
+    }
+
+    private function getPriorityField($id,$stream) {
+        $r = '';
+        if(auth_quickaclcheck('start') >= AUTH_EDIT){
+            $r.='<div class="priority">';
+
+            $form2 = new Doku_Form(array());
+            $form2->addHidden("do","show");
+            $form2->addHidden('news_id',$id);
+            $form2->addHidden('news_stream',$stream);
+            $form2->addHidden('news_do','priority');
+            $form2->addHidden("target","plugin_fksnewsfeed");
+            
+            $stream_id=$this->helper->StreamToID($stream);
+            list($p)=$this->helper->FindPriority($id,$stream_id);
+          
+            
+            
+            $form2->addElement(form_makeField('number','priority',$p['priority'],'priority',null,null,array('step' => 1)));
+            $form2->addElement(form2_makeDateTimeField('priority_form',$p['priority_from'],'FROM',null,null,1,1,array()));
+            $form2->addElement(form2_makeDateTimeField('priority_to',$p['priority_to'],'TO',null,null,1,1,array()));
+            
+
+            $form2->addElement(form_makeButton('submit','','Save priority'));
+
+            ob_start();
+            html_form('editnews',$form2);
+
+            $r.= ob_get_contents();
+            ob_clean();
+
+            $r.='</div>';
+        }
+
+        return $r;
     }
 
     private function BtnEditNews($id) {
@@ -141,6 +176,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $r.= ob_get_contents();
             ob_clean();
             $r.=html_close_tag('div');
+            $r.='<button class="button priority_btn">Edit Priority</button>';
         }
         if(auth_quickaclcheck('start') >= $this->getConf('perm_fb')){
             $r.= '<button data-href="'.$this->helper->_generate_token((int) $id).'"'.
@@ -156,7 +192,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     }
 
     private function newsdate($date) {
-        //var_dump(strtotime($date));
+
         $date = date('d\. F Y',strtotime($date));
         $enmonth = array(
             'January',

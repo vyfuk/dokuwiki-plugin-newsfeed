@@ -24,7 +24,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public $sqlite;
     public $errors;
 
-    const simple_tpl = "{{fksnewsfeed>id=@id@; even=@even@; edited=@edited@}}";
+    const simple_tpl = "{{fksnewsfeed>id=@id@; even=@even@; edited=@edited@;stream=@stream@}}";
     const db_table_feed = "fks_newsfeed_news";
     const db_table_dependence = "fks_newsfeed_dependence";
     const db_table_order = "fks_newsfeed_order";
@@ -77,9 +77,27 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      */
     public function LoadStream($stream) {
         $stream_id = $this->StreamToID($stream);
-        $sql = 'SELECT * FROM '.self::db_table_order.' where stream_id=? AND weight != 0 ORDER BY weight';
+        $sql = 'SELECT * FROM '.self::db_table_order.' o jOIN '.self::db_table_feed.' n ON o.news_id=n.news_id WHERE stream_id=? ';
         $res = $this->sqlite->query($sql,$stream_id);
-        return (array) array_reverse($this->sqlite->res2arr($res));
+        $ars = $this->sqlite->res2arr($res);
+
+        foreach ($ars as $ar) {
+            if(time() < strtotime($ar['priority_from']) || (time() > strtotime($ar['priority_to']))){
+                $ar['priority'] = 0;
+            }
+            
+        }
+        usort($ars,function ($a,$b) {
+            if($a['priority'] > $b['priority']){
+                return -1;
+            }elseif($a['priority'] < $b['priority']){
+                return 1;
+            }else{
+                return strcmp($b['newsdate'],$a['newsdate']);
+            }
+        });
+     
+        return (array) $ars;
     }
 
     /**
@@ -338,7 +356,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
             $weight+=10;
         }
 
-        $sql3 = 'INSERT INTO '.self::db_table_order.' (news_id,stream_id,weight) values(?,?,?)';
+        $sql3 = 'INSERT INTO '.self::db_table_order.' (news_id,stream_id) values(?,?)';
         $this->sqlite->query($sql3,$id,$stream_id,$weight);
         $sql4 = 'SELECT max(order_id) from '.self::db_table_order.'';
         $res4 = $this->sqlite->query($sql4);
@@ -348,14 +366,13 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public function update_stream($weigth,$order_id) {
         return $this->UpdateWeight($weigth,$order_id);
     }
-    
+
     /**
      * 
      */
-    public function CleanOrder(){
-        $sql='DELETE FROM '.self::db_table_order.' WHERE weight=0;';
+    public function CleanOrder() {
+        $sql = 'DELETE FROM '.self::db_table_order.' WHERE weight=0;';
         return $this->sqlite->query($sql);
-        
     }
 
     /**
@@ -427,6 +444,16 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return (bool) $r;
     }
 
-    
+    public function SavePriority($news_id,$stream_id,$p,$from,$to) {
+        $sql = 'UPDATE '.self::db_table_order.' SET priority=?,priority_from=?,priority_to=? WHERE stream_id=? AND news_id =?';
+        return $this->sqlite->query($sql,$p,$from,$to,$stream_id,$news_id);
+    }
+
+    public function FindPriority($news_id,$stream_id) {
+        $sql = 'SELECT * FROM '.self::db_table_order.' WHERE stream_id=? AND news_id =?';
+        $res = $this->sqlite->query($sql,$stream_id,$news_id);
+        
+        return $this->sqlite->res2arr($res);
+    }
 
 }
