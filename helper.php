@@ -81,10 +81,15 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $res = $this->sqlite->query($sql,$stream_id);
         $ars = $this->sqlite->res2arr($res);
 
-        foreach ($ars as $ar) {
-            if(time() < strtotime($ar['priority_from']) || (time() > strtotime($ar['priority_to']))){
-                $ar['priority'] = 0;
+        foreach ($ars as $key => $ar) {
+            if((time() < strtotime($ar['priority_from'])) || (time() > strtotime($ar['priority_to']))){
+                $ars[$key]['priority'] = 0;
+                
+            }else{
+               //var_dump($ar) ;
             }
+            
+            //var_dump(time() < strtotime($ar['priority_from']) || (time() > strtotime($ar['priority_to'])));
             
         }
         usort($ars,function ($a,$b) {
@@ -96,7 +101,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 return strcmp($b['newsdate'],$a['newsdate']);
             }
         });
-     
+        //var_dump($ars);
         return (array) $ars;
     }
 

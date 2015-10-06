@@ -10,12 +10,6 @@
 .FKS_newsfeed{
 
     button,input.button,.button{        
-        background: white;        
-        border-width: 1px;
-        border-color: #ccc;
-        color:#bbb;
-        padding: @FKS_newsfeed_padding;
-        transition-duration: @FKS_newsfeed_duration;
         &:hover,&.active{
             //border-width: 0 1px 0 0 ;
             border-width: 1px;
@@ -25,6 +19,12 @@
             padding: .5em; 
             transition-duration: @FKS_newsfeed_duration;
         } 
+        background: white;        
+        border-width: 1px;
+        border-color: #ccc;
+        color:#bbb;
+        padding: @FKS_newsfeed_padding;
+        transition-duration: @FKS_newsfeed_duration;
 
     }
     .more_news{
@@ -64,12 +64,21 @@
         }        
         .edit{
             .priority{
+                
+                label{
+                    
+                    margin-top: .25em;
+                    margin-bottom: .25em;
+                    clear: both;
+                }
+                
                 display: none;
                 border-top: solid 1px #bbb;
                 clear: both;
+                
 
             }
-            span{
+            span.link_inp{
                 padding: .25em;
                 clear: both;
                 float: left;
