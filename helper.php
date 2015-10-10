@@ -24,7 +24,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public $sqlite;
     public $errors;
 
-    const simple_tpl = "{{fksnewsfeed>id=@id@; even=@even@; edited=@edited@;stream=@stream@}}";
+    const simple_tpl = '{{fksnewsfeed>id="@id@"; even="@even@"; edited="@edited@";stream="@stream@"}}';
     const db_table_feed = "fks_newsfeed_news";
     const db_table_dependence = "fks_newsfeed_dependence";
     const db_table_order = "fks_newsfeed_order";
