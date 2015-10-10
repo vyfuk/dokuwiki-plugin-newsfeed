@@ -248,6 +248,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public function LoadSimpleNews($id) {
         $sql = 'SELECT * FROM '.self::db_table_feed.' where news_id='.$id.'';
         $res = $this->sqlite->query($sql);
+        
         foreach ($this->sqlite->res2arr($res) as $row) {
 
             return $row;

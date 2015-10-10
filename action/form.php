@@ -67,8 +67,11 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         if($INPUT->str('news_do') !== 'priority'){
             return;
         }
+        if(auth_quickaclcheck('start') < AUTH_EDIT){
+            return;
+        }
         
-        $stream_id = $this->helper->streamTOID($INPUT->str('news_stream'));
+        $stream_id = $this->helper->streamToID($INPUT->str('news_stream'));
 
 
         if($this->helper->SavePriority($INPUT->str('news_id'),$stream_id,floor($INPUT->str('priority')),$INPUT->str('priority_form'),$INPUT->str('priority_to'))){
@@ -103,7 +106,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         $form->addHidden('news_id',$INPUT->str("news_id"));
         $form->addHidden('news_do',$INPUT->str('news_do'));
         $form->addHidden('news_stream',$INPUT->str('news_stream'));
-
+        
         foreach (self::$modFields as $field) {
             if($field == 'text'){
                 $value = $INPUT->post->str('wikitext',$data[$field]);
