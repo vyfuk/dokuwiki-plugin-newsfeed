@@ -3,9 +3,7 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author Michal Červeňák <miso@fykos.cz>
  */
-
 /* global LANG, DOKU_BASE */
-
 jQuery(function () {
     var $ = jQuery;
     var FKS_newsfeed = {
@@ -18,8 +16,11 @@ jQuery(function () {
         div_stream: 'div.stream'
     };
     var $FKS_newsfeed = $('div.FKS_newsfeed');
+    $('span[contenteditable="true"]').live("click", function () {
+        document.execCommand('selectAll', false, null);
+    });
     $(window).load(function () {
-        sortNewsDivs();
+        //sortNewsDivs();
         $FKS_newsfeed.find(FKS_newsfeed.div_stream).each(function () {
             var $stream = $(this);
             $(this).append(_add_load_bar());
@@ -39,15 +40,12 @@ jQuery(function () {
                     'json');
         });
     });
-    
-     $FKS_newsfeed.find('.priority_btn').live("click", function () {
-         $(this).parent().find('.priority').slideToggle();
-         
-         
-     });
-    
+    $FKS_newsfeed.find('.priority_btn').live("click", function () {
+        $(this).parent().find('.priority').slideToggle();
+
+    });
     $FKS_newsfeed.find(FKS_newsfeed.div_more_news).find('button.button').live("click", function () {
-        //$FKS_newsfeed.find(FKS_newsfeed.div_more_news).find('button.button').waypoint(function(){
+
         var $div_more_news = $(this).parent(FKS_newsfeed.div_more_news);
         var $streamdiv = $(this).parents(FKS_newsfeed.div_stream);
         $div_more_news.html("");
@@ -72,27 +70,7 @@ jQuery(function () {
         }
         , 'json');
     });
-    /**
-     * 
-     * button to add news to strem
-     */
-    var $add_to_stream = $FKS_newsfeed.find(FKS_newsfeed.div_add_to_stream);
-    $add_to_stream.find('input.button').click(function () {
-        $.post(DOKU_BASE + 'lib/exe/ajax.php',
-                {
-                    call: 'plugin_fksnewsfeed',
-                    target: 'feed',
-                    name: 'local',
-                    news_do: 'weight_add',
-                    news_id: $add_to_stream.find('input[name=news_id]').val(),
-                    news_weight: $add_to_stream.find('input[name=weight]').val(),
-                    news_stream: $add_to_stream.find('input[name=news_stream]').val()
-                },
-        function (data) {
-            $FKS_newsfeed.find(FKS_newsfeed.div_order_stream).append(data["order_div"]);
-            sortNewsDivs();
-        }, 'json');
-    });
+
     $FKS_newsfeed.find('button.link_btn').live("click", function (event) {
         $(this).toggleClass('active');
         $(this).parent('div').children('span').slideToggle();
@@ -111,40 +89,9 @@ jQuery(function () {
     /**
      * button to delete newsfeed on manage
      */
-    $FKS_newsfeed.find(FKS_newsfeed.div_delete_news).find('button').live("click", function () {
+    $FKS_newsfeed.find('#warning').live("click", function () {
         if (confirm(LANG.plugins.fksnewsfeed.oRlyDelete)) {
-            $(this).parent(FKS_newsfeed.div_delete_weight).children('input.edit').val(0);
-            $(this).parents(FKS_newsfeed.div_simple_order).slideUp();
-            sortNewsDivs();
         }
     });
-    function sortNewsDivs() {
-        var $input = $FKS_newsfeed.find(FKS_newsfeed.div_delete_news).find('input');
-        var weights = new Array();
-        $FKS_newsfeed.find(FKS_newsfeed.div_simple_order).each(function () {
-            var index = $(this).data("index");
-            weights[index] = {id: $(this).data("id"), weight: Number($(this).find('input.edit').val()), index: index};
-        });
-        weights.sort(sortByWeight);
-        var pos = 0;
-        for (var k in weights) {
-            var news = weights[k];
-
-            $FKS_newsfeed.find(FKS_newsfeed.div_simple_order + '[data-index=' + news.index + ']').each(function () {
-
-                $(this).animate({top: pos}, "slow");
-                var height = $(this).height();
-                pos += height;
-                pos += 50;
-            });
-        }
-        $FKS_newsfeed.find(FKS_newsfeed.div_order_stream).css({height: pos});
-        $input.one("change", function () {
-            sortNewsDivs();
-        });
-    }
-    function sortByWeight(a, b) {
-        return((a.weight < b.weight) ? 1 : ((a.weight > b.weight) ? -1 : 0));
-    }
     return true;
 });

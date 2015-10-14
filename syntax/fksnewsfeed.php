@@ -113,7 +113,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             }
 
             if($param['edited'] === 'true'){
-                $edit = '<div class="edit" data-id="'.$param["id"].'">'.$this->BtnEditNews($param["id"]).$this->getPriorityField($param["id"],$param['stream']).'</div>';
+                $edit = '<div class="edit" data-id="'.$param["id"].'">'.$this->BtnEditNews($param["id"],$param['stream']).$this->getPriorityField($param["id"],$param['stream']).'</div>';
             }else{
                 $edit = '';
             }
@@ -123,6 +123,8 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         }
         return false;
     }
+
+   
 
     private function getPriorityField($id,$stream) {
         $r = '';
@@ -135,16 +137,16 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $form2->addHidden('news_stream',$stream);
             $form2->addHidden('news_do','priority');
             $form2->addHidden("target","plugin_fksnewsfeed");
-            
-            $stream_id=$this->helper->StreamToID($stream);
-            list($p)=$this->helper->FindPriority($id,$stream_id);
-          
-            
-            
+
+            $stream_id = $this->helper->StreamToID($stream);
+            list($p) = $this->helper->FindPriority($id,$stream_id);
+
+
+
             $form2->addElement(form_makeField('number','priority',$p['priority'],'priority',null,null,array('step' => 1)));
             $form2->addElement(form2_makeDateTimeField('priority_form',$p['priority_from'],'FROM',null,null,1,1,array()));
             $form2->addElement(form2_makeDateTimeField('priority_to',$p['priority_to'],'TO',null,null,1,1,array()));
-            
+
 
             $form2->addElement(form_makeButton('submit','','Save priority'));
 
@@ -160,7 +162,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         return $r;
     }
 
-    private function BtnEditNews($id) {
+    private function BtnEditNews($id,$stream) {
         $r = '';
 
         if(auth_quickaclcheck('start') >= AUTH_EDIT){
@@ -188,6 +190,24 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $link = $this->helper->_generate_token((int) $id);
             $r.='<span contenteditable="true" class="link_inp edit" style="display:none" data-id="'.$id.'">'.$link.'</span>';
         }
+        if(auth_quickaclcheck('start') >= AUTH_EDIT){
+            ob_start();
+            $form = new Doku_Form(array());
+
+            $form->addHidden('news_do','delete_save');
+            $form->addHidden('target','plugin_fksnewsfeed');
+            $form->addHidden('stream',$stream);
+            $form->addHidden('news_id',$id);
+
+            $form->addElement(form_makeButton('submit',null,'Ostrániť z vlákna',array('id'=>'warning')));
+
+
+            html_form('editnews',$form);
+
+            $r.= ob_get_contents();
+            ob_clean();
+        }
+
         return $r;
     }
 

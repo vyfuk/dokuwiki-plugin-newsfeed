@@ -77,20 +77,18 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      */
     public function LoadStream($stream) {
         $stream_id = $this->StreamToID($stream);
-        $sql = 'SELECT * FROM '.self::db_table_order.' o jOIN '.self::db_table_feed.' n ON o.news_id=n.news_id WHERE stream_id=? ';
+        $sql = 'SELECT * FROM '.self::db_table_order.' o JOIN '.self::db_table_feed.' n ON o.news_id=n.news_id WHERE stream_id=? ';
         $res = $this->sqlite->query($sql,$stream_id);
         $ars = $this->sqlite->res2arr($res);
 
         foreach ($ars as $key => $ar) {
             if((time() < strtotime($ar['priority_from'])) || (time() > strtotime($ar['priority_to']))){
                 $ars[$key]['priority'] = 0;
-                
             }else{
-               //var_dump($ar) ;
+                //var_dump($ar) ;
             }
-            
+
             //var_dump(time() < strtotime($ar['priority_from']) || (time() > strtotime($ar['priority_to'])));
-            
         }
         usort($ars,function ($a,$b) {
             if($a['priority'] > $b['priority']){
@@ -248,7 +246,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public function LoadSimpleNews($id) {
         $sql = 'SELECT * FROM '.self::db_table_feed.' where news_id='.$id.'';
         $res = $this->sqlite->query($sql);
-        
+
         foreach ($this->sqlite->res2arr($res) as $row) {
 
             return $row;
@@ -355,52 +353,17 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @return type
      */
     public function SaveIntoStream($stream_id,$id) {
-        
-
-        $sql3 = 'INSERT INTO '.self::db_table_order.' (news_id,stream_id,priority) values(?,?,?)';
-        $this->sqlite->query($sql3,$id,$stream_id,0);
-        
+        $sql2 = 'SELECT * FROM '.self::db_table_order.' where news_id=? AND stream_id=?';
+        $res = $this->sqlite->query($sql2,$id,$stream_id);
+        if(count($this->sqlite->res2arr($res)) == 0){
+            $sql3 = 'INSERT INTO '.self::db_table_order.' (news_id,stream_id,priority) values(?,?,?)';
+            $this->sqlite->query($sql3,$id,$stream_id,0);
+        };
         return (int) 1;
     }
 
     public function update_stream($weigth,$order_id) {
         return $this->UpdateWeight($weigth,$order_id);
-    }
-
-    /**
-     * 
-     */
-    public function CleanOrder() {
-        $sql = 'DELETE FROM '.self::db_table_order.' WHERE weight=0;';
-        return $this->sqlite->query($sql);
-    }
-
-    /**
-     * 
-     * @param type $weigth
-     * @param type $order_id
-     * @return type
-     */
-    public function UpdateWeight($weigth,$order_id) {
-        $sql = 'UPDATE '.self::db_table_order.' SET weight=? WHERE order_id=?';
-        return $this->sqlite->query($sql,$weigth,$order_id);
-    }
-
-    public function create_order_div($news_id,$order_id,$weight,$k = 0) {
-        $form = "";
-        $e = $this->_is_even($k);
-        $n = str_replace(array('@id@','@even@','@edited@'),array($news_id,$e,'false'),$this->simple_tpl);
-        $form.= '<div class="simple_order_div" data-index="'.$order_id.'" data-id="'.$news_id.'">';
-        $form.='<div class="delete_news">           
-                <button type="button" class="close" >
-  <span aria-hidden="true">&times;</span>
-</button>';
-        $form.='<span>'.$this->getLang('weight').'</span><input type="number" class="edit" name="weight['.$order_id.']" value="'.$weight.'">';
-        $form.='</div>';
-        $info = array();
-        $form.=p_render("xhtml",p_get_instructions($n),$info);
-        $form.='</div>';
-        return $form;
     }
 
     /**
@@ -446,13 +409,27 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     public function SavePriority($news_id,$stream_id,$p,$from,$to) {
         $sql = 'UPDATE '.self::db_table_order.' SET priority=?,priority_from=?,priority_to=? WHERE stream_id=? AND news_id =?';
-        return $this->sqlite->query($sql,$p,$from,$to,$stream_id,$news_id);
+        $this->sqlite->query($sql,$p,$from,$to,$stream_id,$news_id);
+        return 1;
     }
 
     public function FindPriority($news_id,$stream_id) {
         $sql = 'SELECT * FROM '.self::db_table_order.' WHERE stream_id=? AND news_id =?';
         $res = $this->sqlite->query($sql,$stream_id,$news_id);
-        
+
+        return $this->sqlite->res2arr($res);
+    }
+
+    public function AllNewsFeed() {
+        $sql = 'SELECT * FROM '.self::db_table_feed.'';
+        $res = $this->sqlite->query($sql);
+
+        return $this->sqlite->res2arr($res);
+    }
+
+    public function DeleteOrder($news_id,$stream_id) {
+        $sql = 'DELETE FROM '.self::db_table_order.' WHERE stream_id=? AND news_id =?';
+        $res = $this->sqlite->query($sql,$stream_id,$news_id);
         return $this->sqlite->res2arr($res);
     }
 

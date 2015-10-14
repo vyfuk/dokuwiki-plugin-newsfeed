@@ -45,7 +45,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'save_news');
         $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'update_order_save');
         $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'SavePriority');
-        $controller->register_hook('TPL_ACT_RENDER','BEFORE',$this,'stream_delete');
+        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'SaveDelete');
     }
 
     /**
@@ -59,8 +59,6 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
      */
     public function SavePriority(Doku_Event &$event) {
         global $INPUT;
-        
-
         if($INPUT->str('target') !== 'plugin_fksnewsfeed'){
             return;
         }
@@ -70,12 +68,10 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         if(auth_quickaclcheck('start') < AUTH_EDIT){
             return;
         }
-        
         $stream_id = $this->helper->streamToID($INPUT->str('news_stream'));
-
-
         if($this->helper->SavePriority($INPUT->str('news_id'),$stream_id,floor($INPUT->str('priority')),$INPUT->str('priority_form'),$INPUT->str('priority_to'))){
-            msg('priority has been saved');
+            header('Location: '.$_SERVER['REQUEST_URI']);
+            exit();
         }
     }
 
@@ -106,7 +102,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         $form->addHidden('news_id',$INPUT->str("news_id"));
         $form->addHidden('news_do',$INPUT->str('news_do'));
         $form->addHidden('news_stream',$INPUT->str('news_stream'));
-        
+
         foreach (self::$modFields as $field) {
             if($field == 'text'){
                 $value = $INPUT->post->str('wikitext',$data[$field]);
@@ -204,56 +200,24 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         }
     }
 
-    public function stream_delete(Doku_Event &$event) {
+    public function SaveDelete(Doku_Event &$event) {
         global $INPUT;
         if($INPUT->str("target") != "plugin_fksnewsfeed"){
             return;
         }
-        if($INPUT->str('news_do') != 'order'){
+        if($INPUT->str('news_do') != 'delete_save'){
             return;
         }
         if(auth_quickaclcheck('start') < $this->getConf('perm_manage')){
             return;
         }
-        $event->preventDefault();
-
-        echo '<div class="FKS_newsfeed">';
 
 
-        ptln('<h1>'.$this->getLang('menu_manage_stream').' <small>stream:'.$INPUT->str('news_stream').'</small></h1>');
-        ptln('<h2 id="menu_add_to_stream">'.$this->getLang('menu_add_to_stream').'</h2>');
-        ptln('<div class="add_to_stream">');
-        $form2 = new Doku_Form(array());
-        $form2->addElement(form_makeTextField('weight',0,$this->getLang('weight')));
-        $form2->addHidden('news_stream',$INPUT->str('news_stream'));
-        $form2->addElement(form_makeTextField('news_id',0,'ID'));
-        $form2->addElement(form_makeButton('button',null,$this->getLang('btn_add_to_stream')));
-        html_form('add_to_stream',$form2);
-        ptln('</div>');
+        $stream_id = $this->helper->streamTOID($INPUT->str('stream'));
 
-
-        ptln('<h2 id="menu_change_order">'.$this->getLang('menu_change_order').'</h2>');
-        ptln('<p>'.$this->getLang('info_change_order').'</p>');
-        $form = new Doku_Form(array('id' => "save",
-            'method' => 'POST','action' => null));
-
-        $form->addHidden('news_stream',$INPUT->str('news_stream'));
-        $form->addHidden("target","plugin_fksnewsfeed");
-        $form->addHidden('news_do','order_save');
-        $form->addElement(form_makeButton('submit','',$this->getLang('btn_change_order'),array()));
-        $form->addElement(html_open_tag('div',array('class' => 'order_stream')));
-
-        foreach ($this->helper->loadstream($INPUT->str('news_stream'),true) as $key => $value) {
-            $news_id = $value['news_id'];
-            $order_id = $value['order_id'];
-            $weight = $value['weight'];
-            $news = $this->helper->create_order_div($news_id,$order_id,$weight,$key);
-            $form->addElement($news);
-        }
-        $form->addElement('</div>');
-        html_form('nic',$form);
-
-        ptln('</div>');
+        $this->helper->DeleteOrder($INPUT->str('news_id'),$stream_id);
+        header('Location: '.$_SERVER['REQUEST_URI']);
+        exit();
     }
 
 }

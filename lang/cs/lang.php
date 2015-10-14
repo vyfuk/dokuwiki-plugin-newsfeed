@@ -62,9 +62,19 @@ $lang['info_create_news'] ='';
 /**
  * manage stream
  */
-$lang['menu_manage_stream'] = 'Spravovat vlákno';
-$lang['btn_manage_stream'] = $lang['menu_manage_stream'];
-$lang['info_manage_news'] = 'Spravovat toto vlákno:';
+
+
+
+$lang['menu_push_stream'] = 'Pridať novinku do vlákna';
+$lang['btn_push_stream'] = $lang['menu_push_stream'];
+$lang['info_push_stream'] = 'Spravovat toto vlákno:';
+
+$lang['btn_push_news']='Pridať do vlákna ';
+
+$lang['menu_delete_stream'] = 'Odstrániť novinku z vlákna';
+$lang['btn_delete_stream'] = $lang['menu_delete_stream'];
+$lang['info_delete_stream'] = 'Spravovat toto vlákno:';
+
 /**
  * add_to_stream
  */
