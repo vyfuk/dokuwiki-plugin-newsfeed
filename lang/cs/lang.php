@@ -111,3 +111,5 @@ $lang['dep_list_child_full']='Do tohoto vlákna celkově dědí, je dcera/vnučk
 $lang['stream_create']='Vytvoř vlákno';
 $lang['stream_list']='Seznam vláken';
 $lang['stream_delete']='Odstraň vlákno';
+
+$lang['chose_stream']='Vyberte vlákno';

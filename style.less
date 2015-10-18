@@ -10,8 +10,7 @@
 .FKS_newsfeed{
 
     button,input.button,.button{        
-        &:hover,&.active{
-            //border-width: 0 1px 0 0 ;
+        &:hover,&.active,&:active{
             border-width: 1px;
             background: white;
             border-color:#999;
@@ -28,6 +27,26 @@
         transition-duration: @FKS_newsfeed_duration;
 
     }
+    .edit {
+        button,input.button,.button {
+            &:hover,&.active,&:active{
+                background-color: #f0f0f0;
+            }
+            border-width: 0 0 0 0;
+        }
+    }
+    .priority {
+        button,input.button,.button {
+
+            &:hover,&.active,&:active{
+                background-color: lighten(#11da75,10%);
+            }
+            color:white;
+            background-color: #11da75;
+
+        }
+    }
+
     .more_news{
         .button{
             width: 100%;
@@ -40,11 +59,12 @@
         }        
         border-color: @ini_text_alt;
         border-style: solid;
-        border-width: 1px;
+        border-width: 0 0 1px 0;
         margin: 0px;
         clear: both;
-        .author,.article{
-            padding: @FKS_newsfeed_padding;
+        .author{
+            //padding: @FKS_newsfeed_padding;
+            //clear: both;
         }
         .author{
             float: right;           
@@ -58,61 +78,79 @@
             font-weight: bold;
         }
         .article p{
-            padding: 0;
+            padding: .5em;
             margin: 0;
             text-align: justify;
         }        
         .edit{
             .priority{
-                
                 label{
-                    
                     margin-top: .25em;
                     margin-bottom: .25em;
                     clear: both;
                 }
-                
+                padding-top: .5em;
+                margin-bottom: .5em;
                 display: none;
                 border-top: solid 1px #bbb;
                 clear: both;
-                
 
             }
             span.link_inp{
                 padding: .25em;
                 clear: both;
                 float: left;
-
             }
-            //padding-bottom: .5em;
+
             button{
                 float: left;
 
             }
-
-            .secedit{
-                input.button{
-                    font-size: 100%;
-                }
+            .edit_btn,.priority_e_btn{               
 
                 float: left;
                 margin-top: 0;
             }
-
         }
 
-
-
         .headline{
-            padding: @FKS_newsfeed_padding;
-            color: white;
-            background-color: @ini_text_alt;
-            h3{
-                float: left;
-                //display: inline;
-                margin: 0;
+            .headline_content{
+                h3{
+                    float: left;
+                    //display: inline;
+                    margin: 0;
+                }
+                padding: @FKS_newsfeed_padding;
+                color: white;
+                background-color: @ini_text_alt;
+
             }
 
+        }
+        &.w_image{
+            &>*{
+                padding-left: 33%;
+            }
+            &>.author{
+                padding: 0;
+            }
+            .image{
+                img{
+                    width: 100%;
+                    margin-left: .5em;
+                }
+                
+                overflow: hidden;
+                width: 33%;
+                float: left;
+                padding: 0;
+                padding-bottom: .5em;
+                padding-top: 0;
+                
+                margin-top: -1.5em;
+                
+            }
+            
         }
         /*for new class of feed*/
         &.default{
@@ -124,7 +162,6 @@
                 background-color: @ini_text_alt ; 
             }
         }
-        
         &.important{
             border-color:orangered; 
             &:hover{
@@ -143,7 +180,7 @@
                 background-color: #11da75 ; 
             }
         }
-         &.TSAF{
+        &.TSAF{
             border-color:#7511da; 
             &:hover{
                 border-color: darken(#7511da,10%);
@@ -152,67 +189,37 @@
                 background-color: #7511da ; 
             }
         }
-        
-        
-        
-        margin-bottom: 1em;
+        margin-bottom: 2em;
     }
 
-    .order_stream{
-        .simple_order_div{
-            position: absolute;
-            width: 100%;
-        }
-        position: relative;
-        width: 100%;
-    }
+
     .rss {
-        &>*{
-            border: solid 1px darken(@rss_color,10%);
-            height: 2.5em;
+        &:before{
+            content: url('images/rss.png');
         }
-        div{
-            width: 15%;
-            border-top-left-radius:  5px;
-            border-bottom-left-radius: 5px;
-            padding: .5em;     
-            float: left;
-            text-align: center;
-            span{
-                &:before{
-                    content: url('images/rss.png');
-                }
-                color: white;
-                font-weight: bold;
-            }
-            background-color: @rss_color;
-
+        span{
+            margin-left: 1em;
+            color: white;
+            font-weight: bold;
         }
-        &:hover{
-            div{
-                // background-color: lighten(@rss_color,10%);
-                background-color: darken(@rss_color,10%);
-            }
-        }
-        input{
-            padding-left: .5em;
-            border-top-right-radius:   5px;
-            border-bottom-right-radius: 5px;
-            width: 85%;
-        }
+        padding: .75em;
+        border: none;
+        //border: solid 1px darken(@rss_color,10%);
+        background-color: @rss_color;
         margin-bottom: 1em;
     }
     .msg{
-        border: solid 1px #ccc;      
-
+        //border: solid 1px #ccc;
+        text-align: center;
+        border: none;
         padding: @FKS_newsfeed_padding;
         margin-bottom: 1em;
         font-weight: bold;
         color: #bbb;
     }
     margin-top:1em;
-    //margin:.5em;
     margin-bottom: 1.5em;
+    clear: both;
 }
 .code{
     font-family: monospace,serif;

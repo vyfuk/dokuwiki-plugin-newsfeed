@@ -40,7 +40,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
 
 
         $controller->register_hook('AJAX_CALL_UNKNOWN','BEFORE',$this,'Stream');
-        $controller->register_hook('AJAX_CALL_UNKNOWN','BEFORE',$this,'WeightAdd');
+        //$controller->register_hook('AJAX_CALL_UNKNOWN','BEFORE',$this,'WeightAdd');
     }
 
     /**
@@ -59,7 +59,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         require_once DOKU_INC.'inc/JSON.php';
 
         if($INPUT->str('news_do') == 'stream' || $INPUT->str('news_do') == 'more'){
-            
+
             header('Content-Type: application/json');
             $event->stopPropagation();
             $event->preventDefault();
@@ -68,10 +68,9 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
             if($INPUT->str('news_do') == 'stream'){
                 if(auth_quickaclcheck('start') >= $this->getConf('perm_manage')){
                     $this->PrintCreateBtn($r,$INPUT->str('news_stream'));
-                    
+
                     $this->PrintPullBtn($r,$INPUT->str('news_stream'));
                     //$this->PrintDeleteBtn($r,$INPUT->str('news_stream'));
-                   
                 }
                 if(auth_quickaclcheck('start') >= $this->getConf('perm_rss')){
                     $this->PrintRSS($r,$INPUT->str('news_stream'));
@@ -82,18 +81,18 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
             $json = new JSON();
             $er = "";
             /*
-            foreach ($this->helper->errors as $erro) {
-                $er.='<div class="error">'.$erro.'</div>';
-            }
-            
-            unset($this->helper->errors);*/
+              foreach ($this->helper->errors as $erro) {
+              $er.='<div class="error">'.$erro.'</div>';
+              }
+
+              unset($this->helper->errors); */
             echo $json->encode(array('more' => $more,"r" => $er.$r));
         }else{
             return;
         }
     }
 
-    public function PrintStream($news,&$r,$s = 0,$l = 5,$stream="") {
+    public function PrintStream($news,&$r,$s = 0,$l = 5,$stream = "") {
         global $INPUT;
         $more = false;
         for ($i = $s; $i < min(array($s + $l,(count($news)))); $i++) {
@@ -115,26 +114,6 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         $n = str_replace(array('@id@','@even@','@edited@','@stream@'),array($id,$e,'true',$stream),$this->helper->simple_tpl);
         $info = array();
         return p_render("xhtml",p_get_instructions($n),$info);
-    }
-
-    public function WeightAdd(Doku_Event &$event) {
-        global $INPUT;
-        if($INPUT->str('target') != 'feed'){
-            return;
-        }
-        require_once DOKU_INC.'inc/JSON.php';
-        header('Content-Type: application/json');
-        if($INPUT->str('news_do') == 'weight_add'){
-            $event->stopPropagation();
-            $event->preventDefault();
-            $weight = $INPUT->str('news_weight');
-            $news_id = $INPUT->str('news_id');
-            $stream_id = $this->helper->StreamToID($INPUT->str('news_stream'));
-            $order_id = $this->helper->SaveIntoStream($stream_id,$news_id,0);
-            $r['order_div'] = $this->helper->create_order_div($news_id,$order_id,$weight);
-        }
-        $json = new JSON();
-        echo $json->encode($r);
     }
 
     /**
@@ -170,10 +149,6 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         $r .= ob_get_contents();
         ob_end_clean();
     }
-    
-   
-    
-    
 
     /**
      * 
@@ -181,21 +156,17 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
      * @param type $stream
      */
     private function PrintRSS(&$r,$stream) {
-        $r.=html_open_tag('div',array('class' => 'rss'));
-        $r.=html_open_tag('div');
-        $r.=html_open_tag('span',array());
-        $r.='RSS'.html_close_tag('span');
-        $r.=html_close_tag('div');
-        $r.=html_make_tag('input',array(
-            'data-id' => 'rss',
-            'type' => 'text',
-            'value' => DOKU_URL.'feed.php?stream='.$stream));
-        $r.=html_close_tag('div');
+        $r.=html_open_tag('div',array('class' => 'rss'));       
+       
+       
+        $r.='<span contenteditable="true" >'.DOKU_URL.'feed.php?stream='.$stream.'</span>';
+        $r.='</div>';
+        
     }
 
     private function PrintCreateBtn(&$r,$stream) {
-       
-     
+
+
 
         $form3 = new Doku_Form(array('method' => 'GET'));
         $form3->addHidden('do','edit');

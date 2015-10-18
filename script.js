@@ -40,10 +40,7 @@ jQuery(function () {
                     'json');
         });
     });
-    $FKS_newsfeed.find('.priority_btn').live("click", function () {
-        $(this).parent().find('.priority').slideToggle();
 
-    });
     $FKS_newsfeed.find(FKS_newsfeed.div_more_news).find('button.button').live("click", function () {
 
         var $div_more_news = $(this).parent(FKS_newsfeed.div_more_news);
@@ -75,12 +72,16 @@ jQuery(function () {
         $(this).toggleClass('active');
         $(this).parent('div').children('span').slideToggle();
     });
+
+    $FKS_newsfeed.find('.priority_btn').live("click", function () {
+        $(this).toggleClass('active');
+        $(this).parent().find('.priority').slideToggle();
+
+    });
     /*
      * @TODO 
      */
-    $('button.FKS_newsfeed_rss_btn').live("click", function () {
-        $('input.FKS_newsfeed_rss_inp').slideDown();
-    });
+
     function _add_load_bar() {
         return '<div class="load" style="text-align:center;clear:both">' +
                 '<img src="' + DOKU_BASE + 'lib/plugins/fksnewsfeed/images/load.gif" alt="load">' +
@@ -89,8 +90,14 @@ jQuery(function () {
     /**
      * button to delete newsfeed on manage
      */
-    $FKS_newsfeed.find('#warning').live("click", function () {
+    $FKS_newsfeed.find('#warning').live("click", function (event) {
+
         if (confirm(LANG.plugins.fksnewsfeed.oRlyDelete)) {
+            return true;
+        } else {
+
+            return false;
+
         }
     });
     return true;

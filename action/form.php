@@ -42,10 +42,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
     public function register(Doku_Event_Handler $controller) {
 
         $controller->register_hook('HTML_EDIT_FORMSELECTION','BEFORE',$this,'form_to_news');
-        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'save_news');
-        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'update_order_save');
-        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'SavePriority');
-        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'SaveDelete');
+        
     }
 
     /**
@@ -56,24 +53,8 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
      * @param Doku_Event $event
      * @param type $param
      * @return type
-     */
-    public function SavePriority(Doku_Event &$event) {
-        global $INPUT;
-        if($INPUT->str('target') !== 'plugin_fksnewsfeed'){
-            return;
-        }
-        if($INPUT->str('news_do') !== 'priority'){
-            return;
-        }
-        if(auth_quickaclcheck('start') < AUTH_EDIT){
-            return;
-        }
-        $stream_id = $this->helper->streamToID($INPUT->str('news_stream'));
-        if($this->helper->SavePriority($INPUT->str('news_id'),$stream_id,floor($INPUT->str('priority')),$INPUT->str('priority_form'),$INPUT->str('priority_to'))){
-            header('Location: '.$_SERVER['REQUEST_URI']);
-            exit();
-        }
-    }
+     */  
+    
 
     public function form_to_news(Doku_Event &$event) {
         global $TEXT;
@@ -125,43 +106,11 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         }
         $form->endFieldset();
     }
-
-    public function save_news() {
-        global $INPUT;
-        global $ACT;
-
-        if($INPUT->str("target") == "plugin_fksnewsfeed"){
-            global $TEXT;
-            global $ID;
-            if(isset($_POST['do']['save'])){
-                $data = array();
-                foreach (self::$modFields as $field) {
-                    if($field == 'text'){
-                        $data[$field] = cleanText($INPUT->str('wikitext'));
-                        unset($_POST['wikitext']);
-                    }else{
-                        $data[$field] = $INPUT->param($field);
-                    }
-                }
-                if($INPUT->str('news_do') == 'create'){
-                    $id = $this->helper->SaveNews($data,$INPUT->str('news_id'),FALSE);
-                    $stream_id = $this->helper->StreamToID($INPUT->str('news_stream'));
-                    $arrs = array($stream_id);
-                    $this->helper->FullParentDependence($stream_id,$arrs);
-                    foreach ($arrs as $arr) {
-                        $this->helper->SaveIntoStream($arr,$id);
-                    }
-                }else{
-                    $this->helper->SaveNews($data,$INPUT->str('news_id'),true);
-                }
-                unset($TEXT);
-                unset($_POST['wikitext']);
-                $ACT = 'show';
-                $ID = 'start';
-            }
-        }
-    }
-
+    /**
+     * 
+     * @global type $INFO
+     * @return type
+     */
     private function CreateDefault() {
         global $INFO;
         return array(
@@ -173,51 +122,5 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                 'image' => '',
                 'category' => ''),
             $this->getLang('news_text'));
-    }
-
-    /**
-     * 
-     * @global type $INPUT
-     * @global string $ACT
-     * @global type $TEXT
-     * @global type $ID
-     * @global type $INFO
-     * @param Doku_Event $event
-     * @param type $param
-     */
-    public function update_order_save() {
-        global $INPUT;
-
-        if($INPUT->str("target") == "plugin_fksnewsfeed"){
-            if($INPUT->str('news_do') == 'order_save'){
-                foreach ($INPUT->param('weight') as $key => $value) {
-                    $this->helper->UpdateWeight($value,$key);
-                }
-                global $ACT;
-                $this->helper->CleanOrder();
-                $ACT = 'show';
-            }
-        }
-    }
-
-    public function SaveDelete(Doku_Event &$event) {
-        global $INPUT;
-        if($INPUT->str("target") != "plugin_fksnewsfeed"){
-            return;
-        }
-        if($INPUT->str('news_do') != 'delete_save'){
-            return;
-        }
-        if(auth_quickaclcheck('start') < $this->getConf('perm_manage')){
-            return;
-        }
-
-
-        $stream_id = $this->helper->streamTOID($INPUT->str('stream'));
-
-        $this->helper->DeleteOrder($INPUT->str('news_id'),$stream_id);
-        header('Location: '.$_SERVER['REQUEST_URI']);
-        exit();
-    }
-
+    } 
 }

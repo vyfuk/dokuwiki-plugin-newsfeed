@@ -89,6 +89,7 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
             $data->title = $param['name'];
             $data->link = $this->helper->_generate_token($id['news_id']);
             $info = array();
+            
             $data->description = p_render('text',p_get_instructions($param['text']),$info);
             $data->editor = $param['author'];
             $data->editorEmail = $param['email'];

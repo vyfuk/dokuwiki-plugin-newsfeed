@@ -78,16 +78,18 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
 
 
-            $img_attr = array('style' => 'width:100%;');
+            $img_attr = array();
 
 
-
+            $div_class = $param['even'].' '.$data['category'];
             foreach (helper_plugin_fksnewsfeed::$Fields as $k) {
                 if($k == 'image'){
                     if($data['image'] != ""){
-                        $data['image'] = '<img src="'.ml($data['image']).'" alt="newsfeed" '.buildAttributes($img_attr).'>';
+                        $div_class.=' w_image';
+                        $data['image'] = '<div class="image"><img src="'.ml($data['image']).'" alt="newsfeed" '.buildAttributes($img_attr).'></div>';
                         $tpl = str_replace('@'.$k.'@',$data[$k],$tpl);
                     }else{
+                         $tpl = str_replace('@'.$k.'@','',$tpl);
                         continue;
                     }
                 }
@@ -119,12 +121,10 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             }
 
             $tpl = str_replace('@edit@',$edit,$tpl);
-            $renderer->doc.= '<div class="'.$param['even'].' '.$data['category'].'" data-id="'.$param["id"].'">'.$tpl.'</div>';
+            $renderer->doc.= '<div class="'.$div_class.'" data-id="'.$param["id"].'">'.$tpl.'</div>';
         }
         return false;
     }
-
-   
 
     private function getPriorityField($id,$stream) {
         $r = '';
@@ -174,10 +174,10 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
             ob_start();
             html_form('editnews',$form);
-            $r.=html_open_tag('div',array('class' => 'secedit FKS_newsfeed_secedit'));
+            $r.='<div class="edit_btn">';
             $r.= ob_get_contents();
             ob_clean();
-            $r.=html_close_tag('div');
+            $r.='</div>';
             $r.='<button class="button priority_btn">Edit Priority</button>';
         }
         if(auth_quickaclcheck('start') >= $this->getConf('perm_fb')){
@@ -199,13 +199,17 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $form->addHidden('stream',$stream);
             $form->addHidden('news_id',$id);
 
-            $form->addElement(form_makeButton('submit',null,'Ostrániť z vlákna',array('id'=>'warning')));
+            $form->addElement(form_makeButton('submit',null,'Ostrániť z vlákna',array('id' => 'warning')));
 
 
             html_form('editnews',$form);
 
+            
+            
+             $r.='<div class="priority_e_btn">';
             $r.= ob_get_contents();
             ob_clean();
+            $r.='</div>';
         }
 
         return $r;
