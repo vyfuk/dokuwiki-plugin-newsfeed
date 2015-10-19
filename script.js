@@ -6,11 +6,7 @@
 /* global LANG, DOKU_BASE */
 jQuery(function () {
     var $ = jQuery;
-    var FKS_newsfeed = {
-        div_simple_order: 'div.simple_order_div',
-        div_delete_news: 'div.delete_news',
-        div_order_stream: 'div.order_stream',
-        div_add_to_stream: 'div.add_to_stream',
+    var FKS_newsfeed = {        
         div_more_news: 'div.more_news',
         div_feed: 'div.even,div.odd',
         div_stream: 'div.stream'
@@ -20,7 +16,7 @@ jQuery(function () {
         document.execCommand('selectAll', false, null);
     });
     $(window).load(function () {
-        //sortNewsDivs();
+        
         $FKS_newsfeed.find(FKS_newsfeed.div_stream).each(function () {
             var $stream = $(this);
             $(this).append(_add_load_bar());
@@ -68,14 +64,14 @@ jQuery(function () {
         , 'json');
     });
 
-    $FKS_newsfeed.find('button.link_btn').live("click", function (event) {
+    $FKS_newsfeed.find('.link_btn').live("click", function (event) {
         $(this).toggleClass('active');
-        $(this).parent('div').children('span').slideToggle();
+        $(this).parent().parent().find('.link').slideToggle();
     });
 
     $FKS_newsfeed.find('.priority_btn').live("click", function () {
         $(this).toggleClass('active');
-        $(this).parent().find('.priority').slideToggle();
+        $(this).parent().parent().find('.priority').slideToggle();
 
     });
     /*

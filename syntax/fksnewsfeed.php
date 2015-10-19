@@ -89,7 +89,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
                         $data['image'] = '<div class="image"><img src="'.ml($data['image']).'" alt="newsfeed" '.buildAttributes($img_attr).'></div>';
                         $tpl = str_replace('@'.$k.'@',$data[$k],$tpl);
                     }else{
-                         $tpl = str_replace('@'.$k.'@','',$tpl);
+                        $tpl = str_replace('@'.$k.'@','',$tpl);
                         continue;
                     }
                 }
@@ -115,7 +115,12 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             }
 
             if($param['edited'] === 'true'){
-                $edit = '<div class="edit" data-id="'.$param["id"].'">'.$this->BtnEditNews($param["id"],$param['stream']).$this->getPriorityField($param["id"],$param['stream']).'</div>';
+                list($r1,$ar1)=$this->BtnEditNews($param["id"],$param['stream']);
+                 list($r2,$ar2)=$this->getPriorityField($param["id"],$param['stream']);
+                
+                
+                $edit = '<div class="edit" data-id="'.$param["id"].'">'.$r1.$r2.'</div>';
+                 $edit .= '<div class="edit_field" data-id="'.$param["id"].'">'.$ar1.$ar2.'</div>';
             }else{
                 $edit = '';
             }
@@ -128,8 +133,14 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
     private function getPriorityField($id,$stream) {
         $r = '';
+        $ar='';
         if(auth_quickaclcheck('start') >= AUTH_EDIT){
-            $r.='<div class="priority">';
+
+            $r.='<div class="priority_btn">';
+            $r.='<button class="button priority_btn">'.$this->getLang('btn_priority_edit').'</button>';
+            $r.='</div>';
+
+            $ar.='<div class="priority">';
 
             $form2 = new Doku_Form(array());
             $form2->addHidden("do","show");
@@ -143,27 +154,29 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
 
 
-            $form2->addElement(form_makeField('number','priority',$p['priority'],'priority',null,null,array('step' => 1)));
-            $form2->addElement(form2_makeDateTimeField('priority_form',$p['priority_from'],'FROM',null,null,1,1,array()));
-            $form2->addElement(form2_makeDateTimeField('priority_to',$p['priority_to'],'TO',null,null,1,1,array()));
+            $form2->addElement(form_makeField('number','priority',$p['priority'],$this->getLang('priority_value'),null,'block',array('step' => 1)));
+            $form2->addElement(form2_makeDateTimeField('priority_form',$p['priority_from'],$this->getLang('valid_from'),null,'block',1,1,array()));
+            $form2->addElement(form2_makeDateTimeField('priority_to',$p['priority_to'],$this->getLang('valid_to'),null,'block',1,1,array()));
 
 
-            $form2->addElement(form_makeButton('submit','','Save priority'));
+            $form2->addElement(form_makeButton('submit','',$this->getLang('btn_save_priority')));
 
             ob_start();
             html_form('editnews',$form2);
 
-            $r.= ob_get_contents();
+            $ar.= ob_get_contents();
             ob_clean();
 
-            $r.='</div>';
+            $ar.='</div>';
         }
 
-        return $r;
+        return array($r,$ar);
+        
     }
 
     private function BtnEditNews($id,$stream) {
         $r = '';
+        $ar='';
 
         if(auth_quickaclcheck('start') >= AUTH_EDIT){
             $form = new Doku_Form(array('id' => 'editnews','method' => 'POST','class' => 'fksreturn'));
@@ -174,21 +187,29 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
             ob_start();
             html_form('editnews',$form);
+
             $r.='<div class="edit_btn">';
             $r.= ob_get_contents();
             ob_clean();
             $r.='</div>';
-            $r.='<button class="button priority_btn">Edit Priority</button>';
         }
         if(auth_quickaclcheck('start') >= $this->getConf('perm_fb')){
-            $r.= '<button data-href="'.$this->helper->_generate_token((int) $id).'"'.
+            $r.= '<div class="share_btn"><button data-href="'.$this->helper->_generate_token((int) $id).'"'.
                     ' class="button fb-btn">';
-            $r.= 'Share on FaceBook</button>';
+            $r.= $this->getLang('btn_share_fb').'</button>';
+            $r.='</div>';
         }
         if(auth_quickaclcheck('start') >= $this->getConf('perm_link')){
+            $r.='<div class="link_btn">';
             $r.=html_button($this->getLang('btn_newsfeed_link'),'button link_btn',array('data-id' => $id));
             $link = $this->helper->_generate_token((int) $id);
-            $r.='<span contenteditable="true" class="link_inp edit" style="display:none" data-id="'.$id.'">'.$link.'</span>';
+             $r.='</div>';
+             
+            $ar.='<div class="link">';
+           
+            $ar.='<span contenteditable="true" class="link_inp"  data-id="'.$id.'">'.$link.'</span>';
+
+            $ar.='</div>';
         }
         if(auth_quickaclcheck('start') >= AUTH_EDIT){
             ob_start();
@@ -204,15 +225,15 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
             html_form('editnews',$form);
 
-            
-            
-             $r.='<div class="priority_e_btn">';
+
+
+            $r.='<div class="delete_btn">';
             $r.= ob_get_contents();
             ob_clean();
             $r.='</div>';
         }
 
-        return $r;
+       return array($r,$ar);
     }
 
     private function newsdate($date) {
