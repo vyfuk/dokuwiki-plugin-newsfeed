@@ -433,4 +433,8 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $this->sqlite->res2arr($res);
     }
 
+    public function getCasheFile($id,$tpl) {
+        return 'FKS_newsfeed_news_'.$id.'_'.$tpl;
+    }
+
 }

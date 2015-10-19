@@ -55,85 +55,130 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     public function render($mode,Doku_Renderer &$renderer,$data) {
         // $data is what the function handle return'ed.
         if($mode == 'xhtml'){
+            $r = "";
             /** @var Do ku_Renderer_xhtml $renderer */
             list(,list($param) ) = $data;
-
-
+            /*
+             * if not valid ID
+             */
             if($param['id'] == 0){
-                $renderer->doc.= '<div class="FKS_newsfeed_exist_msg">'.$this->getLang('news_non_exist').'</div>';
+                $r.= '<div class="FKS_newsfeed_exist_msg">'.$this->getLang('news_non_exist').'</div>';
+                return;
             }
-
-            $data = $this->helper->LoadSimpleNews($param["id"]);
+            /*
+             * if no data gived
+             */
             if(empty($data)){
-                $renderer->doc.= '<div class="FKS_newsfeed_exist_msg">'.$this->getLang('news_non_exist').'</div>';
+                $r.= '<div class="FKS_newsfeed_exist_msg">'.$this->getLang('news_non_exist').'</div>';
+                return;
             }
-            // if template not found use default 
-            $tpl_path = wikiFN($this->getConf('tpl'));
-            if(!file_exists($tpl_path)){
-                $def_tpl = DOKU_PLUGIN.plugin_directory('fksnewsfeed').'/tpl.html';
-                io_saveFile($tpl_path,io_readFile($def_tpl));
-            }
-            //load empty template 
-            $tpl = io_readFile($tpl_path);
+            /*
+             * FR anther tpl for streams
+             */
+            $param['tpl'] = 'default';
+            $f = $this->helper->getCasheFile($param['id'],$param['tpl']);
+            $cache = new cache($f,'');
 
 
+            /* can I use cache?
+             */
+            if($cache->useCache()){
 
-            $img_attr = array();
+                $tpl = $cache->retrieveCache();   //load tpl without edit section
+            }else{
+                $data = $this->helper->LoadSimpleNews($param["id"]);
+                $tpl_path = wikiFN($this->getConf('tpl'));
+                if(!file_exists($tpl_path)){
+                    $def_tpl = DOKU_PLUGIN.plugin_directory('fksnewsfeed').'/tpl.html';
+                    io_saveFile($tpl_path,io_readFile($def_tpl));
+                }
+                $tpl = io_readFile($tpl_path);
 
+                $img_attr = array();
 
-            $div_class = $param['even'].' '.$data['category'];
-            foreach (helper_plugin_fksnewsfeed::$Fields as $k) {
-                if($k == 'image'){
-                    if($data['image'] != ""){
-                        $div_class.=' w_image';
-                        $data['image'] = '<div class="image"><img src="'.ml($data['image']).'" alt="newsfeed" '.buildAttributes($img_attr).'></div>';
+                foreach (helper_plugin_fksnewsfeed::$Fields as $k) {
+                    /*
+                     * render image 
+                     */
+                    if($k == 'image'){
+                        if($data['image'] != ""){
+                            $div_class.=' w_image';
+                            $data['image'] = '<div class="image"><img src="'.ml($data['image'],array('w' => 300)).'" alt="newsfeed" '.buildAttributes($img_attr).'></div>';
+                            $tpl = str_replace('@'.$k.'@',$data[$k],$tpl);
+                        }else{
+                            $tpl = str_replace('@'.$k.'@','',$tpl);
+                            continue;
+                        }
+                    }/*
+                     * render dokutext
+                     */
+                    if($k == 'text'){
+                        $info = array();
+                        $data['text'] = p_render('xhtml',p_get_instructions($data['text']),$info);
                         $tpl = str_replace('@'.$k.'@',$data[$k],$tpl);
-                    }else{
-                        $tpl = str_replace('@'.$k.'@','',$tpl);
                         continue;
                     }
-                }
-                if($k == 'text'){
-                    $info = array();
-                    $data['text'] = p_render('xhtml',p_get_instructions($data['text']),$info);
-                    $tpl = str_replace('@'.$k.'@',$data[$k],$tpl);
-                    continue;
-                }
-                $data[$k] = htmlspecialchars($data[$k]);
-                if($k == 'category'){
-                    if($data['category'] == ""){
-                        $data['category'] = 'default';
-                    }
-                }elseif($k == 'newsdate'){
-                    $data['newsdate'] = $this->newsdate($data['newsdate']);
-                }
+                    /*
+                     * ecsape others params
+                     */
+                    $data[$k] = htmlspecialchars($data[$k]);
 
-                $tpl = str_replace('@'.$k.'@',$data[$k],$tpl);
-            }
-            if(!isset($param['even'])){
-                $param['even'] = 'even';
+                    /*
+                     * create date
+                     */
+                    if($k == 'newsdate'){
+
+                        $data['newsdate'] = $this->newsdate($data['newsdate']);
+                    }
+                    /*
+                     * add to template
+                     */
+                    $tpl = str_replace('@'.$k.'@',$data[$k],$tpl);
+                }
+                $cache->storeCache($tpl);
             }
 
             if($param['edited'] === 'true'){
-                list($r1,$ar1)=$this->BtnEditNews($param["id"],$param['stream']);
-                 list($r2,$ar2)=$this->getPriorityField($param["id"],$param['stream']);
-                
-                
+                list($r1,$ar1) = $this->BtnEditNews($param["id"],$param['stream']);
+                list($r2,$ar2) = $this->getPriorityField($param["id"],$param['stream']);
+
                 $edit = '<div class="edit" data-id="'.$param["id"].'">'.$r1.$r2.'</div>';
-                 $edit .= '<div class="edit_field" data-id="'.$param["id"].'">'.$ar1.$ar2.'</div>';
+                $edit .= '<div class="edit_field" data-id="'.$param["id"].'">'.$ar1.$ar2.'</div>';
             }else{
                 $edit = '';
             }
 
             $tpl = str_replace('@edit@',$edit,$tpl);
-            $renderer->doc.= '<div class="'.$div_class.'" data-id="'.$param["id"].'">'.$tpl.'</div>';
+
+
+            /*
+             * empty category ist default!!!
+             */
+
+            if($data['category'] == ""){
+                $data['category'] = 'default';
+            }else{
+                $data['category'] = htmlspecialchars($data['category']);
+            }
+
+            /*
+             * default is even
+             */
+            if(!isset($param['even'])){
+                $param['even'] = 'even';
+            }
+            $div_class = $param['even'].' '.$data['category'];
+
+            $r.= '<div class="'.$div_class.'" data-id="'.$param["id"].'">'.$tpl.'</div>';
+
+            $renderer->doc.=$r;
         }
         return false;
     }
 
     private function getPriorityField($id,$stream) {
         $r = '';
-        $ar='';
+        $ar = '';
         if(auth_quickaclcheck('start') >= AUTH_EDIT){
 
             $r.='<div class="priority_btn">';
@@ -171,12 +216,11 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         }
 
         return array($r,$ar);
-        
     }
 
     private function BtnEditNews($id,$stream) {
         $r = '';
-        $ar='';
+        $ar = '';
 
         if(auth_quickaclcheck('start') >= AUTH_EDIT){
             $form = new Doku_Form(array('id' => 'editnews','method' => 'POST','class' => 'fksreturn'));
@@ -203,10 +247,10 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $r.='<div class="link_btn">';
             $r.=html_button($this->getLang('btn_newsfeed_link'),'button link_btn',array('data-id' => $id));
             $link = $this->helper->_generate_token((int) $id);
-             $r.='</div>';
-             
+            $r.='</div>';
+
             $ar.='<div class="link">';
-           
+
             $ar.='<span contenteditable="true" class="link_inp"  data-id="'.$id.'">'.$link.'</span>';
 
             $ar.='</div>';
@@ -233,7 +277,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $r.='</div>';
         }
 
-       return array($r,$ar);
+        return array($r,$ar);
     }
 
     private function newsdate($date) {

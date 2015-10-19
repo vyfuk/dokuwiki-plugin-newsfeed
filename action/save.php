@@ -21,7 +21,6 @@ if(!defined('DOKU_INC')){
 class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
 
     private static $modFields;
-   
     private $helper;
 
     /**
@@ -40,8 +39,8 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
      * @param Doku_Event_Handler $controller
      */
     public function register(Doku_Event_Handler $controller) {
-    
-        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'SaveNews');        
+
+        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'SaveNews');
         $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'SavePriority');
         $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'SaveDelete');
     }
@@ -66,14 +65,17 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
         if(auth_quickaclcheck('start') < AUTH_EDIT){
             return;
         }
+
+        $f = $this->helper->getCasheFile($INPUT->str('news_id'),'default');
+        $cache = new cache($f,'');
+        $cache->removeCache();
         $stream_id = $this->helper->streamToID($INPUT->str('news_stream'));
+
         if($this->helper->SavePriority($INPUT->str('news_id'),$stream_id,floor($INPUT->str('priority')),$INPUT->str('priority_form'),$INPUT->str('priority_to'))){
             header('Location: '.$_SERVER['REQUEST_URI']);
             exit();
         }
     }
-
-   
 
     public function SaveNews() {
         global $INPUT;
@@ -83,6 +85,11 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
             global $TEXT;
             global $ID;
             if(isset($_POST['do']['save'])){
+                $f = $this->helper->getCasheFile($INPUT->str('news_id'),'default');
+                $cache = new cache($f,'');
+                $cache->removeCache();
+                
+
                 $data = array();
                 foreach (self::$modFields as $field) {
                     if($field == 'text'){
@@ -109,9 +116,7 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
                 $ID = 'start';
             }
         }
-    }  
-
-    
+    }
 
     public function SaveDelete(Doku_Event &$event) {
         global $INPUT;

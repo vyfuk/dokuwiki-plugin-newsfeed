@@ -19,7 +19,7 @@ jQuery(function () {
         
         $FKS_newsfeed.find(FKS_newsfeed.div_stream).each(function () {
             var $stream = $(this);
-            $(this).append(_add_load_bar());
+            $(this).append(AddLoadBar());
             $.post(DOKU_BASE + 'lib/exe/ajax.php',
                     {
                         call: 'plugin_fksnewsfeed',
@@ -42,7 +42,7 @@ jQuery(function () {
         var $div_more_news = $(this).parent(FKS_newsfeed.div_more_news);
         var $streamdiv = $(this).parents(FKS_newsfeed.div_stream);
         $div_more_news.html("");
-        $div_more_news.append(_add_load_bar());
+        $div_more_news.append(AddLoadBar());
         $.post(DOKU_BASE + 'lib/exe/ajax.php',
                 {
                     call: 'plugin_fksnewsfeed',
@@ -78,7 +78,7 @@ jQuery(function () {
      * @TODO 
      */
 
-    function _add_load_bar() {
+    function AddLoadBar() {
         return '<div class="load" style="text-align:center;clear:both">' +
                 '<img src="' + DOKU_BASE + 'lib/plugins/fksnewsfeed/images/load.gif" alt="load">' +
                 '</div>';
