@@ -7,18 +7,61 @@
 @FKS_newsfeed_padding: .5em;
 @FKS_newsfeed_duration: .2s;
 
+@import "custom_feed.less";
+
+@media  (max-width:600px){
+    .FKS_newsfeed{
+        button,input.button,.button{  
+            width: 100%;
+            margin-bottom: .5em;
+        }
+        .odd,.even{
+            .edit{  
+                &>div{
+                    width: 100%;
+                    display: none;                
+                }
+                &>.opt_btn{
+                    display: block;
+                }
+                &>.displayed{
+                    display: block;
+                }
+                width: 100%;
+                float:none;
+                display: block;
+            }
+            &.w_image{
+                &>*{
+                    padding-left: 0;
+                }
+                &>.author,&>.edit,&>.edit_field{
+                    padding-left: 0;
+                }
+                .image{                    
+                    display: none;
+
+                }
+            }
+        }
+    }
+}
+
+
 .FKS_newsfeed{
 
     button,input.button,.button{        
-        &:hover,&.active,&:active{
+        &:hover,&.active,&:active,&:focus{
             border-width: 1px;
-            background: white;
+            background: none;
+            background-color: white;
             border-color:#999;
             color:black;
             padding: .5em; 
             transition-duration: @FKS_newsfeed_duration;
         } 
-        background: white;        
+        background: none;
+        background-color: white;       
         border-width: 1px;
         border-style: solid;
         border-color: #ccc;
@@ -28,13 +71,21 @@
 
     }
     .edit {
+        
         button,input.button,.button {
-            &:hover,&.active,&:active{
+            &:hover,&:active,&:focus{
                 background-color: #f0f0f0;
+            }
+            &.active{
+                background-color: lighten(@ini_text_alt,30%)
             }
             border-width: 0 0 0 0;
         }
+
+
     }
+
+
     .priority {
         button,input.button,.button {
 
@@ -55,7 +106,7 @@
 
     .odd,.even{
         &:hover{
-            // background-color: #f3f3f3;
+
         }        
         border-color: @ini_text_alt;
         border-style: solid;
@@ -63,10 +114,7 @@
         margin: 0px;
         clear: both;
         padding-bottom:1px;
-        .author{
-            //padding: @FKS_newsfeed_padding;
-            //clear: both;
-        }
+
         .author{
             float: right;           
         }
@@ -83,11 +131,13 @@
             margin: 0;
             text-align: justify;
         }        
-        .edit{
-            
+        .edit{           
 
             &>div{
                 display: inline-block;                
+            }
+            &>.opt_btn{
+                display: none;
             }
             max-width: 100%;
             display: flex;
@@ -96,7 +146,8 @@
             padding-bottom: 1px;
             float:none;
             clear:both;
-         
+
+
 
         }
         .edit_field{
@@ -104,10 +155,11 @@
                 display: none;
                 float:none;
                 clear: both;
-                padding-top: .5em;
-                padding-bottom: .5em;
+                padding: .5em;
+
                 border-top: 1px solid #ccc;
             }
+
         }
 
         .headline{
@@ -129,8 +181,8 @@
             &>*{
                 padding-left: 33%;
             }
-            &>.author,&>.edit{
-                padding: 0;
+            &>.author,&>.edit,&>.edit_field{
+                padding-left: 0;
             }
             .image{
                 img{
@@ -150,43 +202,7 @@
             }
 
         }
-        /*for new class of feed*/
-        &.default{
-            border-color:@ini_text_alt; 
-            &:hover{
-                border-color: darken(@ini_text_alt,10%);
-            }
-            .headline{
-                background-color: @ini_text_alt ; 
-            }
-        }
-        &.important{
-            border-color:orangered; 
-            &:hover{
-                border-color: darken(orangered,10%);
-            }
-            .headline{
-                background-color: orangered ; 
-            }
-        }
-        &.DSEF{
-            border-color:#11da75; 
-            &:hover{
-                border-color: darken(#11da75,10%);
-            }
-            .headline{
-                background-color: #11da75 ; 
-            }
-        }
-        &.TSAF{
-            border-color:#7511da; 
-            &:hover{
-                border-color: darken(#7511da,10%);
-            }
-            .headline{
-                background-color: #7511da ; 
-            }
-        }
+
         margin-bottom: 2em;
     }
 
@@ -202,12 +218,11 @@
         }
         padding: .75em;
         border: none;
-        //border: solid 1px darken(@rss_color,10%);
         background-color: @rss_color;
         margin-bottom: 1em;
     }
     .msg{
-        //border: solid 1px #ccc;
+
         text-align: center;
         border: none;
         padding: @FKS_newsfeed_padding;
@@ -219,6 +234,8 @@
     margin-bottom: 1.5em;
     clear: both;
 }
+
+
 .code{
     font-family: monospace,serif;
     background-color: #eee;

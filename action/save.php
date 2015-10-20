@@ -66,9 +66,11 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
             return;
         }
 
-        $f = $this->helper->getCasheFile($INPUT->str('news_id'),'default');
+        $f = $this->helper->getCasheFile($INPUT->str('news_id'),$INPUT->str('news_stream'),'true','default');
+
         $cache = new cache($f,'');
         $cache->removeCache();
+
         $stream_id = $this->helper->streamToID($INPUT->str('news_stream'));
 
         if($this->helper->SavePriority($INPUT->str('news_id'),$stream_id,floor($INPUT->str('priority')),$INPUT->str('priority_form'),$INPUT->str('priority_to'))){
@@ -85,10 +87,13 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
             global $TEXT;
             global $ID;
             if(isset($_POST['do']['save'])){
-                $f = $this->helper->getCasheFile($INPUT->str('news_id'),'default');
+                $f = $this->helper->getCasheFile($INPUT->str('news_id'));
                 $cache = new cache($f,'');
                 $cache->removeCache();
+
                 
+
+
 
                 $data = array();
                 foreach (self::$modFields as $field) {

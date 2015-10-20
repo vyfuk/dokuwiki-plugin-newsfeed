@@ -6,7 +6,7 @@
 /* global LANG, DOKU_BASE */
 jQuery(function () {
     var $ = jQuery;
-    var FKS_newsfeed = {        
+    var FKS_newsfeed = {
         div_more_news: 'div.more_news',
         div_feed: 'div.even,div.odd',
         div_stream: 'div.stream'
@@ -16,7 +16,7 @@ jQuery(function () {
         document.execCommand('selectAll', false, null);
     });
     $(window).load(function () {
-        
+
         $FKS_newsfeed.find(FKS_newsfeed.div_stream).each(function () {
             var $stream = $(this);
             $(this).append(AddLoadBar());
@@ -72,6 +72,20 @@ jQuery(function () {
     $FKS_newsfeed.find('.priority_btn').live("click", function () {
         $(this).toggleClass('active');
         $(this).parent().parent().find('.priority').slideToggle();
+
+    });
+
+    $FKS_newsfeed.find('.opt_btn').live("click", function () {
+        $(this).toggleClass('active');
+        $(this).parent().children('div').each(function () {
+
+            if ($(this).attr('class').match(/opt_btn.*/)) {
+                $(this).toggleClass('active');
+            } else {
+                $(this).slideToggle().toggleClass('displayed');
+            }
+        });
+
 
     });
     /*

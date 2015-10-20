@@ -1,0 +1,51 @@
+/**
+* LESS & CSS for DokuWiki plugin FKSnewsfeed 
+* @author Michal Červeňák <miso@fykos.cz>
+* 
+*/
+@rss_color : #ff8811;
+@FKS_newsfeed_padding: .5em;
+@FKS_newsfeed_duration: .2s;
+
+@import "custom_feed.less";
+.FKS_newsfeed{
+    .odd,.even{       
+        /*for new class of feed*/
+        &.default{
+            border-color:@ini_text_alt; 
+            &:hover{
+                border-color: darken(@ini_text_alt,10%);
+            }
+            .headline{
+                background-color: @ini_text_alt ; 
+            }
+        }
+        &.important{
+            border-color:orangered; 
+            &:hover{
+                border-color: darken(orangered,10%);
+            }
+            .headline{
+                background-color: orangered ; 
+            }
+        }
+        &.DSEF{
+            border-color:#11da75; 
+            &:hover{
+                border-color: darken(#11da75,10%);
+            }
+            .headline{
+                background-color: #11da75 ; 
+            }
+        }
+        &.TSAF{
+            border-color:#7511da; 
+            &:hover{
+                border-color: darken(#7511da,10%);
+            }
+            .headline{
+                background-color: #7511da ; 
+            }
+        }        
+    }
+}
