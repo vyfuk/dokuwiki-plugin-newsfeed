@@ -76,7 +76,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $f = $this->helper->getCasheFile($param['id']);
             $cache = new cache($f,'');
             $json = new JSON();
-            if($cache->useCache() ){
+            if($cache->useCache()){
                 list($c,$div_class_ap) = $json->decode($cache->retrieveCache());
             }else{
                 $r = $this->CreateNews($data,$div_class);
@@ -101,25 +101,34 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     private function CreateShareFields($id,$stream) {
         $r = "";
         $ar = "";
+
+        $link = $this->helper->_generate_token((int) $id);
+
         if(auth_quickaclcheck('start') >= AUTH_READ){
             $r.= '<button class="button share_btn">';
             $r.= '<span class="btn-small share-icon icon"></span>';
             $r.= '<span class="btn-big">'.$this->getLang('btn_share').'</span>';
             $r.= '</button>';
 
+            $ar.='<div class="share field">'."\n";
+
+            $ar.='<div class="Twitt">';
+            $ar.='<a href="https://twitter.com/share" data-count="none" data-text=" " class="twitter-share-button" data-url="'.$this->helper->_generate_token((int) $id).'" data-via="fykosak" data-hashtags="FYKOS">Tweet</a>';
+            $ar.='</div>'."\n";
 
 
-            $ar.='<div class="share field">';
+
             $ar.='<div class="FB">';
-            $ar.='<div class="share_btn fb-share-button fb-share-button" data-layout="button" data-href="'.$this->helper->_generate_token((int) $id).'"></div>';
-            $ar.='</div>';
+            $ar.='<div class="share_btn fb-share-button fb-share-button"  data-layout="button" data-href="'.$this->helper->_generate_token((int) $id).'"></div>';
+            $ar.='</div>'."\n";
 
-            $link = $this->helper->_generate_token((int) $id);
+
             $ar.='<div class="link">';
             $ar.='<span class="link-icon icon"></span>';
             $ar.='<span contenteditable="true" class="link_inp" >'.$link.'</span>';
-            $ar.='</div>';
-            $ar.='</div>';
+            $ar.='</div>'."\n";
+            
+            $ar.='</div>'."\n";
         }
         return array('<div class="share_btns">'.$r.'</div>',$ar);
     }
@@ -175,9 +184,8 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         $r = '';
         $ar = '';
         if(auth_quickaclcheck('start') >= AUTH_EDIT){
-
             $r.='<div class="priority_btns">';
-          
+
             $r.= '<button class="button priority_btn">';
             $r.= '<span class="btn-small priority-icon icon"></span>';
             $r.= '<span class="btn-big">'.$this->getLang('btn_priority_edit').'</span>';
@@ -226,7 +234,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         if(auth_quickaclcheck('start') >= AUTH_EDIT){
 
             $r.='<div class="opt_btns">';
-            
+
             $r.='<button class="button opt_btn">';
             $r.= '<span class="btn-small opt-icon" icon></span>';
             $r.= '<span class="btn-big">Options</span>';
@@ -244,7 +252,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $ar.='<div class="opt field">';
             $ar.= ob_get_contents();
             ob_clean();
-           
+
 
             ob_start();
             $form2 = new Doku_Form(array());

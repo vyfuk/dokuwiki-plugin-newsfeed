@@ -17,6 +17,7 @@ jQuery(function () {
     });
     $(window).load(function () {
         _FB_newsfeed();
+        _Tweet_newsfeed();
 
         $FKS_newsfeed.find(FKS_newsfeed.div_stream).each(function () {
             var $stream = $(this);
@@ -34,6 +35,7 @@ jQuery(function () {
             function (data) {
                 $stream.html(data["r"]);
                 FB.XFBML.parse();
+                twttr.widgets.load();
 
             },
                     'json');
@@ -63,6 +65,7 @@ jQuery(function () {
             if (data['more']) {
                 $FKS_newsfeed.find(FKS_newsfeed.div_more_news).remove();
             }
+            twttr.widgets.load();
             FB.XFBML.parse();
 
         }
@@ -112,9 +115,7 @@ jQuery(function () {
 
 function _FB_newsfeed() {
     (function (d, s, id) {
-        console.log(d);
-        console.log(s);
-        console.log(id);
+
         var js, fjs = d.getElementsByTagName(s)[0];
         if (d.getElementById(id))
             return;
@@ -124,4 +125,20 @@ function _FB_newsfeed() {
         fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));
 }
-;
+
+function _Tweet_newsfeed() {
+    !function (d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https';
+        if (!d.getElementById(id)) {
+            js = d.createElement(s);
+            js.id = id;
+            js.src = p + '://platform.twitter.com/widgets.js';
+            fjs.parentNode.insertBefore(js, fjs);
+        }
+    }(document, 'script', 'twitter-wjs');
+
+}
+
+window.twttr=(_Tweet_newsfeed());
+
+
