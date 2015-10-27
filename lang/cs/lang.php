@@ -75,7 +75,7 @@ $lang['push_in_stream']='Nachádzate sa vo vlákne';
 
 $lang['push_chose_stream'] = 'Zmeniť vlákno';
 
-$lang['btn_push_stream'] = $lang['menu_push_stream'];
+$lang['btn_push_stream'] = $lang['push_menu'];
 
 
 $lang['btn_push_news'] = 'Pridať do vlákna ';
