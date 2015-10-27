@@ -3,7 +3,7 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author Michal Červeňák <miso@fykos.cz>
  */
-/* global LANG, DOKU_BASE */
+/* global LANG, DOKU_BASE, FB */
 jQuery(function () {
     var $ = jQuery;
     var FKS_newsfeed = {
@@ -16,6 +16,7 @@ jQuery(function () {
         document.execCommand('selectAll', false, null);
     });
     $(window).load(function () {
+        _FB_newsfeed();
 
         $FKS_newsfeed.find(FKS_newsfeed.div_stream).each(function () {
             var $stream = $(this);
@@ -32,6 +33,8 @@ jQuery(function () {
                     },
             function (data) {
                 $stream.html(data["r"]);
+                FB.XFBML.parse();
+
             },
                     'json');
         });
@@ -60,34 +63,28 @@ jQuery(function () {
             if (data['more']) {
                 $FKS_newsfeed.find(FKS_newsfeed.div_more_news).remove();
             }
+            FB.XFBML.parse();
+
         }
         , 'json');
     });
 
-    $FKS_newsfeed.find('.link_btn').live("click", function (event) {
+    $FKS_newsfeed.find('.opt_btn').live("click", function () {
         $(this).toggleClass('active');
-        $(this).parent().parent().find('.link').slideToggle();
+        $(this).parents('.edit').find('.opt').slideToggle();
     });
 
     $FKS_newsfeed.find('.priority_btn').live("click", function () {
         $(this).toggleClass('active');
-        $(this).parent().parent().find('.priority').slideToggle();
+        $(this).parents('.edit').find('.priority').slideToggle();
 
     });
-
-    $FKS_newsfeed.find('.opt_btn').live("click", function () {
+    $FKS_newsfeed.find('.share_btn').live("click", function () {
         $(this).toggleClass('active');
-        $(this).parent().children('div').each(function () {
-
-            if ($(this).attr('class').match(/opt_btn.*/)) {
-                $(this).toggleClass('active');
-            } else {
-                $(this).slideToggle().toggleClass('displayed');
-            }
-        });
-
+        $(this).parents('.edit').find('.share').slideToggle();
 
     });
+
     /*
      * @TODO 
      */
@@ -112,3 +109,19 @@ jQuery(function () {
     });
     return true;
 });
+
+function _FB_newsfeed() {
+    (function (d, s, id) {
+        console.log(d);
+        console.log(s);
+        console.log(id);
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id))
+            return;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+}
+;

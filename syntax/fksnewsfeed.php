@@ -59,17 +59,16 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             list(,list($param) ) = $data;
 
 
-            if($param['id'] == 0){
-                $renderer->doc.= '<div class="FKS_newsfeed_exist_msg">'.$this->getLang('news_non_exist').'</div>';
-            }
+
 
             $data = $this->helper->LoadSimpleNews($param["id"]);
-            if(empty($data)){
-                $renderer->doc.= '<div class="FKS_newsfeed_exist_msg">'.$this->getLang('news_non_exist').'</div>';
+            if(empty($data) || ($param['id'] == 0)){
+                $renderer->doc.= '<div class="FKS_newsfeed"><div class="error">'.$this->getLang('news_non_exist').'</div></div>';
+                return;
             }
             $tpl = $this->CreateTpl();
             require_once DOKU_INC.'inc/JSON.php';
-            
+
             if(!isset($param['even'])){
                 $param['even'] = 'even';
             }
@@ -77,7 +76,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $f = $this->helper->getCasheFile($param['id']);
             $cache = new cache($f,'');
             $json = new JSON();
-            if($cache->useCache()){
+            if($cache->useCache() ){
                 list($c,$div_class_ap) = $json->decode($cache->retrieveCache());
             }else{
                 $r = $this->CreateNews($data,$div_class);
@@ -86,17 +85,43 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             }
             $div_class.=' '.$div_class_ap;
             $c = (array) $c;
-            
+
             foreach (helper_plugin_fksnewsfeed::$Fields as $k) {
                 $tpl = str_replace('@'.$k.'@',$c[$k],$tpl);
             }
-            
+
             $tpl = str_replace('@edit@',$this->CreateEditField($param),$tpl);
-;
-            
+
+
             $renderer->doc.= '<div class="'.$div_class.'" data-id="'.$param["id"].'">'.$tpl.'</div>';
         }
         return false;
+    }
+
+    private function CreateShareFields($id,$stream) {
+        $r = "";
+        $ar = "";
+        if(auth_quickaclcheck('start') >= AUTH_READ){
+            $r.= '<button class="button share_btn">';
+            $r.= '<span class="btn-small share-icon icon"></span>';
+            $r.= '<span class="btn-big">'.$this->getLang('btn_share').'</span>';
+            $r.= '</button>';
+
+
+
+            $ar.='<div class="share field">';
+            $ar.='<div class="FB">';
+            $ar.='<div class="share_btn fb-share-button fb-share-button" data-layout="button" data-href="'.$this->helper->_generate_token((int) $id).'"></div>';
+            $ar.='</div>';
+
+            $link = $this->helper->_generate_token((int) $id);
+            $ar.='<div class="link">';
+            $ar.='<span class="link-icon icon"></span>';
+            $ar.='<span contenteditable="true" class="link_inp" >'.$link.'</span>';
+            $ar.='</div>';
+            $ar.='</div>';
+        }
+        return array('<div class="share_btns">'.$r.'</div>',$ar);
     }
 
     private function CreateNews($data) {
@@ -105,7 +130,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             if($k == 'image'){
                 if($data['image'] != ""){
                     $div_class.=' w_image';
-                    $c['image'] = '<div class="image"><img src="'.ml($data['image']).'" alt="newsfeed"></div>';
+                    $c['image'] = '<div class="image"><div class="image_content"><img src="'.ml($data['image']).'" alt="newsfeed"></div></div>';
                 }else{
                     $c['image'] = '';
                 }
@@ -136,10 +161,11 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         if($param['edited'] === 'true'){
             list($r1,$ar1) = $this->BtnEditNews($param["id"],$param['stream']);
             list($r2,$ar2) = $this->getPriorityField($param["id"],$param['stream']);
+            list($r3,$ar3) = $this->CreateShareFields($param["id"],$param['stream']);
 
 
-            return '<div class="edit" data-id="'.$param["id"].'">'.$r1.$r2.'</div>
-                 <div class="edit_field" data-id="'.$param["id"].'">'.$ar1.$ar2.'</div>';
+            return '<div class="edit" data-id="'.$param["id"].'"><div class="btns">'.$r1.$r3.$r2.'</div><div class="fields" data-id="'.$param["id"].'">'.$ar1.$ar2.$ar3.'</div></div>';
+            ;
         }else{
             return '';
         }
@@ -150,11 +176,15 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         $ar = '';
         if(auth_quickaclcheck('start') >= AUTH_EDIT){
 
-            $r.='<div class="priority_btn">';
-            $r.='<button class="button priority_btn">'.$this->getLang('btn_priority_edit').'</button>';
+            $r.='<div class="priority_btns">';
+          
+            $r.= '<button class="button priority_btn">';
+            $r.= '<span class="btn-small priority-icon icon"></span>';
+            $r.= '<span class="btn-big">'.$this->getLang('btn_priority_edit').'</span>';
+            $r.= '</button>';
             $r.='</div>';
 
-            $ar.='<div class="priority">';
+            $ar.='<div class="priority field">';
 
             $form2 = new Doku_Form(array());
             $form2->addHidden("do","show");
@@ -168,9 +198,11 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
 
 
-            $form2->addElement(form_makeField('number','priority',$p['priority'],$this->getLang('priority_value'),null,'block',array('step' => 1)));
-            $form2->addElement(form2_makeDateTimeField('priority_form',$p['priority_from'],$this->getLang('valid_from'),null,'block',1,1,array()));
-            $form2->addElement(form2_makeDateTimeField('priority_to',$p['priority_to'],$this->getLang('valid_to'),null,'block',1,1,array()));
+            $form2->addElement(form_makeField('number','priority',$p['priority'],$this->getLang('priority_value'),null,null,array('step' => 1)));
+            $form2->addElement('<br/>');
+            $form2->addElement(form2_makeDateTimeField('priority_form',$p['priority_from'],$this->getLang('valid_from'),null,null,1,1,array()));
+
+            $form2->addElement(form2_makeDateTimeField('priority_to',$p['priority_to'],$this->getLang('valid_to'),null,null,1,1,array()));
 
 
             $form2->addElement(form_makeButton('submit','',$this->getLang('btn_save_priority')));
@@ -178,7 +210,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             ob_start();
             html_form('editnews',$form2);
 
-            $ar.= ob_get_contents();
+            $ar.=ob_get_contents();
             ob_clean();
 
             $ar.='</div>';
@@ -192,6 +224,15 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         $ar = '';
 
         if(auth_quickaclcheck('start') >= AUTH_EDIT){
+
+            $r.='<div class="opt_btns">';
+            
+            $r.='<button class="button opt_btn">';
+            $r.= '<span class="btn-small opt-icon" icon></span>';
+            $r.= '<span class="btn-big">Options</span>';
+            $r.='</button>';
+            $r.='</div>';
+
             $form = new Doku_Form(array('id' => 'editnews','method' => 'POST','class' => 'fksreturn'));
             $form->addHidden("do","edit");
             $form->addHidden('news_id',$id);
@@ -200,54 +241,24 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
             ob_start();
             html_form('editnews',$form);
-
-            $r.='<div class="edit_btn">';
-            $r.= ob_get_contents();
+            $ar.='<div class="opt field">';
+            $ar.= ob_get_contents();
             ob_clean();
-            $r.='</div>';
-        }
-        if(auth_quickaclcheck('start') >= $this->getConf('perm_fb')){
-            $r.= '<div class="share_btn"><button data-href="'.$this->helper->_generate_token((int) $id).'"'.
-                    ' class="button fb-btn">';
-            $r.= $this->getLang('btn_share_fb').'</button>';
-            $r.='</div>';
-        }
-        if(auth_quickaclcheck('start') >= $this->getConf('perm_link')){
-            $r.='<div class="link_btn">';
-            $r.=html_button($this->getLang('btn_newsfeed_link'),'button link_btn',array('data-id' => $id));
-            $link = $this->helper->_generate_token((int) $id);
-            $r.='</div>';
+           
 
-            $ar.='<div class="link">';
-
-            $ar.='<span contenteditable="true" class="link_inp"  data-id="'.$id.'">'.$link.'</span>';
-
+            ob_start();
+            $form2 = new Doku_Form(array());
+            $form2->addHidden('news_do','delete_save');
+            $form2->addHidden('target','plugin_fksnewsfeed');
+            $form2->addHidden('stream',$stream);
+            $form2->addHidden('news_id',$id);
+            $form2->addElement(form_makeButton('submit',null,'Ostrániť z vlákna',array('id' => 'warning')));
+            html_form('editnews',$form2);
+            $ar.= ob_get_contents();
+            ob_clean();
             $ar.='</div>';
         }
-        if(auth_quickaclcheck('start') >= AUTH_EDIT){
-            ob_start();
-            $form = new Doku_Form(array());
 
-            $form->addHidden('news_do','delete_save');
-            $form->addHidden('target','plugin_fksnewsfeed');
-            $form->addHidden('stream',$stream);
-            $form->addHidden('news_id',$id);
-
-            $form->addElement(form_makeButton('submit',null,'Ostrániť z vlákna',array('id' => 'warning')));
-
-
-            html_form('editnews',$form);
-
-
-
-            $r.='<div class="delete_btn">';
-            $r.= ob_get_contents();
-            ob_clean();
-            $r.='</div>';
-        }
-        if($r!=null){
-            $r='<div class="opt_btn"><button class="opt_btn">Zobraz možnosti</button></div>'.$r;
-        }
 
         return array($r,$ar);
     }

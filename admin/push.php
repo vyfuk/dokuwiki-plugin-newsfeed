@@ -88,6 +88,7 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
 
 
                 if(array_search($id,$news_in_stream) === FALSE){
+                    
 
                     $form2 = new Doku_Form(array('method' => 'POST'));
 
@@ -101,6 +102,9 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
                     $form2->addElement(form_makeButton('submit',null,$this->getLang('btn_push_news').$stream));
                     html_form('stream',$form2);
                 }else{
+                    
+                    
+
                     echo '<button disabled>Táto novinka je už v tomto vlákne</button>';
                 }
                 echo'</div>';

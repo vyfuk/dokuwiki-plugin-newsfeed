@@ -361,7 +361,12 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         };
         return (int) 1;
     }
-
+/**
+ * 
+ * @param type $weigth
+ * @param type $order_id
+ * @return type
+ */
     public function update_stream($weigth,$order_id) {
         return $this->UpdateWeight($weigth,$order_id);
     }
