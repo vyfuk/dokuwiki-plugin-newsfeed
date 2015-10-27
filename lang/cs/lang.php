@@ -31,7 +31,7 @@ $lang['category'] = 'Kategorie';
 $lang['weight'] = 'Váha';
 
 
-$lang['stream'] = 'stream';
+$lang['stream'] = 'Vlákno';
 /**
  * date for syntax plugin
  */
@@ -70,9 +70,13 @@ $lang['js']['oRlyDelete'] = $lang['o_rly_delete'];
 /**
  * manage stream
  */
-$lang['menu_push_stream'] = 'Pridať novinku do vlákna';
+$lang['push_menu'] = 'Pridať novinku do vlákna';
+$lang['push_in_stream']='Nachádzate sa vo vlákne';
+
+$lang['push_chose_stream'] = 'Zmeniť vlákno';
+
 $lang['btn_push_stream'] = $lang['menu_push_stream'];
-$lang['info_push_stream'] = 'Spravovat toto vlákno:';
+
 
 $lang['btn_push_news'] = 'Pridať do vlákna ';
 
@@ -111,4 +115,4 @@ $lang['stream_create'] = 'Vytvoř vlákno';
 $lang['stream_list'] = 'Seznam vláken';
 $lang['stream_delete'] = 'Odstraň vlákno';
 
-$lang['chose_stream'] = 'Vyberte vlákno';
+

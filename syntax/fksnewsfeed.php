@@ -85,12 +85,12 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             }
             $div_class.=' '.$div_class_ap;
             $c = (array) $c;
-
+            
             foreach (helper_plugin_fksnewsfeed::$Fields as $k) {
                 $tpl = str_replace('@'.$k.'@',$c[$k],$tpl);
             }
 
-            $tpl = str_replace('@edit@',$this->CreateEditField($param),$tpl);
+            $tpl = str_replace('@edit@',$this->CreateEditField($param,$c),$tpl);
 
 
             $renderer->doc.= '<div class="'.$div_class.'" data-id="'.$param["id"].'">'.$tpl.'</div>';
@@ -98,7 +98,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         return false;
     }
 
-    private function CreateShareFields($id,$stream) {
+    private function CreateShareFields($id,$stream,$c) {
         $r = "";
         $ar = "";
 
@@ -113,7 +113,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $ar.='<div class="share field">'."\n";
 
             $ar.='<div class="Twitt">';
-            $ar.='<a href="https://twitter.com/share" data-count="none" data-text=" " class="twitter-share-button" data-url="'.$this->helper->_generate_token((int) $id).'" data-via="fykosak" data-hashtags="FYKOS">Tweet</a>';
+            $ar.='<a href="https://twitter.com/share" data-count="none" data-text="'.$c['name'].'" class="twitter-share-button" data-url="'.$this->helper->_generate_token((int) $id).'" data-via="fykosak" data-hashtags="FYKOS">Tweet</a>';
             $ar.='</div>'."\n";
 
 
@@ -165,12 +165,13 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         return array($c,$div_class);
     }
 
-    private function CreateEditField($param) {
+    private function CreateEditField($param,$c) {
+       
 
         if($param['edited'] === 'true'){
-            list($r1,$ar1) = $this->BtnEditNews($param["id"],$param['stream']);
-            list($r2,$ar2) = $this->getPriorityField($param["id"],$param['stream']);
-            list($r3,$ar3) = $this->CreateShareFields($param["id"],$param['stream']);
+            list($r1,$ar1) = $this->BtnEditNews($param["id"],$param['stream'],$c);
+            list($r2,$ar2) = $this->getPriorityField($param["id"],$param['stream'],$c);
+            list($r3,$ar3) = $this->CreateShareFields($param["id"],$param['stream'],$c);
 
 
             return '<div class="edit" data-id="'.$param["id"].'"><div class="btns">'.$r1.$r3.$r2.'</div><div class="fields" data-id="'.$param["id"].'">'.$ar1.$ar2.$ar3.'</div></div>';

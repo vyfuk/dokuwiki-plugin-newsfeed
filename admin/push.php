@@ -60,7 +60,8 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
 
         global $INPUT;
 
-
+        echo '<h1>'.$this->getLang('push_menu').'</h1>';
+        echo '<div class="info"><span>'.$this->getLang('push_in_stream').': '.$INPUT->str('stream','').'</span></div>';
         $streams = $this->helper->AllStream();
         $form2 = new Doku_Form(array('method' => 'POST'));
         $form2->addHidden('target','plugin_fksnewsfeed');
@@ -73,22 +74,23 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
         }
 
         $form2->addElement(form_makeListboxField('stream',$s,$INPUT->str('stream',''),$this->getLang('stream')));
-        $form2->addElement(form_makeButton('submit',null,$this->getLang('chose_stream')));
+        $form2->addElement(form_makeButton('submit',null,$this->getLang('push_chose_stream')));
         html_form('stream',$form2);
         if($INPUT->str('stream') == ""){
             
         }else{
+            echo '<h2>'.$this->getLang('push_menu').': '.$INPUT->str('stream').'</h2>';
             $stream = $INPUT->str('stream');
             $all_news = $this->helper->AllNewsFeed();
             $news_in_stream = $this->NewsToID($this->helper->LoadStream($stream));
             foreach ($this->NewsToID($all_news) as $id) {
                 echo '<div class="FKS_newsfeed push">';
-                $n = str_replace(array('@id@','@even@','@edited@','@stream@'),array($id,'even','false',' '),$this->helper->simple_tpl);
-                echo p_render('xhtml',p_get_instructions($n),$info);
+
 
 
                 if(array_search($id,$news_in_stream) === FALSE){
-                    
+                    $n = str_replace(array('@id@','@even@','@edited@','@stream@'),array($id,'even','false',' '),$this->helper->simple_tpl);
+                    echo p_render('xhtml',p_get_instructions($n),$info);
 
                     $form2 = new Doku_Form(array('method' => 'POST'));
 
@@ -101,14 +103,12 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
 
                     $form2->addElement(form_makeButton('submit',null,$this->getLang('btn_push_news').$stream));
                     html_form('stream',$form2);
-                }else{
-                    
-                    
-
-                    echo '<button disabled>Táto novinka je už v tomto vlákne</button>';
+                    echo '<hr>';
+                }else{/*
+                      echo '<button disabled>Táto novinka je už v tomto vlákne</button>'; */
                 }
                 echo'</div>';
-                echo '<hr>';
+                
             }
         }
     }
