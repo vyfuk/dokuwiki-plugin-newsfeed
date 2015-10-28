@@ -13,7 +13,7 @@ $lang['direction'] = 'ltr';
  */
 $lang['btn_edit_news'] = 'Upravit tuto novinku';
 $lang['btn_more_news'] = 'Starší novinky';
-$lang['btn_share'] = 'Zdílet';
+$lang['btn_share'] = 'Sdílet';
 $lang['btn_priority_edit'] = 'Upravit prioritu';
 $lang['btn_create_news']='Vytvořit novinku';
 $lang['btn_opt']='Další možnosti';
@@ -51,13 +51,13 @@ $lang['dec'] = 'prosince';
  * Waring & info
  */
 $lang['no_more'] = 'Momentálně nejsou žádné další aktuality';
-$lang['news_non_exist'] = 'Ops! Takáto novinka neexstuje!';
+$lang['news_non_exist'] = 'Ups! Takáto novinka neexistuje!';
 
 /*
  *  
  */
-$lang['cache_del']='Zmazať cache';
-$lang['cache_del_full']='Zmazať všetky cache';
+$lang['cache_del']='Smazat cache';
+$lang['cache_del_full']='Smazat všechny cache';
 /*
  * Priority
  */
@@ -69,23 +69,23 @@ $lang['priority_value'] = 'Hodnota priority';
 /*
  * Delete from stream
  */
-$lang['delete_news'] = 'Ostrániť z vlákna';
-$lang['o_rly_delete'] = 'O RLY: Chceš smazat tuto aktualitu?';
+$lang['delete_news'] = 'Odstranit z vlákna';
+$lang['o_rly_delete'] = 'Chceš smazat tuto aktualitu? Opravdu to myslíš vážně? Poslední šance změnit rozhodnutí...';
 $lang['js']['oRlyDelete'] = $lang['o_rly_delete'];
 /**
  * manage stream
  */
-$lang['push_menu'] = 'Pridať novinku do vlákna';
-$lang['push_in_stream']='Nachádzate sa vo vlákne';
+$lang['push_menu'] = 'Přidat novinku do vlákna';
+$lang['push_in_stream']='Nacházíte se ve vlákně';
 
-$lang['push_chose_stream'] = 'Zmeniť vlákno';
+$lang['push_chose_stream'] = 'Změnit vlákno';
 
 $lang['btn_push_stream'] = $lang['push_menu'];
 
 
-$lang['btn_push_news'] = 'Pridať do vlákna ';
+$lang['btn_push_news'] = 'Přidat do vlákna ';
 
-$lang['menu_delete_stream'] = 'Odstrániť novinku z vlákna';
+$lang['menu_delete_stream'] = 'Odstranit novinku z vlákna';
 $lang['btn_delete_stream'] = $lang['menu_delete_stream'];
 $lang['info_delete_stream'] = 'Spravovat toto vlákno:';
 
@@ -100,9 +100,9 @@ $lang['info_change_order'] = '';
  * for admin dependence
  */
 $lang['dep_menu'] = 'Upravit závislosti vláken';
-$lang['dep_create'] = 'Vytvořit novú závislost';
-$lang['dep_created'] = 'Závislost byla vytvoření';
-$lang['dep_exist'] = 'Závislost už existuje';
+$lang['dep_create'] = 'Vytvořit novou závislost';
+$lang['dep_created'] = 'Závislost byla vytvořena';
+$lang['dep_exist'] = 'Závislost již existuje';
 $lang['dep_full_info'] = 'Novinka přidaná do mateřského vlákna se automaticky přidá i do dceřiného vlákna. <br />
                 Novinka přidaná do dceřiného vlákna se v mateřském nezobrazí.';
 $lang['dep_parent_info'] = 'Vlákno od kterého se dědí "matka"';
