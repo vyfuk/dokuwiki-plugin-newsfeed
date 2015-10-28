@@ -48,10 +48,10 @@ $lang['oct'] = 'října';
 $lang['now'] = 'listopadu';
 $lang['dec'] = 'prosince';
 /**
- * Waring & info
+ * Warning & info
  */
 $lang['no_more'] = 'Momentálně nejsou žádné další aktuality';
-$lang['news_non_exist'] = 'Ups! Takáto novinka neexistuje!';
+$lang['news_non_exist'] = 'Ups! Taková novinka neexistuje!';
 
 /*
  *  
