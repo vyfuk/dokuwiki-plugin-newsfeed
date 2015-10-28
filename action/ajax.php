@@ -70,7 +70,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                     $this->PrintCreateBtn($r,$INPUT->str('news_stream'));
 
                     $this->PrintPullBtn($r,$INPUT->str('news_stream'));
-                    //$this->PrintDeleteBtn($r,$INPUT->str('news_stream'));
+                    $this->PrintCacheBtn($r,$INPUT->str('news_stream'));
                 }
                 if(auth_quickaclcheck('start') >= $this->getConf('perm_rss')){
                     $this->PrintRSS($r,$INPUT->str('news_stream'));
@@ -138,7 +138,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
      * @param type $stream
      */
     private function PrintPullBtn(&$r,$stream) {
-        $form2 = new Doku_Form(array('method' => 'POST'));
+        $form2 = new Doku_Form(array('method' => 'POST','class'=>'info'));
         $form2->addHidden('target','plugin_fksnewsfeed');
         $form2->addHidden('do','admin');
         $form2->addHidden('page','fksnewsfeed_push');
@@ -156,19 +156,16 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
      * @param type $stream
      */
     private function PrintRSS(&$r,$stream) {
-        $r.=html_open_tag('div',array('class' => 'rss'));       
-       
-       
+        $r.=html_open_tag('div',array('class' => 'rss'));
+
+
         $r.='<span contenteditable="true" >'.DOKU_URL.'feed.php?stream='.$stream.'</span>';
         $r.='</div>';
-        
     }
 
     private function PrintCreateBtn(&$r,$stream) {
 
-
-
-        $form3 = new Doku_Form(array('method' => 'GET'));
+        $form3 = new Doku_Form(array('method' => 'GET','class'=>'info'));
         $form3->addHidden('do','edit');
         $form3->addHidden('target','plugin_fksnewsfeed');
         $form3->addHidden('news_do','create');
@@ -179,6 +176,17 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         ob_start();
         html_form('create_news',$form3);
         $r.=ob_get_contents();
+        ob_clean();
+    }
+
+    private function PrintCacheBtn(&$r) {
+        ob_start();
+        $form3 = new Doku_Form(array('class' => 'warning'));
+        $form3->addHidden('fksnewsfeed_purge','true');
+        
+        $form3->addElement(form_makeButton('submit',null,$this->getLang('cache_del_full')));
+        html_form('cachenews',$form3);
+        $r.= ob_get_contents();
         ob_clean();
     }
 

@@ -15,12 +15,15 @@ $meta['no_pref'] = array('numeric', '_caution' => 'warning');
 
 
 
-$meta['perm_link'] = array('multichoice', '_choices' => array(1, 2, 4, 8, 16, 32, 64, 128, 255,1000));
-
-
+$meta['perm_share'] = array('multichoice', '_choices' => array(1, 2, 4, 8, 16, 32, 64, 128, 255,1000));
 $meta['perm_fb'] = array('multichoice', '_choices' => array(1, 2, 4, 8, 16, 32, 64, 128, 255,1000));
+$meta['perm_tw'] = array('multichoice', '_choices' => array(1, 2, 4, 8, 16, 32, 64, 128, 255,1000));
+$meta['perm_link'] = array('multichoice', '_choices' => array(1, 2, 4, 8, 16, 32, 64, 128, 255,1000));
+$meta['perm_gp'] = array('multichoice', '_choices' => array(1, 2, 4, 8, 16, 32, 64, 128, 255,1000));
 
 
 $meta['perm_add'] = array('multichoice', '_choices' => array(1, 2, 4, 8, 16, 32, 64, 128, 255,1000));
 $meta['perm_manage'] = array('multichoice', '_choices' => array(1, 2, 4, 8, 16, 32, 64, 128, 255,1000));
 $meta['perm_rss'] = array('multichoice', '_choices' => array(1, 2, 4, 8, 16, 32, 64, 128, 255,1000));
+
+$meta['tpl']=array();

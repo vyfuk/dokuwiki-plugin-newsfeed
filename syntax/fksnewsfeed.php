@@ -73,7 +73,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
                 $param['even'] = 'even';
             }
             $div_class = $param['even'];
-            $f = $this->helper->getCasheFile($param['id']);
+            $f = $this->helper->getCacheFile($param['id']);
             $cache = new cache($f,'');
             $json = new JSON();
             if($cache->useCache()){
@@ -85,7 +85,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             }
             $div_class.=' '.$div_class_ap;
             $c = (array) $c;
-            
+
             foreach (helper_plugin_fksnewsfeed::$Fields as $k) {
                 $tpl = str_replace('@'.$k.'@',$c[$k],$tpl);
             }
@@ -127,7 +127,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $ar.='<span class="link-icon icon"></span>';
             $ar.='<span contenteditable="true" class="link_inp" >'.$link.'</span>';
             $ar.='</div>'."\n";
-            
+
             $ar.='</div>'."\n";
         }
         return array('<div class="share_btns">'.$r.'</div>',$ar);
@@ -166,7 +166,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     }
 
     private function CreateEditField($param,$c) {
-       
+
 
         if($param['edited'] === 'true'){
             list($r1,$ar1) = $this->BtnEditNews($param["id"],$param['stream'],$c);
@@ -195,7 +195,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
             $ar.='<div class="priority field">';
 
-            $form2 = new Doku_Form(array());
+            $form2 = new Doku_Form(array('class'=>'success'));
             $form2->addHidden("do","show");
             $form2->addHidden('news_id',$id);
             $form2->addHidden('news_stream',$stream);
@@ -237,26 +237,26 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $r.='<div class="opt_btns">';
 
             $r.='<button class="button opt_btn">';
-            $r.= '<span class="btn-small opt-icon" icon></span>';
-            $r.= '<span class="btn-big">Options</span>';
+            $r.= '<span class="btn-small opt-icon icon"></span>';
+            $r.= '<span class="btn-big">'.$this->getLang('btn_opt').'</span>';
             $r.='</button>';
             $r.='</div>';
 
-            $form = new Doku_Form(array('id' => 'editnews','method' => 'POST','class' => 'fksreturn'));
+            
+            $ar.='<div class="opt field">';
+            ob_start();
+            $form = new Doku_Form(array('class' => 'info'));
             $form->addHidden("do","edit");
             $form->addHidden('news_id',$id);
             $form->addHidden("target","plugin_fksnewsfeed");
             $form->addElement(form_makeButton('submit','',$this->getLang('btn_edit_news')));
-
-            ob_start();
-            html_form('editnews',$form);
-            $ar.='<div class="opt field">';
+            html_form('',$form);            
             $ar.= ob_get_contents();
             ob_clean();
 
 
             ob_start();
-            $form2 = new Doku_Form(array());
+            $form2 = new Doku_Form(array('class' => 'danger'));
             $form2->addHidden('news_do','delete_save');
             $form2->addHidden('target','plugin_fksnewsfeed');
             $form2->addHidden('stream',$stream);
@@ -265,6 +265,20 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             html_form('editnews',$form2);
             $ar.= ob_get_contents();
             ob_clean();
+
+            
+            ob_start();
+            $form3 = new Doku_Form(array('class' => 'warning'));
+            $form3->addHidden('fksnewsfeed_purge','true');
+            $form3->addHidden('news_id',$id);
+            $form3->addElement(form_makeButton('submit',null,$this->getLang('cache_del')));
+            html_form('cachenews',$form3);
+            $ar.= ob_get_contents();
+            ob_clean();
+
+
+
+
             $ar.='</div>';
         }
 

@@ -72,21 +72,56 @@ jQuery(function () {
         , 'json');
     });
 
-    $FKS_newsfeed.find('.opt_btn').live("click", function () {
-        $(this).toggleClass('active');
-        $(this).parents('.edit').find('.opt').slideToggle();
-    });
 
-    $FKS_newsfeed.find('.priority_btn').live("click", function () {
-        $(this).toggleClass('active');
-        $(this).parents('.edit').find('.priority').slideToggle();
-
+    $FKS_newsfeed.find('.btns button').live("click", function () {
+        var fcls = $(this).attr('class');
+        var cls = '';
+        if (fcls.match(/.*opt.*/)) {
+            cls = 'opt';
+        } else if (fcls.match(/.*priority.*/)) {
+            cls = 'priority';
+        } else if (fcls.match(/.*share.*/)) {
+            cls = 'share';
+        } else {
+            return;
+        }
+        var a = false;
+        if (fcls.match(/.*active.*/)) {
+            a = true;
+        }
+        $(this).parents('.btns').find('button').each(function () {
+            $(this).removeClass('active');
+        });
+        $(this).parents('.edit').find('.fields .field').slideUp();
+        if (!a) {
+            $(this).toggleClass('active');
+            $(this).parents('.edit').find('.' + cls).slideToggle();
+        }
     });
-    $FKS_newsfeed.find('.share_btn').live("click", function () {
-        $(this).toggleClass('active');
-        $(this).parents('.edit').find('.share').slideToggle();
+    /*
+     $FKS_newsfeed.find('.opt_btn').live("click", function () {
+     
+     $(this).toggleClass('active');
+     
+     $(this).parents('.edit').find('.opt').slideToggle();
+     
+     });
+     
+     $FKS_newsfeed.find('.priority_btn').live("click", function () {
+     $(this).toggleClass('active');
+     $(this).parents('.edit').find('.priority').slideToggle();
+     
+     });
+     $FKS_newsfeed.find('.share_btn').live("click", function () {
+     $(this).toggleClass('active');
+     
+     $(this).parents('.edit').find('.share').slideToggle();
+     
+     });
+     */
 
-    });
+
+
 
     /*
      * @TODO 
@@ -139,6 +174,6 @@ function _Tweet_newsfeed() {
 
 }
 
-window.twttr=(_Tweet_newsfeed());
+window.twttr = (_Tweet_newsfeed());
 
 

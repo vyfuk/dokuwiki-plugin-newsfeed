@@ -66,7 +66,7 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
             return;
         }
 
-        $f = $this->helper->getCasheFile($INPUT->str('news_id'),$INPUT->str('news_stream'),'true','default');
+        $f = $this->helper->getCacheFile($INPUT->str('news_id'),$INPUT->str('news_stream'),'true','default');
 
         $cache = new cache($f,'');
         $cache->removeCache();
@@ -87,7 +87,7 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
             global $TEXT;
             global $ID;
             if(isset($_POST['do']['save'])){
-                $f = $this->helper->getCasheFile($INPUT->str('news_id'));
+                $f = $this->helper->getCacheFile($INPUT->str('news_id'));
                 $cache = new cache($f,'');
                 $cache->removeCache();
 

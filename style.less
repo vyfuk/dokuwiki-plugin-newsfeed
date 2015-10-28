@@ -7,13 +7,18 @@
 @FKS_newsfeed_padding: .5em;
 @FKS_newsfeed_duration: .2s;
 
+@danger_color:#da1111;
+@warning_color:#da7511;
+@success_color:#11da75;
+@edit_color:#1175da;
+
 @import "custom_feed.less";
 
 @media  (max-width:600px){
     .FKS_newsfeed{
         button,input.button,.button{ 
             span.btn-big{
-                //display: none;
+
             }
             width: 100%;
             margin-bottom: .5em;
@@ -56,54 +61,82 @@
 
     button,input.button,.button{        
         &:hover,&.active,&:active,&:focus{
-            border-width: 1px;
+            border-width: 0;
             background: none;
             background-color: white;
-            border-color:#999;
+
             color:black;
             padding: .5em; 
             transition-duration: @FKS_newsfeed_duration;
         } 
         background: none;
         background-color: white;       
-        border-width: 1px;
-        border-style: solid;
-        border-color: #ccc;
+        border-width: 0;
+        cursor: pointer;
         color:#bbb;
         padding: @FKS_newsfeed_padding;
         transition-duration: @FKS_newsfeed_duration;
 
     }
+    form{
+        &.danger{
+            button,input.button,.button{        
+                &:hover,&.active,&:active,&:focus{
+                    background-color: @danger_color;
+                    
+                }     
+                background-color: lighten(@danger_color,30%);
+                color:white;
+            } 
+        }
+        &.warning{
+            button,input.button,.button{        
+                &:hover,&.active,&:active,&:focus{
+                    background-color: @warning_color;
+
+                }                
+                background-color: lighten(@warning_color,30%);
+                     
+                color:white;
+            } 
+        }
+        &.success{
+            button,input.button,.button{        
+                &:hover,&.active,&:active,&:focus{
+                    background-color: @success_color;
+
+                    color:white;
+                }                
+                background-color: lighten(@success_color,30%);       
+                color:white;
+            } 
+
+        }
+        &.info{
+            button,input.button,.button{        
+                &:hover,&.active,&:active,&:focus{
+                    background-color: @edit_color;
+                   
+                }                
+                background-color: lighten(@edit_color,30%);       
+                color:white;
+            } 
+        }
+
+        display: inline;
+    }
     .edit {
-
         button,input.button,.button {
-            &:hover,&:active,&:focus{
+            &:hover,&:active,&:focus,&.active{
                 background-color: #f0f0f0;
-            }
-            &.active{
-                background-color: lighten(@ini_text_alt,30%)
-            }
-            border-width: 0 0 0 0;
-        }
-
-
-    }
-
-
-    .priority {
-        button,input.button,.button {
-
-            &:hover,&.active,&:active{
-                background-color: lighten(#11da75,10%);
-            }
-            color:white;
-            background-color: #11da75;
-
+            }            
         }
     }
-
     .more_news{
         .button{
+            border-width: 1px;
+            border-style: solid;
+            border-color: #ccc;
             width: 100%;
         }
     }
@@ -140,8 +173,6 @@
                 &>div{
                     display: inline-block;                
                 }         
-
-
                 justify-content:space-around;
                 border-top:solid 1px #ccc;
                 max-width: 100%;
@@ -152,7 +183,6 @@
                 .field{
                     display: none;
                 }
-
                 float:none;
                 clear: both;
                 padding: .5em;
@@ -161,8 +191,6 @@
             float:none;
             clear:both; 
         }
-
-
         .headline{
             .headline_content{
                 h3{
@@ -170,12 +198,9 @@
                     margin: 0;
                 }
                 padding: @FKS_newsfeed_padding;
-
-
             }
             color: white;
             background-color: @ini_text_alt;
-
         }
         &.w_image{
             &>*{
@@ -197,15 +222,12 @@
                     }
                     overflow: hidden;
                     padding: .5em;
-                    //padding-right: 1em;
                 }
                 width: 33%;
                 float: left;
-
                 padding: 0;
                 padding-top: 0;
                 margin-top: -2.2em;
-
             }
         }
         margin-bottom: 2em;
@@ -224,7 +246,8 @@
         padding: .75em;
         border: none;
         background-color: @rss_color;
-        margin-bottom: 1em;
+        margin-bottom: .5em;
+        margin-top: .5em;
     }
     .msg{
 
@@ -245,9 +268,6 @@
         &.priority-icon{
             background-image: url(images/priority.svg);  
         }
-
-
-
         padding-right: 2em;          
         background-position-y: 50%;
         background-size: 1em 1em;
@@ -255,13 +275,6 @@
 
 
     }
-
-
-
-
-
-
-
     margin-top:1em;
     margin-bottom: 1.5em;
     clear: both;

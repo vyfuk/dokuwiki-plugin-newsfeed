@@ -13,10 +13,10 @@ $lang['direction'] = 'ltr';
  */
 $lang['btn_edit_news'] = 'Upravit tuto novinku';
 $lang['btn_more_news'] = 'Starší novinky';
-$lang['btn_newsfeed_link'] = 'Odkaz na tuto novinku';
 $lang['btn_share'] = 'Zdílet';
 $lang['btn_priority_edit'] = 'Upravit prioritu';
 $lang['btn_create_news']='Vytvořit novinku';
+$lang['btn_opt']='Další možnosti';
 /**
  * label to form
  */
@@ -53,6 +53,11 @@ $lang['dec'] = 'prosince';
 $lang['no_more'] = 'Momentálně nejsou žádné další aktuality';
 $lang['news_non_exist'] = 'Ops! Takáto novinka neexstuje!';
 
+/*
+ *  
+ */
+$lang['cache_del']='Zmazať cache';
+$lang['cache_del_full']='Zmazať všetky cache';
 /*
  * Priority
  */
