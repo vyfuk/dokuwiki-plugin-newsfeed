@@ -110,7 +110,8 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $r.= '<span class="btn-big">'.$this->getLang('btn_share').'</span>';
             $r.= '</button>';
 
-            $ar.='<div class="share field">'."\n";
+            $ar.='<div '
+                    . 'class="share field">'."\n";
 
             $ar.='<div class="Twitt">';
             $ar.='<a href="https://twitter.com/share" data-count="none" data-text="'.$c['name'].'" class="twitter-share-button" data-url="'.$this->helper->_generate_token((int) $id).'" data-via="fykosak" data-hashtags="FYKOS">Tweet</a>';
@@ -210,7 +211,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $form2->addElement(form_makeField('number','priority',$p['priority'],$this->getLang('priority_value'),null,null,array('step' => 1)));
             $form2->addElement('<br/>');
             $form2->addElement(form2_makeDateTimeField('priority_form',$p['priority_from'],$this->getLang('valid_from'),null,null,1,1,array()));
-
+ $form2->addElement('<br/>');
             $form2->addElement(form2_makeDateTimeField('priority_to',$p['priority_to'],$this->getLang('valid_to'),null,null,1,1,array()));
 
 
@@ -261,7 +262,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $form2->addHidden('target','plugin_fksnewsfeed');
             $form2->addHidden('stream',$stream);
             $form2->addHidden('news_id',$id);
-            $form2->addElement(form_makeButton('submit',null,'Ostrániť z vlákna',array('id' => 'warning')));
+            $form2->addElement(form_makeButton('submit',null,$this->getLang('delete_news'),array('id' => 'warning')));
             html_form('editnews',$form2);
             $ar.= ob_get_contents();
             ob_clean();
