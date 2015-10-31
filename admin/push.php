@@ -63,7 +63,7 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
         echo '<h1>'.$this->getLang('push_menu').'</h1>';
         echo '<div class="info"><span>'.$this->getLang('push_in_stream').': '.$INPUT->str('stream','').'</span></div>';
         $streams = $this->helper->AllStream();
-        $form2 = new Doku_Form(array('method' => 'POST'));
+        $form2 = new Doku_Form(array('method' => 'POST','id'=>'FKS_stream_choose'));
         $form2->addHidden('target','plugin_fksnewsfeed');
         $form2->addHidden('do','admin');
         $form2->addHidden('page','fksnewsfeed_push');
@@ -74,7 +74,7 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
         }
 
         $form2->addElement(form_makeListboxField('stream',$s,$INPUT->str('stream',''),$this->getLang('stream')));
-        $form2->addElement(form_makeButton('submit',null,$this->getLang('push_chose_stream')));
+        $form2->addElement(form_makeButton('submit',null,$this->getLang('push_choose_stream')));
         html_form('stream',$form2);
         if($INPUT->str('stream') == ""){
             
@@ -99,7 +99,7 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
                     $form2->addHidden('news_do','push_save');
                     $form2->addHidden('news_id',$id);
                     $form2->addHidden('stream',$stream);
-                    $form2->addElement(form_makeCheckboxField('all_dependence',1,'Povoliť dedení'));
+                    $form2->addElement(form_makeCheckboxField('all_dependence',1,$this->getLang('alw_dep')));
 
                     $form2->addElement(form_makeButton('submit',null,$this->getLang('btn_push_news').$stream));
                     html_form('stream',$form2);

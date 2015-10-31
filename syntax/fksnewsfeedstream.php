@@ -67,7 +67,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
             <p>Pro správne fungovaní téjto stránky je potřebné mít zapnutý 
                 <a href="http://en.wikipedia.org/wiki/JavaScript">JavaScript</a>.</p>
             <p>Pokud chcete zobrazit tento web plnohodnotně 
-                <a href="https://www.google.cz/webhp?ie=UTF-8#q=how+to+turn+on+javascript">
+                <a href="https://www.google.cz/search?q=how+to+turn+on+javascript">
                     zapněte si JavaScript</a>!</p></div></noscript>';
         $renderer->doc .='<div class="FKS_newsfeed"><div class="stream" '.buildAttributes($atr).'></div></div>';
         return false;

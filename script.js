@@ -71,6 +71,11 @@ jQuery(function () {
         }
         , 'json');
     });
+    
+    $('form#FKS_stream_choose').find('select').live("change",function(){
+        console.log(this);
+        $(this).parents('form').submit();
+    });
 
 
     $FKS_newsfeed.find('.btns button').live("click", function () {

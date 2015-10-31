@@ -138,7 +138,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
      * @param type $stream
      */
     private function PrintPullBtn(&$r,$stream) {
-        $form2 = new Doku_Form(array('method' => 'POST','class'=>'info'));
+        $form2 = new Doku_Form(array('method' => 'POST','class' => 'info'));
         $form2->addHidden('target','plugin_fksnewsfeed');
         $form2->addHidden('do','admin');
         $form2->addHidden('page','fksnewsfeed_push');
@@ -158,14 +158,14 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
     private function PrintRSS(&$r,$stream) {
         $r.=html_open_tag('div',array('class' => 'rss'));
 
-
-        $r.='<span contenteditable="true" >'.DOKU_URL.'feed.php?stream='.$stream.'</span>';
+        $r.='<a href="'.DOKU_URL.'feed.php?stream='.$stream.'"><span class="icon small-btn rss-icon"></span><span class="btn-big">RSS</span></a>';
+        $r.='<span class="link" contenteditable="true" >'.DOKU_URL.'feed.php?stream='.$stream.'</span>';
         $r.='</div>';
     }
 
     private function PrintCreateBtn(&$r,$stream) {
 
-        $form3 = new Doku_Form(array('method' => 'GET','class'=>'info'));
+        $form3 = new Doku_Form(array('method' => 'GET','class' => 'info'));
         $form3->addHidden('do','edit');
         $form3->addHidden('target','plugin_fksnewsfeed');
         $form3->addHidden('news_do','create');
@@ -183,7 +183,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         ob_start();
         $form3 = new Doku_Form(array('class' => 'warning'));
         $form3->addHidden('fksnewsfeed_purge','true');
-        
+
         $form3->addElement(form_makeButton('submit',null,$this->getLang('cache_del_full')));
         html_form('cachenews',$form3);
         $r.= ob_get_contents();

@@ -176,7 +176,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
 
             return '<div class="edit" data-id="'.$param["id"].'"><div class="btns">'.$r1.$r3.$r2.'</div><div class="fields" data-id="'.$param["id"].'">'.$ar1.$ar2.$ar3.'</div></div>';
-            ;
+            
         }else{
             return '';
         }
@@ -289,7 +289,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
     private function newsdate($date) {
 
-        $date = date('d\. F Y',strtotime($date));
+        $date = date('j\. F Y',strtotime($date));
         $enmonth = array(
             'January',
             'February',

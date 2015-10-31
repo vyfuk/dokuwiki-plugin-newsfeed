@@ -78,7 +78,7 @@ $lang['js']['oRlyDelete'] = $lang['o_rly_delete'];
 $lang['push_menu'] = 'Přidat novinku do vlákna';
 $lang['push_in_stream']='Nacházíte se ve vlákně';
 
-$lang['push_chose_stream'] = 'Změnit vlákno';
+$lang['push_choose_stream'] = 'Změnit vlákno';
 
 $lang['btn_push_stream'] = $lang['push_menu'];
 
@@ -120,4 +120,4 @@ $lang['stream_create'] = 'Vytvoř vlákno';
 $lang['stream_list'] = 'Seznam vláken';
 $lang['stream_delete'] = 'Odstraň vlákno';
 
-
+$lang['alw_dep']='Povolit dědění';

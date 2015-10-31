@@ -83,7 +83,7 @@
             button,input.button,.button{        
                 &:hover,&.active,&:active,&:focus{
                     background-color: @danger_color;
-                    
+
                 }     
                 background-color: lighten(@danger_color,30%);
                 color:white;
@@ -96,7 +96,7 @@
 
                 }                
                 background-color: lighten(@warning_color,30%);
-                     
+
                 color:white;
             } 
         }
@@ -116,7 +116,7 @@
             button,input.button,.button{        
                 &:hover,&.active,&:active,&:focus{
                     background-color: @edit_color;
-                   
+
                 }                
                 background-color: lighten(@edit_color,30%);       
                 color:white;
@@ -235,17 +235,19 @@
 
 
     .rss {
-        &:before{
-            content: url('images/rss.png');
+        &>*{
+            &:hover{
+                background-color: @rss_color;
+            }
+            display: inline-block;
+            padding: .5em;
+            background-color: lighten(@rss_color,20%);
+             font-weight: bold;
+            color:white;
         }
-        span{
-            margin-left: 1em;
-            color: white;
-            font-weight: bold;
-        }
-        padding: .75em;
-        border: none;
-        background-color: @rss_color;
+        a span{
+            color:white;           
+        }        
         margin-bottom: .5em;
         margin-top: .5em;
     }
@@ -267,6 +269,9 @@
         }
         &.priority-icon{
             background-image: url(images/priority.svg);  
+        }
+        &.rss-icon{
+            background-image:  url('images/rss.png');
         }
         padding-right: 2em;          
         background-position-y: 50%;
