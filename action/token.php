@@ -57,7 +57,8 @@ class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
           
             $event->data['meta'][] = array('property' => 'og:url','content' => DOKU_URL.'?'.$_SERVER['QUERY_STRING']);
             $text = p_render('text',p_get_instructions($news['text']),$info);
-            $event->data['meta'][] = array('property' => 'og:description','content' => $news['text']);
+            
+            $event->data['meta'][] = array('property' => 'og:description','content' => $text);
             $event->data['meta'][] = array('property' => 'og:title','content' => $news['name']);
             if($news['image'] != ""){
 
