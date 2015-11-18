@@ -40,7 +40,6 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
 
 
         $controller->register_hook('AJAX_CALL_UNKNOWN','BEFORE',$this,'Stream');
-        //$controller->register_hook('AJAX_CALL_UNKNOWN','BEFORE',$this,'WeightAdd');
     }
 
     /**
@@ -60,6 +59,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
 
         if($INPUT->str('news_do') == 'stream' || $INPUT->str('news_do') == 'more'){
 
+            ob_start();
             header('Content-Type: application/json');
             $event->stopPropagation();
             $event->preventDefault();
@@ -68,7 +68,6 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
             if($INPUT->str('news_do') == 'stream'){
                 if(auth_quickaclcheck('start') >= $this->getConf('perm_manage')){
                     $this->PrintCreateBtn($r,$INPUT->str('news_stream'));
-
                     $this->PrintPullBtn($r,$INPUT->str('news_stream'));
                     $this->PrintCacheBtn($r,$INPUT->str('news_stream'));
                 }
@@ -79,14 +78,11 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
             $news = $this->helper->LoadStream($INPUT->str('news_stream'),true);
             $more = $this->PrintStream($news,$r,(int) $INPUT->str('news_feed_s',0),(int) $INPUT->str('news_feed_l',3),$INPUT->str('news_stream'));
             $json = new JSON();
-            $er = "";
-            /*
-              foreach ($this->helper->errors as $erro) {
-              $er.='<div class="error">'.$erro.'</div>';
-              }
+            
+            $r = ob_get_contents().$r;
+            ob_end_clean();
 
-              unset($this->helper->errors); */
-            echo $json->encode(array('more' => $more,"r" => $er.$r));
+            echo $json->encode(array('more' => $more,"r" => $r));
         }else{
             return;
         }

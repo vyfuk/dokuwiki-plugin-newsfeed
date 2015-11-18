@@ -16,8 +16,15 @@ jQuery(function () {
         document.execCommand('selectAll', false, null);
     });
     $(window).load(function () {
-        _FB_newsfeed();
-        _Tweet_newsfeed();
+        try {
+            _FB_newsfeed();
+        }
+        catch (e) {
+        }
+        try {
+            _Tweet_newsfeed();
+        } catch (e) {
+        }
 
         $FKS_newsfeed.find(FKS_newsfeed.div_stream).each(function () {
             var $stream = $(this);
@@ -36,7 +43,6 @@ jQuery(function () {
                 $stream.html(data["r"]);
                 FB.XFBML.parse();
                 twttr.widgets.load();
-
             },
                     'json');
         });
@@ -71,10 +77,10 @@ jQuery(function () {
         }
         , 'json');
     });
-    
-    $('form#FKS_stream_choose').find('select').live("change",function(){
+
+    $('form#FKS_stream_choose').find('select').live("change", function () {
         console.log(this);
-        $(this).parents('form').submit();
+       // $(this).parents('form').submit();
     });
 
 
@@ -103,31 +109,7 @@ jQuery(function () {
             $(this).parents('.edit').find('.' + cls).slideToggle();
         }
     });
-    /*
-     $FKS_newsfeed.find('.opt_btn').live("click", function () {
-     
-     $(this).toggleClass('active');
-     
-     $(this).parents('.edit').find('.opt').slideToggle();
-     
-     });
-     
-     $FKS_newsfeed.find('.priority_btn').live("click", function () {
-     $(this).toggleClass('active');
-     $(this).parents('.edit').find('.priority').slideToggle();
-     
-     });
-     $FKS_newsfeed.find('.share_btn').live("click", function () {
-     $(this).toggleClass('active');
-     
-     $(this).parents('.edit').find('.share').slideToggle();
-     
-     });
-     */
-
-
-
-
+    
     /*
      * @TODO 
      */
@@ -178,7 +160,4 @@ function _Tweet_newsfeed() {
     }(document, 'script', 'twitter-wjs');
 
 }
-
 window.twttr = (_Tweet_newsfeed());
-
-

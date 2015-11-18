@@ -86,7 +86,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $div_class.=' '.$div_class_ap;
             $c = (array) $c;
 
-            foreach (helper_plugin_fksnewsfeed::$Fields as $k) {
+            foreach ($this->helper->Fields as $k) {
                 $tpl = str_replace('@'.$k.'@',$c[$k],$tpl);
             }
 
@@ -111,7 +111,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $r.= '</button>';
 
             $ar.='<div '
-                    . 'class="share field">'."\n";
+                    .'class="share field">'."\n";
 
             $ar.='<div class="Twitt">';
             $ar.='<a href="https://twitter.com/share" data-count="none" data-text="'.$c['name'].'" class="twitter-share-button" data-url="'.$this->helper->_generate_token((int) $id).'" data-via="fykosak" data-hashtags="FYKOS">Tweet</a>';
@@ -136,11 +136,11 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
     private function CreateNews($data) {
         $div_class = "";
-        foreach (helper_plugin_fksnewsfeed::$Fields as $k) {
+        foreach ($this->helper->Fields as $k) {
             if($k == 'image'){
                 if($data['image'] != ""){
                     $div_class.=' w_image';
-                    $c['image'] = '<div class="image"><div class="image_content"><img src="'.ml($data['image']).'" alt="newsfeed"></div></div>';
+                    $c['image'] = '<div class="image"><div class="image_content"><img src="'.ml($data['image'],array('w'=>400)).'" alt="newsfeed"></div></div>';
                 }else{
                     $c['image'] = '';
                 }
@@ -176,7 +176,6 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
 
             return '<div class="edit" data-id="'.$param["id"].'"><div class="btns">'.$r1.$r3.$r2.'</div><div class="fields" data-id="'.$param["id"].'">'.$ar1.$ar2.$ar3.'</div></div>';
-            
         }else{
             return '';
         }
@@ -196,7 +195,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
             $ar.='<div class="priority field">';
 
-            $form2 = new Doku_Form(array('class'=>'success'));
+            $form2 = new Doku_Form(array('class' => 'success'));
             $form2->addHidden("do","show");
             $form2->addHidden('news_id',$id);
             $form2->addHidden('news_stream',$stream);
@@ -211,9 +210,9 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $form2->addElement(form_makeField('number','priority',$p['priority'],$this->getLang('priority_value'),null,null,array('step' => 1)));
             $form2->addElement('<br/>');
             $form2->addElement(form2_makeDateTimeField('priority_form',$p['priority_from'],$this->getLang('valid_from'),null,null,1,1,array()));
- $form2->addElement('<br/>');
+            $form2->addElement('<br/>');
             $form2->addElement(form2_makeDateTimeField('priority_to',$p['priority_to'],$this->getLang('valid_to'),null,null,1,1,array()));
-
+            $form2->addElement('<br/>');
 
             $form2->addElement(form_makeButton('submit','',$this->getLang('btn_save_priority')));
 
@@ -243,7 +242,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $r.='</button>';
             $r.='</div>';
 
-            
+
             $ar.='<div class="opt field">';
             ob_start();
             $form = new Doku_Form(array('class' => 'info'));
@@ -251,7 +250,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $form->addHidden('news_id',$id);
             $form->addHidden("target","plugin_fksnewsfeed");
             $form->addElement(form_makeButton('submit','',$this->getLang('btn_edit_news')));
-            html_form('',$form);            
+            html_form('',$form);
             $ar.= ob_get_contents();
             ob_clean();
 
@@ -267,7 +266,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $ar.= ob_get_contents();
             ob_clean();
 
-            
+
             ob_start();
             $form3 = new Doku_Form(array('class' => 'warning'));
             $form3->addHidden('fksnewsfeed_purge','true');

@@ -68,4 +68,74 @@ draw (6u,4u)--(9u,7u) wp3;
 endfig; 
 
 
+
+
+beginfig(4);
+
+fill fullcircle scaled 2.5u shifted (2u,5u) withcolor (0.067,0.459,0.855);
+
+fill fullcircle scaled 2.5u shifted (8u,2u) withcolor (0.067,0.459,0.855);
+fill fullcircle scaled 2.5u shifted (8u,8u) withcolor (0.067,0.459,0.855);
+
+draw (8u,2u)--(2u,5u)--(8u,8u) wp3 withcolor (0.067,0.459,0.855);
+
+endfig;
+
+beginfig(5);
+
+draw (7u,5u)--(3u,5u) wp3 withcolor (0.067,0.459,0.855);
+draw (7u,3u)--(3u,3u) wp3 withcolor (0.067,0.459,0.855);
+
+draw (7u,7u)--(3u,7u) wp3 withcolor (0.067,0.459,0.855);
+
+draw (1u,2u)--(2u,1u)--(3u,2u) wp3 withcolor (0.067,0.459,0.855);
+draw (2u,1u)--(2u,5u) wp3 withcolor (0.067,0.459,0.855);
+
+draw (9u,8u)--(8u,9u)--(7u,8u) wp3 withcolor (0.067,0.459,0.855);
+draw (8u,9u)--(8u,5u) wp3 withcolor (0.067,0.459,0.855);
+
+
+endfig;
+
+beginfig(6)
+
+draw halfcircle scaled (2u*sqrt(2)) rotated 135 shifted (2u,2u) wp3 withcolor (0.067,0.459,0.855);
+
+draw halfcircle scaled (2u*sqrt(2)) rotated -45 shifted (8u,8u) wp3 withcolor (0.067,0.459,0.855);
+
+draw fullcircle scaled (2u*sqrt(2)) shifted (5u,5u) wp3 withcolor (0.067,0.459,0.855);
+
+fill (7u,3u)--(5u,5u)--(7u,7u)--(9u,5u)--cycle withcolor white;
+
+fill (3u,7u)--(5u,5u)--(3u,3u)--(1u,5u)--cycle withcolor white;
+
+draw (1u,3u)--(4u,6u) wp3 withcolor (0.067,0.459,0.855);
+
+draw (3u,1u)--(4u,2u) wp3 withcolor (0.067,0.459,0.855);
+
+draw (6u,8u)--(7u,9u) wp3 withcolor (0.067,0.459,0.855);
+
+draw (6u,4u)--(9u,7u) wp3 withcolor (0.067,0.459,0.855);
+
+
+
+endfig; 
+
+beginfig(7)
+
+
+
+fill fullcircle scaled 2u shifted (2u,2u) withcolor white;
+
+draw (2u,5u){right} .. (5u,2u) wp 7.5 withcolor white;;
+
+draw (2u,8u){right} .. (8u,2u) wp 7.5 withcolor white;;
+
+endfig;
+
+
+
+
+
+
 end.

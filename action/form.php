@@ -20,8 +20,8 @@ if(!defined('DOKU_INC')){
  */
 class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
-    private static $modFields;
-    private static $cartesField = array('email','author');
+    protected $modFiels;
+    private $cartesField = array('email','author');
     private $helper;
 
     /**
@@ -30,9 +30,15 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
+    public static function init(){
+          
+    }
     public function __construct() {
+        
         $this->helper = $this->loadHelper('fksnewsfeed');
-        self::$modFields = helper_plugin_fksnewsfeed::$Fields;
+        $this->modFields = $this->helper->Fields;
+     
+      
     }
 
     /**
@@ -82,9 +88,8 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         $form->addHidden('target','plugin_fksnewsfeed');
         $form->addHidden('news_id',$INPUT->str("news_id"));
         $form->addHidden('news_do',$INPUT->str('news_do'));
-        $form->addHidden('news_stream',$INPUT->str('news_stream'));
-
-        foreach (self::$modFields as $field) {
+       
+        foreach ($this->modFields as $field) {
             if($field == 'text'){
                 $value = $INPUT->post->str('wikitext',$data[$field]);
                 $form->addElement(html_open_tag('div',array('class' => 'clearer')));
@@ -101,7 +106,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                 $form->addElement(form_makeTextField($field,$value,$this->getLang($field),$field,null,array('list' => 'news_list_'.$field)));
             }
         }
-        foreach (self::$cartesField as $field) {
+        foreach ($this->cartesField as $field) {
             $form->addElement(form_makeDataList('news_list_'.$field,$this->helper->AllValues($field)));
         }
         $form->endFieldset();

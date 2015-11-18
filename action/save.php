@@ -20,7 +20,7 @@ if(!defined('DOKU_INC')){
  */
 class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
 
-    private static $modFields;
+    private $modFields;
     private $helper;
 
     /**
@@ -29,9 +29,10 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function __construct() {
+     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
-        self::$modFields = helper_plugin_fksnewsfeed::$Fields;
+        $this->modFields = $this->helper->Fields;
+       
     }
 
     /**
@@ -54,7 +55,7 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
      * @param type $param
      * @return type
      */
-    public function SavePriority(Doku_Event &$event) {
+    public function SavePriority() {
         global $INPUT;
         if($INPUT->str('target') !== 'plugin_fksnewsfeed'){
             return;
@@ -91,12 +92,12 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
                 $cache = new cache($f,'');
                 $cache->removeCache();
 
-                
+
 
 
 
                 $data = array();
-                foreach (self::$modFields as $field) {
+                foreach ($this->modFields as $field) {
                     if($field == 'text'){
                         $data[$field] = cleanText($INPUT->str('wikitext'));
                         unset($_POST['wikitext']);

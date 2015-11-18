@@ -42,14 +42,12 @@ class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
          * to render by token
          */
         $controller->register_hook('TPL_ACT_RENDER','BEFORE',$this,'ACTRenderByTocen');
-        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'encript_token');
+        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',$this,'EncriptToken');
         $controller->register_hook('TPL_METAHEADER_OUTPUT','BEFORE',$this,'AddFBmeta');
     }
 
     public function AddFBmeta(Doku_Event &$event) {
-        global $ACT;
-        global $INPUT;
-        global $ID;
+        
 
         if($this->token['show']){
             $news = $this->helper->LoadSimpleNews($this->token['id']);
@@ -63,7 +61,7 @@ class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
             $event->data['meta'][] = array('property' => 'og:title','content' => $news['name']);
             if($news['image'] != ""){
 
-                $event->data['meta'][] = array('property' => 'og:image','content' => ml($news['image'],array('w'=>200,'h'=>200),null,'&',true));
+                $event->data['meta'][] = array('property' => 'og:image','content' => ml($news['image'],array('w'=>400,'h'=>400),true,'&',true));
             }
             $event->data['meta'][] = array('property' => 'article:author','content' => $news['author']);
         }
@@ -99,7 +97,7 @@ class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
      * @param Doku_Event $event
      * @param type $param
      */
-    public function encript_token(Doku_Event &$event) {
+    public function EncriptToken() {
         global $ACT;
         global $INPUT;
         global $ID;
@@ -108,7 +106,7 @@ class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
         }
 
         $token = $INPUT->str('token');
-        $this->token['id'] = self::_encript_token($token,$this->getConf('no_pref'),$this->getConf('hash_no'));
+        $this->token['id'] = self::_EncriptToken($token,$this->getConf('no_pref'),$this->getConf('hash_no'));
         $this->token['show'] = true;
         $ACT = 'show';
         $ID = 'start';
@@ -121,7 +119,7 @@ class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
      * @param type $hash_no
      * @return type
      */
-    private static function _encript_token($hash,$l,$hash_no) {
+    private static function _EncriptToken($hash,$l,$hash_no) {
         $enc_hex = substr($hash,$l,-$l);
         $enc_dec = hexdec($enc_hex);
         $id = ($enc_dec - $hash_no) / 2;

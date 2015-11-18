@@ -18,11 +18,11 @@ if(!defined('DOKU_TAB')){
 
 class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
-    public static $Fields = array('name','email','author','newsdate','image','category','text');
+    public $Fields = array('name','email','author','newsdate','image','category','text');
     public $FKS_helper;
     public $simple_tpl;
     public $sqlite;
-    public $errors;
+ 
 
     const simple_tpl = '{{fksnewsfeed>id="@id@"; even="@even@"; edited="@edited@";stream="@stream@"}}';
     const db_table_feed = "fks_newsfeed_news";
@@ -34,7 +34,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public function __construct() {
         $this->simple_tpl = self::simple_tpl;
         $this->FKS_helper = $this->loadHelper('fkshelper');
-        $this->errors = array();
+        
 
         $this->sqlite = $this->loadHelper('sqlite',false);
         $pluginName = $this->getPluginName();
@@ -57,9 +57,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $sql1 = 'select stream_id from '.self::db_table_stream.' where name=?';
         $res1 = $this->sqlite->query($sql1,$stream);
         $stream_id = $this->sqlite->res2single($res1);
-        if($stream_id == 0){
-            $this->errors[] = _('Stream dont\' exist');
-        }
+       
         return (int) $stream_id;
     }
 
@@ -228,13 +226,15 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @return type
      */
     public function _generate_token($id) {
+        global $ID;
         $hash_no = (int) $this->getConf('hash_no');
         $l = (int) $this->getConf('no_pref');
         $pre = helper_plugin_fkshelper::_generate_rand($l);
         $pos = helper_plugin_fkshelper::_generate_rand($l);
         $hex = dechex($hash_no + 2 * $id);
         $hash = $pre.$hex.$pos;
-        return (string) DOKU_URL.'?do=fksnewsfeed_token&token='.$hash;
+        
+        return (string) DOKU_URL.'?do=fksnewsfeed_token&dokuwiki_simpleforward=0&token='.$hash;
     }
 
     /**
@@ -392,9 +392,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $sql1 = 'SELECT name FROM '.self::db_table_stream.' where stream_id=?';
         $res1 = $this->sqlite->query($sql1,$id);
         $stream_name = $this->sqlite->res2single($res1);
-        if($stream_name == 0){
-            $this->errors[] = _('Stream dont\' exist');
-        }
+       
         return (string) $stream_name;
     }
 
