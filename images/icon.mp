@@ -11,7 +11,11 @@ input metaobj;
 prologues :=3;
 
 
+color iniText,iniBack,iniAlt;
 
+iniText:=black;
+iniBack:=white;
+iniAlt:=(0.067,0.459,0.855);
 
 beginfig(1);
 
@@ -133,6 +137,49 @@ draw (2u,8u){right} .. (8u,2u) wp 7.5 withcolor white;;
 
 endfig;
 
+
+
+
+vardef kol(expr c)=
+fill (
+for i= 0  step 1 until 7:
+(4u*cos(pi*i/4),4u*sin(i*pi/4))..(2.75u*cos((i+.5)*pi/4),2.75u*sin((i+.5)*pi/4))..
+endfor cycle).shifted(5u,5u) withcolor c;
+
+unfill fullcircle scaled 3u shifted (5u,5u)  ;
+enddef;
+
+
+
+beginfig(10)
+kol(iniText);
+endfig;
+
+beginfig(11)
+kol(iniAlt);
+endfig;
+
+beginfig(12)
+kol(iniBack);
+endfig;
+
+vardef time(expr c)=
+draw fullcircle scaled 8u shifted (5u,5u) wp5 withcolor c;
+draw (5u,5u)-- (5u,8u) wp5 withcolor c;
+draw (5u,5u)-- (7u,4u) wp5 withcolor c;
+enddef;
+
+beginfig(13)
+time(iniText);
+endfig;
+
+beginfig(14)
+time(iniAlt);
+endfig;
+
+beginfig(15)
+time(iniBack);
+endfig;
 
 
 

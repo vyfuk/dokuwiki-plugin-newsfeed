@@ -140,7 +140,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             if($k == 'image'){
                 if($data['image'] != ""){
                     $div_class.=' w_image';
-                    $c['image'] = '<div class="image"><div class="image_content"><img src="'.ml($data['image'],array('w'=>400)).'" alt="newsfeed"></div></div>';
+                    $c['image'] = '<div class="image"><div class="image_content"><img src="'.ml($data['image'],array('w'=>300)).'" alt="newsfeed"></div></div>';
                 }else{
                     $c['image'] = '';
                 }

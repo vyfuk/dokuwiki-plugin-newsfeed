@@ -14,6 +14,21 @@
 
 @import "custom_feed.less";
 
+.buttonsFCE(@c) when (iscolor(@c)){
+    button,input.button,.button{        
+        &:hover,&.active,&:active,&:focus{
+            background-color: darken(@c,10%);
+            background-image: linear-gradient(to bottom,darken(@c,10%),darken(@c,20%));
+            color:white;
+        }     
+        background-color: @c;
+        background-image: linear-gradient(to bottom,@c,darken(@c,10%));
+        color:white;
+    } 
+};
+
+
+
 @media  (max-width:600px){
     .FKS_newsfeed{
         button,input.button,.button{ 
@@ -28,10 +43,10 @@
 
             &.w_image{
                 &>*{
-                    padding-left: 0;
+                    //padding-left: 0;
                 }
                 &>.author,&>.edit,&>.edit_field{
-                    padding-left: 0;
+                    //padding-left: 0;
                 }
                 .image{                    
                     //display: none;
@@ -76,55 +91,25 @@
         color:black;
         padding: @FKS_newsfeed_padding;
         transition-duration: @FKS_newsfeed_duration;
+        border-radius: .5em;
 
     }
+
+
     form{
+        display: inline;
         &.danger{
-            button,input.button,.button{        
-                &:hover,&.active,&:active,&:focus{
-                    background-color: darken(@danger_color,10%);
-                    color:white;
-                }     
-                background-color: @danger_color;
-                color:white;
-            } 
+            .buttonsFCE(@danger_color);
         }
         &.warning{
-            button,input.button,.button{        
-                &:hover,&.active,&:active,&:focus{
-                    background-color: darken(@warning_color,10%);
-                    color:white;
-
-                }                
-                background-color: @warning_color;
-
-                color:white;
-            } 
+            .buttonsFCE(@warning_color);
         }
         &.success{
-            button,input.button,.button{        
-                &:hover,&.active,&:active,&:focus{
-                    background-color: darken(@success_color,10%);
-                    color:white;
-                }                
-                background-color: @success_color;       
-                color:white;
-            } 
-
+            .buttonsFCE(@success_color);
         }
         &.info{
-            button,input.button,.button{        
-                &:hover,&.active,&:active,&:focus{
-                    background-color: darken(@edit_color,20%);
-                    color:white;
-
-                }                
-                background-color: @edit_color;       
-                color:white;
-            } 
+            .buttonsFCE(@edit_color);
         }
-
-        display: inline;
     }
     .edit {
         button,input.button,.button {
@@ -272,33 +257,89 @@
             &>.icon{
                 &.link-icon{
                     background-image: url(images/link-a.svg);   
+                    padding-right: 2em;          
+                    background-position-y: 50%;
+                    background-size: 1em 1em;
+                    background-repeat: no-repeat;
+
                 } 
                 &.share-icon{
                     background-image: url(images/share-a.svg); 
+                    padding-right: 2em;          
+                    background-position-y: 50%;
+                    background-size: 1em 1em;
+                    background-repeat: no-repeat;
+
                 }
                 &.priority-icon{
                     background-image: url(images/priority-a.svg);  
-                }               
-                       
+                    padding-right: 2em;          
+                    background-position-y: 50%;
+                    background-size: 1em 1em;
+                    background-repeat: no-repeat;
+
+                }   
+                &.opt-icon{
+                    background-image:  url('images/opt-a.svg');
+                    padding-right: 2em;          
+                    background-position-y: 50%;
+                    background-size: 1em 1em;
+                    background-repeat: no-repeat;
+
+                }
+
             }
         }
         & .icon{
             &.link-icon{
-                background-image: url(images/link.svg);   
+                background-image: url(images/link.svg);  
+                padding-right: 2em;          
+                background-position-y: 50%;
+                background-size: 1em 1em;
+                background-repeat: no-repeat;
+
+
             } 
             &.share-icon{
                 background-image: url(images/share.svg); 
+                padding-right: 2em;          
+                background-position-y: 50%;
+                background-size: 1em 1em;
+                background-repeat: no-repeat;
+
             }
             &.priority-icon{
-                background-image: url(images/priority.svg);  
+                background-image: url(images/priority.svg); 
+                padding-right: 2em;          
+                background-position-y: 50%;
+                background-size: 1em 1em;
+                background-repeat: no-repeat;
+
             }
             &.rss-icon{
                 background-image:  url('images/rss.svg');
+                padding-right: 2em;          
+                background-position-y: 50%;
+                background-size: 1em 1em;
+                background-repeat: no-repeat;
+
             }
-            padding-right: 2em;          
-            background-position-y: 50%;
-            background-size: 1em 1em;
-            background-repeat: no-repeat;
+            &.time-icon{
+
+                padding-right: 2em;          
+                background-position-y: 50%;
+                background-size: 1em 1em;
+                background-repeat: no-repeat;
+                background-image:  url('images/time-w.svg');
+            }
+            &.opt-icon{
+                background-image:  url('images/opt.svg');
+                padding-right: 2em;          
+                background-position-y: 50%;
+                background-size: 1em 1em;
+                background-repeat: no-repeat;
+
+            }
 
 
         }
@@ -330,3 +371,33 @@
 .grey{
     color:grey;
 }
+
+@font-face { font-family: FKS font; font-weight: normal; src: url('images/FKS_font_1.ttf'); } 
+//@font-face { font-family: FKS font; font-weight: normal; src: url('images/FKS_font_1.sfd'); }
+//@font-face { font-family: FKS font; font-weight: normal; src: url('images/FKS_font_1.afm'); }
+
+.icon{
+    &.time-icon{
+
+        &:before{
+            //content: "\0231A"; 
+            content : "\0081";
+            content : "\0082";
+            content : "\0083";
+        }
+        font-family: "FKS font";
+
+
+
+    }
+    padding-right: .5em;
+
+
+
+}
+
+
+
+
+
+
