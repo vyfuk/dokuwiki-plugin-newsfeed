@@ -116,13 +116,13 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
                     .'class="share field">'."\n";
 
             $ar.='<div class="Twitt">';
-            $ar.='<a href="https://twitter.com/share" data-count="none" data-text="'.$c['name'].'" class="twitter-share-button" data-url="'.$this->helper->_generate_token((int) $id).'" data-via="fykosak" data-hashtags="FYKOS">Tweet</a>';
+            $ar.='<a href="https://twitter.com/share" data-count="none" data-text="'.$c['name'].'" class="twitter-share-button" data-url="'.$link.'" data-via="fykosak" data-hashtags="FYKOS">Tweet</a>';
             $ar.='</div>'."\n";
 
 
 
             $ar.='<div class="FB">';
-            $ar.='<div class="share_btn fb-share-button fb-share-button"  data-layout="button" data-href="'.$this->helper->_generate_token((int) $id).'"></div>';
+            $ar.='<div class="share_btn fb-share-button fb-share-button"  data-layout="button" data-href="'.$link.'"></div>';
             $ar.='</div>'."\n";
 
 
