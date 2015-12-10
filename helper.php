@@ -24,7 +24,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public $sqlite;
  
 
-    const simple_tpl = '{{fksnewsfeed>id="@id@"; even="@even@"; edited="@edited@";stream="@stream@"}}';
+    const simple_tpl = '{{fksnewsfeed>id="@id@"; even="@even@"; edited="@edited@";stream="@stream@";pageID="@page_id@"}}';
     const db_table_feed = "fks_newsfeed_news";
     const db_table_dependence = "fks_newsfeed_dependence";
     const db_table_order = "fks_newsfeed_order";
@@ -225,7 +225,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @param type $id
      * @return type
      */
-    public function _generate_token($id) {
+    public function _generate_token($id,$page_id="") {
         global $ID;
         $hash_no = (int) $this->getConf('hash_no');
         $l = (int) $this->getConf('no_pref');
@@ -234,7 +234,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $hex = dechex($hash_no + 2 * $id);
         $hash = $pre.$hex.$pos;
         
-        return (string) DOKU_URL.'?do=fksnewsfeed_token&dokuwiki_simpleforward=0&token='.$hash;
+        return (string) wl($page_id,null,true).'?do=fksnewsfeed_token&dokuwiki_simpleforward=0&token='.$hash;
     }
 
     /**

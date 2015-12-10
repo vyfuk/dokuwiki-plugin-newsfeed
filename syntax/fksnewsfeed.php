@@ -49,6 +49,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         $text = str_replace(array("\n",'{{fksnewsfeed>','}}'),array('','',''),$match);
         /** @var id and even this NF $param */
         $param = $this->helper->FKS_helper->ExtractParamtext($text);
+     
         return array($state,array($param));
     }
 
@@ -89,8 +90,9 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             foreach ($this->helper->Fields as $k) {
                 $tpl = str_replace('@'.$k.'@',$c[$k],$tpl);
             }
-
-            $tpl = str_replace('@edit@',$this->CreateEditField($param,$c),$tpl);
+            $page_id= $param['pageID'];
+           
+            $tpl = str_replace('@edit@',$this->CreateEditField($param,$c,$page_id),$tpl);
 
 
             $renderer->doc.= '<div class="'.$div_class.'" data-id="'.$param["id"].'">'.$tpl.'</div>';
@@ -98,11 +100,11 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         return false;
     }
 
-    private function CreateShareFields($id,$stream,$c) {
+    private function CreateShareFields($id,$stream,$c,$page_id="") {
         $r = "";
         $ar = "";
 
-        $link = $this->helper->_generate_token((int) $id);
+        $link = $this->helper->_generate_token((int) $id,$page_id);
 
         if(auth_quickaclcheck('start') >= AUTH_READ){
             $r.= '<button class="button share_btn">';
@@ -166,13 +168,13 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         return array($c,$div_class);
     }
 
-    private function CreateEditField($param,$c) {
+    private function CreateEditField($param,$c,$page_id="") {
 
 
         if($param['edited'] === 'true'){
             list($r1,$ar1) = $this->BtnEditNews($param["id"],$param['stream'],$c);
             list($r2,$ar2) = $this->getPriorityField($param["id"],$param['stream'],$c);
-            list($r3,$ar3) = $this->CreateShareFields($param["id"],$param['stream'],$c);
+            list($r3,$ar3) = $this->CreateShareFields($param["id"],$param['stream'],$c,$page_id);
 
 
             return '<div class="edit" data-id="'.$param["id"].'"><div class="btns">'.$r1.$r3.$r2.'</div><div class="fields" data-id="'.$param["id"].'">'.$ar1.$ar2.$ar3.'</div></div>';

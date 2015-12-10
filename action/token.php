@@ -76,15 +76,17 @@ class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
     public function ACTRenderByTocen(Doku_Event &$event) {
 
         if($this->token['show']){
+           
             $e = $this->helper->_is_even($this->token['id']);
             //$event->preventDefault();
             $info = array();
+            
             echo '<div class="FKS_newsfeed">';
-            $n = str_replace(array('@id@','@even@','@edited@','@stream@'),array($this->token['id'],$e,'false',' '),$this->helper->simple_tpl);
+            $n = str_replace(array('@id@','@even@','@edited@','@stream@','@page_id@'),array($this->token['id'],$e,'false',' ',' '),$this->helper->simple_tpl);
             //var_dump($n);
             echo p_render('xhtml',p_get_instructions($n),$info);
             echo'</div>';
-            $event->advise_after();
+            //$event->advise_after();
         }
     }
 
@@ -110,7 +112,7 @@ class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
         $this->token['id'] = self::_EncriptToken($token,$this->getConf('no_pref'),$this->getConf('hash_no'));
         $this->token['show'] = true;
         $ACT = 'show';
-        $ID = 'start';
+        //$ID = 'start';
     }
 
     /**

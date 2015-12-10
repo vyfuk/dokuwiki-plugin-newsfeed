@@ -75,7 +75,7 @@ $lang['js']['oRlyDelete'] = $lang['o_rly_delete'];
 /**
  * manage stream
  */
-$lang['push_menu'] = 'Přidat novinku do vlákna';
+$lang['push_menu'] = 'Přidat existujicí novinku do vlákna';
 $lang['push_in_stream']='Nacházíte se ve vlákně';
 
 $lang['push_choose_stream'] = 'Změnit vlákno';

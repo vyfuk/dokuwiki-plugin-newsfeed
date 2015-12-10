@@ -76,9 +76,9 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                 }
             }
             $news = $this->helper->LoadStream($INPUT->str('news_stream'),true);
-            $more = $this->PrintStream($news,$r,(int) $INPUT->str('news_feed_s',0),(int) $INPUT->str('news_feed_l',3),$INPUT->str('news_stream'));
+            $more = $this->PrintStream($news,$r,(int) $INPUT->str('news_feed_s',0),(int) $INPUT->str('news_feed_l',3),$INPUT->str('news_stream'),$INPUT->str('page_id'));
             $json = new JSON();
-            
+
             $r = ob_get_contents().$r;
             ob_end_clean();
 
@@ -88,12 +88,12 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         }
     }
 
-    public function PrintStream($news,&$r,$s = 0,$l = 5,$stream = "") {
+    public function PrintStream($news,&$r,$s = 0,$l = 5,$stream = "",$page_id="") {
         global $INPUT;
         $more = false;
         for ($i = $s; $i < min(array($s + $l,(count($news)))); $i++) {
             $e = $this->helper->_is_even($i);
-            $r.=$this->PrintNews($news[$i]['news_id'],$e,$stream);
+            $r.=$this->PrintNews($news[$i]['news_id'],$e,$stream,$page_id);
         }
         if($l + $s >= count($news)){
             $more = true;
@@ -106,9 +106,10 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         return $more;
     }
 
-    public function PrintNews($id,$e,$stream) {
-        $n = str_replace(array('@id@','@even@','@edited@','@stream@'),array($id,$e,'true',$stream),$this->helper->simple_tpl);
+    public function PrintNews($id,$e,$stream,$page_id="") {
+        $n = str_replace(array('@id@','@even@','@edited@','@stream@','@page_id@'),array($id,$e,'true',$stream,$page_id),$this->helper->simple_tpl);
         $info = array();
+        
         return p_render("xhtml",p_get_instructions($n),$info);
     }
 
@@ -120,12 +121,9 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
      */
     private function PrintMoreBtn($stream,$more) {
 
-        return html_open_tag('div',array(
-                    'class' => 'more_news',
-                    'data-stream' => (string) $stream,
-                    'data-view' => (int) $more)).
-                html_button($this->getLang('btn_more_news'),'button',array('title' => 'fksnewsfeed'))
-                .html_close_tag('div');
+        return '<div class="more_news" data-stream="'.$stream.'" data-view="'.$more.'">'.
+                '<button class="button">'.$this->getLang('btn_more_news').'</button>'.
+                '</div>';
     }
 
     /**

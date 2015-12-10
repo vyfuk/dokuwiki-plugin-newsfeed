@@ -37,7 +37,9 @@ jQuery(function () {
                         news_do: 'stream',
                         news_stream: $(this).data("stream"),
                         news_feed_s: 0,
-                        news_feed_l: $(this).data("feed")
+                        news_feed_l: $(this).data("feed"),
+                        page_id: JSINFO.id
+                        
                     },
             function (data) {
                 $stream.html(data["r"]);
@@ -63,7 +65,8 @@ jQuery(function () {
                     news_stream: $div_more_news.data("stream"),
                     news_view: $div_more_news.data("view"),
                     news_feed_s: $div_more_news.data("view"),
-                    news_feed_l: 3
+                    news_feed_l: 3,
+                    page_id: JSINFO.id
                 },
         function (data) {
             $div_more_news.html("");

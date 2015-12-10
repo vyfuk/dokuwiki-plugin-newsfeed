@@ -89,7 +89,7 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
 
 
                 if(array_search($id,$news_in_stream) === FALSE){
-                    $n = str_replace(array('@id@','@even@','@edited@','@stream@'),array($id,'even','false',' '),$this->helper->simple_tpl);
+                    $n = str_replace(array('@id@','@even@','@edited@','@stream@','@page_id@'),array($id,'even','false',' ',' '),$this->helper->simple_tpl);
                     echo p_render('xhtml',p_get_instructions($n),$info);
 
                     $form2 = new Doku_Form(array('method' => 'POST'));
