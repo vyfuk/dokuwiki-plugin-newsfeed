@@ -15,16 +15,14 @@
 @import "custom_feed.less";
 
 .buttonsFCE(@c) when (iscolor(@c)){
-    button,input.button,.button{        
-        &:hover,&.active,&:active,&:focus{
-            background-color: darken(@c,10%);
-            background-image: linear-gradient(to bottom,darken(@c,10%),darken(@c,20%));
-            color:white;
-        }     
-        background-color: @c;
-        background-image: linear-gradient(to bottom,@c,darken(@c,10%));
+    &:hover,&.active,&:active,&:focus{
+        background-color: darken(@c,10%);
+        background-image: linear-gradient(to bottom,darken(@c,10%),darken(@c,20%));
         color:white;
-    } 
+    }     
+    background-color: @c;
+    background-image: linear-gradient(to bottom,@c,darken(@c,10%));
+    color:white;
 };
 
 
@@ -99,16 +97,25 @@
     form{
         display: inline;
         &.danger{
-            .buttonsFCE(@danger_color);
+            button,input.button,.button{  
+                .buttonsFCE(@danger_color);
+            }
         }
         &.warning{
-            .buttonsFCE(@warning_color);
+            button,input.button,.button{  
+                .buttonsFCE(@warning_color);
+            }
         }
+
         &.success{
-            .buttonsFCE(@success_color);
+            button,input.button,.button{  
+                .buttonsFCE(@success_color);
+            }
         }
         &.info{
-            .buttonsFCE(@edit_color);
+            button,input.button,.button{  
+                .buttonsFCE(@edit_color);
+            }
         }
     }
     .edit {
@@ -168,6 +175,12 @@
             }
             .fields{
                 .field{
+                    &.share{
+                        &>*{
+                            float: left;
+                            margin-left: .5em;
+                        }
+                    }
                     display: none;
                     border-top: 1px solid #ccc;
                     padding: @FKS_newsfeed_padding;

@@ -92,10 +92,6 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
                 $cache = new cache($f,'');
                 $cache->removeCache();
 
-
-
-
-
                 $data = array();
                 foreach ($this->modFields as $field) {
                     if($field == 'text'){
@@ -137,7 +133,7 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
         }
 
 
-        $stream_id = $this->helper->streamTOID($INPUT->str('stream'));
+        $stream_id = $this->helper->streamToID($INPUT->str('stream'));
 
         $this->helper->DeleteOrder($INPUT->str('news_id'),$stream_id);
         header('Location: '.$_SERVER['REQUEST_URI']);

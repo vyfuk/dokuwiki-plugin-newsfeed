@@ -26,4 +26,5 @@ $meta['perm_add'] = array('multichoice', '_choices' => array(1, 2, 4, 8, 16, 32,
 $meta['perm_manage'] = array('multichoice', '_choices' => array(1, 2, 4, 8, 16, 32, 64, 128, 255,1000));
 $meta['perm_rss'] = array('multichoice', '_choices' => array(1, 2, 4, 8, 16, 32, 64, 128, 255,1000));
 
-$meta['tpl']=array();
+$meta['default_image']=array('string');
+$meta['tpl']=array('string');

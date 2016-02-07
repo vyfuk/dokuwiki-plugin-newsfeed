@@ -83,10 +83,8 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
             if((time() < strtotime($ar['priority_from'])) || (time() > strtotime($ar['priority_to']))){
                 $ars[$key]['priority'] = 0;
             }else{
-                //var_dump($ar) ;
+               
             }
-
-            //var_dump(time() < strtotime($ar['priority_from']) || (time() > strtotime($ar['priority_to'])));
         }
         usort($ars,function ($a,$b) {
             if($a['priority'] > $b['priority']){
@@ -97,7 +95,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 return strcmp($b['newsdate'],$a['newsdate']);
             }
         });
-        //var_dump($ars);
+       
         return (array) $ars;
     }
 
@@ -226,15 +224,20 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @return type
      */
     public function _generate_token($id,$page_id="") {
-        global $ID;
-        $hash_no = (int) $this->getConf('hash_no');
+        
+        /*$hash_no = (int) $this->getConf('hash_no');
         $l = (int) $this->getConf('no_pref');
         $pre = helper_plugin_fkshelper::_generate_rand($l);
         $pos = helper_plugin_fkshelper::_generate_rand($l);
         $hex = dechex($hash_no + 2 * $id);
-        $hash = $pre.$hex.$pos;
+        $hash = $pre.$hex.$pos;*/
+        return $this->GetToken($id,$page_id);
+        //return (string) wl($page_id,null,true).'?do=fksnewsfeed_token&token='.$hash;
+    }
+    public function GetToken($id,$page_id=""){
+         
         
-        return (string) wl($page_id,null,true).'?do=fksnewsfeed_token&dokuwiki_simpleforward=0&token='.$hash;
+        return (string) wl($page_id,null,true).'?fksnews_id='.$id;
     }
 
     /**

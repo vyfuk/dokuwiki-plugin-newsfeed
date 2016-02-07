@@ -17,9 +17,11 @@ require_once(DOKU_PLUGIN.'syntax.php');
 class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
     private $helper;
+    private $social;
 
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->social = $this->loadHelper('social');
     }
 
     public function getType() {
@@ -49,7 +51,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         $text = str_replace(array("\n",'{{fksnewsfeed>','}}'),array('','',''),$match);
         /** @var id and even this NF $param */
         $param = $this->helper->FKS_helper->ExtractParamtext($text);
-     
+
         return array($state,array($param));
     }
 
@@ -90,17 +92,17 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             foreach ($this->helper->Fields as $k) {
                 $tpl = str_replace('@'.$k.'@',$c[$k],$tpl);
             }
-            $page_id= $param['pageID'];
-           
+            $page_id = $param['pageID'];
+
             $tpl = str_replace('@edit@',$this->CreateEditField($param,$c,$page_id),$tpl);
 
 
-            $renderer->doc.= '<div class="'.$div_class.'" data-id="'.$param["id"].'">'.$tpl.'</div>';
+            $renderer->doc.= '<div class="'.$div_class.'" id="news'.$param["id"].'" data-id="'.$param["id"].'">'.$tpl.'</div>';
         }
         return false;
     }
 
-    private function CreateShareFields($id,$stream,$c,$page_id="") {
+    private function CreateShareFields($id,$stream,$c,$page_id = "") {
         $r = "";
         $ar = "";
 
@@ -121,8 +123,13 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
 
 
-            $ar.='<div class="FB">';
-            $ar.='<div class="share_btn fb-share-button fb-share-button"  data-layout="button" data-href="'.$link.'"></div>';
+            $ar.='<div class="FB-msg">';
+            $ar.= $this->social->facebook->CreateSend($link);
+           
+            $ar.='</div>'."\n";
+            $ar.='<div class="FB-share">';
+            $ar.=$this->social->facebook->CreateShare($link);
+            
             $ar.='</div>'."\n";
 
 
@@ -142,7 +149,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             if($k == 'image'){
                 if($data['image'] != ""){
                     $div_class.=' w_image';
-                    $c['image'] = '<div class="image"><div class="image_content"><img src="'.ml($data['image'],array('w'=>300)).'" alt="newsfeed"></div></div>';
+                    $c['image'] = '<div class="image"><div class="image_content"><img src="'.ml($data['image'],array('w' => 300)).'" alt="newsfeed"></div></div>';
                 }else{
                     $c['image'] = '';
                 }
@@ -168,7 +175,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         return array($c,$div_class);
     }
 
-    private function CreateEditField($param,$c,$page_id="") {
+    private function CreateEditField($param,$c,$page_id = "") {
 
 
         if($param['edited'] === 'true'){

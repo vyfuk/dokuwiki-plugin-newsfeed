@@ -30,9 +30,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public static function init(){
-          
-    }
+    
     public function __construct() {
         
         $this->helper = $this->loadHelper('fksnewsfeed');

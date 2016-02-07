@@ -25,6 +25,8 @@ $conf['perm_add'] = 2;
 $conf['perm_manage'] = 2;
 $conf['perm_rss'] = 2;
 
+$conf['default_image'] = "";
+
 
 
 $conf['tpl'] = 'system:html:newsfeed_template';
