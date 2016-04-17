@@ -29,10 +29,9 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-     public function __construct() {
+    public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
         $this->modFields = $this->helper->Fields;
-       
     }
 
     /**
@@ -82,41 +81,43 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
 
     public function SaveNews() {
         global $INPUT;
+
+
+        if($INPUT->str("target") != "plugin_fksnewsfeed"){
+            return;
+        }
         global $ACT;
+        global $TEXT;
+        global $ID;
+        if(isset($_POST['do']['save'])){
+            $f = $this->helper->getCacheFile($INPUT->str('news_id'));
+            $cache = new cache($f,'');
+            $cache->removeCache();
 
-        if($INPUT->str("target") == "plugin_fksnewsfeed"){
-            global $TEXT;
-            global $ID;
-            if(isset($_POST['do']['save'])){
-                $f = $this->helper->getCacheFile($INPUT->str('news_id'));
-                $cache = new cache($f,'');
-                $cache->removeCache();
-
-                $data = array();
-                foreach ($this->modFields as $field) {
-                    if($field == 'text'){
-                        $data[$field] = cleanText($INPUT->str('wikitext'));
-                        unset($_POST['wikitext']);
-                    }else{
-                        $data[$field] = $INPUT->param($field);
-                    }
-                }
-                if($INPUT->str('news_do') == 'create'){
-                    $id = $this->helper->SaveNews($data,$INPUT->str('news_id'),FALSE);
-                    $stream_id = $this->helper->StreamToID($INPUT->str('news_stream'));
-                    $arrs = array($stream_id);
-                    $this->helper->FullParentDependence($stream_id,$arrs);
-                    foreach ($arrs as $arr) {
-                        $this->helper->SaveIntoStream($arr,$id);
-                    }
+            $data = array();
+            foreach ($this->modFields as $field) {
+                if($field == 'text'){
+                    $data[$field] = cleanText($INPUT->str('wikitext'));
+                    unset($_POST['wikitext']);
                 }else{
-                    $this->helper->SaveNews($data,$INPUT->str('news_id'),true);
+                    $data[$field] = $INPUT->param($field);
                 }
-                unset($TEXT);
-                unset($_POST['wikitext']);
-                $ACT = 'show';
-                $ID = 'start';
             }
+            if($INPUT->str('news_do') == 'create'){
+                $id = $this->helper->SaveNews($data,$INPUT->str('news_id'),FALSE);
+                $stream_id = $this->helper->StreamToID($INPUT->str('news_stream'));
+                $arrs = array($stream_id);
+                $this->helper->FullParentDependence($stream_id,$arrs);
+                foreach ($arrs as $arr) {
+                    $this->helper->SaveIntoStream($arr,$id);
+                }
+            }else{
+                $this->helper->SaveNews($data,$INPUT->str('news_id'),true);
+            }
+            unset($TEXT);
+            unset($_POST['wikitext']);
+            $ACT = 'show';
+            $ID = $INPUT->str('page_id');
         }
     }
 

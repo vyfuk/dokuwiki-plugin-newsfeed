@@ -181,6 +181,11 @@ beginfig(15)
 time(iniBack);
 endfig;
 
+beginfig(16)
+fill (1u,1u)..(2u,4u)..(6u,6u)--(6u,8u)--(9u,5u)--(6u,2u)--(6u,4u)..(3u,3u)..(1u,1u)--cycle withcolor white;
+
+endfig;
+
 
 
 

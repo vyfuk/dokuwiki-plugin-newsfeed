@@ -22,7 +22,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     public $FKS_helper;
     public $simple_tpl;
     public $sqlite;
- 
+    public $social;
 
     const simple_tpl = '{{fksnewsfeed>id="@id@"; even="@even@"; edited="@edited@";stream="@stream@";pageID="@page_id@"}}';
     const db_table_feed = "fks_newsfeed_news";
@@ -32,9 +32,10 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     const db_view_dependence = "v_dependence";
 
     public function __construct() {
+        $this->social = $this->loadHelper('social');
         $this->simple_tpl = self::simple_tpl;
         $this->FKS_helper = $this->loadHelper('fkshelper');
-        
+
 
         $this->sqlite = $this->loadHelper('sqlite',false);
         $pluginName = $this->getPluginName();
@@ -57,7 +58,8 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $sql1 = 'select stream_id from '.self::db_table_stream.' where name=?';
         $res1 = $this->sqlite->query($sql1,$stream);
         $stream_id = $this->sqlite->res2single($res1);
-       
+        
+
         return (int) $stream_id;
     }
 
@@ -83,7 +85,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
             if((time() < strtotime($ar['priority_from'])) || (time() > strtotime($ar['priority_to']))){
                 $ars[$key]['priority'] = 0;
             }else{
-               
+                
             }
         }
         usort($ars,function ($a,$b) {
@@ -95,7 +97,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
                 return strcmp($b['newsdate'],$a['newsdate']);
             }
         });
-       
+
         return (array) $ars;
     }
 
@@ -223,20 +225,21 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      * @param type $id
      * @return type
      */
-    public function _generate_token($id,$page_id="") {
-        
-        /*$hash_no = (int) $this->getConf('hash_no');
-        $l = (int) $this->getConf('no_pref');
-        $pre = helper_plugin_fkshelper::_generate_rand($l);
-        $pos = helper_plugin_fkshelper::_generate_rand($l);
-        $hex = dechex($hash_no + 2 * $id);
-        $hash = $pre.$hex.$pos;*/
+    public function _generate_token($id,$page_id = "") {
+
+        /* $hash_no = (int) $this->getConf('hash_no');
+          $l = (int) $this->getConf('no_pref');
+          $pre = helper_plugin_fkshelper::_generate_rand($l);
+          $pos = helper_plugin_fkshelper::_generate_rand($l);
+          $hex = dechex($hash_no + 2 * $id);
+          $hash = $pre.$hex.$pos; */
         return $this->GetToken($id,$page_id);
         //return (string) wl($page_id,null,true).'?do=fksnewsfeed_token&token='.$hash;
     }
-    public function GetToken($id,$page_id=""){
-         
-        
+
+    public function GetToken($id,$page_id = "") {
+
+
         return (string) wl($page_id,null,true).'?fksnews_id='.$id;
     }
 
@@ -364,12 +367,13 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         };
         return (int) 1;
     }
-/**
- * 
- * @param type $weigth
- * @param type $order_id
- * @return type
- */
+
+    /**
+     * 
+     * @param type $weigth
+     * @param type $order_id
+     * @return type
+     */
     public function update_stream($weigth,$order_id) {
         return $this->UpdateWeight($weigth,$order_id);
     }
@@ -395,7 +399,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $sql1 = 'SELECT name FROM '.self::db_table_stream.' where stream_id=?';
         $res1 = $this->sqlite->query($sql1,$id);
         $stream_name = $this->sqlite->res2single($res1);
-       
+
         return (string) $stream_name;
     }
 

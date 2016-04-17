@@ -62,6 +62,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
     public function form_to_news(Doku_Event &$event) {
         global $TEXT;
+        global $ID;
         global $INPUT;
         if($INPUT->str('target') !== 'plugin_fksnewsfeed'){
             return;
@@ -83,6 +84,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         }
 
         $form->startFieldset('Newsfeed');
+        $form->addHidden('page_id',$ID);
         $form->addHidden('target','plugin_fksnewsfeed');
         $form->addHidden('news_id',$INPUT->str("news_id"));
         $form->addHidden('news_do',$INPUT->str('news_do'));

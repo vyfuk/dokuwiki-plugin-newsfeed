@@ -21,7 +21,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
-        $this->social = $this->loadHelper('social');
+        $this->social = $this->helper->social;
     }
 
     public function getType() {
@@ -257,6 +257,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $form = new Doku_Form(array('class' => 'info'));
             $form->addHidden("do","edit");
             $form->addHidden('news_id',$id);
+            $form->addHidden('news_do','edit');
             $form->addHidden("target","plugin_fksnewsfeed");
             $form->addElement(form_makeButton('submit','',$this->getLang('btn_edit_news')));
             html_form('',$form);
@@ -284,10 +285,6 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             html_form('cachenews',$form3);
             $ar.= ob_get_contents();
             ob_clean();
-
-
-
-
             $ar.='</div>';
         }
 
