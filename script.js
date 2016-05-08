@@ -39,8 +39,8 @@ jQuery(function () {
                 },
         function (data) {
             $stream.html(data["r"]);
-            FB.XFBML.parse();
-            twttr.widgets.load();
+            
+          //  twttr.widgets.load();
         },
                 'json');
     });
@@ -70,7 +70,7 @@ jQuery(function () {
             if (data['more']) {
                 $FKS_newsfeed.find(FKS_newsfeed.div_more_news).remove();
             }
-            twttr.widgets.load();
+         //  twttr.widgets.load();
             FB.XFBML.parse();
 
         }

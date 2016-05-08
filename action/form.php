@@ -101,9 +101,13 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
             }elseif($field == 'category'){
                 $value = $INPUT->post->str($field,$data[$field]);
                 $form->addElement(form_makeListboxField($field,array('default','DSEF','TSAF','important'),$value,$this->getLang($field)));
-            }else{
+            }elseif($field == 'image'){
                 $value = $INPUT->post->str($field,$data[$field]);
-                $form->addElement(form_makeTextField($field,$value,$this->getLang($field),$field,null,array('list' => 'news_list_'.$field)));
+                $form->addElement(form_makeTextField($field,$value,$this->getLang($field),$field,null,array()));
+            }else{
+                 $value = $INPUT->post->str($field,$data[$field]);
+                $form->addElement(form_makeTextField($field,$value,$this->getLang($field),$field,null,array('pattern'=>'\S.*','required'=>'required','list' => 'news_list_'.$field)));
+          
             }
         }
         foreach ($this->cartesField as $field) {

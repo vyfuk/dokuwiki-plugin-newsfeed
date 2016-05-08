@@ -97,7 +97,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $tpl = str_replace('@edit@',$this->CreateEditField($param,$c,$page_id),$tpl);
 
 
-            $renderer->doc.= '<div class="'.$div_class.'" id="news'.$param["id"].'" data-id="'.$param["id"].'">'.$tpl.'</div>';
+            $renderer->doc.= '<div class="'.$div_class.'"  data-id="'.$param["id"].'">'.$tpl.'</div>';
         }
         return false;
     }
@@ -124,12 +124,15 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
 
             $ar.='<div class="FB-msg">';
-            $ar.= $this->social->facebook->CreateSend($link);
-           
+            $ar.= $this->social->facebook->CreateSend($link);           
             $ar.='</div>'."\n";
-            $ar.='<div class="FB-share">';
-            $ar.=$this->social->facebook->CreateShare($link);
             
+            $ar.='<div class="FB-share">';
+            $ar.=$this->social->facebook->CreateShare($link);            
+            $ar.='</div>'."\n";
+            
+            $ar.='<div class="whatsapp-share">';
+            $ar.=$this->social->whatsapp->CreateSend($link);            
             $ar.='</div>'."\n";
 
 
@@ -188,7 +191,9 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         }else{
             return '';
         }
+        
     }
+    
 
     private function getPriorityField($id,$stream) {
         $r = '';
@@ -236,6 +241,9 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
 
         return array($r,$ar);
     }
+    
+    
+    
 
     private function BtnEditNews($id,$stream) {
         $r = '';
