@@ -3,137 +3,96 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author Michal Červeňák <miso@fykos.cz>
  */
-/* global LANG, DOKU_BASE, FB */
+/* global LANG, DOKU_BASE, FB, JSINFO,*/
+"use strict";
+
+
 jQuery(function () {
     var $ = jQuery;
-    var FKS_newsfeed = {
-        div_more_news: 'div.more_news',
-        div_feed: 'div.even,div.odd',
-        div_stream: 'div.stream'
-    };
-    var $FKS_newsfeed = $('div.FKS_newsfeed');
-    $('span[contenteditable="true"]').live("click", function () {
-        document.execCommand('selectAll', false, null);
-    });
-  
+    var $streamContainers = $('.stream-container');
+
 
     try {
         _Tweet_newsfeed();
     } catch (e) {
     }
+    $streamContainers.each(function () {
+        var start = 0;
 
-    $FKS_newsfeed.find(FKS_newsfeed.div_stream).each(function () {
-        var $stream = $(this);
-        $(this).append(AddLoadBar());
-        $.post(DOKU_BASE + 'lib/exe/ajax.php',
-                {
-                    call: 'plugin_fksnewsfeed',
-                    target: 'feed',
-                    name: 'local',
-                    news_do: 'stream',
-                    news_stream: $(this).data("stream"),
-                    news_feed_s: 0,
-                    news_feed_l: $(this).data("feed"),
-                    page_id: JSINFO.id
 
-                },
-        function (data) {
-            $stream.html(data["r"]);
-            
-          //  twttr.widgets.load();
-        },
-                'json');
-    });
-   
+        var $streamContainer = $(this);
+        const stream = $streamContainer.data('stream');
+        var $feedContainer = $(this).find('.feed-container');
+        $feedContainer.addLoad = function () {
+            $(this).append('<div class="load-gif">' +
+                '<img src="' + DOKU_BASE + 'lib/plugins/fksnewsfeed/images/load.gif" alt="load" />' +
+                '</div>');
+        };
+        $feedContainer.removeLoad = function () {
+            $(this).find('.load-gif').remove();
+        };
 
-    $FKS_newsfeed.find(FKS_newsfeed.div_more_news).find('button.button').live("click", function () {
 
-        var $div_more_news = $(this).parent(FKS_newsfeed.div_more_news);
-        var $streamdiv = $(this).parents(FKS_newsfeed.div_stream);
-        $div_more_news.html("");
-        $div_more_news.append(AddLoadBar());
-        $.post(DOKU_BASE + 'lib/exe/ajax.php',
+        const loadNews = function () {
+            $feedContainer.addLoad();
+            $.post(DOKU_BASE + 'lib/exe/ajax.php',
                 {
                     call: 'plugin_fksnewsfeed',
                     target: 'feed',
                     name: 'local',
                     news_do: 'more',
-                    news_stream: $div_more_news.data("stream"),
-                    news_view: $div_more_news.data("view"),
-                    news_feed_s: $div_more_news.data("view"),
+                    news_stream: stream,
+
+                    news_feed_s: start,
                     news_feed_l: 3,
                     page_id: JSINFO.id
                 },
-        function (data) {
-            $div_more_news.html("");
-            $streamdiv.append(data["r"]);
-            if (data['more']) {
-                $FKS_newsfeed.find(FKS_newsfeed.div_more_news).remove();
-            }
-         //  twttr.widgets.load();
-            FB.XFBML.parse();
+                function (data) {
+                    $feedContainer.removeLoad();
+                    start += 3;
+                    $feedContainer.find('.load').remove();
+                    if (data.html.err) {
+                        console.error(data.err);
+                    }
+                    data.html.feeds.forEach(function (d) {
 
-        }
-        , 'json');
-    });
+                        $feedContainer.append(d);
 
-    $('form#FKS_stream_choose').find('select').live("change", function () {
-        console.log(this);
-        // $(this).parents('form').submit();
-    });
+                    });
+                    if (window.FB) {
+                        FB.XFBML.parse($feedContainer[0]);
+                    }
+                    if (data.html.msg) {
+
+                        $feedContainer.append(data.html.msg);
+                    } else {
+                        var $moreNews = $(data.html.btn).click(function () {
+                            $(this).remove();
+                            loadNews();
+                        });
+                        $feedContainer.append($moreNews);
+                    }
 
 
-    $FKS_newsfeed.find('.btns button').live("click", function () {
-        var fcls = $(this).attr('class');
-        var cls = '';
-        if (fcls.match(/.*opt.*/)) {
-            cls = 'opt';
-        } else if (fcls.match(/.*priority.*/)) {
-            cls = 'priority';
-        } else if (fcls.match(/.*share.*/)) {
-            cls = 'share';
-        } else {
-            return;
-        }
-        var a = false;
-        if (fcls.match(/.*active.*/)) {
-            a = true;
-        }
-        $(this).parents('.btns').find('button').each(function () {
-            $(this).removeClass('active');
-        });
-        $(this).parents('.edit').find('.fields .field').slideUp();
-        if (!a) {
+                }
+                , 'json');
+        };
+
+        loadNews();
+
+        $(document).on("click", '.edit-headline', function () {
             $(this).toggleClass('active');
-            $(this).parents('.edit').find('.' + cls).slideToggle();
-        }
+            $(this).siblings('.edit-body').slideToggle();
+        });
+
+
     });
 
-    /*
-     * @TODO 
-     */
-
-    function AddLoadBar() {
-        return '<div class="load" style="text-align:center;clear:both">' +
-                '<img src="' + DOKU_BASE + 'lib/plugins/fksnewsfeed/images/load.gif" alt="load">' +
-                '</div>';
-    }
-    /**
-     * button to delete newsfeed on manage
-     */
-    $FKS_newsfeed.find('#warning').live("click", function (event) {
-
-        if (confirm(LANG.plugins.fksnewsfeed.oRlyDelete)) {
-            return true;
-        } else {
-
-            return false;
-
-        }
+    $('span[contenteditable="true"]').on("click", function () {
+        document.execCommand('selectAll', false, null);
     });
-    return true;
+
 });
-
 
 
 function _Tweet_newsfeed() {
@@ -148,4 +107,7 @@ function _Tweet_newsfeed() {
     }(document, 'script', 'twitter-wjs');
 
 }
+
 window.twttr = (_Tweet_newsfeed());
+
+

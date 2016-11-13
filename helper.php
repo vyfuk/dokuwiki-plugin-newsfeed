@@ -238,8 +238,6 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     }
 
     public function GetToken($id,$page_id = "") {
-
-
         return (string) wl($page_id,null,true).'?fksnews_id='.$id;
     }
 
