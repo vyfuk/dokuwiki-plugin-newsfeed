@@ -1,21 +1,11 @@
 <?php
 
-/**
- * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Michal Červeňák <miso@fykos.cz>
- */
-// must be run within Dokuwiki
-
-if (!defined('DOKU_INC')) {
-    die();
-}
-if (!defined('DOKU_PLUGIN')) {
-    define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
-}
-require_once(DOKU_PLUGIN . 'syntax.php');
+use dokuwiki\Form;
 
 class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
-
+    /**
+     * @var helper_plugin_fksnewsfeed
+     */
     private $helper;
     private $social;
 
@@ -33,7 +23,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
     }
 
     public function getAllowedTypes() {
-        return array('formatting', 'substition', 'disabled');
+        return [];
     }
 
     public function getSort() {
@@ -44,31 +34,23 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
         $this->Lexer->addSpecialPattern('\{\{fksnewsfeed\>.+?\}\}', $mode, 'plugin_fksnewsfeed_fksnewsfeed');
     }
 
-    /**
-     * Handle the match
-     */
     public function handle($match, $state) {
-        $text = str_replace(array("\n", '{{fksnewsfeed>', '}}'), array('', '', ''), $match);
-        /** @var id and even this NF $param */
-        $param = $this->helper->FKS_helper->ExtractParamtext($text);
-
-        return array($state, array($param));
+        $text = str_replace(["\n", '{{fksnewsfeed>', '}}'], ['', '', ''], $match);
+        $param = $this->helper->FKS_helper->extractParamtext($text);
+        return [$state, [$param]];
     }
 
     public function render($mode, Doku_Renderer &$renderer, $data) {
         // $data is what the function handle return'ed.
         if ($mode == 'xhtml') {
-            /** @var Do ku_Renderer_xhtml $renderer */
+            /** @var Doku_Renderer_xhtml $renderer */
             list(, list($param)) = $data;
-
-
-            $data = $this->helper->LoadSimpleNews($param["id"]);
+            $data = $this->helper->loadSimpleNews($param['id']);
             if (empty($data) || ($param['id'] == 0)) {
-                $renderer->doc .= '<div class="error">' . $this->getLang('news_non_exist') . '</div>';
-                return;
+                $renderer->doc .= '<div class="FKS_newsfeed"><div class="error">' . $this->getLang('news_non_exist') . '</div></div>';
+                return true;
             }
-            $tpl = $this->CreateTpl();
-            require_once DOKU_INC . 'inc/JSON.php';
+            $template = $this->getTemplate();
 
             if (!isset($param['even'])) {
                 $param['even'] = 'even';
@@ -80,7 +62,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             if ($cache->useCache()) {
                 list($c, $div_class_ap) = $json->decode($cache->retrieveCache());
             } else {
-                $r = $this->CreateNews($data, $div_class);
+                $r = $this->createNews($data);
                 $cache->storeCache($json->encode($r));
                 list($c, $div_class_ap) = $r;
             }
@@ -88,204 +70,206 @@ class syntax_plugin_fksnewsfeed_fksnewsfeed extends DokuWiki_Syntax_Plugin {
             $c = (array)$c;
 
             foreach ($this->helper->Fields as $k) {
-                $tpl = str_replace('@' . $k . '@', $c[$k], $tpl);
+                $template = str_replace('@' . $k . '@', $c[$k], $template);
             }
-            $page_id = $param['pageID'];
-
-            $tpl = str_replace('@edit@', $this->CreateEditField($param, $c, $page_id), $tpl);
-
-
-            $renderer->doc .= '<div class="' . $div_class . '"  data-id="' . $param["id"] . '">' . $tpl . '</div>';
+            $pageID = $param['pageID'];
+            $template = str_replace('@share@', $this->createShareFields($param['id'], $c, $pageID), $template);
+            $template = str_replace('@edit@', $this->createEditField($param), $template);
+            $renderer->doc .= '<div class="' . $div_class . '"  data-id="' . $param['id'] . '">' . $template . '</div>';
         }
         return false;
     }
 
-    private function CreateShareFields($id, $stream, $c, $page_id = "") {
-        $html = "";
-
-
-        $link = $this->helper->_generate_token((int)$id, $page_id);
-
+    private function createShareFields($id, $c, $page_id = "") {
+        $html = '';
+        $link = $this->helper->getToken((int)$id, $page_id);
         if (auth_quickaclcheck('start') >= AUTH_READ) {
-            // $html.= '<button class="button share_btn">';
-            //   $html.= '<span class="btn-small share-icon icon"></span>';
-            //   $html.= '<span class="btn-big">'.$this->getLang('btn_share').'</span>';
-            //   $html.= '</button>';
-
-            $html .= '<div class="feed-social-container">';
-
+            $html .= '<div ' . 'class="share field">' . "\n";
             $html .= '<div class="Twitt">';
             $html .= '<a href="https://twitter.com/share" data-count="none" data-text="' . $c['name'] . '" class="twitter-share-button" data-url="' . $link . '" data-via="fykosak" data-hashtags="FYKOS">Tweet</a>';
-            $html .= '</div>';
-
+            $html .= '</div>' . "\n";
 
             $html .= '<div class="FB-msg">';
-            $html .= $this->social->facebook->CreateSend($link);
-            $html .= '</div>';
+            $html .= $this->social->facebook->createSend($link);
+            $html .= '</div>' . "\n";
 
             $html .= '<div class="FB-share">';
-            $html .= $this->social->facebook->CreateShare($link);
-            $html .= '</div>';
+            $html .= $this->social->facebook->createShare($link);
+            $html .= '</div>' . "\n";
 
             $html .= '<div class="whatsapp-share">';
-            $html .= $this->social->whatsapp->CreateSend($link);
-            $html .= '</div>';
+            $html .= $this->social->whatsapp->createSend($link);
+            $html .= '</div>' . "\n";
 
+            $html .= '
+<div class="link">
+    <span class="link-icon icon"></span>
+    <span contenteditable="true" class="link_inp" >' . $link . '</span>
+</div>' . "\n";
 
-            $html .= '<div class="link">';
-            $html .= '<span class="link-icon icon"></span>';
-            $html .= '<span contenteditable="true" class="link_inp" >' . $link . '</span>';
-            $html .= '</div>';
-
-            $html .= '</div>';
+            $html .= '</div>' . "\n";
         }
-        return array($html);
-    }
-
-    private function CreateNews($data) {
-        $div_class = "";
-        foreach ($this->helper->Fields as $k) {
-            if ($k == 'image') {
-                if ($data['image'] != "") {
-                    $div_class .= ' w_image';
-                    $c['image'] = '<div class="image"><div class="image_content"><img src="' . ml($data['image'], array('w' => 300)) . '" alt="newsfeed"></div></div>';
-                } else {
-                    $c['image'] = '';
-                }
-                continue;
-            }
-            if ($k == 'text') {
-                $info = array();
-                $c['text'] = p_render('xhtml', p_get_instructions($data['text']), $info);
-
-                continue;
-            }
-            $c[$k] = htmlspecialchars($data[$k]);
-            if ($k == 'category') {
-                if ($data['category'] == "") {
-                    $c['category'] = 'default';
-                }
-                $div_class .= ' ' . $c['category'];
-            }
-            if ($k == 'newsdate') {
-                $c['newsdate'] = $this->newsdate($data['newsdate']);
-            }
-        }
-        return array($c, $div_class);
-    }
-
-    private function CreateEditField($param, $c, $page_id = "") {
-
-        $html = "";
-
-
-        list($r3, $ar3) = $this->CreateShareFields($param["id"], $param['stream'], $c, $page_id);
-        $html .= $r3;
-        if (auth_quickaclcheck('start') >= AUTH_EDIT) {
-            $headline = "";
-            $headline .= '<div class="edit-headline">';
-         //   $headline .= '<span class="opt-icon icon"></span>';
-            $headline .= '<span >' . $this->getLang('btn_opt') . '</span>';
-            $headline .= '</div>';
-            $ar1 = $this->BtnEditNews($param["id"], $param['stream'], $c);
-
-
-            //$html .= '<div class="feed-priority-container">' . $r2 . $ar2 . '</div>';
-            $html .= '<div class="feed-edit-container">' . $headline . $ar1 . '</div>';
-        }
-
         return $html;
+    }
 
+    private function createNews($data) {
+        $div_class = '';
+        $c = [];
+        foreach ($this->helper->Fields as $k) {
+            switch ($k) {
+                case 'image':
+                    if ($data['image']) {
+                        $div_class .= ' w_image';
+                        $c['image'] = '<div class="image"><div class="image_content"><img src="' . ml($data['image'], ['w' => 300]) . '" alt="newsfeed"></div></div>';
+                    } else {
+                        $c['image'] = '';
+                    }
+                    break;
+                case'text':
+                    $info = [];
+                    $c['text'] = p_render('xhtml', p_get_instructions($data['text']), $info);
+                    break;
+                case'category':
+                    if (!$data['category']) {
+                        $c['category'] = 'default';
+                    }
+                    $div_class .= ' ' . $c['category'];
+                    break;
+                case'newsdate':
+                    $c['newsdate'] = $this->newsdate($data['newsdate']);
+                    break;
+                default:
+                    $c[$k] = htmlspecialchars($data[$k]);
+            }
+        }
+        return [$c, $div_class];
+    }
+
+    /**
+     * @param array $param
+     * @return string
+     */
+    private function createEditField($param) {
+        if ($param['editable'] === 'true') {
+            $html = '<div class="edit" data-id="' . $param["id"] . '">';
+            $html .= '<button class="more_option_toggle">' . $this->getLang('btn_opt') . '</button>';
+            $html .= '<div class="fields" data-id="' . $param["id"] . '">';
+            $html .= $this->getPriorityField($param["id"], $param['stream']);
+            $html .= $this->btnEditNews($param["id"], $param['stream']);
+            $html .= '</div></div>';
+            return $html;
+        } else {
+            return '';
+        }
     }
 
 
     private function getPriorityField($id, $stream) {
-        $content = '';
+        $html = '';
+        if (auth_quickaclcheck('start') >= AUTH_EDIT) {
 
-        $content .= '<div class="priority-body">';
-        $form = new \dokuwiki\Form\Form();
-        $form->setHiddenField('do', 'show');
-        $form->setHiddenField('news_id', $id);
-        $form->setHiddenField('news_stream', $stream);
-        $form->setHiddenField('news_do', 'priority');
-        $form->setHiddenField("target", "plugin_fksnewsfeed");
+            $html .= '<div class="priority field">';
 
-        $stream_id = $this->helper->StreamToID($stream);
-        list($p) = $this->helper->FindPriority($id, $stream_id);
+            $form = new Form\Form();
+            $form->addClass('block');
 
-        $form->addFieldsetOpen($this->getLang('btn_priority_edit'));
-        $form->addTextInput('priority', $this->getLang('priority_value'))->attr('pattern', '[0-9]+')->val($p['priority']);
-        $priorityForm = new \dokuwiki\Form\InputElement('datetime-local', 'priority_form', $this->getLang('valid_from'));
-        $priorityForm->val($p['priority_from']);
-        $priorityTo = new \dokuwiki\Form\InputElement('datetime-local', 'priority_to', $this->getLang('valid_to'));
-        $priorityTo->val($p['priority_to']);
-        $form->addElement($priorityForm);
-        $form->addElement($priorityTo);
-        $form->addButton('submit', $this->getLang('save'));
-        $form->addFieldsetClose();
-        $content .= $form->toHTML();
+            $form->setHiddenField('do', 'show');
+            $form->setHiddenField('news_id', $id);
+            $form->setHiddenField('news_stream', $stream);
+            $form->setHiddenField('news_do', 'priority');
+            $form->setHiddenField('target', 'plugin_fksnewsfeed');
 
-        $content .= '</div>';
+            $streamID = $this->helper->streamToID($stream);
+            list($priority) = $this->helper->findPriority($id, $streamID);
 
+            $priorityValue = new Form\InputElement('number', 'priority', $this->getLang('valid_from'));
+            $priorityValue->val($priority['priority']);
+            $form->addElement($priorityValue);
 
-        return $content;
+            $priorityFromElement = new Form\InputElement('datetime-local', 'priority_form', $this->getLang('valid_from'));
+            $priorityFromElement->val($priority['priority_from']);
+            $form->addElement($priorityFromElement);
+
+            $priorityToElement = new Form\InputElement('datetime-local', 'priority_to', $this->getLang('valid_to'));
+            $priorityToElement->val($priority['priority_to']);
+            $form->addElement($priorityToElement);
+
+            $form->addButton('submit', $this->getLang('btn_save_priority'));
+            $html .= $form->toHTML();
+            $html .= ' </div > ';
+        }
+
+        return $html;
     }
 
 
-    private function BtnEditNews($id, $stream) {
-        $ar = '';
-        $ar .= '<div class="edit-body">';
-        $ar .= $this->getPriorityField($id, $stream);
+    private function btnEditNews($id, $stream) {
+        $html = '';
+        if (auth_quickaclcheck('start') >= AUTH_EDIT) {
+            $html .= '<div class="opt field" > ';
 
+            $editForm = new Form\Form();
+            $editForm->setHiddenField('do', 'edit');
+            $editForm->setHiddenField('news_id', $id);
+            $editForm->setHiddenField('news_do', 'edit');
+            $editForm->setHiddenField('target', 'plugin_fksnewsfeed');
+            $editForm->addButton('submit', $this->getLang('btn_edit_news'));
+            $html .= $editForm->toHTML();
 
-        ob_start();
-        $form = new Doku_Form(array('class' => 'info'));
-        $form->addHidden("do", "edit");
-        $form->addHidden('news_id', $id);
-        $form->addHidden('news_do', 'edit');
-        $form->addHidden("target", "plugin_fksnewsfeed");
-        $form->addElement(form_makeButton('submit', '', $this->getLang('btn_edit_news')));
+            $deleteForm = new Form\Form();
+            $deleteForm->setHiddenField('news_do', 'delete_save');
+            $deleteForm->setHiddenField('target', 'plugin_fksnewsfeed');
+            $deleteForm->setHiddenField('stream', $stream);
+            $deleteForm->setHiddenField('news_id', $id);
+            $deleteForm->addButton('submit', $this->getLang('delete_news'))->attr('data-warning', true);
+            $html .= $deleteForm->toHTML();
 
-        html_form('', $form);
-        $ar .= ob_get_contents();
-        ob_clean();
+            $purgeForm = new Form\Form();
+            $purgeForm->setHiddenField('fksnewsfeed_purge', 'true');
+            $purgeForm->setHiddenField('news_id', $id);
+            $purgeForm->addButton('submit', $this->getLang('cache_del'));
+            $html .= $purgeForm->toHTML();
 
-
-        ob_start();
-        $form2 = new Doku_Form(array('class' => 'danger'));
-        $form2->addHidden('news_do', 'delete_save');
-        $form2->addHidden('target', 'plugin_fksnewsfeed');
-        $form2->addHidden('stream', $stream);
-        $form2->addHidden('news_id', $id);
-        $form2->addElement(form_makeButton('submit', null, $this->getLang('delete_news'), array('id' => 'warning')));
-        html_form('editnews', $form2);
-        $ar .= ob_get_contents();
-        ob_clean();
-
-
-        ob_start();
-        $form3 = new Doku_Form(array('class' => 'warning'));
-        $form3->addHidden('fksnewsfeed_purge', 'true');
-        $form3->addHidden('news_id', $id);
-        $form3->addElement(form_makeButton('submit', null, $this->getLang('cache_del')));
-        html_form('cachenews', $form3);
-        $ar .= ob_get_contents();
-        ob_clean();
-        $ar .= '</div>';
-
-
-        return $ar;
+            $html .= ' </div > ';
+        }
+        return $html;
     }
 
     private function newsdate($date) {
 
         $date = date('j\. F Y', strtotime($date));
-        $enmonth = array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
-        $langmonth = array($this->getLang('jan'), $this->getLang('feb'), $this->getLang('mar'), $this->getLang('apr'), $this->getLang('may'), $this->getLang('jun'), $this->getLang('jul'), $this->getLang('aug'), $this->getLang('sep'), $this->getLang('oct'), $this->getLang('now'), $this->getLang('dec'));
-        return (string)str_replace($enmonth, $langmonth, $date);
+        $enMonth = [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December'
+        ];
+        $langMonth = [
+            $this->getLang('jan'),
+            $this->getLang('feb'),
+            $this->getLang('mar'),
+            $this->getLang('apr'),
+            $this->getLang('may'),
+            $this->getLang('jun'),
+            $this->getLang('jul'),
+            $this->getLang('aug'),
+            $this->getLang('sep'),
+            $this->getLang('oct'),
+            $this->getLang('now'),
+            $this->getLang('dec')
+        ];
+        return (string)str_replace($enMonth, $langMonth, $date);
     }
 
-    private function CreateTpl() {
+    private function getTemplate() {
         $tpl_path = wikiFN($this->getConf('tpl'));
         if (!file_exists($tpl_path)) {
             $def_tpl = DOKU_PLUGIN . plugin_directory('fksnewsfeed') . '/tpl.html';

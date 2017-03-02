@@ -4,8 +4,8 @@
 * 
 */
 @rss_color: #ff8811;
-@FKS_newsfeed_padding: .5em;
-@FKS_newsfeed_duration: .2s;
+@FKS_newsFeed_padding: .5em;
+@FKS_newsFeed_duration: .2s;
 
 @danger_color: #da1111;
 @warning_color: #da7511;
@@ -14,48 +14,45 @@
 
 @import "custom_feed.less";
 
-.buttonsFCE(@c) when (iscolor(@c)) {
-  &:hover, &.active, &:active, &:focus {
-    background-color: darken(@c, 10%);
-    background-image: linear-gradient(to bottom, darken(@c, 10%), darken(@c, 20%));
-    color: white;
+.FKS_newsfeed {
+  .share.field {
+    * {
+
+      display: inline-block;
+    }
   }
-  background-color: @c;
-  background-image: linear-gradient(to bottom, @c, darken(@c, 10%));
-  color: white;
-}
+  .fields {
+    .field {
+      padding: .5em;
+      border-top: solid 1px @ini_text_alt;
+    }
 
-;
+    display: none;
+    background-color: @ini_background;
+  }
 
-.stream-container {
   .more_news {
     .button {
+      border-width: 1px;
+      border-style: solid;
+      border-color: #ccc;
       width: 100%;
     }
   }
 
   .odd, .even {
-    .feed-social-container {
-      & > * {
-        display: inline-block;
-        padding: .25em;
-      }
-      clear: both;
-      display: flex;
-      justify-content: flex-start;
-      flex-wrap: wrap;
-      border-top: 1px @ini_text_alt solid;
-    }
 
     background-color: #f8f8f8;
-    border: solid @ini_text_alt 1px;
+    border-color: @ini_text_alt;
+    border-style: solid;
+    border-width: 1px;
     margin: 0px;
     clear: both;
     padding-bottom: 1px;
 
     .author {
       float: right;
-      padding-right: @FKS_newsfeed_padding;
+      padding-right: @FKS_newsFeed_padding;
     }
     .date {
       &:before {
@@ -66,37 +63,9 @@
       font-weight: bold;
     }
     .article p {
-      padding: @FKS_newsfeed_padding;
+      padding: @FKS_newsFeed_padding;
       margin: 0;
       text-align: justify;
-    }
-
-    .feed-edit-container {
-      .priority-body {
-        margin: .5em 0;
-      }
-      .edit-headline {
-        display: inline-block;
-        padding: .4em;
-        color: white;
-        border: solid 1px @ini_text_alt;
-        background-color: @ini_text_alt;
-        &.active {
-          color: @ini_text_alt;
-          background-color: transparent;
-        }
-      }
-      .edit-body {
-        display: none;
-      }
-      padding: 1em;
-      form {
-        label {
-          display: block;
-        }
-        width: 100%;
-
-      }
     }
 
     .headline {
@@ -106,7 +75,7 @@
           float: left;
           margin: 0;
         }
-        padding: @FKS_newsfeed_padding;
+        padding: @FKS_newsFeed_padding;
       }
       color: white;
       background-color: @ini_text_alt;
@@ -130,12 +99,11 @@
             width: 100%;
           }
           overflow: hidden;
-          padding: @FKS_newsfeed_padding;
+          padding: @FKS_newsFeed_padding;
         }
         width: 33%;
         float: left;
         padding: 0;
-        padding-top: 0;
         margin-top: -2.2em;
       }
     }
@@ -148,7 +116,7 @@
         background-color: darken(@rss_color, 10%);
       }
       display: inline-block;
-      padding: @FKS_newsfeed_padding;
+      padding: @FKS_newsFeed_padding;
       background-color: @rss_color;
       font-weight: bold;
       color: white;
@@ -156,36 +124,103 @@
     a span {
       color: white;
     }
-    margin-bottom: @FKS_newsfeed_padding;
-    margin-top: @FKS_newsfeed_padding;
+    margin-bottom: @FKS_newsFeed_padding;
+    margin-top: @FKS_newsFeed_padding;
   }
+  .msg {
 
+    text-align: center;
+    border: none;
+    padding: @FKS_newsFeed_padding;
+    margin-bottom: 1em;
+    font-weight: bold;
+    color: #bbb;
+  }
   * {
+    &:hover, &:active, &:focus, &.active {
+      & > .icon {
+        &.link-icon {
+          background-image: url(images/link-a.svg);
+          padding-right: 2em;
+          background-position-y: 50%;
+          background-size: 1em 1em;
+          background-repeat: no-repeat;
 
+        }
+        &.share-icon {
+          background-image: url(images/share-a.svg);
+          padding-right: 2em;
+          background-position-y: 50%;
+          background-size: 1em 1em;
+          background-repeat: no-repeat;
+
+        }
+        &.priority-icon {
+          background-image: url(images/priority-a.svg);
+          padding-right: 2em;
+          background-position-y: 50%;
+          background-size: 1em 1em;
+          background-repeat: no-repeat;
+
+        }
+        &.opt-icon {
+          background-image: url('images/opt-a.svg');
+          padding-right: 2em;
+          background-position-y: 50%;
+          background-size: 1em 1em;
+          background-repeat: no-repeat;
+
+        }
+
+      }
+    }
     & .icon {
-      padding-right: 2em;
-      background-position-y: 50%;
-      background-size: 1em 1em;
-      background-repeat: no-repeat;
       &.link-icon {
         background-image: url(images/link.svg);
+        padding-right: 2em;
+        background-position-y: 50%;
+        background-size: 1em 1em;
+        background-repeat: no-repeat;
+
       }
       &.share-icon {
         background-image: url(images/share.svg);
+        padding-right: 2em;
+        background-position-y: 50%;
+        background-size: 1em 1em;
+        background-repeat: no-repeat;
+
       }
       &.priority-icon {
         background-image: url(images/priority.svg);
+        padding-right: 2em;
+        background-position-y: 50%;
+        background-size: 1em 1em;
+        background-repeat: no-repeat;
 
       }
       &.rss-icon {
         background-image: url('images/rss.svg');
+        padding-right: 2em;
+        background-position-y: 50%;
+        background-size: 1em 1em;
+        background-repeat: no-repeat;
+
       }
       &.time-icon {
 
+        padding-right: 2em;
+        background-position-y: 50%;
+        background-size: 1em 1em;
+        background-repeat: no-repeat;
         background-image: url('images/time-w.svg');
       }
       &.opt-icon {
         background-image: url('images/opt.svg');
+        padding-right: 2em;
+        background-position-y: 50%;
+        background-size: 1em 1em;
+        background-repeat: no-repeat;
 
       }
 
@@ -195,25 +230,3 @@
   margin-bottom: 1.5em;
   clear: both;
 }
-
-.icon {
-  &.time-icon {
-
-    &:before {
-      //content: "\0231A";
-      content: "\0081";
-      content: "\0082";
-      content: "\0083";
-    }
-    font-family: "FKS font";
-
-  }
-  padding-right: .5em;
-
-}
-
-
-
-
-
-
