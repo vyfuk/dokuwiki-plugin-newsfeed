@@ -56,20 +56,11 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
         }
         list(, $match) = $data;
         list($param) = $match;
-        $atr = [];
+        $attributes = [];
         foreach ($param as $key => $value) {
-            $atr['data-' . $key] = $value;
+            $attributes['data-' . $key] = $value;
         }
-
-        $renderer->doc .= '<noscript>
-<div class="error">
-<h1>Asi máte vypnutý JavasScript</h1>
-            <p>Pro správne fungovaní téjto stránky je potřebné mít zapnutý 
-                <a href="http://en.wikipedia.org/wiki/JavaScript">JavaScript</a>.</p>
-            <p>Pokud chcete zobrazit tento web plnohodnotně 
-                <a href="https://www.google.cz/search?q=how+to+turn+on+javascript">
-                    zapněte si JavaScript</a>!</p></div></noscript>';
-        $renderer->doc .= '<div class="FKS_newsfeed"><div class="stream" ' . buildAttributes($atr) . '></div></div>';
+        $renderer->doc .= '<div class="FKS_newsfeed"><div class="stream" ' . buildAttributes($attributes) . '></div></div>';
         return false;
     }
 

@@ -34,22 +34,21 @@ class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
     }
 
     public function getMenuText() {
-        $menutext = 'FKS_newsfeed: Streams --' . $this->getLang('menu_streams');
-        return $menutext;
+        $menuText = 'FKS_newsfeed: Streams --' . $this->getLang('menu_streams');
+        return $menuText;
     }
 
     public function handle() {
         global $INPUT;
-        $stream_name = $INPUT->str('stream_name');
-        if ($stream_name == "") {
+        $streamName = $INPUT->str('stream_name');
+        if ($streamName == "") {
             return;
         }
-        if ($this->helper->streamToID($stream_name) == 0) {
-            $this->helper->createStream($stream_name);
-
-            msg('Stream hes been created', 1);
+        if ($this->helper->streamToID($streamName) == 0) {
+            $this->helper->createStream($streamName);
+            msg('Stream has been created', 1);
         } else {
-            msg('Stream alredy exist', -1);
+            msg('Stream already exist', -1);
         }
     }
 
@@ -57,7 +56,6 @@ class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
         return [
             ['hid' => 'stream_create', 'title' => $this->getLang('stream_create')],
             ['hid' => 'stream_list', 'title' => $this->getLang('stream_list')],
-            ['hid' => 'stream_delete', 'title' => $this->getLang('stream_delete')]
         ];
     }
 
@@ -65,43 +63,29 @@ class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
         global $lang;
         ptln('<h1>' . $this->getLang('manage') . '</h1>', 0);
         ptln('<h2 id="stream_create">' . 'Create stream' . '</h2>', 1);
-        $form = new Doku_Form([
-            'id' => "create_stream",
-            'method' => 'POST',
-            'action' => null
-        ]);
-        $form->addHidden('news_do', 'stream_add');
-        $form->addElement(form_makeTextField('stream_name', null, 'názov streamu'));
-        $form->addElement(form_makeButton('submit', '', $lang['btn_save'], []));
-        html_form('nic', $form);
+        echo $this->newStreamForm();
         $streams = $this->helper->allStream();
         ptln('<h2 id="stream_list">Zoznam Streamov</h2>', 1);
         ptln('<ul>');
         foreach ($streams as $stream) {
             ptln('<li><span>' . $stream);
-            ptln('<input type="text" class="edit" value="{{fksnewsfeed-stream>stream=' . $stream . ';feed=5}}" />');
+            ptln('<input type="text" class="edit" value="' . hsc('{{fksnewsfeed-stream>stream=' . $stream . ';feed=5}}') . '" />');
             ptln('</span></li>');
         }
         ptln('</ul>');
-        ptln('<h2 id="stream_delete">' . 'Zmazať stream' . '</h2>');
-        ptln('<div class="level2">');
-        echo 'Ak chcete zmazať stream, prosím požite rozhranie <a href="' . DOKU_BASE . '?do=admin&page=sqlite">SQLite</a>.';
-        ptln('<br />');
-        echo 'Pred zmazaním sa uistite, že vočí tomuto streamu neexistú žiadné závylosť (rodičovské aj dedské). Tieto závyslosti treba zmazať pred mazaním streamu.';
-        ptln('<br />');
-        echo 'V opačnom pripade môže dôjsť k chybovému správaniu pluginu!!!';
-        ptln('<br />');
-        echo 'Zmazané prevedieťe pomocou príkazu, za <span class="grey">"name_of_stream"</span> doplnte názov streamu.';
-        ptln('<div class="code">', 7);
-        ptln('<span class="blue">DELETE FROM </span>');
-        ptln('<br />');
-        ptln('<span class="red">"fks_newsfeed_stream" </span>');
-        ptln('<br />');
-        ptln('<span class="blue">WHERE </span>');
-        ptln('<br />');
-        ptln('<span class="green">name </span>= <span class="grey">"name_of_stream"</span>;');
-        ptln('</div>');
         ptln('</div>');
     }
 
+    private function newStreamForm() {
+        global $lang;
+        $form = new \dokuwiki\Form\Form([
+            'id' => "create_stream",
+            'method' => 'POST',
+            'action' => null
+        ]);
+        $form->setHiddenField('news_do', 'stream_add');
+        $form->addTextInput('stream_name', 'názov streamu');
+        $form->addButton('submit', $lang['btn_save']);
+        return $form->toHTML();
+    }
 }

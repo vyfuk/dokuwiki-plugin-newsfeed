@@ -1,23 +1,5 @@
 <?php
 
-/**
- * DokuWiki Plugin fksnewsfeed (Action Component)
- *
- * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
- * @author  Michal Červeňák <miso@fykos.cz>
- */
-if (!defined('DOKU_INC')) {
-    die();
-}
-
-/** $INPUT
- * @news_do add/edit/
- * @news_id no news
- * @news_strem name of stream
- * @id news with path same as doku @ID
- * @news_feed how many newsfeed need display
- * @news_view how many news is display
- */
 class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
 
     private $modFields;
@@ -26,12 +8,6 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
      */
     private $helper;
 
-    /**
-     * Registers a callback function for a given event
-     *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
-     * @return void
-     */
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
         $this->modFields = $this->helper->Fields;
@@ -48,7 +24,7 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'saveDelete');
     }
 
-    public function SavePriority() {
+    public function savePriority() {
         global $INPUT;
         if ($INPUT->str('target') !== 'plugin_fksnewsfeed') {
             return;
@@ -60,9 +36,9 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
             return;
         }
 
-        $f = $this->helper->getCacheFile($INPUT->str('news_id'));
+        $file = $this->helper->getCacheFile($INPUT->str('news_id'));
 
-        $cache = new cache($f, '');
+        $cache = new cache($file, '');
         $cache->removeCache();
 
         $stream_id = $this->helper->streamToID($INPUT->str('news_stream'));
@@ -75,33 +51,33 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
 
     public function saveNews() {
         global $INPUT;
-        if ($INPUT->str("target") != "plugin_fksnewsfeed") {
+        if ($INPUT->str("target") != 'plugin_fksnewsfeed') {
             return;
         }
         global $ACT;
         global $TEXT;
         global $ID;
         if (isset($_POST['do']['save'])) {
-            $f = $this->helper->getCacheFile($INPUT->str('news_id'));
-            $cache = new cache($f, '');
+            $file = $this->helper->getCacheFile($INPUT->str('news_id'));
+            $cache = new cache($file, '');
             $cache->removeCache();
 
             $data = [];
             foreach ($this->modFields as $field) {
-                if ($field == 'text') {
+                if ($field === 'text') {
                     $data[$field] = cleanText($INPUT->str('wikitext'));
                     unset($_POST['wikitext']);
                 } else {
                     $data[$field] = $INPUT->param($field);
                 }
             }
-            if ($INPUT->str('news_do') == 'create') {
+            if ($INPUT->str('news_do') === 'create') {
                 $id = $this->helper->saveNews($data, $INPUT->str('news_id'), FALSE);
                 $stream_id = $this->helper->streamToID($INPUT->str('news_stream'));
-                $arrs = [$stream_id];
-                $this->helper->fullParentDependence($stream_id, $arrs);
-                foreach ($arrs as $arr) {
-                    $this->helper->saveIntoStream($arr, $id);
+                $streams = [$stream_id];
+                $this->helper->fullParentDependence($stream_id, $streams);
+                foreach ($streams as $stream) {
+                    $this->helper->saveIntoStream($stream, $id);
                 }
             } else {
                 $this->helper->saveNews($data, $INPUT->str('news_id'), true);
@@ -113,12 +89,12 @@ class action_plugin_fksnewsfeed_save extends DokuWiki_Action_Plugin {
         }
     }
 
-    public function saveDelete(Doku_Event &$event) {
+    public function saveDelete() {
         global $INPUT;
-        if ($INPUT->str("target") != "plugin_fksnewsfeed") {
+        if ($INPUT->str("target") !== 'plugin_fksnewsfeed') {
             return;
         }
-        if ($INPUT->str('news_do') != 'delete_save') {
+        if ($INPUT->str('news_do') !== 'delete_save') {
             return;
         }
         if (auth_quickaclcheck('start') < $this->getConf('perm_manage')) {

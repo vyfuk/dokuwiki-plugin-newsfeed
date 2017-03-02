@@ -1,38 +1,13 @@
 <?php
 
-/**
- * DokuWiki Plugin fksnewsfeed (Action Component)
- *
- * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
- * @author  Michal Červeňák <miso@fykos.cz>
- */
-if (!defined('DOKU_INC')) {
-    die();
-}
-
-/** $INPUT
- * @news_do add/edit/
- * @news_id no news
- * @news_strem name of stream
- * @id news with path same as doku @ID
- * @news_feed how many newsfeed need display
- * @news_view how many news is display
- */
 class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
-    protected $modFiels;
-    private $cartesField = ['email', 'author'];
+    protected $modFields;
+    private $cartesianField = ['email', 'author'];
     /**
      * @var helper_plugin_fksnewsfeed
      */
     private $helper;
-
-    /**
-     * Registers a callback function for a given event
-     *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
-     * @return void
-     */
 
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
@@ -110,7 +85,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
             }
         }
-        foreach ($this->cartesField as $field) {
+        foreach ($this->cartesianField as $field) {
             $form->addElement(form_makeDataList('news_list_' . $field, $this->helper->allValues($field)));
         }
         $form->endFieldset();
