@@ -1,20 +1,6 @@
 <?php
 
-/**
- * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Michal Červeňák <miso@fykos.cz>
- */
-// must be run within Dokuwiki
-
-if (!defined('DOKU_INC')) {
-    die();
-}
-if (!defined('DOKU_PLUGIN')) {
-    define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
-}
-require_once(DOKU_PLUGIN . 'syntax.php');
-
-class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin {
+class syntax_plugin_fksnewsfeed_stream extends DokuWiki_Syntax_Plugin {
 
     /**
      * @var helper_plugin_fksnewsfeed
@@ -42,7 +28,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
     }
 
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('\{\{fksnewsfeed-stream>.+?\}\}', $mode, 'plugin_fksnewsfeed_fksnewsfeedstream');
+        $this->Lexer->addSpecialPattern('\{\{fksnewsfeed-stream>.+?\}\}', $mode, 'plugin_fksnewsfeed_stream');
     }
 
     public function handle($match, $state) {
@@ -60,7 +46,7 @@ class syntax_plugin_fksnewsfeed_fksnewsfeedstream extends DokuWiki_Syntax_Plugin
         foreach ($param as $key => $value) {
             $attributes['data-' . $key] = $value;
         }
-        $renderer->doc .= '<div class="FKS_newsfeed"><div class="stream" ' . buildAttributes($attributes) . '></div></div>';
+        $renderer->doc .= '<div class="news-feed-stream"><div class="stream row" ' . buildAttributes($attributes) . '></div></div>';
         return false;
     }
 

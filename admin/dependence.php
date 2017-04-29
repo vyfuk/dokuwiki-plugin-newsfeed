@@ -20,7 +20,7 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
     }
 
     public function getMenuText() {
-        $menuText = 'FKS_newsfeed: Dependence --' . $this->getLang('dep_menu');
+        $menuText = 'News feed dependence --' . $this->getLang('dep_menu');
         return $menuText;
     }
 

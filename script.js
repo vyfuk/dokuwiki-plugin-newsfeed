@@ -6,7 +6,7 @@
 /* global LANG, DOKU_BASE, FB, JSINFO */
 jQuery(function () {
     var $ = jQuery;
-    const CALL_PLUGIN = 'plugin_fksnewsfeed';
+    const CALL_PLUGIN = 'plugin_news-feed';
     const CALL_TARGET = 'feed';
     const CALL_MORE = 'more';
     const CALL_STREAM = 'stream';
@@ -16,10 +16,11 @@ jQuery(function () {
             {
                 call: CALL_PLUGIN,
                 target: CALL_TARGET,
-                news_do: CALL_STREAM,
-                news_stream: stream,
-                news_feed_s: 0,
-                news_feed_l: feed,
+                news:{
+                    do: CALL_STREAM,
+                    stream: stream,
+                    length: feed
+                },
                 page_id: JSINFO.id
 
             },
@@ -27,16 +28,17 @@ jQuery(function () {
             'json');
     };
 
-    const loadNext = function (stream, view, start, length, renderNext) {
+    const loadNext = function (stream, start, length, renderNext) {
         $.post(DOKU_BASE + 'lib/exe/ajax.php',
             {
                 call: CALL_PLUGIN,
                 target: CALL_TARGET,
-                news_do: CALL_MORE,
-                news_stream: stream,
-                news_view: view,
-                news_feed_s: start,
-                news_feed_l: length,
+                news:{
+                    do: CALL_MORE,
+                    stream: stream,
+                    start: start,
+                    length: length
+                },
                 page_id: JSINFO.id
             },
             renderNext
@@ -44,13 +46,13 @@ jQuery(function () {
     };
 
     const loadBar = function () {
-        return '<div class="load-bar" style="text-align:center;clear:both">' +
+        return '<div class="load-bar col-lg-12" style="text-align:center;clear:both">' +
             '<img src="' + DOKU_BASE + 'lib/plugins/fksnewsfeed/images/load.gif" alt="load">' +
             '</div>';
     };
 
 
-    $('div.FKS_newsfeed').each(function () {
+    $('div.news-feed-stream').each(function () {
         "use strict";
         var $container = $(this);
         var $streamContainer = $container.find('.stream').eq(0).append(loadBar());
@@ -73,23 +75,20 @@ jQuery(function () {
         };
 
         const renderNext = function (data) {
+            console.log(data);
             removeLoadBar();
             renderNews(data);
         };
 
         init($streamContainer.data('stream'), $streamContainer.data('feed'), renderInit);
 
-        $container.on('click', '.more_news', function () {
+        $container.on('click', '.more-news', function () {
             var $buttonContainer = $(this);
             var start = $buttonContainer.data('view');
             var stream = $buttonContainer.data('stream');
             $streamContainer.append(loadBar());
             $buttonContainer.remove();
-            loadNext(stream, start, start, 3, renderNext);
-        });
-
-        $container.on('click', '.more_option_toggle', function () {
-            $(this).siblings('.fields').slideToggle();
+            loadNext(stream, start, 3, renderNext);
         });
     });
 

@@ -20,15 +20,21 @@ $lang['btn_opt']='Další možnosti';
 /**
  * label to form
  */
-$lang['author'] = 'Autor';
-$lang['email'] = 'E-mail';
-$lang['date'] = 'Datum';
-$lang['newsdate'] = 'Datum';
-$lang['newsname'] = 'Nadpis';
-$lang['name'] = 'Nadpis';
+$lang['author-name'] = 'Jméno autora';
+$lang['author-email'] = 'E-mail autora';
+
+$lang['news-date'] = 'Datum';
+
+$lang['title'] = 'Nadpis';
+
 $lang['image'] = 'Obrázek';
 $lang['category'] = 'Kategorie';
-$lang['weight'] = 'Váha';
+
+$lang['link-href'] = 'Cíl odkazu';
+$lang['link-title'] = 'Text odkazu';
+
+$lang['text'] = 'text';
+
 
 
 $lang['stream'] = 'Vlákno';

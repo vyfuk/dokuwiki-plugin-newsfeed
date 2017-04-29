@@ -1,19 +1,6 @@
 <?php
 
-/**
- * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Michal Červeňák <miso@fykos.cz>
- */
-// must be run within Dokuwiki
-if (!defined('DOKU_INC')) {
-    die();
-}
-
-if (!defined('DOKU_PLUGIN')) {
-    define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
-}
-
-require_once(DOKU_PLUGIN . 'admin.php');
+use \dokuwiki\Form\Form;
 
 class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
     /**
@@ -34,7 +21,7 @@ class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
     }
 
     public function getMenuText() {
-        $menuText = 'FKS_newsfeed: Streams --' . $this->getLang('menu_streams');
+        $menuText = 'News feed streams --' . $this->getLang('menu_streams');
         return $menuText;
     }
 
@@ -60,10 +47,9 @@ class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
     }
 
     public function html() {
-        global $lang;
         ptln('<h1>' . $this->getLang('manage') . '</h1>', 0);
         ptln('<h2 id="stream_create">' . 'Create stream' . '</h2>', 1);
-        echo $this->newStreamForm();
+        echo $this->getNewStreamForm()->toHTML();
         $streams = $this->helper->allStream();
         ptln('<h2 id="stream_list">Zoznam Streamov</h2>', 1);
         ptln('<ul>');
@@ -76,9 +62,9 @@ class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
         ptln('</div>');
     }
 
-    private function newStreamForm() {
+    private function getNewStreamForm() {
         global $lang;
-        $form = new \dokuwiki\Form\Form([
+        $form = new Form([
             'id' => "create_stream",
             'method' => 'POST',
             'action' => null
@@ -86,6 +72,6 @@ class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
         $form->setHiddenField('news_do', 'stream_add');
         $form->addTextInput('stream_name', 'názov streamu');
         $form->addButton('submit', $lang['btn_save']);
-        return $form->toHTML();
+        return $form;
     }
 }

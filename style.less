@@ -1,8 +1,3 @@
-/**
-* LESS & CSS for DokuWiki plugin FKSnewsfeed 
-* @author Michal Červeňák <miso@fykos.cz>
-* 
-*/
 @rss_color: #ff8811;
 @FKS_newsFeed_padding: .5em;
 @FKS_newsFeed_duration: .2s;
@@ -15,38 +10,32 @@
 @import "custom_feed.less";
 
 .FKS_newsfeed {
+  .fields-container {
+    border-top: solid 1px @ini_text_alt;
+    background-color: @ini_background;
+    padding: .5em;
+  }
   .share.field {
     * {
-
       display: inline-block;
     }
   }
   .fields {
-    .field {
-      padding: .5em;
-      border-top: solid 1px @ini_text_alt;
-    }
-
     display: none;
-    background-color: @ini_background;
+  }
+  .odd, .even {
+    //text-align: center;
   }
 
-  .more_news {
-    .button {
-      border-width: 1px;
-      border-style: solid;
-      border-color: #ccc;
-      width: 100%;
-    }
+  .more_news .button {
+    width: 100%;
   }
-
+/*
   .odd, .even {
 
     background-color: #f8f8f8;
-    border-color: @ini_text_alt;
-    border-style: solid;
-    border-width: 1px;
-    margin: 0px;
+    border: 1px solid @ini_text_alt;
+    margin: 0;
     clear: both;
     padding-bottom: 1px;
 
@@ -68,8 +57,8 @@
       text-align: justify;
     }
 
-    .headline {
-      .headline_content {
+    .headline-container {
+      .headline {
         h3 {
           color: white;
           float: left;
@@ -80,6 +69,7 @@
       color: white;
       background-color: @ini_text_alt;
     }
+
     &.w_image {
       & > * {
         padding-left: 33%;
@@ -109,7 +99,7 @@
     }
     margin-bottom: 2em;
   }
-
+*/
   .rss {
     & > * {
       &:hover {
@@ -126,105 +116,6 @@
     }
     margin-bottom: @FKS_newsFeed_padding;
     margin-top: @FKS_newsFeed_padding;
-  }
-  .msg {
-
-    text-align: center;
-    border: none;
-    padding: @FKS_newsFeed_padding;
-    margin-bottom: 1em;
-    font-weight: bold;
-    color: #bbb;
-  }
-  * {
-    &:hover, &:active, &:focus, &.active {
-      & > .icon {
-        &.link-icon {
-          background-image: url(images/link-a.svg);
-          padding-right: 2em;
-          background-position-y: 50%;
-          background-size: 1em 1em;
-          background-repeat: no-repeat;
-
-        }
-        &.share-icon {
-          background-image: url(images/share-a.svg);
-          padding-right: 2em;
-          background-position-y: 50%;
-          background-size: 1em 1em;
-          background-repeat: no-repeat;
-
-        }
-        &.priority-icon {
-          background-image: url(images/priority-a.svg);
-          padding-right: 2em;
-          background-position-y: 50%;
-          background-size: 1em 1em;
-          background-repeat: no-repeat;
-
-        }
-        &.opt-icon {
-          background-image: url('images/opt-a.svg');
-          padding-right: 2em;
-          background-position-y: 50%;
-          background-size: 1em 1em;
-          background-repeat: no-repeat;
-
-        }
-
-      }
-    }
-    & .icon {
-      &.link-icon {
-        background-image: url(images/link.svg);
-        padding-right: 2em;
-        background-position-y: 50%;
-        background-size: 1em 1em;
-        background-repeat: no-repeat;
-
-      }
-      &.share-icon {
-        background-image: url(images/share.svg);
-        padding-right: 2em;
-        background-position-y: 50%;
-        background-size: 1em 1em;
-        background-repeat: no-repeat;
-
-      }
-      &.priority-icon {
-        background-image: url(images/priority.svg);
-        padding-right: 2em;
-        background-position-y: 50%;
-        background-size: 1em 1em;
-        background-repeat: no-repeat;
-
-      }
-      &.rss-icon {
-        background-image: url('images/rss.svg');
-        padding-right: 2em;
-        background-position-y: 50%;
-        background-size: 1em 1em;
-        background-repeat: no-repeat;
-
-      }
-      &.time-icon {
-
-        padding-right: 2em;
-        background-position-y: 50%;
-        background-size: 1em 1em;
-        background-repeat: no-repeat;
-        background-image: url('images/time-w.svg');
-      }
-      &.opt-icon {
-        background-image: url('images/opt.svg');
-        padding-right: 2em;
-        background-position-y: 50%;
-        background-size: 1em 1em;
-        background-repeat: no-repeat;
-
-      }
-
-    }
   }
   margin-top: 1em;
   margin-bottom: 1.5em;

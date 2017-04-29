@@ -1,9 +1,9 @@
 <?php
+use \dokuwiki\Form\Form;
+use \dokuwiki\Form\InputElement;
 
 class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
-    protected $modFields;
-    private $cartesianField = ['email', 'author'];
     /**
      * @var helper_plugin_fksnewsfeed
      */
@@ -11,99 +11,113 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
-        $this->modFields = $this->helper->Fields;
     }
 
-    /**
-     *
-     * @param Doku_Event_Handler $controller
-     */
     public function register(Doku_Event_Handler $controller) {
-        $controller->register_hook('HTML_EDIT_FORMSELECTION', 'BEFORE', $this, 'formToNews');
+        $controller->register_hook('TPL_ACT_UNKNOWN', 'BEFORE', $this, 'tplEditNews');
     }
 
-    public function formToNews(Doku_Event &$event) {
-        global $TEXT;
-        global $ID;
+    public function tplEditNews(Doku_Event &$event) {
+
+        global $ACT;
         global $INPUT;
-        if ($INPUT->str('target') !== 'plugin_fksnewsfeed') {
+        if ($ACT !== helper_plugin_fksnewsfeed::FORM_TARGET) {
+            return;
+        }
+        if (auth_quickaclcheck('start') < AUTH_EDIT) {
             return;
         }
         $event->preventDefault();
-        /**
-         * @var Doku_Form
-         */
-        $form = $event->data['form'];
-
-        if (array_key_exists('wikitext', $_POST)) {
-            foreach ($this->modFields as $field) {
-                $data[$field] = $INPUT->param($field);
-            }
-        } else {
-            if ($INPUT->int('news_id') != null) {
-                $data = $this->helper->loadSimpleNews($INPUT->str("news_id"));
-                $TEXT = $data['text'];
-            } else {
-                list($data, $TEXT) = $this->createDefault();
-            }
+        $event->stopPropagation();
+        switch ($INPUT->param('news')['do']) {
+            case'edit':
+            case'create':
+                $this->getEditForm($event);
+                return;
+            default:
+                return;
         }
-
-        $form->startFieldset('Newsfeed');
-        $form->addHidden('page_id', $ID);
-        $form->addHidden('target', 'plugin_fksnewsfeed');
-        $form->addHidden('news_id', $INPUT->str("news_id"));
-        $form->addHidden('news_do', $INPUT->str('news_do'));
-
-        foreach ($this->modFields as $field) {
-            if ($field == 'text') {
-                $value = $INPUT->post->str('wikitext', $data[$field]);
-                $form->addElement(html_open_tag('div', ['class' => 'clearer']));
-                $form->addElement(html_close_tag('div'));
-                $form->addElement(form_makeWikiText($TEXT, []));
-            } elseif ($field == 'newsdate') {
-                $value = $INPUT->post->str($field, $data[$field]);
-                $form->addElement(form_makeField('datetime-local', $field, $value, $this->getLang($field), null, null, ['step' => 1]));
-            } elseif ($field == 'category') {
-                $value = $INPUT->post->str($field, $data[$field]);
-                $form->addElement(form_makeListboxField($field, [
-                    'default',
-                    'DSEF',
-                    'TSAF',
-                    'important',
-                    'deprecated'
-                ], $value, $this->getLang($field)));
-            } elseif ($field == 'image') {
-                $value = $INPUT->post->str($field, $data[$field]);
-                $form->addElement(form_makeTextField($field, $value, $this->getLang($field), $field, null, []));
-            } else {
-                $value = $INPUT->post->str($field, $data[$field]);
-                $form->addElement(form_makeTextField($field, $value, $this->getLang($field), $field, null, [
-                    'pattern' => '\S.*',
-                    'required' => 'required',
-                    'list' => 'news_list_' . $field
-                ]));
-
-            }
-        }
-        foreach ($this->cartesianField as $field) {
-            $form->addElement(form_makeDataList('news_list_' . $field, $this->helper->allValues($field)));
-        }
-        $form->endFieldset();
     }
 
     private function createDefault() {
         global $INFO;
         return [
-            [
-                'author' => $INFO['userinfo']['name'],
-                'newsdate' => date('Y-m-d\TH:i:s'),
-                'email' => $INFO['userinfo']['mail'],
-                'text' => $this->getLang('news_text'),
-                'name' => $this->getLang('news_name'),
-                'image' => '',
-                'category' => ''
-            ],
-            $this->getLang('news_text')
+            'author-name' => $INFO['userinfo']['name'],
+            'news-date' => date('Y-m-d\TH:i:s'),
+            'author-email' => $INFO['userinfo']['mail'],
+            'text' => $this->getLang('news_text'),
+            'category' => ''
         ];
+    }
+
+    private function getEditForm(Doku_Event &$event) {
+        global $INPUT;
+        global $ID;
+
+        $form = new Form();
+        if ($INPUT->param('news')['id'] != 0) {
+            $data = $this->helper->loadSimpleNews($INPUT->param('news')['id']);
+        } else {
+            $data = $this->createDefault();
+        }
+
+        $form->setHiddenField('page_id', $ID);
+        $form->setHiddenField('do', helper_plugin_fksnewsfeed::FORM_TARGET);
+        $form->setHiddenField('news[id]', $INPUT->param('news')['id']);
+        $form->setHiddenField('news[do]', 'save');
+        $form->setHiddenField('news[stream]', $INPUT->param('news')['stream']);
+
+        $form->addFieldsetOpen('News Feed');
+
+        foreach (helper_plugin_fksnewsfeed::$fields as $field) {
+            $input = null;
+            $form->addTagOpen('div')
+                ->addClass('form-group');
+
+            switch ($field) {
+                case'text':
+                    $input = $form->addTextarea('text', $this->getLang($field), -1)
+                        ->attr('class','form-control');
+                    break;
+                case 'news-date':
+                    $input = new InputElement('datetime-local', $field, $this->getLang($field));
+                    $input->attr('class', 'form-control');
+                    $form->addElement($input);
+                    $input->val(date('Y-m-d\TH:i:s', strtotime($data[$field])));
+                    break;
+                case'category':
+
+                    $input = $form->addDropdown('category', [
+                        'primary',
+                        'info',
+                        'success',
+                        'warning',
+                        'danger',
+                        'deprecated'
+                    ], $this->getLang($field))
+                        ->attr('class', 'form-control');
+                    break;
+                case'image':
+                    $input = $form->addTextInput($field, $this->getLang($field))
+                        ->attr('class', 'form-control');
+                    break;
+                default:
+                    $input = $form->addTextInput($field, $this->getLang($field))
+                        ->attrs([
+                            'pattern' => '\S.*',
+                            'required' => 'required',
+                            'class' => 'form-control',
+                        ]);
+            }
+            if ($field !== 'news-date') {
+                $input->val($data[$field]);
+            }
+            $form->addTagClose('div');
+        }
+
+        $form->addFieldsetClose();
+        $form->addButton('submit', 'Uložiť')
+            ->addClass('btn btn-suceess');
+        echo $form->toHTML();
     }
 }

@@ -10,17 +10,9 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
         $this->helper = $this->loadHelper('fksnewsfeed');
     }
 
-    /**
-     *
-     * @param Doku_Event_Handler $controller
-     */
     public function register(Doku_Event_Handler $controller) {
-        /**
-         * RSS
-         */
         $controller->register_hook('FEED_OPTS_POSTPROCESS', 'BEFORE', $this, 'rss_generate');
     }
-
 
     public function rss_generate() {
         global $conf;
