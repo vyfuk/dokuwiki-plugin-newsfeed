@@ -91,8 +91,9 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
         } else {
             $innerHtml = $this->getHeader($data);
             $innerHtml .= $this->getText($data);
-            $innerHtml .= $this->getSignature($data);
+
             $innerHtml .= $this->getLink($data);
+            $innerHtml .= $this->getSignature($data);
             // @share@
             $cache->storeCache($json->encode($innerHtml));
         }
@@ -149,7 +150,7 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
 
     private function getSignature($data) {
         return ' <div class="card-text text-right">
-            <a href="mailto:' . hsc($data['author-email']) . '" class="mail" title="' . hsc($data['author-email']) . '">' . hsc($data['author-name']) . '</a>
+            <a href="mailto:' . hsc($data['author-email']) . '" class="mail" title="' . hsc($data['author-email']) . '"><span class="fa fa-envelope"></span>' . hsc($data['author-name']) . '</a>
         </div>';
     }
 
