@@ -77,7 +77,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
             switch ($field) {
                 case'text':
                     $input = $form->addTextarea('text', $this->getLang($field), -1)
-                        ->attr('class','form-control');
+                        ->attr('class', 'form-control');
                     break;
                 case 'news-date':
                     $input = new InputElement('datetime-local', $field, $this->getLang($field));
@@ -93,7 +93,13 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                         'success',
                         'warning',
                         'danger',
-                        'deprecated'
+                        'deprecated',
+                        'fykos-blue',
+                        'fykos-pink',
+                        'fykos-line',
+                        'fykos-purple',
+                        'fykos-borange',
+                        'fykos-green',
                     ], $this->getLang($field))
                         ->attr('class', 'form-control');
                     break;

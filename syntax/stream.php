@@ -19,21 +19,21 @@ class syntax_plugin_fksnewsfeed_stream extends DokuWiki_Syntax_Plugin {
         return 'block';
     }
 
-    public function getAllowedTypes() {
-        return [];
-    }
-
     public function getSort() {
         return 3;
     }
 
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('\{\{fksnewsfeed-stream>.+?\}\}', $mode, 'plugin_fksnewsfeed_stream');
+        $this->Lexer->addSpecialPattern('{{news-stream>.+?}}', $mode, 'plugin_fksnewsfeed_stream');
     }
 
     public function handle($match, $state) {
-        $param = helper_plugin_fkshelper::extractParamtext(substr($match, 21, -2));
-        return [$state, [$param]];
+        preg_match_all('/([a-z]+)="([^".]*)"/', substr($match, 14, -2), $matches);
+        $parameters = [];
+        foreach ($matches[1] as $index => $match) {
+            $parameters[$match] = $matches[2][$index];
+        }
+        return [$state, [$parameters]];
     }
 
     public function render($mode, Doku_Renderer &$renderer, $data) {
@@ -46,7 +46,10 @@ class syntax_plugin_fksnewsfeed_stream extends DokuWiki_Syntax_Plugin {
         foreach ($param as $key => $value) {
             $attributes['data-' . $key] = $value;
         }
-        $renderer->doc .= '<div class="news-feed-stream"><div class="stream row" ' . buildAttributes($attributes) . '></div></div>';
+        $renderer->doc .= '<div class="news-stream">
+<div class="stream row" ' . buildAttributes($attributes) . '>
+</div>
+</div>';
         return false;
     }
 

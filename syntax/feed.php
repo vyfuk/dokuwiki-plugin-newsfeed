@@ -33,9 +33,12 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
     }
 
     public function handle($match, $state) {
-        $text = str_replace(["\n", '{{news-feed>', '}}'], ['', '', ''], $match);
-        $param = $this->helper->FKS_helper->extractParamtext($text);
-        return [$state, $param];
+        preg_match_all('/([a-z-_]+)="([^".]*)"/', substr($match, 12, -2), $matches);
+        $parameters = [];
+        foreach ($matches[1] as $index => $match) {
+            $parameters[$match] = $matches[2][$index];
+        }
+        return [$state, $parameters];
     }
 
     public function render($mode, Doku_Renderer &$renderer, $data) {
@@ -163,7 +166,7 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
 
     private function getLink($data) {
         return '<p>
-        <a class="btn btn-outline-' . $data['category'] . '" href="' . wl($data['link-href'], null, true) . '">' . $data['link-title'] . '</a>
+        <a class="btn btn-secondary btn-outline-' . $data['category'] . '" href="' . wl($data['link-href'], null, true) . '">' . $data['link-title'] . '</a>
 </p>';
     }
 

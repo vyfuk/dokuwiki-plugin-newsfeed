@@ -26,7 +26,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      */
     public $social;
 
-    const SIMPLE_RENDER_PATTERN = '{{news-feed>id="@id@"; even="@even@"; editable="@editable@";stream="@stream@";page_id="@page_id@"}}';
+    const SIMPLE_RENDER_PATTERN = '{{news-feed>id="@id@" even="@even@" editable="@editable@" stream="@stream@" page_id="@page_id@"}}';
     const db_table_feed = 'news';
     const db_table_dependence = 'dependence';
     const db_table_order = 'priority';
@@ -106,7 +106,7 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     public function allStream() {
         $streams = [];
-        $res = $this->sqlite->query('SELECT s.name FROM ' . self::db_table_stream . '');
+        $res = $this->sqlite->query('SELECT s.name FROM ' . self::db_table_stream . ' s');
         foreach ($this->sqlite->res2arr($res) as $row) {
             $streams[] = $row['name'];
         }

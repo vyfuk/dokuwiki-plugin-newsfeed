@@ -2,6 +2,8 @@
 
 use \dokuwiki\Form\Form;
 
+// TODO refract
+
 class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
     /**
      * @var helper_plugin_fksnewsfeed
@@ -28,7 +30,7 @@ class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
     public function handle() {
         global $INPUT;
         $streamName = $INPUT->str('stream_name');
-        if ($streamName == "") {
+        if ($streamName == '') {
             return;
         }
         if ($this->helper->streamToID($streamName) == 0) {
@@ -39,36 +41,26 @@ class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
         }
     }
 
-    function getTOC() {
-        return [
-            ['hid' => 'stream_create', 'title' => $this->getLang('stream_create')],
-            ['hid' => 'stream_list', 'title' => $this->getLang('stream_list')],
-        ];
-    }
-
     public function html() {
-        ptln('<h1>' . $this->getLang('manage') . '</h1>', 0);
-        ptln('<h2 id="stream_create">' . 'Create stream' . '</h2>', 1);
+        echo '<h1>' . $this->getLang('manage') . '</h1>';
+        echo '<h2>' . 'Create stream' . '</h2>';
         echo $this->getNewStreamForm()->toHTML();
         $streams = $this->helper->allStream();
-        ptln('<h2 id="stream_list">Zoznam Streamov</h2>', 1);
-        ptln('<ul>');
+        echo '<h2 id="stream_list">Zoznam Streamov</h2>';
+        echo('<ul>');
         foreach ($streams as $stream) {
-            ptln('<li><span>' . $stream);
-            ptln('<input type="text" class="edit" value="' . hsc('{{fksnewsfeed-stream>stream=' . $stream . ';feed=5}}') . '" />');
-            ptln('</span></li>');
+            echo '<li class="form-group row"><span class="col-3">' . $stream . '</span>';
+            echo '<input type="text" class="col-9 form-control" value="' .
+                hsc('{{news-stream>stream=' . $stream . ';feed="5"}}') . '" />';
+            echo '</li>';
         }
-        ptln('</ul>');
-        ptln('</div>');
+        echo '</ul>';
+        echo '</div>';
     }
 
     private function getNewStreamForm() {
         global $lang;
-        $form = new Form([
-            'id' => "create_stream",
-            'method' => 'POST',
-            'action' => null
-        ]);
+        $form = new Form();
         $form->setHiddenField('news_do', 'stream_add');
         $form->addTextInput('stream_name', 'názov streamu');
         $form->addButton('submit', $lang['btn_save']);

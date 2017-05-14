@@ -2,6 +2,8 @@
 
 use \dokuwiki\Form\Form;
 
+// TODO to action component
+
 class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
     /**
      * @var helper_plugin_fksnewsfeed
@@ -81,7 +83,7 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
         }
     }
 
-    public function newsToID($news) {
+    private function newsToID($news) {
         return array_map(function ($value) {
             return $value['news_id'];
         }, $news);

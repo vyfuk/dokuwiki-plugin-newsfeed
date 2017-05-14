@@ -16,7 +16,7 @@ jQuery(function () {
             {
                 call: CALL_PLUGIN,
                 target: CALL_TARGET,
-                news:{
+                news: {
                     do: CALL_STREAM,
                     stream: stream,
                     length: feed
@@ -33,7 +33,7 @@ jQuery(function () {
             {
                 call: CALL_PLUGIN,
                 target: CALL_TARGET,
-                news:{
+                news: {
                     do: CALL_MORE,
                     stream: stream,
                     start: start,
@@ -52,7 +52,7 @@ jQuery(function () {
     };
 
 
-    $('div.news-feed-stream').each(function () {
+    $('div.news-stream').each(function () {
         "use strict";
         var $container = $(this);
         var $streamContainer = $container.find('.stream').eq(0).append(loadBar());
@@ -83,7 +83,7 @@ jQuery(function () {
         init($streamContainer.data('stream'), $streamContainer.data('feed'), renderInit);
 
         $container.on('click', '.more-news', function () {
-            var $buttonContainer = $(this);
+            const $buttonContainer = $(this);
             var start = $buttonContainer.data('view');
             var stream = $buttonContainer.data('stream');
             $streamContainer.append(loadBar());
