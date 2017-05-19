@@ -53,7 +53,7 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
             $attributes['data-' . $key] = $value;
         }
         $renderer->doc .= '<div class="news-stream">
-<div class="stream row" ' . buildAttributes($attributes) . ' data-start="0" data-feed="0">
+<div class="stream row" ' . buildAttributes($attributes) . ' data-start="0" data-feed="5">
 </div>
 </div>';
         return false;
@@ -71,7 +71,7 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
             $indicators[] = '<li data-target="#' . $id . '" data-slide-to="' . $i . '"></li>';
             $items[] = $this->getCarouselItem($feed, !$i);
         }
-        $renderer->doc .= '<div id="' . $id . '" class="feed-carousel carousel slide mb-3" data-ride="carousel">';
+        $renderer->doc .= '<div id="' . $id . '" class="feed-carousel carousel slide mb-3 hidden-md-down" data-ride="carousel">';
 
         $renderer->doc .= '<ol class="carousel-indicators">';
         foreach ($indicators as $indicator) {
@@ -94,7 +94,7 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
         $html = '';
         $html .= '<div class="carousel-item bg-' . $feed['category'] . ($active ? ' active' : '') . '" style="' .
             $style . ';height:400px">
-      <div class="carousel-caption d-none d-md-block">';;
+      <div class="carousel-caption d-block">';;
         $html .= $this->getHeadline($feed);
         $html .= $this->getText($feed);
         $html .= $this->getLink($feed);
