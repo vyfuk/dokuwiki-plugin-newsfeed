@@ -11,7 +11,7 @@ jQuery(function () {
     const CALL_MORE = 'more';
     const CALL_STREAM = 'stream';
 
-    const init = function (stream, feed, renderInit) {
+    const init = function (stream, start, feed, renderInit) {
         $.post(DOKU_BASE + 'lib/exe/ajax.php',
             {
                 call: CALL_PLUGIN,
@@ -19,7 +19,8 @@ jQuery(function () {
                 news: {
                     do: CALL_STREAM,
                     stream: stream,
-                    length: feed
+                    length: feed,
+                    start: start,
                 },
                 page_id: JSINFO.id
 
@@ -79,8 +80,8 @@ jQuery(function () {
             removeLoadBar();
             renderNews(data);
         };
-
-        init($streamContainer.data('stream'), $streamContainer.data('feed'), renderInit);
+        var start = +$streamContainer.data('start');
+        init($streamContainer.data('stream'), start ? start : 0, $streamContainer.data('feed'), renderInit);
 
         $container.on('click', '.more-news', function () {
             const $buttonContainer = $(this);

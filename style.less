@@ -30,76 +30,6 @@
   .more_news .button {
     width: 100%;
   }
-/*
-  .odd, .even {
-
-    background-color: #f8f8f8;
-    border: 1px solid @ini_text_alt;
-    margin: 0;
-    clear: both;
-    padding-bottom: 1px;
-
-    .author {
-      float: right;
-      padding-right: @FKS_newsFeed_padding;
-    }
-    .date {
-      &:before {
-        content: "";
-      }
-      float: right;
-      display: flex;
-      font-weight: bold;
-    }
-    .article p {
-      padding: @FKS_newsFeed_padding;
-      margin: 0;
-      text-align: justify;
-    }
-
-    .headline-container {
-      .headline {
-        h3 {
-          color: white;
-          float: left;
-          margin: 0;
-        }
-        padding: @FKS_newsFeed_padding;
-      }
-      color: white;
-      background-color: @ini_text_alt;
-    }
-
-    &.w_image {
-      & > * {
-        padding-left: 33%;
-      }
-      .article {
-        padding: 0;
-      }
-      .headline .headline_content {
-        padding-left: 0;
-      }
-      & > .author, & > .edit, & > .edit_field {
-        padding-left: 0;
-      }
-      .image {
-        .image_content {
-          img {
-            width: 100%;
-          }
-          overflow: hidden;
-          padding: @FKS_newsFeed_padding;
-        }
-        width: 33%;
-        float: left;
-        padding: 0;
-        margin-top: -2.2em;
-      }
-    }
-    margin-bottom: 2em;
-  }
-*/
   .rss {
     & > * {
       &:hover {
@@ -120,4 +50,9 @@
   margin-top: 1em;
   margin-bottom: 1.5em;
   clear: both;
+}
+
+.feed-carousel .carousel-item {
+  background-color: @ini_text_alt;
+  background-size: cover;
 }
