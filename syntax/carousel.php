@@ -53,7 +53,7 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
             $attributes['data-' . $key] = $value;
         }
         $renderer->doc .= '<div class="news-stream">
-<div class="stream row" ' . buildAttributes($attributes) . ' data-start="0" data-feed="5">
+<div class="stream row" ' . buildAttributes($attributes) . ' data-start="0" data-feed="0">
 </div>
 </div>';
         return false;
@@ -93,10 +93,11 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
         }
         $html = '';
         $html .= '<div class="carousel-item bg-' . $feed['category'] . ($active ? ' active' : '') . '" style="' .
-            $style . ';height:300px">
+            $style . ';height:400px">
       <div class="carousel-caption d-none d-md-block">';;
         $html .= $this->getHeadline($feed);
         $html .= $this->getText($feed);
+        $html .= $this->getLink($feed);
         $html .= '</div></div>';
         return $html;
     }
@@ -107,5 +108,15 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
 
     private function getHeadline($feed) {
         return '<h3>' . hsc($feed['title']) . '</h3>';
+    }
+
+    private function getLink($feed) {
+        if ($feed['link_title']) {
+            return '<p>
+        <a class="btn btn-secondary" href="' .
+            wl($feed['link_href'], null, true) . '">' . $feed['link_title'] . '</a>
+</p>';
+        }
+        return '';
     }
 }
