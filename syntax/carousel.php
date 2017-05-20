@@ -112,10 +112,12 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
 
     private function getLink($feed) {
         if ($feed['link_title']) {
-            return '<p>
-        <a class="btn btn-secondary" href="' .
-            wl($feed['link_href'], null, true) . '">' . $feed['link_title'] . '</a>
-</p>';
+            if (preg_match('|^https?://|', $feed['link_href'])) {
+                $href = hsc($feed['link_href']);
+            } else {
+                $href = wl($feed['link_href'], null, true);
+            }
+            return '<p><a class="btn btn-secondary" href="' . $href . '">' . $feed['link_title'] . '</a></p>';
         }
         return '';
     }
