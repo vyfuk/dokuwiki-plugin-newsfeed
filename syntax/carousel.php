@@ -71,7 +71,8 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
             $indicators[] = '<li data-target="#' . $id . '" data-slide-to="' . $i . '"></li>';
             $items[] = $this->getCarouselItem($feed, !$i);
         }
-        $renderer->doc .= '<div id="' . $id . '" class="feed-carousel carousel slide mb-3 hidden-md-down" data-ride="carousel">';
+        $renderer->doc .= '<div id="' . $id .
+            '" class="feed-carousel carousel slide mb-3 hidden-md-down" data-ride="carousel">';
 
         $renderer->doc .= '<ol class="carousel-indicators">';
         foreach ($indicators as $indicator) {
@@ -91,10 +92,11 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
         if ($feed['image']) {
             $style .= 'background-image: url(' . ml($feed['image'], ['w' => 600]) . ')';
         }
+        $background = 'bg-' . $feed['category'];
         $html = '';
-        $html .= '<div class="carousel-item bg-' . $feed['category'] . ($active ? ' active' : '') . '" style="' .
-            $style . ';height:400px">
-      <div class="carousel-caption d-block">';;
+        $html .= '<div class="carousel-item ' . ($feed['image'] ? '' : $background) . ($active ? ' active' : '') .
+            '" style="' . $style . ';height:400px">
+      <div class="carousel-caption d-block ' . ($feed['image'] ? $background : '') . '">';
         $html .= $this->getHeadline($feed);
         $html .= $this->getText($feed);
         $html .= $this->getLink($feed);
