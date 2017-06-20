@@ -13,20 +13,10 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         $this->helper = $this->loadHelper('fksnewsfeed');
     }
 
-    /**
-     *
-     * @param Doku_Event_Handler $controller
-     */
     public function register(Doku_Event_Handler $controller) {
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'stream');
     }
 
-    /**
-     * [Custom event handler which performs action]
-     *
-     * @param Doku_Event $event event object by reference
-     * @return void
-     */
     public function stream(Doku_Event &$event) {
         global $INPUT;
         if ($INPUT->str('target') != 'feed') {
@@ -41,15 +31,19 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
             $htmlHead = null;
             if ($INPUT->param('news')['do'] == 'stream') {
                 if (auth_quickaclcheck('start') >= $this->getConf('perm_manage')) {
-                    $htmlHead .= '<div class="btn-group">';
+                    $htmlHead .= '<div class="btn-group-vertical">';
+                    $htmlHead .= '<div class="mb-3">';
                     $htmlHead .= $this->printCreateBtn($INPUT->param('news')['stream']);
+                    $htmlHead .= '</div>';
+                    $htmlHead .= '<div class="mb-3">';
                     $htmlHead .= $this->printPullBtn($INPUT->param('news')['stream']);
+                    $htmlHead .= '</div>';
+                    $htmlHead .= '<div class="mb-3">';
                     $htmlHead .= $this->printCacheBtn();
                     $htmlHead .= '</div>';
+                    $htmlHead .= '</div>';
                 }
-                if (auth_quickaclcheck('start') >= $this->getConf('perm_rss')) {
-                    //$htmlHead .= $this->printRSS($INPUT->param('news')['stream']);
-                }
+                $htmlHead .= $this->printRSS($INPUT->param('news')['stream']);
             }
             $news = $this->helper->loadStream($INPUT->param('news')['stream']);
             $data = $this->printStream($news, (int)$INPUT->param('news')['start'], (int)$INPUT->param('news')['length'], $INPUT->param('news')['stream'], $INPUT->str('page_id'));
@@ -61,13 +55,21 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         }
     }
 
+    /**
+     * @param $news \PluginNewsFeed\News[]
+     * @param int $start
+     * @param int $length
+     * @param string $stream
+     * @param string $page_id
+     * @return array
+     */
     private function printStream($news, $start = 0, $length = 5, $stream = "", $page_id = "") {
         $htmlNews = [];
         $htmlButton = null;
         global $INPUT;
         for ($i = $start; $i < min([$start + $length, (count($news))]); $i++) {
             $e = $i % 2 ? 'even' : 'odd';
-            $htmlNews[] = $this->helper->printNews($news[$i]['news_id'], $e, $stream, $page_id);
+            $htmlNews[] = $this->helper->printNews($news[$i]->getNewsID(), $e, $stream, $page_id);
         }
         if ($length + $start >= count($news)) {
             $htmlButton .= '<div class="alert alert-warning">' . $this->getLang('no_more') . '</div>';

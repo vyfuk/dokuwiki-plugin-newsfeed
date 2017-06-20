@@ -56,7 +56,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
         $form = new Form();
         if ($INPUT->param('news')['id'] != 0) {
-            $data = $this->helper->loadSimpleNews($INPUT->param('news')['id']);
+            $data = $this->helper->loadSimpleNews($INPUT->param('news')['id'],false);
         } else {
             $data = $this->createDefault();
         }
@@ -71,13 +71,11 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
         foreach (helper_plugin_fksnewsfeed::$fields as $field) {
             $input = null;
-            $form->addTagOpen('div')
-                ->addClass('form-group');
+            $form->addTagOpen('div')->addClass('form-group');
 
             switch ($field) {
                 case'text':
-                    $input = $form->addTextarea('text', $this->getLang($field), -1)
-                        ->attr('class', 'form-control');
+                    $input = $form->addTextarea('text', $this->getLang($field), -1)->attr('class', 'form-control');
                     break;
                 case 'news-date':
                     $input = new InputElement('datetime-local', $field, $this->getLang($field));
@@ -87,33 +85,38 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
                     break;
                 case'category':
 
-                    $input = $form->addDropdown('category', [
-                        'primary',
-                        'info',
-                        'success',
-                        'warning',
-                        'danger',
-                        'deprecated',
-                        'fykos-blue',
-                        'fykos-pink',
-                        'fykos-line',
-                        'fykos-purple',
-                        'fykos-borange',
-                        'fykos-green',
-                    ], $this->getLang($field))
-                        ->attr('class', 'form-control');
+                    $input = $form->addDropdown('category',
+                        [
+                            'primary',
+                            'info',
+                            'success',
+                            'warning',
+                            'danger',
+                            'deprecated',
+                            'fykos-blue',
+                            'fykos-pink',
+                            'fykos-line',
+                            'fykos-purple',
+                            'fykos-orange',
+                            'fykos-green',
+                        ],
+                        $this->getLang($field))->attr('class', 'form-control');
                     break;
                 case'image':
-                    $input = $form->addTextInput($field, $this->getLang($field))
-                        ->attr('class', 'form-control');
+                    $input = $form->addTextInput($field, $this->getLang($field))->attr('class', 'form-control');
+                    break;
+                case 'link-href':
+                case 'link-title':
+                    $input = $form->addTextInput($field, $this->getLang($field))->attrs([
+                        'class' => 'form-control',
+                    ]);
                     break;
                 default:
-                    $input = $form->addTextInput($field, $this->getLang($field))
-                        ->attrs([
-                            'pattern' => '\S.*',
-                            'required' => 'required',
-                            'class' => 'form-control',
-                        ]);
+                    $input = $form->addTextInput($field, $this->getLang($field))->attrs([
+                        'pattern' => '\S.*',
+                        'required' => 'required',
+                        'class' => 'form-control',
+                    ]);
             }
             if ($field !== 'news-date') {
                 $input->val($data[$field]);
@@ -122,8 +125,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
         }
 
         $form->addFieldsetClose();
-        $form->addButton('submit', 'Uložiť')
-            ->addClass('btn btn-suceess');
+        $form->addButton('submit', 'Uložiť')->addClass('btn btn-suceess');
         echo $form->toHTML();
     }
 }

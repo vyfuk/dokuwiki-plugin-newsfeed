@@ -30,26 +30,26 @@ class action_plugin_fksnewsfeed_preprocess extends DokuWiki_Action_Plugin {
             case 'edit':
                 return;
             case'save':
-                $this->saveNews($event);
+                $this->saveNews();
                 return;
             case'priority':
-                $this->savePriority($event);
+                $this->savePriority();
                 return;
             case'delete':
-                $this->saveDelete($event);
+                $this->saveDelete();
                 return;
             case'purge':
-                $this->deleteCache($event);
+                $this->deleteCache();
                 return;
             default:
                 return;
         }
     }
 
-    private function saveNews(Doku_Event &$event) {
+    private function saveNews() {
         global $INPUT;
 
-        $file = $this->helper->getCacheFile($INPUT->param('news')['id']);
+        $file = PluginNewsFeed\News::getCacheFileByID($INPUT->param('news')['id']);
         $cache = new cache($file, '');
         $cache->removeCache();
 
@@ -78,44 +78,52 @@ class action_plugin_fksnewsfeed_preprocess extends DokuWiki_Action_Plugin {
         $streams = [$streamID];
         $this->helper->fullParentDependence($streamID, $streams);
         foreach ($streams as $stream) {
-            $this->helper->saveIntoStream($stream, $newsID);
+            $priority = new \PluginNewsFeed\Priority(null, $newsID, $stream);
+            $priority->create();
         }
     }
 
-    private function savePriority(Doku_Event &$event) {
+    private function savePriority() {
         global $INPUT;
-        $file = $this->helper->getCacheFile($INPUT->param('news')['id']);
+        $file = PluginNewsFeed\News::getCacheFileByID($INPUT->param('news')['id']);
 
         $cache = new cache($file, '');
         $cache->removeCache();
 
         $stream_id = $this->helper->streamToID($INPUT->param('news')['stream']);
-        $priority = $INPUT->param('priority');
-        if ($this->helper->savePriority($INPUT->param('news')['id'], $stream_id, floor($priority['value']), $priority['from'], $priority['to'])) {
+        $priority = new \PluginNewsFeed\Priority(null, $INPUT->param('news')['id'], $stream_id);
+        $data = $INPUT->param('priority');
+        $priority->fill([
+            'priority_from' => $data['from'],
+            'priority_to' => $data['to'],
+            'priority' => $data['value'],
+        ]);
+        if ($priority->save()) {
             header('Location: ' . $_SERVER['REQUEST_URI']);
             exit();
         }
     }
 
-    private function saveDelete(Doku_Event &$event) {
+    private function saveDelete() {
         global $INPUT;
         $stream_id = $this->helper->streamToID($INPUT->param('news')['stream']);
-        $this->helper->deleteOrder($INPUT->param('news')['id'], $stream_id);
+        $priority = new \PluginNewsFeed\Priority(null, $INPUT->param('news')['id'], $stream_id);
+        $priority->delete();
         header('Location: ' . $_SERVER['REQUEST_URI']);
         exit();
     }
 
-    private function deleteCache(Doku_Event &$event) {
+    private function deleteCache() {
         global $INPUT;
         if (!$INPUT->param('news')['id']) {
             $news = $this->helper->allNewsFeed();
             foreach ($news as $new) {
-                $f = $this->helper->getCacheFile($new['news_id']);
+                $f = $new->getCacheFile();
                 $cache = new cache($f, '');
                 $cache->removeCache();
             }
         } else {
-            $f = $this->helper->getCacheFile($INPUT->param('news')['id']);
+            $f = \PluginNewsFeed\News::getCacheFileByID($INPUT->param('news')['id']);
             $cache = new cache($f, '');
             $cache->removeCache();
         }

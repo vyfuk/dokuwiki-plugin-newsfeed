@@ -36,7 +36,7 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
         return [$state, [$parameters]];
     }
 
-    public function render($mode, Doku_Renderer &$renderer, $data) {
+    public function render($mode, Doku_Renderer $renderer, $data) {
         if ($mode !== 'xhtml') {
             return true;
         }
@@ -67,6 +67,9 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
             if (!isset($news[$i])) {
                 break;
             };
+            /**
+             * @var $feed \PluginNewsFeed\News;
+             */
             $feed = $news[$i];
             $indicators[] = '<li data-target="#' . $id . '" data-slide-to="' . $i . '"></li>';
             $items[] = $this->getCarouselItem($feed, !$i);
@@ -87,16 +90,16 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
         $renderer->doc .= '</div></div>';
     }
 
-    private function getCarouselItem($feed, $active = false) {
+    private function getCarouselItem(\PluginNewsFeed\News $feed, $active = false) {
         $style = '';
-        if ($feed['image']) {
-            $style .= 'background-image: url(' . ml($feed['image'], ['w' => 600]) . ')';
+        if ($feed->hasImage()) {
+            $style .= 'background-image: url(' . ml($feed->getImage(), ['w' => 600]) . ')';
         }
-        $background = 'bg-' . $feed['category'];
+        $background = 'bg-' . $feed->getCategory();
         $html = '';
-        $html .= '<div class="carousel-item ' . ($feed['image'] ? '' : $background) . ($active ? ' active' : '') .
+        $html .= '<div class="carousel-item ' . ($feed->hasImage() ? '' : $background) . ($active ? ' active' : '') .
             '" style="' . $style . ';height:400px">
-      <div class="carousel-caption d-block ' . ($feed['image'] ? $background : '') . '">';
+      <div class="carousel-caption d-block ' . ($feed->getImage() ? $background : '') . '">';
         $html .= $this->getHeadline($feed);
         $html .= $this->getText($feed);
         $html .= $this->getLink($feed);
@@ -104,22 +107,22 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
         return $html;
     }
 
-    private function getText($feed) {
-        return '<p>' . p_render('xhtml', p_get_instructions($feed['text']), $info) . '</p>';
+    private function getText(\PluginNewsFeed\News $feed) {
+        return '<p>' . p_render('xhtml', p_get_instructions($feed->getText()), $info) . '</p>';
     }
 
-    private function getHeadline($feed) {
-        return '<h3>' . hsc($feed['title']) . '</h3>';
+    private function getHeadline(\PluginNewsFeed\News $feed) {
+        return '<h3>' . hsc($feed->getTitle()) . '</h3>';
     }
 
-    private function getLink($feed) {
-        if ($feed['link_title']) {
-            if (preg_match('|^https?://|', $feed['link_href'])) {
-                $href = hsc($feed['link_href']);
+    private function getLink(\PluginNewsFeed\News $feed) {
+        if ($feed->getLinkTitle()) {
+            if (preg_match('|^https?://|', $feed->getLinkHref())) {
+                $href = hsc($feed->getLinkHref());
             } else {
-                $href = wl($feed['link_href'], null, true);
+                $href = wl($feed->getLinkHref(), null, true);
             }
-            return '<p><a class="btn btn-secondary" href="' . $href . '">' . $feed['link_title'] . '</a></p>';
+            return '<p><a class="btn btn-secondary" href="' . $href . '">' . $feed->getLinkTitle() . '</a></p>';
         }
         return '';
     }

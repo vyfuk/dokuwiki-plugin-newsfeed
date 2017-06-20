@@ -42,7 +42,8 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
             }
 
             foreach ($streamIDs as $streamID) {
-                $this->helper->saveIntoStream($streamID, $newsID);
+                $priority = new \PluginNewsFeed\Priority(null, $newsID, $streamID);
+                $priority->create();
             }
             header('Location: ' . $_SERVER['REQUEST_URI']);
             exit();
@@ -52,18 +53,11 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
     public function html() {
         global $INPUT;
         $stream = $INPUT->param('news')['stream'];
-
         echo '<h1>' . $this->getLang('push_menu') . '</h1>';
-        echo '<div class="info"><span>' . $this->getLang('push_in_stream') . ': ' . $stream . '</span></div>';
+        echo '<div class="info">' . $this->getLang('push_in_stream') . ': ' . $stream . '</div>';
 
         $streams = $this->helper->allStream();
-        $streamValues = [];
-        foreach ($streams as $stream) {
-            $id = $this->helper->streamToID($stream);
-            $streamValues[$id] = $stream;
-        }
-
-        echo $this->streamChangeForm($streamValues);
+        echo $this->getChangeStreamForm($streams)->toHTML();
 
         if ($stream) {
             echo '<h2>' . $this->getLang('push_menu') . ': ' . $stream . '</h2>';
@@ -71,34 +65,43 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
             $allNews = $this->helper->allNewsFeed();
 
             foreach ($this->newsToID($allNews) as $id) {
-                echo '<div class="FKS_newsfeed push">';
-
                 if (array_search($id, $newsInStream) === FALSE) {
                     echo $this->helper->printNews($id, 'even', ' ', ' ', false);
                     echo $this->newsAddForm($stream, $id);
+                    echo '<hr class="clearfix">';
+                    tpl_flush();
                 }
-                echo '<hr>';
-                echo '</div>';
             }
         }
     }
 
+    /**
+     * @param $news \PluginNewsFeed\News[]
+     * @return integer[]
+     */
     private function newsToID($news) {
-        return array_map(function ($value) {
-            return $value['news_id'];
+        return array_map(function (\PluginNewsFeed\News $value) {
+            return $value->getNewsID();
         }, $news);
     }
 
-    private function streamChangeForm($streamValues) {
+    /**
+     * @param $streamValues array
+     * @return Form
+     *
+     */
+    private function getChangeStreamForm(array $streamValues = []) {
         $form = new Form();
         $form->addDropdown('news[stream]', $streamValues, $this->getLang('stream'));
         $form->addButton('submit', $this->getLang('push_choose_stream'));
-        return $form->toHTML();
+        return $form;
     }
 
     private function newsAddForm($stream, $newsID) {
         $newsForm = new Form();
         //$newsForm->setHiddenField('news[do]', 'push_save');
+        $newsForm->setHiddenField('do', 'admin');
+        $newsForm->setHiddenField('page', 'fksnewsfeed_push');
         $newsForm->setHiddenField('news[id]', $newsID);
         $newsForm->setHiddenField('news[stream]', $stream);
         $newsForm->addCheckbox('all_dependence', $this->getLang('alw_dep'));

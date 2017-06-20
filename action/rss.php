@@ -22,8 +22,8 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
         global $image;
 
         global $INPUT;
-        $set_stream = $INPUT->str('stream');
-        if (empty($set_stream)) {
+        $stream = $INPUT->str('stream');
+        if (empty($stream)) {
             return;
         }
         unset($rss, $data);
@@ -38,25 +38,22 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
         $rss->cssStyleSheet = DOKU_URL . 'lib/exe/css.php?s=feed';
         $rss->image = $image;
 
-        $ids = $this->helper->loadStream($INPUT->str('stream'));
-        foreach ($ids as $id) {
-            $param = $this->helper->loadSimpleNews($id['news_id']);
-            $data = new UniversalFeedCreator();
-            $data->pubDate = $param['newsdate'];
-            $data->title = $param['name'];
-            $data->link = $this->helper->getToken($id['news_id']);
-            $info = [];
+        $allNews = $this->helper->loadStream($stream);
 
-            $data->description = p_render('text', p_get_instructions($param['text']), $info);
-            $data->editor = $param['author'];
-            $data->editorEmail = $param['email'];
-            $data->webmaster = 'miso@fykos.cz';
-            $data->category = $param['category'];
+        foreach ($allNews as $news) {
+            $data = new UniversalFeedCreator();
+            $data->pubDate = $news->getNewsDate();
+            $data->title = $news->getTitle();
+            $data->link = $this->helper->getToken($news->getNewsID());
+
+            $data->description = p_render('text', p_get_instructions($news->getText()), $info);
+            $data->editor = $news->getAuthorName();
+            $data->editorEmail = $news->getAuthorEmail();
+            $data->category = $news->getCategory();
             $rss->addItem($data);
         }
         $feeds = $rss->createFeed($opt['feed_type'], 'utf-8');
         print $feeds;
         exit;
     }
-
 }

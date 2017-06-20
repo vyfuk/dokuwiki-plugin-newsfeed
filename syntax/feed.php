@@ -41,42 +41,24 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
         return [$state, $parameters];
     }
 
-    public function render($mode, Doku_Renderer &$renderer, $data) {
+    public function render($mode, Doku_Renderer $renderer, $data) {
         if ($mode == 'xhtml') {
 
             list($state, $param) = $data;
             switch ($state) {
                 case DOKU_LEXER_SPECIAL:
                     $renderer->nocache();
-                    $data = $this->helper->loadSimpleNews($param['id']);
-                    if (empty($data) || ($param['id'] == 0)) {
+                    $news = $this->helper->loadSimpleNews($param['id']);
+                    if (is_null($news) || ($param['id'] == 0)) {
                         $renderer->doc .= '<div class="alert alert-danger">' . $this->getLang('news_non_exist') .
                             '</div>';
                         return true;
                     }
-                    $content = $this->getContent($data, $param);
-                    $image = $this->getImage($data);
-
-                    $renderer->doc .= '<div class="col-lg-12 row mb-3">';
-                    /*if ($image) {
-                        if ($param['even'] === 'odd') {
-                            $renderer->doc .= '<div class="col-lg-3">';
-                            $renderer->doc .= $image;
-                            $renderer->doc .= '</div>';
-                        }
-                        $renderer->doc .= '<div class="col-lg-9">';
-                        $renderer->doc .= $content;
-                        $renderer->doc .= '</div>';
-                        if ($param['even'] === 'even') {
-                            $renderer->doc .= '<div class="col-lg-3">';
-                            $renderer->doc .= $image;
-                            $renderer->doc .= '</div>';
-                        }
-                    } else {*/
-                    $renderer->doc .= '<div class="col-lg-12">';
+                    $content = $this->getContent($news, $param);
+                    $renderer->doc .= '<div class="col-12 row mb-3">';
+                    $renderer->doc .= '<div class="col-12">';
                     $renderer->doc .= $content;
                     $renderer->doc .= '</div>';
-                    //}
                     $renderer->doc .= '</div>';
                     return false;
                 default:
@@ -86,8 +68,13 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
         return false;
     }
 
+    /**
+     * @param $data \PluginNewsFeed\News
+     * @param $params array
+     * @return string
+     */
     private function getContent($data, $params) {
-        $f = $this->helper->getCacheFile($params['id']);
+        $f = $data->getCacheFile();
         $cache = new cache($f, '');
         $json = new JSON();
         if ($cache->useCache()) {
@@ -98,85 +85,91 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
 
             $innerHtml .= $this->getLink($data);
             $innerHtml .= $this->getSignature($data);
-            // @share@
+            $innerHtml .= $this->getShareFields($params['id'], $data);
             $cache->storeCache($json->encode($innerHtml));
         }
 
-        $html = '<div class="bs-callout mb-3 bs-callout-' . $data['category'] . '" data-parity="' . $data['parity'] .
-            '">';
+        $html = '<div class="bs-callout mb-3 bs-callout-' . $data->getCategory() . '">';
         $html .= $innerHtml;
         $html .= $this->getEditField($params);
         $html .= '</div>';
         return $html;
     }
 
-    private function createShareFields($id, $news, $page_id = "") {
-        $html = '';
-        $link = $this->helper->getToken((int)$id, $page_id);
-        if (auth_quickaclcheck('start') >= AUTH_READ) {
-            $html .= '<div ' . 'class="share field">' . "\n";
-            $html .= '<div class="Twitt">';
-            $html .= '<a href="https://twitter.com/share" data-count="none" data-text="' . $news['name'] .
-                '" class="twitter-share-button" data-url="' . $link .
-                '" data-via="fykosak" data-hashtags="FYKOS">Tweet</a>';
-            $html .= '</div>' . "\n";
-
-            $html .= '<div class="FB-msg">';
-            $html .= $this->helper->social->facebook->createSend($link);
-            $html .= '</div>' . "\n";
-
-            $html .= '<div class="FB-share">';
-            $html .= $this->helper->social->facebook->createShare($link);
-            $html .= '</div>' . "\n";
-
-            $html .= '<div class="whatsapp-share">';
-            $html .= $this->helper->social->whatsapp->createSend($link);
-            $html .= '</div>' . "\n";
-
-            $html .= '
-<div class="link">
-    <span class="link-icon icon"></span>
-    <span contenteditable="true" class="link_inp" >' . $link . '</span>
-</div>' . "\n";
-
-            $html .= '</div>' . "\n";
+    /**
+     * @param $id
+     * @param $news \PluginNewsFeed\News
+     * @return string
+     */
+    private function getShareFields($id, $news) {
+        global $ID;
+        if (auth_quickaclcheck('start') < AUTH_READ) {
+            return '';
         }
+        $link = $this->helper->getToken((int)$id, $news->getLinkHref());
+        if (preg_match('|^https?://|', $news->getLinkHref())) {
+            $link = $this->helper->getToken((int)$id, $ID);;
+        }
+        $html = '<div class="row mb-3" style="max-height: 2rem;">';
+
+        $html .= '<div class="col-6">' .
+            $this->helper->social->facebook->createSend($link) .
+            '</div>';
+
+        $html .= '<div class="col-6">';
+        $html .= $this->helper->social->facebook->createShare($link);
+        $html .= '</div>';
+
+        //  $html .= '<div class="link">
+        //  <span class="link-icon icon"></span>
+        //  <span contenteditable="true" class="link_inp" >' . $link . '</span>
+        //// </div>' ;
+
+        $html .= '</div>';
+
         return $html;
     }
 
-    private function getText($data) {
-        return p_render('xhtml', p_get_instructions($data['text']), $info);
+    /**
+     * @param $news \PluginNewsFeed\News
+     * @return null|string
+     */
+    private function getText($news) {
+        return p_render('xhtml', p_get_instructions($news->getText()), $info);
     }
 
-    private function getImage($data) {
-        if (!$data['image']) {
-            return null;
-        }
-        return '<img src="' . ml($data['image'], ['w' => 300]) . '" alt="newsfeed">';
-    }
-
-    private function getSignature($data) {
+    /**
+     * @param $news \PluginNewsFeed\News
+     * @return string
+     */
+    private function getSignature($news) {
         return ' <div class="card-text text-right">
-            <a href="mailto:' . hsc($data['author-email']) . '" class="mail" title="' . hsc($data['author-email']) .
-        '"><span class="fa fa-envelope"></span>' . hsc($data['author-name']) . '</a>
+            <a href="mailto:' . hsc($news->getAuthorEmail()) . '" class="mail" title="' . hsc($news->getAuthorEmail()) .
+            '"><span class="fa fa-envelope"></span>' . hsc($news->getAuthorName()) . '</a>
         </div>';
     }
 
-    private function getHeader($data) {
-        return '<h4>
-            ' . $data['title'] . '
-            <small class="float-right">' . $this->newsDate($data['news-date']) . '</small>
-        </h4>';
+    /**
+     * @param $news \PluginNewsFeed\News
+     * @return string
+     */
+    private function getHeader($news) {
+        return '<h4>' . $news->getTitle() .
+            '<small class="float-right">' . $this->newsDate($news->getNewsDate()) . '</small></h4>';
     }
 
-    private function getLink($feed) {
-        if ($feed['link-title']) {
-            if (preg_match('|^https?://|', $feed['link-href'])) {
-                $href = hsc($feed['link-href']);
+    /**
+     * @param $news \PluginNewsFeed\News
+     * @return string
+     */
+    private function getLink($news) {
+        if ($news->hasLink()) {
+            if (preg_match('|^https?://|', $news->getLinkHref())) {
+                $href = hsc($news->getLinkHref());
             } else {
-                $href = wl($feed['link-href'], null, true);
+                $href = wl($news->getLinkHref(), null, true);
             }
-            return '<p><a class="btn btn-secondary" href="' . $href . '">' . $feed['link-title'] . '</a></p>';
+            return '<p><a class="btn btn-secondary" href="' . $href . '">' . $news->getLinkTitle() . '</a></p>';
         }
         return '';
     }
@@ -192,8 +185,8 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
         $html .= '<div class="modal-dialog">';
         $html .= '<div class="modal-content">';
         $html .= $this->getModalHeader();
-        $html .= $this->getPriorityField($params["id"], $params['stream'], $params);
-        $html .= $this->btnEditNews($params["id"], $params['stream']);
+        $html .= $this->getPriorityField($params['id'], $params['stream'], $params);
+        $html .= $this->btnEditNews($params['id'], $params['stream']);
         $html .= '</div>';
         $html .= '</div>';
         $html .= '</div>';
@@ -204,7 +197,7 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
     private function getModalHeader() {
         $html = '';
         $html .= '<div class="modal-header">';
-        $html .= '<h5 class="modal-title">Upaviť novinku</h5>';
+        $html .= '<h5 class="modal-title">' . $this->getLang('') . 'Upaviť novinku</h5>';
         $html .= '<button type="button" class="close" data-dismiss="modal" aria-label="Close">';
         $html .= '<span aria-hidden="true">×</span>';
         $html .= '</button>';
@@ -231,23 +224,24 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
         $form->setHiddenField('news[do]', 'priority');
 
         $streamID = $this->helper->streamToID($stream);
-        list($priority) = $this->helper->findPriority($id, $streamID);
+        $priority = new \PluginNewsFeed\Priority(null, $id, $streamID);
+        $priority->fillFromDatabase();
         $form->addTagOpen('div')->addClass('form-group');
         $priorityValue = new Form\InputElement('number', 'priority[value]', $this->getLang('valid_from'));
-        $priorityValue->attr('class', 'form-control')->val($priority['priority']);
+        $priorityValue->attr('class', 'form-control')->val($priority->getPriorityValue());
         $form->addElement($priorityValue);
         $form->addTagClose('div');
 
         $form->addTagOpen('div')->addClass('form-group');
-        $priorityFromElement = new Form\InputElement('datetime-local', 'priority[form]', $this->getLang('valid_from'));
-        $priorityFromElement->val($priority['priority_from'] ?: date('Y-m-d\TH:i:s', time()))
+        $priorityFromElement = new Form\InputElement('datetime-local', 'priority[from]', $this->getLang('valid_from'));
+        $priorityFromElement->val($priority->getPriorityFrom() ?: date('Y-m-d\TH:i:s', time()))
             ->attr('class', 'form-control');
         $form->addElement($priorityFromElement);
         $form->addTagClose('div');
 
         $form->addTagOpen('div')->addClass('form-group');
         $priorityToElement = new Form\InputElement('datetime-local', 'priority[to]', $this->getLang('valid_to'));
-        $priorityToElement->val($priority['priority_to'] ?: date('Y-m-d\TH:i:s', time()))
+        $priorityToElement->val($priority->getPriorityTo() ?: date('Y-m-d\TH:i:s', time()))
             ->attr('class', 'form-control');
         $form->addElement($priorityToElement);
         $form->addTagClose('div');

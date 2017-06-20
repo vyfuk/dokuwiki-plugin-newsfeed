@@ -22,17 +22,18 @@ class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
     public function addFBMeta() {
         global $ID;
         global $INPUT;
-        if (!$INPUT->str('fksnews_id')) {
+        if (!$INPUT->str('news-id')) {
             return;
         }
-        $news_id = $INPUT->str('fksnews_id');
+        $news_id = $INPUT->str('news-id');
         $news = $this->helper->loadSimpleNews($news_id);
-        $this->helper->social->meta->addMetaData('og', 'title', $news['name']);
+
+        $this->helper->social->meta->addMetaData('og', 'title', $news->getTitle());
         $this->helper->social->meta->addMetaData('og', 'url', $this->helper->getToken($news_id, $ID));
-        $text = p_render('text', p_get_instructions($news['text']), $info);
+        $text = p_render('text', p_get_instructions($news->getText()), $info);
         $this->helper->social->meta->addMetaData('og', 'description', $text);
-        if ($news['image'] != "") {
-            $this->helper->social->meta->addMetaData('og', 'image', ml($news['image'], null, true, '&', true));
+        if ($news->hasImage()) {
+            $this->helper->social->meta->addMetaData('og', 'image', ml($news->getImage(), null, true, '&', true));
         }
     }
 }
