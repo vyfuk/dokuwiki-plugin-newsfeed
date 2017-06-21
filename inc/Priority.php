@@ -13,7 +13,7 @@ class Priority extends \helper_plugin_fksnewsfeed {
     /**
      * @var integer
      */
-    private $priorityID;
+    private $ID;
     /**
      * @var string;
      */
@@ -38,26 +38,26 @@ class Priority extends \helper_plugin_fksnewsfeed {
     /**
      * @return integer
      */
-    public function getPriorityID() {
-        return $this->priorityID;
+    public function getID() {
+        return $this->ID;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getPriorityFrom() {
         return $this->priorityFrom;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getPriorityTo() {
         return $this->priorityTo;
     }
 
     /**
-     * @return mixed
+     * @return integer
      */
     public function getPriorityValue() {
         return $this->priorityValue;
@@ -103,7 +103,7 @@ class Priority extends \helper_plugin_fksnewsfeed {
 
     public function fill($data) {
         $this->priorityFrom = $data['priority_from'];
-        $this->priorityID = $data['priority_id'];
+        $this->ID = $data['priority_id'];
         $this->priorityTo = $data['priority_to'];
         $this->priorityValue = $data['priority'];
         $this->checkValidity();

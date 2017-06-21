@@ -15,8 +15,8 @@ $lang['btn_edit_news'] = 'Upravit tuto novinku';
 $lang['btn_more_news'] = 'Starší novinky';
 $lang['btn_share'] = 'Sdílet';
 $lang['btn_priority_edit'] = 'Upravit prioritu';
-$lang['btn_create_news']='Vytvořit novinku';
-$lang['btn_opt']='Další možnosti';
+$lang['btn_create_news'] = 'Vytvořit novinku';
+$lang['btn_opt'] = 'Další možnosti';
 /**
  * label to form
  */
@@ -34,7 +34,6 @@ $lang['link-href'] = 'Cíl odkazu';
 $lang['link-title'] = 'Text odkazu';
 
 $lang['text'] = 'text';
-
 
 
 $lang['stream'] = 'Vlákno';
@@ -60,10 +59,10 @@ $lang['no_more'] = 'Momentálně nejsou žádné další aktuality';
 $lang['news_non_exist'] = 'Ups! Taková novinka neexistuje!';
 
 /*
- *  
+ *
  */
-$lang['cache_del']='Smazat cache';
-$lang['cache_del_full']='Smazat všechny cache';
+$lang['cache_del'] = 'Smazat cache';
+$lang['cache_del_full'] = 'Smazat všechny cache';
 /*
  * Priority
  */
@@ -82,7 +81,7 @@ $lang['js']['oRlyDelete'] = $lang['o_rly_delete'];
  * manage stream
  */
 $lang['push_menu'] = 'Přidat existujicí novinku do vlákna';
-$lang['push_in_stream']='Nacházíte se ve vlákně';
+$lang['push_in_stream'] = 'Nacházíte se ve vlákně';
 
 $lang['push_choose_stream'] = 'Změnit vlákno';
 
@@ -95,17 +94,10 @@ $lang['menu_delete_stream'] = 'Odstranit novinku z vlákna';
 $lang['btn_delete_stream'] = $lang['menu_delete_stream'];
 $lang['info_delete_stream'] = 'Spravovat toto vlákno:';
 
-
-/**
- * change order
- */
-$lang['menu_change_order'] = 'Upravit pořadí novinky nebo ji smazat';
-$lang['btn_change_order'] = 'Uložit změny';
-$lang['info_change_order'] = '';
 /**
  * for admin dependence
  */
-$lang['dep_menu'] = 'Upravit závislosti vláken';
+$lang['dependence_menu'] = 'Upravit závislosti vláken';
 $lang['dep_create'] = 'Vytvořit novou závislost';
 $lang['dep_created'] = 'Závislost byla vytvořena';
 $lang['dep_exist'] = 'Závislost již existuje';
@@ -122,8 +114,11 @@ $lang['dep_list_child_full'] = 'Do tohoto vlákna celkově dědí, je dcera/vnu�
 /**
  * for admin stream
  */
+
 $lang['stream_create'] = 'Vytvoř vlákno';
 $lang['stream_list'] = 'Seznam vláken';
 $lang['stream_delete'] = 'Odstraň vlákno';
 
-$lang['alw_dep']='Povolit dědění';
+$lang['alw_dep'] = 'Povolit dědění';
+
+$lang['stream_menu'] = 'Nastavenia streamov';

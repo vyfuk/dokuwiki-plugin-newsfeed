@@ -2,6 +2,7 @@
 
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/News.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/Priority.php';
+require_once DOKU_PLUGIN . 'fksnewsfeed/inc/Stream.php';
 
 class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
@@ -25,13 +26,6 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
      */
     public $social;
 
-    const SIMPLE_RENDER_PATTERN = '{{news-feed>id="@id@" even="@even@" editable="@editable@" stream="@stream@" page_id="@page_id@"}}';
-    const db_table_feed = 'news';
-    const db_table_dependence = 'dependence';
-    const db_table_order = 'priority';
-    const db_table_stream = 'stream';
-    const db_view_dependence = 'v_dependence';
-
     const FORM_TARGET = 'plugin_news-feed';
 
     public function __construct() {
@@ -50,67 +44,9 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         }
     }
 
-    public function streamToID($stream) {
-
-        $res1 = $this->sqlite->query('SELECT stream_id FROM stream WHERE name=?', $stream);
-        return (integer)$this->sqlite->res2single($res1);
-    }
-
-    /**
-     * @param $stream
-     * @return \PluginNewsFeed\News[]
-     */
-    public function loadStream($stream) {
-        $streamID = $this->streamToID($stream);
-        $res = $this->sqlite->query('SELECT * FROM priority o JOIN news n ON o.news_id=n.news_id WHERE stream_id=? ',
-            $streamID);
-        $ars = $this->sqlite->res2arr($res);
-        $news = [];
-        foreach ($ars as $ar) {
-            $priority = new \PluginNewsFeed\Priority($ar);
-            $priority->checkValidity();
-            $news[] = new \PluginNewsFeed\News($ar, $priority);
-        }
-        usort($news,
-            function (\PluginNewsFeed\News $a, \PluginNewsFeed\News $b) {
-                if ($a->getPriority()->getPriorityValue() > $b->getPriority()->getPriorityValue()) {
-                    return -1;
-                } elseif ($a->getPriority()->getPriorityValue() < $b->getPriority()->getPriorityValue()) {
-                    return 1;
-                } else {
-                    return strcmp($b->getNewsDate(), $a->getNewsDate());
-                }
-            });
-        return $news;
-    }
-
     public function findMaxNewsID() {
         $res = $this->sqlite->query('SELECT max(news_id) FROM news');
         return (int)$this->sqlite->res2single($res);
-    }
-
-    public function saveNews($data, $id = 0, $rewrite = false) {
-        $values = [];
-        foreach ($data as $key => $value) {
-            $values[str_replace('-', '_', $key)] = $value;
-        }
-        if (!$rewrite) {
-            $this->sqlite->query('INSERT INTO news 
-                        (' . implode(',', array_keys($values)) . ')
-            VALUES(?,?,?,?,?,?,?,?,?) ',
-                $values);
-            return $this->findMaxNewsID();
-        } else {
-            $data[] = $id;
-            $this->sqlite->query('UPDATE news SET ' . implode(',',
-                    array_map(function ($key) {
-                        return $key . '=?';
-                    },
-                        array_keys($values))) . '           
-            WHERE news_id=? ',
-                $data);
-            return $id;
-        }
     }
 
     public function allStream() {
@@ -122,20 +58,28 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         return $streams;
     }
 
-    public function getToken($id, $pageID = '') {
-
-        return (string)wl($pageID, null, true) . '?news-id=' . $id;
+    /**
+     * @return \PluginNewsFeed\Stream[]
+     */
+    public function getAllStreams() {
+        $streams = [];
+        $res = $this->sqlite->query('SELECT * FROM stream');
+        foreach ($this->sqlite->res2arr($res) as $row) {
+            $stream = new \PluginNewsFeed\Stream();
+            $stream->fill($row);
+            $streams[] = $stream;
+        }
+        return $streams;
     }
 
     /**
      * @param $id integer
-     * @param $toObject boolean
-     * @return null|\PluginNewsFeed\News
+     * @return array
      */
-    public function loadSimpleNews($id, $toObject = true) {
+    public function loadSimpleNews($id) {
         $res = $this->sqlite->query('SELECT * FROM news WHERE news_id=?', $id);
         foreach ($this->sqlite->res2arr($res) as $row) {
-            return $toObject ? (new \PluginNewsFeed\News($row)) : $this->prepareRow($row);
+            return $this->prepareRow($row);
         }
         return null;
     }
@@ -150,17 +94,16 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
 
     public function allParentDependence($streamID) {
         $streamIDs = [];
-        $res = $this->sqlite->query('SELECT * FROM dependence t WHERE t.parent=?', $streamID);
+        $res = $this->sqlite->query('SELECT * FROM dependence WHERE parent=?', $streamID);
         foreach ($this->sqlite->res2arr($res) as $row) {
-
-            $stream_ids[] = $row['child'];
+            $streamIDs[] = $row['child'];
         }
         return $streamIDs;
     }
 
     public function allChildDependence($streamID) {
         $streamIDs = [];
-        $res = $this->sqlite->query('SELECT * FROM dependence t WHERE t.child=?', $streamID);
+        $res = $this->sqlite->query('SELECT * FROM dependence  WHERE child=?', $streamID);
         foreach ($this->sqlite->res2arr($res) as $row) {
             $streamIDs[] = $row['parent'];
         }
@@ -185,16 +128,6 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         }
     }
 
-    public function createStream($streamName) {
-        $this->sqlite->query('INSERT INTO stream (name) VALUES(?);', $streamName);
-        return $this->streamToID($streamName);
-    }
-
-    public function IDToStream($id) {
-        $res1 = $this->sqlite->query('SELECT name FROM stream WHERE stream_id=?', $id);
-        return (string)$this->sqlite->res2single($res1);
-    }
-
     public function createDependence($parent, $child) {
         return (bool)$this->sqlite->query('INSERT INTO dependence (parent,child) VALUES(?,?);', $parent, $child);
     }
@@ -206,22 +139,10 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
         $res = $this->sqlite->query('SELECT * FROM news');
         $news = [];
         foreach ($this->sqlite->res2arr($res) as $row) {
-            $news[] = new \PluginNewsFeed\News($row);
+            $feed = new \PluginNewsFeed\News();
+            $feed->fill($row);
+            $news[] = $feed;
         };
         return $news;
-    }
-
-    public function printNews($newsID, $even, $stream, $pageID = '', $editable = true) {
-        $n = str_replace(['@id@', '@even@', '@editable@', '@stream@', '@page_id@'],
-            [
-                $newsID,
-                $even,
-                $editable ? 'true' : 'false',
-                $stream,
-                $pageID,
-            ],
-            self::SIMPLE_RENDER_PATTERN);
-        $info = [];
-        return p_render('xhtml', p_get_instructions($n), $info);
     }
 }

@@ -2,7 +2,10 @@
 
 namespace PluginNewsFeed;
 
-class News {
+class News extends \helper_plugin_fksnewsfeed {
+
+    const SIMPLE_RENDER_PATTERN = '{{news-feed>id="@id@" even="@even@" editable="@editable@" stream="@stream@" page_id="@page_id@"}}';
+
     /**
      * @var integer
      */
@@ -98,6 +101,39 @@ class News {
         return $this->newsDate;
     }
 
+    public function getLocalDate() {
+        $date = date('j\. F Y', strtotime($this->newsDate));
+        $enMonth = [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December'
+        ];
+        $langMonth = [
+            $this->getLang('jan'),
+            $this->getLang('feb'),
+            $this->getLang('mar'),
+            $this->getLang('apr'),
+            $this->getLang('may'),
+            $this->getLang('jun'),
+            $this->getLang('jul'),
+            $this->getLang('aug'),
+            $this->getLang('sep'),
+            $this->getLang('oct'),
+            $this->getLang('now'),
+            $this->getLang('dec')
+        ];
+        return (string)str_replace($enMonth, $langMonth, $date);
+    }
+
     /**
      * @return string
      */
@@ -140,6 +176,40 @@ class News {
         return $this->linkHref != null;
     }
 
+    public function create() {
+        $this->sqlite->query('INSERT INTO news  (title,  author_name,  author_email , text,  news_date,  
+image,  category, link_href,  link_title)  VALUES(?,?,?,?,?,?,?,?,?) ',
+            $this->title,
+            $this->authorName,
+            $this->authorEmail,
+            $this->text,
+            $this->newsDate,
+            $this->image,
+            $this->category,
+            $this->linkHref,
+            $this->linkTitle);
+        return $this->findMaxNewsID();
+    }
+
+    public function update() {
+        $this->sqlite->query('UPDATE news SET title=?,  author_name=?,  author_email=? , text=?, news_date=?,  
+image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
+            $this->title,
+            $this->authorName,
+            $this->authorEmail,
+            $this->text,
+            $this->newsDate,
+            $this->image,
+            $this->category,
+            $this->linkHref,
+            $this->linkTitle,
+            $this->newsID);
+    }
+
+    public function getToken($pageID = '') {
+        return (string)wl($pageID, null, true) . '?news-id=' . $this->newsID;
+    }
+
     public function getCacheFile() {
         return self::getCacheFileByID($this->newsID);
     }
@@ -148,7 +218,21 @@ class News {
         return 'news-feed_news_' . $id;
     }
 
-    public function __construct($data, Priority $priority = null) {
+    public function render($even, $stream, $pageID = '', $editable = true) {
+        $renderPattern = str_replace(['@id@', '@even@', '@editable@', '@stream@', '@page_id@'],
+            [
+                $this->newsID,
+                $even,
+                $editable ? 'true' : 'false',
+                $stream,
+                $pageID,
+            ],
+            self::SIMPLE_RENDER_PATTERN);
+        $info = [];
+        return p_render('xhtml', p_get_instructions($renderPattern), $info);
+    }
+
+    public function fill($data) {
         $this->newsID = $data['news_id'];
         $this->title = $data['title'];
         $this->authorName = $data['author_name'];
@@ -159,6 +243,20 @@ class News {
         $this->category = $data['category'];
         $this->linkHref = $data['link_href'];
         $this->linkTitle = $data['link_title'];
+    }
+
+    public function setPriority($priority) {
         $this->priority = $priority;
+    }
+
+    public function fillFromDatabase() {
+        $res = $this->sqlite->query('SELECT * FROM news WHERE news_id=?', $this->newsID);
+        $row = $this->sqlite->res2row($res);
+        $this->fill($row);
+    }
+
+    public function __construct($newsID = null) {
+        parent::__construct();
+        $this->newsID = $newsID;
     }
 }

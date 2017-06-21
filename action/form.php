@@ -46,7 +46,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
             'news-date' => date('Y-m-d\TH:i:s'),
             'author-email' => $INFO['userinfo']['mail'],
             'text' => $this->getLang('news_text'),
-            'category' => ''
+            'category' => '',
         ];
     }
 
@@ -56,7 +56,7 @@ class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
 
         $form = new Form();
         if ($INPUT->param('news')['id'] != 0) {
-            $data = $this->helper->loadSimpleNews($INPUT->param('news')['id'],false);
+            $data = $this->helper->loadSimpleNews($INPUT->param('news')['id']);
         } else {
             $data = $this->createDefault();
         }

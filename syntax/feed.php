@@ -1,6 +1,7 @@
 <?php
 
 use dokuwiki\Form;
+use \PluginNewsFeed\News;
 
 class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
     /**
@@ -48,7 +49,8 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
             switch ($state) {
                 case DOKU_LEXER_SPECIAL:
                     $renderer->nocache();
-                    $news = $this->helper->loadSimpleNews($param['id']);
+                    $news = new News($param['id']);
+                    $news->fillFromDatabase();
                     if (is_null($news) || ($param['id'] == 0)) {
                         $renderer->doc .= '<div class="alert alert-danger">' . $this->getLang('news_non_exist') .
                             '</div>';
@@ -69,7 +71,7 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
     }
 
     /**
-     * @param $data \PluginNewsFeed\News
+     * @param $data News
      * @param $params array
      * @return string
      */
@@ -98,7 +100,7 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
 
     /**
      * @param $id
-     * @param $news \PluginNewsFeed\News
+     * @param $news News
      * @return string
      */
     private function getShareFields($id, $news) {
@@ -106,9 +108,9 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
         if (auth_quickaclcheck('start') < AUTH_READ) {
             return '';
         }
-        $link = $this->helper->getToken((int)$id, $news->getLinkHref());
+        $link = $news->getToken($news->getLinkHref());
         if (preg_match('|^https?://|', $news->getLinkHref())) {
-            $link = $this->helper->getToken((int)$id, $ID);;
+            $link = $news->getToken($ID);
         }
         $html = '<div class="row mb-3" style="max-height: 2rem;">';
 
@@ -131,7 +133,7 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
     }
 
     /**
-     * @param $news \PluginNewsFeed\News
+     * @param $news News
      * @return null|string
      */
     private function getText($news) {
@@ -139,7 +141,7 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
     }
 
     /**
-     * @param $news \PluginNewsFeed\News
+     * @param $news News
      * @return string
      */
     private function getSignature($news) {
@@ -150,16 +152,16 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
     }
 
     /**
-     * @param $news \PluginNewsFeed\News
+     * @param $news News
      * @return string
      */
     private function getHeader($news) {
         return '<h4>' . $news->getTitle() .
-            '<small class="float-right">' . $this->newsDate($news->getNewsDate()) . '</small></h4>';
+            '<small class="float-right">' . $news->getLocalDate() . '</small></h4>';
     }
 
     /**
-     * @param $news \PluginNewsFeed\News
+     * @param $news News
      * @return string
      */
     private function getLink($news) {
@@ -205,7 +207,7 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
         return $html;
     }
 
-    private function getPriorityField($id, $stream, $params) {
+    private function getPriorityField($id, $streamName, $params) {
         $html = '';
         if ($params['editable'] !== 'true') {
             return '';
@@ -220,10 +222,13 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
 
         $form->setHiddenField('do', helper_plugin_fksnewsfeed::FORM_TARGET);
         $form->setHiddenField('news[id]', $id);
-        $form->setHiddenField('news[stream]', $stream);
+        $form->setHiddenField('news[stream]', $streamName);
         $form->setHiddenField('news[do]', 'priority');
 
-        $streamID = $this->helper->streamToID($stream);
+        $stream = new \PluginNewsFeed\Stream(null);
+        $stream->fillFromDatabaseByName($streamName);
+        $streamID = $stream->getStreamID();
+
         $priority = new \PluginNewsFeed\Priority(null, $id, $streamID);
         $priority->fillFromDatabase();
         $form->addTagOpen('div')->addClass('form-group');
@@ -286,39 +291,5 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
         $html .= ' </div > ';
 
         return $html;
-    }
-
-    private function newsDate($date) {
-
-        $date = date('j\. F Y', strtotime($date));
-        $enMonth = [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December'
-        ];
-        $langMonth = [
-            $this->getLang('jan'),
-            $this->getLang('feb'),
-            $this->getLang('mar'),
-            $this->getLang('apr'),
-            $this->getLang('may'),
-            $this->getLang('jun'),
-            $this->getLang('jul'),
-            $this->getLang('aug'),
-            $this->getLang('sep'),
-            $this->getLang('oct'),
-            $this->getLang('now'),
-            $this->getLang('dec')
-        ];
-        return (string)str_replace($enMonth, $langMonth, $date);
     }
 }

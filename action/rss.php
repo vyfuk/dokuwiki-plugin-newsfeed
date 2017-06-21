@@ -22,8 +22,8 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
         global $image;
 
         global $INPUT;
-        $stream = $INPUT->str('stream');
-        if (empty($stream)) {
+        $streamName = $INPUT->str('stream');
+        if (empty($streamName)) {
             return;
         }
         unset($rss, $data);
@@ -38,13 +38,18 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
         $rss->cssStyleSheet = DOKU_URL . 'lib/exe/css.php?s=feed';
         $rss->image = $image;
 
-        $allNews = $this->helper->loadStream($stream);
+        $stream = new \PluginNewsFeed\Stream();
+        $stream->fillFromDatabaseByName($streamName);
+        $streamID = $stream->getStreamID();
+
+        $stream = new \PluginNewsFeed\Stream($streamID);
+        $allNews = $stream->getNews();
 
         foreach ($allNews as $news) {
             $data = new UniversalFeedCreator();
             $data->pubDate = $news->getNewsDate();
             $data->title = $news->getTitle();
-            $data->link = $this->helper->getToken($news->getNewsID());
+            $data->link = $news->getToken();
 
             $data->description = p_render('text', p_get_instructions($news->getText()), $info);
             $data->editor = $news->getAuthorName();

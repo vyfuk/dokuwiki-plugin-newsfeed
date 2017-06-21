@@ -80,7 +80,7 @@ $lang['info_change_order'] = '';
 /**
  * for admin dependence
  */
-$lang['dep_menu']='Edit Dependence';
+$lang['dependence_menu']='Edit Dependence';
 $lang['dep_create']='Create stream\'s dependence';
 $lang['dep_created']='Dependence has been created';
 $lang['dep_exist']='Dependence alredy exist';

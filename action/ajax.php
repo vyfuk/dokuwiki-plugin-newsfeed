@@ -30,7 +30,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
 
             $htmlHead = null;
             if ($INPUT->param('news')['do'] == 'stream') {
-                if (auth_quickaclcheck('start') >= $this->getConf('perm_manage')) {
+                if (auth_quickaclcheck('start') >= AUTH_EDIT) {
                     $htmlHead .= '<div class="btn-group-vertical">';
                     $htmlHead .= '<div class="mb-3">';
                     $htmlHead .= $this->printCreateBtn($INPUT->param('news')['stream']);
@@ -45,7 +45,10 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                 }
                 $htmlHead .= $this->printRSS($INPUT->param('news')['stream']);
             }
-            $news = $this->helper->loadStream($INPUT->param('news')['stream']);
+
+            $stream = new \PluginNewsFeed\Stream(null);
+            $stream->fillFromDatabaseByName($INPUT->param('news')['stream']);
+            $news = $stream->getNews();
             $data = $this->printStream($news, (int)$INPUT->param('news')['start'], (int)$INPUT->param('news')['length'], $INPUT->param('news')['stream'], $INPUT->str('page_id'));
             $json = new JSON();
             $data['html']['head'] = $htmlHead;
@@ -69,7 +72,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
         global $INPUT;
         for ($i = $start; $i < min([$start + $length, (count($news))]); $i++) {
             $e = $i % 2 ? 'even' : 'odd';
-            $htmlNews[] = $this->helper->printNews($news[$i]->getNewsID(), $e, $stream, $page_id);
+            $htmlNews[] = $news[$i]->render($e, $stream, $page_id);
         }
         if ($length + $start >= count($news)) {
             $htmlButton .= '<div class="alert alert-warning">' . $this->getLang('no_more') . '</div>';

@@ -26,10 +26,11 @@ class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
             return;
         }
         $news_id = $INPUT->str('news-id');
-        $news = $this->helper->loadSimpleNews($news_id);
+        $news = new \PluginNewsFeed\News($news_id);
+        $news->fillFromDatabase();
 
         $this->helper->social->meta->addMetaData('og', 'title', $news->getTitle());
-        $this->helper->social->meta->addMetaData('og', 'url', $this->helper->getToken($news_id, $ID));
+        $this->helper->social->meta->addMetaData('og', 'url', $news->getToken($ID));
         $text = p_render('text', p_get_instructions($news->getText()), $info);
         $this->helper->social->meta->addMetaData('og', 'description', $text);
         if ($news->hasImage()) {

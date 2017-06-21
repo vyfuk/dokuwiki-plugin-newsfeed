@@ -22,8 +22,8 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
         return false;
     }
 
-    public function getMenuText() {
-        return 'News feed push --' . $this->getLang('push_menu');
+    public function getMenuText($lang) {
+        return $this->getLang('push_menu');
     }
 
     public function handle() {
@@ -31,11 +31,13 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
         if (!checkSecurityToken()) {
             return;
         };
-        $stream = $INPUT->param('news')['stream'];
+        $streamName = $INPUT->param('news')['stream'];
+        $stream = new \PluginNewsFeed\Stream();
+        $stream->fillFromDatabaseByName($streamName);
         $newsID = $INPUT->param('news')['id'];
 
         if ($stream && $newsID) {
-            $targetStreamID = $this->helper->streamToID($stream);
+            $targetStreamID = $stream->getStreamID();
             $streamIDs = [$targetStreamID];
             if ($INPUT->str('all_dependence')) {
                 $this->helper->fullParentDependence($targetStreamID, $streamIDs);
@@ -52,22 +54,26 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
 
     public function html() {
         global $INPUT;
-        $stream = $INPUT->param('news')['stream'];
+        $streamName = $INPUT->param('news')['stream'];
+        $stream = new \PluginNewsFeed\Stream();
+        $stream->fillFromDatabaseByName($streamName);
         echo '<h1>' . $this->getLang('push_menu') . '</h1>';
-        echo '<div class="info">' . $this->getLang('push_in_stream') . ': ' . $stream . '</div>';
+        echo '<div class="info">' . $this->getLang('push_in_stream') . ': ' . $stream->getName() . '</div>';
 
         $streams = $this->helper->allStream();
         echo $this->getChangeStreamForm($streams)->toHTML();
 
-        if ($stream) {
-            echo '<h2>' . $this->getLang('push_menu') . ': ' . $stream . '</h2>';
-            $newsInStream = $this->newsToID($this->helper->loadStream($stream));
+        if ($stream->getName()) {
+            echo '<h2>' . $this->getLang('push_menu') . ': ' . $stream->getName() . '</h2>';
+
+            $newsInStream = $this->newsToID($stream->getNews());
             $allNews = $this->helper->allNewsFeed();
 
             foreach ($this->newsToID($allNews) as $id) {
                 if (array_search($id, $newsInStream) === FALSE) {
-                    echo $this->helper->printNews($id, 'even', ' ', ' ', false);
-                    echo $this->newsAddForm($stream, $id);
+                    $news = new \PluginNewsFeed\News($id);
+                    echo $news->render('even', ' ', ' ', false);
+                    echo $this->newsAddForm($stream->getName(), $id);
                     echo '<hr class="clearfix">';
                     tpl_flush();
                 }
@@ -99,7 +105,6 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
 
     private function newsAddForm($stream, $newsID) {
         $newsForm = new Form();
-        //$newsForm->setHiddenField('news[do]', 'push_save');
         $newsForm->setHiddenField('do', 'admin');
         $newsForm->setHiddenField('page', 'fksnewsfeed_push');
         $newsForm->setHiddenField('news[id]', $newsID);

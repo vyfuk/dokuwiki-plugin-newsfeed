@@ -22,19 +22,21 @@ class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
         return false;
     }
 
-    public function getMenuText() {
-        $menuText = 'News feed streams --' . $this->getLang('menu_streams');
-        return $menuText;
+    public function getMenuText($lang) {
+        return $this->getLang('stream_menu');
     }
 
     public function handle() {
         global $INPUT;
         $streamName = $INPUT->str('stream_name');
-        if ($streamName == '') {
+        if (trim($streamName) == '') {
             return;
         }
-        if ($this->helper->streamToID($streamName) == 0) {
-            $this->helper->createStream($streamName);
+
+        $stream = new \PluginNewsFeed\Stream($streamName);
+        $stream->fillFromDatabaseByName($streamName);
+        if (!$stream->getName()) {
+            $stream->create($streamName);
             msg('Stream has been created', 1);
         } else {
             msg('Stream already exist', -1);
@@ -51,7 +53,7 @@ class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
         foreach ($streams as $stream) {
             echo '<li class="form-group row"><span class="col-3">' . $stream . '</span>';
             echo '<input type="text" class="col-9 form-control" value="' .
-                hsc('{{news-stream>stream=' . $stream . ';feed="5"}}') . '" />';
+                hsc('{{news-stream>stream="' . $stream . '" feed="5"}}') . '" />';
             echo '</li>';
         }
         echo '</ul>';

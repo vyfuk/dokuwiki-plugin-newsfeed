@@ -44,7 +44,13 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
         list($param) = $match;
         $attributes = [];
         $renderer->nocache();
-        $allNews = $this->helper->loadStream($param['stream']);
+
+        $stream = new \PluginNewsFeed\Stream(null);
+        $stream->fillFromDatabaseByName($param['stream']);
+        $streamID = $stream->getStreamID();
+
+        $stream = new \PluginNewsFeed\Stream($streamID);
+        $allNews = $stream->getNews();
         if (count($allNews)) {
             $this->renderCarousel($renderer, $allNews);
         }

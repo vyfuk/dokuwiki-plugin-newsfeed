@@ -1,5 +1,8 @@
 <?php
 
+use \PluginNewsFeed\Stream;
+use \dokuwiki\Form\Form;
+
 class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
 
     /**
@@ -19,97 +22,133 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
         return false;
     }
 
-    public function getMenuText() {
-        $menuText = 'News feed dependence --' . $this->getLang('dep_menu');
+    public function getMenuText($lang) {
+        $menuText = $this->getLang('dependence_menu');
         return $menuText;
     }
 
     public function handle() {
         global $INPUT;
-        $child = $INPUT->str('dep_child');
-        $parent = $INPUT->str('dep_parent');
-        if ($child == '' || $parent == '') {
+        $dep = $INPUT->param('dep');
+        if ($dep['child'] == '' || $dep['parent'] == '') {
             return;
         }
-        $childID = $this->helper->streamToID($child);
-        $parentID = $this->helper->streamToID($parent);
+        $childStream = new Stream();
+        $childStream->fillFromDatabaseByName($dep['child']);
+        $childID = $childStream->getStreamID();
+
+        $parentStream = new Stream();
+        $parentStream->fillFromDatabaseByName($dep['parent']);
+        $parentID = $parentStream->getStreamID();
+
         $d = $this->helper->allParentDependence($parentID);
         if (in_array($childID, $d)) {
             msg($this->getLang('dep_exist'), -1);
         } else {
-            $f = $this->helper->createDependence($parentID, $childID);
-            if ($f) {
+            if ($this->helper->createDependence($parentID, $childID)) {
                 msg($this->getLang('dep_created'), 1);
             }
         }
     }
 
     public function html() {
-        $streams = $this->helper->allStream();
-        ptln('<h1>' . $this->getLang('dep_menu') . '</h1>', 0);
+        echo '<h1>' . $this->getLang('dependence_menu') . '</h1>';
 
+        $streams = $this->helper->getAllStreams();
         echo $this->createDependenceFrom($streams);
 
-        ptln('<h2>' . $this->getLang('dep_list') . ':</h2>');
-        ptln('<ul>');
+        echo '<h2>' . $this->getLang('dep_list') . ':</h2>';
+
         foreach ($streams as $stream) {
-            $stream_id = $this->helper->streamToID($stream);
-            ptln('<li><h3>' . $this->getLang('stream') . ': ' . $stream . '</h3>');
+            echo '<h3>' . $this->getLang('stream') . ': <span class="badge badge-primary">' .
+                $stream->getName() . '</span></h3>';
 
-            $parentDependence = $this->helper->allParentDependence($stream_id);
-
-            $fullParentDependence = [];
-            $this->helper->fullParentDependence($stream_id, $fullParentDependence);
-            if (!empty($parentDependence)) {
-
-                ptln('<h4>' . $this->getLang('dep_list_parent') . '</h4>');
-                ptln('<ul>');
-                foreach ($parentDependence as $dependence) {
-                    ptln('<li>' . $this->helper->IDToStream($dependence) . '</li>');
-                }
-                ptln('</ul>');
-                ptln('<span>' . $this->getLang('dep_list_parent_full') . '</span>');
-                ptln('<ul>');
-
-                foreach ($fullParentDependence as $dependence) {
-                    echo '<li>' . $this->helper->IDToStream($dependence) . '</li>';
-                }
-                ptln('</ul>');
-            }
-            $cdep = $this->helper->allChildDependence($stream_id);
-            if (!empty($cdep)) {
-                ptln('<span>' . $this->getLang('dep_list_child') . '</span>');
-                ptln('<ul>');
-                foreach ($cdep as $d) {
-                    ptln('<li>' . $this->helper->IDToStream($d) . '</li>');
-                }
-                ptln('</ul>');
-                ptln('<span>' . $this->getLang('dep_list_child_full') . '</span>');
-                ptln('<ul>');
-                $fcdep =  [];
-                $this->helper->fullChildDependence($stream_id, $fcdep);
-                foreach ($fcdep as $d) {
-                    ptln('<li>' . $this->helper->IDToStream($d) . '</li>');
-                }
-                ptln('</ul>');
-            }
-            ptln('</li><hr>');
+            $this->renderParentDependence($stream);
+            $this->renderChildDependence($stream);
+            echo '<hr class="clearfix">';
         }
-        ptln('</ul>');
-        ptln('</div>');
     }
 
-    private function createDependenceFrom($streams) {
-        global $lang;
-        $html = '';
-        $html .= '<h2>' . $this->getLang('dep_create') . '</h2>';
-        $html .= '<div class="info">' . $this->getLang('dep_full_info') . '</div>';
+    private function renderChildDependence(Stream $stream) {
+        $childDependence = $this->helper->allChildDependence($stream->getStreamID());
+        echo '<h4>' . $this->getLang('dep_list_child') . '</h4>';
+        if (!empty($childDependence)) {
+            echo '<ul>';
+            foreach ($childDependence as $dependence) {
+                $dependenceStream = new Stream($dependence);
+                $dependenceStream->fillFromDatabase();
+                echo '<li>' . $dependenceStream->getName() . '</li>';
+            }
+            echo '</ul>';
+        } else {
+            echo '<span class="badge badge-warning">Nothing</span>';
+        }
 
-        $form = new \dokuwiki\Form\Form();
+        $fullChildDependence = [];
+        $this->helper->fullChildDependence($stream->getStreamID(), $fullChildDependence);
+        echo '<h4>' . $this->getLang('dep_list_child_full') . '</h4>';
+        if (!empty($fullChildDependence)) {
+            echo '<ul>';
+            foreach ($fullChildDependence as $dependence) {
+                $dependenceStream = new Stream($dependence);
+                $dependenceStream->fillFromDatabase();
+                echo '<li>' . $dependenceStream->getName() . '</li>';
+            }
+            echo '</ul>';
+        } else {
+            echo '<span class="badge badge-warning">Nothing</span>';
+        }
+    }
+
+    private function renderParentDependence(Stream $stream) {
+        echo '<h4>' . $this->getLang('dep_list_parent') . '</h4>';
+
+        $parentDependence = $this->helper->allParentDependence($stream->getStreamID());
+        if (!empty($parentDependence)) {
+            echo '<ul>';
+            foreach ($parentDependence as $dependence) {
+                $dependenceStream = new Stream($dependence);
+                $dependenceStream->fillFromDatabase();
+                echo '<li>' . $dependenceStream->getName() . '</li>';
+            }
+            echo '</ul>';
+        } else {
+            echo '<span class="badge badge-warning">Nothing</span>';
+        }
+
+        $fullParentDependence = [];
+        $this->helper->fullParentDependence($stream->getStreamID(), $fullParentDependence);
+        echo '<h4>' . $this->getLang('dep_list_parent_full') . '</h4>';
+        if (!empty($fullParentDependence)) {
+            echo '<ul>';
+            foreach ($fullParentDependence as $dependence) {
+                $dependenceStream = new Stream($dependence);
+                $dependenceStream->fillFromDatabase();
+                echo '<li>' . $dependenceStream->getName() . '</li>';
+            }
+            echo '</ul>';
+        } else {
+            echo '<span class="badge badge-warning">Nothing</span>';
+        }
+    }
+
+    /**
+     * @param Stream[] $streams
+     * @return string
+     */
+    private function createDependenceFrom(array $streams) {
+        global $lang;
+        $html = '<h2>' . $this->getLang('dep_create') . '</h2>';
+        $html .= '<div class="info">' . $this->getLang('dep_full_info') . '</div>';
+        $streamNames = array_map(function (Stream $stream) {
+            return $stream->getName();
+        }, $streams);
+
+        $form = new Form();
         $form->addClass('block');
-        $form->setHiddenField('news_do', 'stream_dependence');
-        $form->addDropdown('dep_parent', $streams, $this->getLang('dep_parent_info'));
-        $form->addDropdown('dep_child', $streams, $this->getLang('dep_child_info'));
+        $form->setHiddenField('news[do]', 'dependence');
+        $form->addDropdown('dep[parent]', $streamNames, $this->getLang('dep_parent_info'));
+        $form->addDropdown('dep[child]', $streamNames, $this->getLang('dep_child_info'));
         $form->addButton('submit', $lang['btn_save']);
         $html .= $form->toHTML();
         return $html;
