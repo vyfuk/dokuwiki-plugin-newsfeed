@@ -1,8 +1,8 @@
 <?php
 
-namespace PluginNewsFeed;
+namespace PluginNewsFeed\Model;
 
-class News extends \helper_plugin_fksnewsfeed {
+class News extends AbstractModel {
 
     const SIMPLE_RENDER_PATTERN = '{{news-feed>id="@id@" even="@even@" editable="@editable@" stream="@stream@" page_id="@page_id@"}}';
 
@@ -245,7 +245,7 @@ image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
         $this->linkTitle = $data['link_title'];
     }
 
-    public function setPriority($priority) {
+    public function setPriority(Priority $priority) {
         $this->priority = $priority;
     }
 
@@ -256,7 +256,6 @@ image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
     }
 
     public function __construct($newsID = null) {
-        parent::__construct();
         $this->newsID = $newsID;
     }
 }

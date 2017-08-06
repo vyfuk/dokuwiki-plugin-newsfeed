@@ -1,9 +1,10 @@
 <?php
 
-use \PluginNewsFeed\Priority;
-use \PluginNewsFeed\News;
+use \PluginNewsFeed\Model\Priority;
+use \PluginNewsFeed\Model\News;
+use \PluginNewsFeed\Model\Stream;
 
-class action_plugin_fksnewsfeed_preprocess extends DokuWiki_Action_Plugin {
+class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
 
     /**
      * @var helper_plugin_fksnewsfeed
@@ -101,7 +102,7 @@ class action_plugin_fksnewsfeed_preprocess extends DokuWiki_Action_Plugin {
 
     private function saveIntoStreams($newsID) {
         global $INPUT;
-        $stream = new \PluginNewsFeed\Stream(null);
+        $stream = new Stream(null);
         $stream->fillFromDatabaseByName($INPUT->param('news')['stream']);
         $streamID = $stream->getStreamID();
 
@@ -119,7 +120,7 @@ class action_plugin_fksnewsfeed_preprocess extends DokuWiki_Action_Plugin {
 
         $cache = new cache($file, '');
         $cache->removeCache();
-        $stream = new \PluginNewsFeed\Stream(null);
+        $stream = new \PluginNewsFeed\Model\Stream(null);
         $stream->fillFromDatabaseByName($INPUT->param('news')['stream']);
         $streamID = $stream->getStreamID();
 
@@ -130,7 +131,7 @@ class action_plugin_fksnewsfeed_preprocess extends DokuWiki_Action_Plugin {
             'priority_to' => $data['to'],
             'priority' => $data['value'],
         ]);
-        if ($priority->save()) {
+        if ($priority->update()) {
             header('Location: ' . $_SERVER['REQUEST_URI']);
             exit();
         }
@@ -138,7 +139,7 @@ class action_plugin_fksnewsfeed_preprocess extends DokuWiki_Action_Plugin {
 
     private function saveDelete() {
         global $INPUT;
-        $stream = new \PluginNewsFeed\Stream(null);
+        $stream = new Stream(null);
         $stream->fillFromDatabaseByName($INPUT->param('news')['stream']);
         $streamID = $stream->getStreamID();
         $priority = new Priority(null, $INPUT->param('news')['id'], $streamID);

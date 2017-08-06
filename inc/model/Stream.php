@@ -1,9 +1,9 @@
 <?php
 
-namespace PluginNewsFeed;
+namespace PluginNewsFeed\Model;
 
 
-class Stream extends \helper_plugin_fksnewsfeed {
+class Stream extends AbstractModel {
     /**
      * @var integer
      */
@@ -67,6 +67,11 @@ class Stream extends \helper_plugin_fksnewsfeed {
         return $news;
     }
 
+    public function update() {
+        msg('not implement', -1);
+        return;
+    }
+
     public function fill($data) {
         $this->name = $data['name'];
         $this->streamID = $data['stream_id'];
@@ -82,9 +87,9 @@ class Stream extends \helper_plugin_fksnewsfeed {
         $this->name = $this->sqlite->res2single($res);
     }
 
-    public function create($name) {
-        $this->sqlite->query('INSERT INTO stream (name) VALUES(?)', $name);
-        $this->fillFromDatabaseByName($name);
+    public function create() {
+        $this->sqlite->query('INSERT INTO stream (name) VALUES(?)', $this->name);
+        $this->fillFromDatabaseByName($this->name);
         return $this->name;
     }
 }

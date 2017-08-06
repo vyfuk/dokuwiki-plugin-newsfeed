@@ -1,6 +1,7 @@
 <?php
+use \PluginNewsFeed\Model\Stream;
 
-class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
+class action_plugin_fksnewsfeed_rss extends \DokuWiki_Action_Plugin {
     /**
      * @var helper_plugin_fksnewsfeed
      */
@@ -38,11 +39,11 @@ class action_plugin_fksnewsfeed_rss extends DokuWiki_Action_Plugin {
         $rss->cssStyleSheet = DOKU_URL . 'lib/exe/css.php?s=feed';
         $rss->image = $image;
 
-        $stream = new \PluginNewsFeed\Stream();
+        $stream = new Stream();
         $stream->fillFromDatabaseByName($streamName);
         $streamID = $stream->getStreamID();
 
-        $stream = new \PluginNewsFeed\Stream($streamID);
+        $stream = new Stream($streamID);
         $allNews = $stream->getNews();
 
         foreach ($allNews as $news) {

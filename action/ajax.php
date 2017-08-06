@@ -1,8 +1,10 @@
 <?php
 
-use dokuwiki\Form\Form;
+use \dokuwiki\Form\Form;
+use \PluginNewsFeed\Model\Stream;
+use \PluginNewsFeed\Model\News;
 
-class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
+class action_plugin_fksnewsfeed_ajax extends \DokuWiki_Action_Plugin {
 
     /**
      * @var helper_plugin_fksnewsfeed
@@ -46,7 +48,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
                 $htmlHead .= $this->printRSS($INPUT->param('news')['stream']);
             }
 
-            $stream = new \PluginNewsFeed\Stream(null);
+            $stream = new Stream(null);
             $stream->fillFromDatabaseByName($INPUT->param('news')['stream']);
             $news = $stream->getNews();
             $data = $this->printStream($news, (int)$INPUT->param('news')['start'], (int)$INPUT->param('news')['length'], $INPUT->param('news')['stream'], $INPUT->str('page_id'));
@@ -59,7 +61,7 @@ class action_plugin_fksnewsfeed_ajax extends DokuWiki_Action_Plugin {
     }
 
     /**
-     * @param $news \PluginNewsFeed\News[]
+     * @param $news News[]
      * @param int $start
      * @param int $length
      * @param string $stream

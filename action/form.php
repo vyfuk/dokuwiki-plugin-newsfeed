@@ -2,7 +2,7 @@
 use \dokuwiki\Form\Form;
 use \dokuwiki\Form\InputElement;
 
-class action_plugin_fksnewsfeed_form extends DokuWiki_Action_Plugin {
+class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
 
     /**
      * @var helper_plugin_fksnewsfeed

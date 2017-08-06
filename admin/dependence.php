@@ -1,6 +1,6 @@
 <?php
 
-use \PluginNewsFeed\Stream;
+use \PluginNewsFeed\Model\Stream;
 use \dokuwiki\Form\Form;
 
 class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {

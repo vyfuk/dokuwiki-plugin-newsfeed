@@ -3,7 +3,7 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author Michal Červeňák <miso@fykos.cz>
  */
-/* global LANG, DOKU_BASE, FB, JSINFO */
+/* global LANG, DOKU_BASE, FB, JSINFO, PluginSocial */
 jQuery(function () {
     "use strict";
     let $ = jQuery;

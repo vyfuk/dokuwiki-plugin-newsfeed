@@ -1,16 +1,29 @@
 <?php
 
-use dokuwiki\Form;
-use \PluginNewsFeed\News;
+use \PluginNewsFeed\Model\News;
+use \PluginNewsFeed\Renderer;
 
 class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
     /**
      * @var helper_plugin_fksnewsfeed
      */
     private $helper;
+    /**
+     * @var \PluginNewsFeed\Renderer\AbstractRenderer
+     */
+    private $renderer;
 
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
+        switch ($this->getConf('contest')) {
+            default;
+            case 'fykos':
+                $this->renderer = new Renderer\FykosRenderer($this->helper);
+                break;
+            case 'vyfuk':
+                $this->renderer = new Renderer\VyfukRenderer($this->helper);
+                break;
+        }
     }
 
     public function getType() {
@@ -33,7 +46,7 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
         $this->Lexer->addSpecialPattern('{{news-feed>.+?}}', $mode, 'plugin_fksnewsfeed_feed');
     }
 
-    public function handle($match, $state) {
+    public function handle($match, $state, $pos, \Doku_Handler $handler) {
         preg_match_all('/([a-z-_]+)="([^".]*)"/', substr($match, 12, -2), $matches);
         $parameters = [];
         foreach ($matches[1] as $index => $match) {
@@ -56,12 +69,8 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
                             '</div>';
                         return true;
                     }
-                    $content = $this->getContent($news, $param);
-                    $renderer->doc .= '<div class="col-12 row mb-3">';
-                    $renderer->doc .= '<div class="col-12">';
-                    $renderer->doc .= $content;
-                    $renderer->doc .= '</div>';
-                    $renderer->doc .= '</div>';
+                    $renderer->doc .= $this->getContent($news, $param);
+
                     return false;
                 default:
                     return true;
@@ -75,221 +84,19 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
      * @param $params array
      * @return string
      */
-    private function getContent($data, $params) {
+    private function getContent(News $data, $params) {
         $f = $data->getCacheFile();
         $cache = new cache($f, '');
         $json = new JSON();
         if ($cache->useCache()) {
             $innerHtml = $json->decode($cache->retrieveCache());
         } else {
-            $innerHtml = $this->getHeader($data);
-            $innerHtml .= $this->getText($data);
+            $innerHtml = $this->renderer->renderContent($data, $params);
 
-            $innerHtml .= $this->getLink($data);
-            $innerHtml .= $this->getSignature($data);
-            $innerHtml .= $this->getShareFields($params['id'], $data);
             $cache->storeCache($json->encode($innerHtml));
         }
-
-        $html = '<div class="bs-callout mb-3 bs-callout-' . $data->getCategory() . '">';
-        $html .= $innerHtml;
-        $html .= $this->getEditField($params);
-        $html .= '</div>';
-        return $html;
-    }
-
-    /**
-     * @param $id
-     * @param $news News
-     * @return string
-     */
-    private function getShareFields($id, $news) {
-        global $ID;
-        if (auth_quickaclcheck('start') < AUTH_READ) {
-            return '';
-        }
-        $link = $news->getToken($news->getLinkHref());
-        if (preg_match('|^https?://|', $news->getLinkHref())) {
-            $link = $news->getToken($ID);
-        }
-        $html = '<div class="row mb-3" style="max-height: 2rem;">';
-
-        $html .= '<div class="col-6">' .
-            $this->helper->social->facebook->createSend($link) .
-            '</div>';
-
-        $html .= '<div class="col-6">';
-        $html .= $this->helper->social->facebook->createShare($link);
-        $html .= '</div>';
-
-        //  $html .= '<div class="link">
-        //  <span class="link-icon icon"></span>
-        //  <span contenteditable="true" class="link_inp" >' . $link . '</span>
-        //// </div>' ;
-
-        $html .= '</div>';
-
-        return $html;
-    }
-
-    /**
-     * @param $news News
-     * @return null|string
-     */
-    private function getText($news) {
-        return p_render('xhtml', p_get_instructions($news->getText()), $info);
-    }
-
-    /**
-     * @param $news News
-     * @return string
-     */
-    private function getSignature($news) {
-        return ' <div class="card-text text-right">
-            <a href="mailto:' . hsc($news->getAuthorEmail()) . '" class="mail" title="' . hsc($news->getAuthorEmail()) .
-            '"><span class="fa fa-envelope"></span>' . hsc($news->getAuthorName()) . '</a>
-        </div>';
-    }
-
-    /**
-     * @param $news News
-     * @return string
-     */
-    private function getHeader($news) {
-        return '<h4>' . $news->getTitle() .
-            '<small class="float-right">' . $news->getLocalDate() . '</small></h4>';
-    }
-
-    /**
-     * @param $news News
-     * @return string
-     */
-    private function getLink($news) {
-        if ($news->hasLink()) {
-            if (preg_match('|^https?://|', $news->getLinkHref())) {
-                $href = hsc($news->getLinkHref());
-            } else {
-                $href = wl($news->getLinkHref(), null, true);
-            }
-            return '<p><a class="btn btn-secondary" href="' . $href . '">' . $news->getLinkTitle() . '</a></p>';
-        }
-        return '';
-    }
-
-    private function getEditField($params) {
-
-        if (auth_quickaclcheck('start') < AUTH_EDIT) {
-            return '';
-        }
-        $html = '<button data-toggle="modal" data-target="#feedModal' . $params['id'] . '" class="btn btn-primary" >' .
-            $this->getLang('btn_opt') . '</button>';
-        $html .= '<div id="feedModal' . $params['id'] . '" class="modal" data-id="' . $params["id"] . '">';
-        $html .= '<div class="modal-dialog">';
-        $html .= '<div class="modal-content">';
-        $html .= $this->getModalHeader();
-        $html .= $this->getPriorityField($params['id'], $params['stream'], $params);
-        $html .= $this->btnEditNews($params['id'], $params['stream']);
-        $html .= '</div>';
-        $html .= '</div>';
-        $html .= '</div>';
-        return $html;
-
-    }
-
-    private function getModalHeader() {
-        $html = '';
-        $html .= '<div class="modal-header">';
-        $html .= '<h5 class="modal-title">' . $this->getLang('') . 'Upaviť novinku</h5>';
-        $html .= '<button type="button" class="close" data-dismiss="modal" aria-label="Close">';
-        $html .= '<span aria-hidden="true">×</span>';
-        $html .= '</button>';
-        $html .= ' </div>';
-        return $html;
-    }
-
-    private function getPriorityField($id, $streamName, $params) {
-        $html = '';
-        if ($params['editable'] !== 'true') {
-            return '';
-        }
-        if (!$params['stream']) {
-            return '';
-        }
-
-        $html .= '<div class="modal-body">';
-        $form = new Form\Form();
-        $form->addClass('block');
-
-        $form->setHiddenField('do', helper_plugin_fksnewsfeed::FORM_TARGET);
-        $form->setHiddenField('news[id]', $id);
-        $form->setHiddenField('news[stream]', $streamName);
-        $form->setHiddenField('news[do]', 'priority');
-
-        $stream = new \PluginNewsFeed\Stream(null);
-        $stream->fillFromDatabaseByName($streamName);
-        $streamID = $stream->getStreamID();
-
-        $priority = new \PluginNewsFeed\Priority(null, $id, $streamID);
-        $priority->fillFromDatabase();
-        $form->addTagOpen('div')->addClass('form-group');
-        $priorityValue = new Form\InputElement('number', 'priority[value]', $this->getLang('valid_from'));
-        $priorityValue->attr('class', 'form-control')->val($priority->getPriorityValue());
-        $form->addElement($priorityValue);
-        $form->addTagClose('div');
-
-        $form->addTagOpen('div')->addClass('form-group');
-        $priorityFromElement = new Form\InputElement('datetime-local', 'priority[from]', $this->getLang('valid_from'));
-        $priorityFromElement->val($priority->getPriorityFrom() ?: date('Y-m-d\TH:i:s', time()))
-            ->attr('class', 'form-control');
-        $form->addElement($priorityFromElement);
-        $form->addTagClose('div');
-
-        $form->addTagOpen('div')->addClass('form-group');
-        $priorityToElement = new Form\InputElement('datetime-local', 'priority[to]', $this->getLang('valid_to'));
-        $priorityToElement->val($priority->getPriorityTo() ?: date('Y-m-d\TH:i:s', time()))
-            ->attr('class', 'form-control');
-        $form->addElement($priorityToElement);
-        $form->addTagClose('div');
-
-        $form->addButton('submit', $this->getLang('btn_save_priority'))->addClass('btn btn-success');
-        $html .= $form->toHTML();
-        $html .= ' </div > ';
-
-        return $html;
-    }
-
-    private function btnEditNews($id, $stream) {
-        $html = '';
-
-        $html .= '<div class="modal-footer"> ';
-        $html .= '<div class="btn-group"> ';
-        $editForm = new Form\Form();
-        $editForm->setHiddenField('do', helper_plugin_fksnewsfeed::FORM_TARGET);
-        $editForm->setHiddenField('news[id]', $id);
-        $editForm->setHiddenField('news[do]', 'edit');
-        $editForm->addButton('submit', $this->getLang('btn_edit_news'))->addClass('btn btn-info');
-        $html .= $editForm->toHTML();
-
-        if ($stream) {
-            $deleteForm = new Form\Form();
-            $deleteForm->setHiddenField('do', helper_plugin_fksnewsfeed::FORM_TARGET);
-            $deleteForm->setHiddenField('news[do]', 'delete');
-            $deleteForm->setHiddenField('news[stream]', $stream);
-            $deleteForm->setHiddenField('news[id]', $id);
-            $deleteForm->addButton('submit', $this->getLang('delete_news'))->attr('data-warning', true)
-                ->addClass('btn btn-danger');
-            $html .= $deleteForm->toHTML();
-        }
-
-        $purgeForm = new Form\Form();
-        $purgeForm->setHiddenField('do', helper_plugin_fksnewsfeed::FORM_TARGET);
-        $purgeForm->setHiddenField('news[do]', 'purge');
-        $purgeForm->setHiddenField('news[id]', $id);
-        $purgeForm->addButton('submit', $this->getLang('cache_del'))->addClass('btn btn-warning');
-        $html .= $purgeForm->toHTML();
-        $html .= ' </div > ';
-        $html .= ' </div > ';
-
+        $formHtml = $this->renderer->renderEditFields($params);
+        $html = $this->renderer->render($innerHtml, $formHtml, $data);
         return $html;
     }
 }

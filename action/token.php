@@ -1,6 +1,7 @@
 <?php
+use \PluginNewsFeed\Model\News;
 
-class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
+class action_plugin_fksnewsfeed_token extends \DokuWiki_Action_Plugin {
 
     /**
      * @var helper_plugin_fksnewsfeed
@@ -26,7 +27,7 @@ class action_plugin_fksnewsfeed_token extends DokuWiki_Action_Plugin {
             return;
         }
         $news_id = $INPUT->str('news-id');
-        $news = new \PluginNewsFeed\News($news_id);
+        $news = new News($news_id);
         $news->fillFromDatabase();
 
         $this->helper->social->meta->addMetaData('og', 'title', $news->getTitle());

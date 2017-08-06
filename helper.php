@@ -1,10 +1,16 @@
 <?php
 
-require_once DOKU_PLUGIN . 'fksnewsfeed/inc/News.php';
-require_once DOKU_PLUGIN . 'fksnewsfeed/inc/Priority.php';
-require_once DOKU_PLUGIN . 'fksnewsfeed/inc/Stream.php';
+require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/News.php';
+require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/Priority.php';
+require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/Stream.php';
+require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/AbstractRenderer.php';
+require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/VyfukRenderer.php';
+require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/FykosRenderer.php';
 
-class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
+use \PluginNewsFeed\Model\Stream;
+use \PluginNewsFeed\Model\News;
+
+class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
 
     public static $fields = [
         'title',
@@ -59,13 +65,13 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     }
 
     /**
-     * @return \PluginNewsFeed\Stream[]
+     * @return Stream[]
      */
     public function getAllStreams() {
         $streams = [];
         $res = $this->sqlite->query('SELECT * FROM stream');
         foreach ($this->sqlite->res2arr($res) as $row) {
-            $stream = new \PluginNewsFeed\Stream();
+            $stream = new Stream();
             $stream->fill($row);
             $streams[] = $stream;
         }
@@ -133,13 +139,13 @@ class helper_plugin_fksnewsfeed extends DokuWiki_Plugin {
     }
 
     /**
-     * @return \PluginNewsFeed\News[]
+     * @return News[]
      */
     public function allNewsFeed() {
         $res = $this->sqlite->query('SELECT * FROM news');
         $news = [];
         foreach ($this->sqlite->res2arr($res) as $row) {
-            $feed = new \PluginNewsFeed\News();
+            $feed = new News();
             $feed->fill($row);
             $news[] = $feed;
         };

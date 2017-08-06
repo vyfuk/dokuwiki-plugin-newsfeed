@@ -6,10 +6,10 @@
  * Time: 15:54
  */
 
-namespace PluginNewsFeed;
+namespace PluginNewsFeed\Model;
 
 
-class Priority extends \helper_plugin_fksnewsfeed {
+class Priority extends AbstractModel {
     /**
      * @var integer
      */
@@ -69,7 +69,7 @@ class Priority extends \helper_plugin_fksnewsfeed {
         }
     }
 
-    public function save() {
+    public function update() {
         return $this->sqlite->query('UPDATE priority SET priority=?,priority_from=?,priority_to=? WHERE stream_id=? AND news_id =?',
             $this->priorityValue,
             $this->priorityFrom,

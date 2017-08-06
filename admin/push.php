@@ -1,10 +1,13 @@
 <?php
 
 use \dokuwiki\Form\Form;
+use \PluginNewsFeed\Model\Stream;
+use \PluginNewsFeed\Model\Priority;
+use \PluginNewsFeed\Model\News;
 
 // TODO to action component
 
-class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
+class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
     /**
      * @var helper_plugin_fksnewsfeed
      */
@@ -32,7 +35,7 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
             return;
         };
         $streamName = $INPUT->param('news')['stream'];
-        $stream = new \PluginNewsFeed\Stream();
+        $stream = new Stream();
         $stream->fillFromDatabaseByName($streamName);
         $newsID = $INPUT->param('news')['id'];
 
@@ -44,7 +47,7 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
             }
 
             foreach ($streamIDs as $streamID) {
-                $priority = new \PluginNewsFeed\Priority(null, $newsID, $streamID);
+                $priority = new Priority(null, $newsID, $streamID);
                 $priority->create();
             }
             header('Location: ' . $_SERVER['REQUEST_URI']);
@@ -55,7 +58,7 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
     public function html() {
         global $INPUT;
         $streamName = $INPUT->param('news')['stream'];
-        $stream = new \PluginNewsFeed\Stream();
+        $stream = new Stream();
         $stream->fillFromDatabaseByName($streamName);
         echo '<h1>' . $this->getLang('push_menu') . '</h1>';
         echo '<div class="info">' . $this->getLang('push_in_stream') . ': ' . $stream->getName() . '</div>';
@@ -71,7 +74,7 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
 
             foreach ($this->newsToID($allNews) as $id) {
                 if (array_search($id, $newsInStream) === FALSE) {
-                    $news = new \PluginNewsFeed\News($id);
+                    $news = new News($id);
                     echo $news->render('even', ' ', ' ', false);
                     echo $this->newsAddForm($stream->getName(), $id);
                     echo '<hr class="clearfix">';
@@ -82,11 +85,11 @@ class admin_plugin_fksnewsfeed_push extends DokuWiki_Admin_Plugin {
     }
 
     /**
-     * @param $news \PluginNewsFeed\News[]
+     * @param $news News[]
      * @return integer[]
      */
     private function newsToID($news) {
-        return array_map(function (\PluginNewsFeed\News $value) {
+        return array_map(function (News $value) {
             return $value->getNewsID();
         }, $news);
     }

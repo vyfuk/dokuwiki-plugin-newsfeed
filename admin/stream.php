@@ -1,10 +1,11 @@
 <?php
 
 use \dokuwiki\Form\Form;
+use \PluginNewsFeed\Model\Stream;
 
 // TODO refract
 
-class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
+class admin_plugin_fksnewsfeed_stream extends \DokuWiki_Admin_Plugin {
     /**
      * @var helper_plugin_fksnewsfeed
      */
@@ -33,10 +34,11 @@ class admin_plugin_fksnewsfeed_stream extends DokuWiki_Admin_Plugin {
             return;
         }
 
-        $stream = new \PluginNewsFeed\Stream($streamName);
+        $stream = new Stream($streamName);
         $stream->fillFromDatabaseByName($streamName);
         if (!$stream->getName()) {
-            $stream->create($streamName);
+            $stream->fill(['name' => $streamName]);
+            $stream->create();
             msg('Stream has been created', 1);
         } else {
             msg('Stream already exist', -1);

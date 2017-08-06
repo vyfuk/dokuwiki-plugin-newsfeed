@@ -1,6 +1,9 @@
 <?php
 
-class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
+use \PluginNewsFeed\Model\Stream;
+use \PluginNewsFeed\Model\News;
+
+class syntax_plugin_fksnewsfeed_carousel extends \DokuWiki_Syntax_Plugin {
 
     /**
      * @var helper_plugin_fksnewsfeed
@@ -27,7 +30,7 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
         $this->Lexer->addSpecialPattern('{{news-carousel>.+?}}', $mode, 'plugin_fksnewsfeed_carousel');
     }
 
-    public function handle($match, $state) {
+    public function handle($match, $state,$pos,Doku_Handler $handler) {
         preg_match_all('/([a-z]+)="([^".]*)"/', substr($match, 16, -2), $matches);
         $parameters = [];
         foreach ($matches[1] as $index => $match) {
@@ -45,11 +48,9 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
         $attributes = [];
         $renderer->nocache();
 
-        $stream = new \PluginNewsFeed\Stream(null);
+        $stream = new Stream(null);
         $stream->fillFromDatabaseByName($param['stream']);
-        $streamID = $stream->getStreamID();
 
-        $stream = new \PluginNewsFeed\Stream($streamID);
         $allNews = $stream->getNews();
         if (count($allNews)) {
             $this->renderCarousel($renderer, $allNews);
@@ -74,7 +75,7 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
                 break;
             };
             /**
-             * @var $feed \PluginNewsFeed\News;
+             * @var $feed News;
              */
             $feed = $news[$i];
             $indicators[] = '<li data-target="#' . $id . '" data-slide-to="' . $i . '"></li>';
@@ -96,7 +97,7 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
         $renderer->doc .= '</div></div>';
     }
 
-    private function getCarouselItem(\PluginNewsFeed\News $feed, $active = false) {
+    private function getCarouselItem(News $feed, $active = false) {
         $style = '';
         if ($feed->hasImage()) {
             $style .= 'background-image: url(' . ml($feed->getImage(), ['w' => 600]) . ')';
@@ -113,15 +114,15 @@ class syntax_plugin_fksnewsfeed_carousel extends DokuWiki_Syntax_Plugin {
         return $html;
     }
 
-    private function getText(\PluginNewsFeed\News $feed) {
+    private function getText(News $feed) {
         return '<p>' . p_render('xhtml', p_get_instructions($feed->getText()), $info) . '</p>';
     }
 
-    private function getHeadline(\PluginNewsFeed\News $feed) {
+    private function getHeadline(News $feed) {
         return '<h3>' . hsc($feed->getTitle()) . '</h3>';
     }
 
-    private function getLink(\PluginNewsFeed\News $feed) {
+    private function getLink(News $feed) {
         if ($feed->getLinkTitle()) {
             if (preg_match('|^https?://|', $feed->getLinkHref())) {
                 $href = hsc($feed->getLinkHref());
