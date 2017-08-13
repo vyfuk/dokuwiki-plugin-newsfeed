@@ -1,5 +1,6 @@
 <?php
 
+require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/AbstractModel.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/News.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/Priority.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/Stream.php';

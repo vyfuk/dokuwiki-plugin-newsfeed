@@ -256,6 +256,7 @@ image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
     }
 
     public function __construct($newsID = null) {
+        parent::__construct();
         $this->newsID = $newsID;
     }
 }
