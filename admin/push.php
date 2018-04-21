@@ -34,20 +34,19 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
         if (!checkSecurityToken()) {
             return;
         };
-        $streamName = $INPUT->param('news')['stream'];
-        $stream = new Stream();
-        $stream->fillFromDatabaseByName($streamName);
-        $newsID = $INPUT->param('news')['id'];
+        $stream = new Stream($this->helper->sqlite);
+        $stream->findByName($INPUT->param('news')['stream']);
+        $newsId = $INPUT->param('news')['id'];
 
-        if ($stream && $newsID) {
-            $targetStreamID = $stream->getStreamID();
-            $streamIDs = [$targetStreamID];
+        if ($stream && $newsId) {
+            $targetStreamId = $stream->getStreamId();
+            $streamIds = [$targetStreamId];
             if ($INPUT->str('all_dependence')) {
-                $this->helper->fullParentDependence($targetStreamID, $streamIDs);
+                $this->helper->fullParentDependence($targetStreamId, $streamIds);
             }
 
-            foreach ($streamIDs as $streamID) {
-                $priority = new Priority(null, $newsID, $streamID);
+            foreach ($streamIds as $streamId) {
+                $priority = new Priority($this->helper->sqlite, null, $newsId, $streamId);
                 $priority->create();
             }
             header('Location: ' . $_SERVER['REQUEST_URI']);
@@ -58,12 +57,12 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
     public function html() {
         global $INPUT;
         $streamName = $INPUT->param('news')['stream'];
-        $stream = new Stream();
-        $stream->fillFromDatabaseByName($streamName);
+        $stream = new Stream($this->helper->sqlite);
+        $stream->findByName($streamName);
         echo '<h1>' . $this->getLang('push_menu') . '</h1>';
         echo '<div class="info">' . $this->getLang('push_in_stream') . ': ' . $stream->getName() . '</div>';
 
-        $streams = $this->helper->allStream();
+        $streams = $this->helper->getAllStreams();
         echo $this->getChangeStreamForm($streams)->toHTML();
 
         if ($stream->getName()) {
@@ -74,10 +73,10 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
 
             foreach ($this->newsToID($allNews) as $id) {
                 if (array_search($id, $newsInStream) === FALSE) {
-                    $news = new News($id);
+                    $news = new News($this->helper->sqlite, $id);
                     echo $news->render('even', ' ', ' ', false);
                     echo $this->newsAddForm($stream->getName(), $id);
-                    echo '<hr class="clearfix">';
+                    echo '<hr class="clearfix"/>';
                     tpl_flush();
                 }
             }
@@ -88,20 +87,22 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
      * @param $news News[]
      * @return integer[]
      */
-    private function newsToID($news) {
+    private function newsToId($news) {
         return array_map(function (News $value) {
             return $value->getNewsID();
         }, $news);
     }
 
     /**
-     * @param $streamValues array
+     * @param $streamValues Stream[]
      * @return Form
      *
      */
     private function getChangeStreamForm(array $streamValues = []) {
         $form = new Form();
-        $form->addDropdown('news[stream]', $streamValues, $this->getLang('stream'));
+        $form->addDropdown('news[stream]', array_map(function (Stream $value) {
+            return $value->getName();
+        }, $streamValues), $this->getLang('stream'));
         $form->addButton('submit', $this->getLang('push_choose_stream'));
         return $form;
     }

@@ -7,21 +7,22 @@ require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/Stream.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/AbstractRenderer.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/VyfukRenderer.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/FykosRenderer.php';
+require_once DOKU_PLUGIN . 'fksnewsfeed/inc/AbstractStream.php';
 
-use \PluginNewsFeed\Model\Stream;
-use \PluginNewsFeed\Model\News;
+use PluginNewsFeed\Model\News;
+use PluginNewsFeed\Model\Stream;
 
 class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
 
     public static $fields = [
         'title',
-        'author-name',
-        'author-email',
-        'news-date',
+        'authorName',
+        'authorEmail',
+        'newsDate',
         'image',
         'category',
-        'link-href',
-        'link-title',
+        'linkHref',
+        'linkTitle',
         'text',
     ];
     /**
@@ -51,20 +52,6 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
         }
     }
 
-    public function findMaxNewsID() {
-        $res = $this->sqlite->query('SELECT max(news_id) FROM news');
-        return (int)$this->sqlite->res2single($res);
-    }
-
-    public function allStream() {
-        $streams = [];
-        $res = $this->sqlite->query('SELECT s.name FROM stream s');
-        foreach ($this->sqlite->res2arr($res) as $row) {
-            $streams[] = $row['name'];
-        }
-        return $streams;
-    }
-
     /**
      * @return Stream[]
      */
@@ -72,7 +59,7 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
         $streams = [];
         $res = $this->sqlite->query('SELECT * FROM stream');
         foreach ($this->sqlite->res2arr($res) as $row) {
-            $stream = new Stream();
+            $stream = new Stream($this->sqlite);
             $stream->fill($row);
             $streams[] = $stream;
         }
@@ -80,26 +67,16 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
     }
 
     /**
-     * @param $id integer
-     * @return array
+     * @param $name
+     * @return Stream
      */
-    public function loadSimpleNews($id) {
-        $res = $this->sqlite->query('SELECT * FROM news WHERE news_id=?', $id);
-        foreach ($this->sqlite->res2arr($res) as $row) {
-            return $this->prepareRow($row);
-        }
-        return null;
+    public function loadStream($name) {
+        $stream = new Stream($this->sqlite);
+        $stream->findByName($name);
+        return $stream;
     }
 
-    private function prepareRow($row) {
-        $values = [];
-        foreach ($row as $key => $value) {
-            $values[str_replace('_', '-', $key)] = $value;
-        }
-        return $values;
-    }
-
-    public function allParentDependence($streamID) {
+    private function allParentDependence($streamID) {
         $streamIDs = [];
         $res = $this->sqlite->query('SELECT * FROM dependence WHERE parent=?', $streamID);
         foreach ($this->sqlite->res2arr($res) as $row) {
@@ -108,7 +85,7 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
         return $streamIDs;
     }
 
-    public function allChildDependence($streamID) {
+    private function allChildDependence($streamID) {
         $streamIDs = [];
         $res = $this->sqlite->query('SELECT * FROM dependence  WHERE child=?', $streamID);
         foreach ($this->sqlite->res2arr($res) as $row) {
@@ -117,8 +94,8 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
         return $streamIDs;
     }
 
-    public function fullParentDependence($streamIDs, &$arr) {
-        foreach ($this->allParentDependence($streamIDs) as $newStreamID) {
+    public function fullParentDependence($streamID, &$arr) {
+        foreach ($this->allParentDependence($streamID) as $newStreamID) {
             if (!in_array($newStreamID, $arr)) {
                 $arr[] = $newStreamID;
                 $this->fullParentDependence($newStreamID, $arr);
@@ -126,17 +103,13 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
         }
     }
 
-    public function fullChildDependence($streamIDs, &$arr) {
-        foreach ($this->allChildDependence($streamIDs) as $newStreamID) {
+    public function fullChildDependence($streamID, &$arr) {
+        foreach ($this->allChildDependence($streamID) as $newStreamID) {
             if (!in_array($newStreamID, $arr)) {
                 $arr[] = $newStreamID;
                 $this->fullChildDependence($newStreamID, $arr);
             }
         }
-    }
-
-    public function createDependence($parent, $child) {
-        return (bool)$this->sqlite->query('INSERT INTO dependence (parent,child) VALUES(?,?);', $parent, $child);
     }
 
     /**
@@ -146,8 +119,8 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
         $res = $this->sqlite->query('SELECT * FROM news');
         $news = [];
         foreach ($this->sqlite->res2arr($res) as $row) {
-            $feed = new News();
-            $feed->fill($row);
+            $feed = new News($this->sqlite, $row['news_id']);
+            $feed->load();
             $news[] = $feed;
         };
         return $news;

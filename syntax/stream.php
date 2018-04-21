@@ -1,27 +1,8 @@
 <?php
 
-class syntax_plugin_fksnewsfeed_stream extends DokuWiki_Syntax_Plugin {
+use PluginNewsFeed\Syntax\AbstractStream;
 
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
-
-    public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
-    }
-
-    public function getType() {
-        return 'substition';
-    }
-
-    public function getPType() {
-        return 'block';
-    }
-
-    public function getSort() {
-        return 3;
-    }
+class syntax_plugin_fksnewsfeed_stream extends AbstractStream {
 
     public function connectTo($mode) {
         $this->Lexer->addSpecialPattern('{{news-stream>.+?}}', $mode, 'plugin_fksnewsfeed_stream');
@@ -42,15 +23,9 @@ class syntax_plugin_fksnewsfeed_stream extends DokuWiki_Syntax_Plugin {
         }
         list(, $match) = $data;
         list($param) = $match;
-        $attributes = [];
-        foreach ($param as $key => $value) {
-            $attributes['data-' . $key] = $value;
-        }
-        $renderer->doc .= '<div class="news-stream">
-<div class="stream row" ' . buildAttributes($attributes) . '>
-</div>
-</div>';
+
+        $this->renderStream($renderer, $param);
+
         return false;
     }
-
 }

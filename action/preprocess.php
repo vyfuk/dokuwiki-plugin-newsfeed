@@ -65,35 +65,21 @@ class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
                 $data[$field] = $INPUT->param($field);
             }
         }
-        $news = new News();
+        $news = new News($this->helper->sqlite);
+        $news->setTitle($data['title']);
+        $news->setAuthorName($data['authorName']);
+        $news->setAuthorEmail($data['authorEmail']);
+        $news->setText($data['text']);
+        $news->setNewsDate($data['newsDate']);
+        $news->setImage($data['image']);
+        $news->setCategory($data['category']);
+        $news->setLinkHref($data['link-href']);
+        $news->setLinkTitle($data['linkTitle']);
         if ($INPUT->param('news')['id'] == 0) {
-            $news->fill([
-                'title' => $data['title'],
-                'author_name' => $data['author-name'],
-                'author_email' => $data['author-email'],
-                'text' => $data['text'],
-                'news_date' => $data['news-date'],
-                'image' => $data['image'],
-                'category' => $data['category'],
-                'link_href' => $data['link-href'],
-                'link_title' => $data['link-title'],
-            ]);
-            $newsID = $news->create();
-
-            $this->saveIntoStreams($newsID);
+            $newsId = $news->create();
+            $this->saveIntoStreams($newsId);
         } else {
-            $news->fill([
-                'news_id' => $INPUT->param('news')['id'],
-                'title' => $data['title'],
-                'author_name' => $data['author-name'],
-                'author_email' => $data['author-email'],
-                'text' => $data['text'],
-                'news_date' => $data['news-date'],
-                'image' => $data['image'],
-                'category' => $data['category'],
-                'link_href' => $data['link-href'],
-                'link_title' => $data['link-title'],
-            ]);
+            $news->setNewsId($INPUT->param('news')['id']);
             $news->update();
         }
         header('Location: ' . $_SERVER['REQUEST_URI']);
@@ -102,14 +88,14 @@ class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
 
     private function saveIntoStreams($newsID) {
         global $INPUT;
-        $stream = new Stream(null);
-        $stream->fillFromDatabaseByName($INPUT->param('news')['stream']);
+        $stream = new Stream($this->helper->sqlite, null);
+        $stream->findByName($INPUT->param('news')['stream']);
         $streamID = $stream->getStreamID();
 
         $streams = [$streamID];
         $this->helper->fullParentDependence($streamID, $streams);
         foreach ($streams as $stream) {
-            $priority = new Priority(null, $newsID, $stream);
+            $priority = new Priority($this->helper->sqlite, null, $newsID, $stream);
             $priority->create();
         }
     }
@@ -120,17 +106,16 @@ class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
 
         $cache = new cache($file, '');
         $cache->removeCache();
-        $stream = new \PluginNewsFeed\Model\Stream(null);
-        $stream->fillFromDatabaseByName($INPUT->param('news')['stream']);
-        $streamID = $stream->getStreamID();
+        $stream = new Stream($this->helper->sqlite, null);
+        $stream->findByName($INPUT->param('news')['stream']);
+        $streamID = $stream->getStreamId();
 
-        $priority = new Priority(null, $INPUT->param('news')['id'], $streamID);
+        $priority = new Priority($this->helper->sqlite, null, $INPUT->param('news')['id'], $streamID);
         $data = $INPUT->param('priority');
-        $priority->fill([
-            'priority_from' => $data['from'],
-            'priority_to' => $data['to'],
-            'priority' => $data['value'],
-        ]);
+        $priority->setPriorityFrom($data['from']);
+        $priority->setPriorityTo($data['to']);
+        $priority->setPriorityValue($data['value']);
+        $priority->checkValidity();
         if ($priority->update()) {
             header('Location: ' . $_SERVER['REQUEST_URI']);
             exit();
@@ -139,10 +124,10 @@ class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
 
     private function saveDelete() {
         global $INPUT;
-        $stream = new Stream(null);
-        $stream->fillFromDatabaseByName($INPUT->param('news')['stream']);
-        $streamID = $stream->getStreamID();
-        $priority = new Priority(null, $INPUT->param('news')['id'], $streamID);
+        $stream = new Stream($this->helper->sqlite, null);
+        $stream->findByName($INPUT->param('news')['stream']);
+        $streamId = $stream->getStreamId();
+        $priority = new Priority($this->helper->sqlite, null, $INPUT->param('news')['id'], $streamId);
         $priority->delete();
         header('Location: ' . $_SERVER['REQUEST_URI']);
         exit();

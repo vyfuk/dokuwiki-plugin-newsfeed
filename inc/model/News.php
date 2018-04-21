@@ -9,7 +9,78 @@ class News extends AbstractModel {
     /**
      * @var integer
      */
-    private $newsID;
+    private $newsId;
+
+    /**
+     * @param int $newsId
+     */
+    public function setNewsId($newsId) {
+        $this->newsId = $newsId;
+    }
+
+    /**
+     * @param string $title
+     */
+    public function setTitle($title) {
+        $this->title = $title;
+    }
+
+    /**
+     * @param string $authorName
+     */
+    public function setAuthorName($authorName) {
+        $this->authorName = $authorName;
+    }
+
+    /**
+     * @param string $authorEmail
+     */
+    public function setAuthorEmail($authorEmail) {
+        $this->authorEmail = $authorEmail;
+    }
+
+    /**
+     * @param string $text
+     */
+    public function setText($text) {
+        $this->text = $text;
+    }
+
+    /**
+     * @param string $newsDate
+     */
+    public function setNewsDate($newsDate) {
+        $this->newsDate = $newsDate;
+    }
+
+    /**
+     * @param string $image
+     */
+    public function setImage($image) {
+        $this->image = $image;
+    }
+
+    /**
+     * @param string $category
+     */
+    public function setCategory($category) {
+        $this->category = $category;
+    }
+
+    /**
+     * @param string $linkHref
+     */
+    public function setLinkHref($linkHref) {
+        $this->linkHref = $linkHref;
+    }
+
+    /**
+     * @param string $linkTitle
+     */
+    public function setLinkTitle($linkTitle) {
+        $this->linkTitle = $linkTitle;
+    }
+
     /**
      * @var string
      */
@@ -62,8 +133,8 @@ class News extends AbstractModel {
     /**
      * @return int
      */
-    public function getNewsID() {
-        return $this->newsID;
+    public function getNewsId() {
+        return $this->newsId;
     }
 
     /**
@@ -101,7 +172,7 @@ class News extends AbstractModel {
         return $this->newsDate;
     }
 
-    public function getLocalDate() {
+    public function getLocalDate(\Closure $getLang) {
         $date = date('j\. F Y', strtotime($this->newsDate));
         $enMonth = [
             'January',
@@ -118,18 +189,18 @@ class News extends AbstractModel {
             'December'
         ];
         $langMonth = [
-            $this->getLang('jan'),
-            $this->getLang('feb'),
-            $this->getLang('mar'),
-            $this->getLang('apr'),
-            $this->getLang('may'),
-            $this->getLang('jun'),
-            $this->getLang('jul'),
-            $this->getLang('aug'),
-            $this->getLang('sep'),
-            $this->getLang('oct'),
-            $this->getLang('now'),
-            $this->getLang('dec')
+            $getLang('jan'),
+            $getLang('feb'),
+            $getLang('mar'),
+            $getLang('apr'),
+            $getLang('may'),
+            $getLang('jun'),
+            $getLang('jul'),
+            $getLang('aug'),
+            $getLang('sep'),
+            $getLang('oct'),
+            $getLang('now'),
+            $getLang('dec')
         ];
         return (string)str_replace($enMonth, $langMonth, $date);
     }
@@ -188,7 +259,7 @@ image,  category, link_href,  link_title)  VALUES(?,?,?,?,?,?,?,?,?) ',
             $this->category,
             $this->linkHref,
             $this->linkTitle);
-        return $this->findMaxNewsID();
+        return $this->findMaxNewsId();
     }
 
     public function update() {
@@ -203,15 +274,15 @@ image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
             $this->category,
             $this->linkHref,
             $this->linkTitle,
-            $this->newsID);
+            $this->newsId);
     }
 
     public function getToken($pageID = '') {
-        return (string)wl($pageID, null, true) . '?news-id=' . $this->newsID;
+        return (string)wl($pageID, null, true) . '?news-id=' . $this->newsId;
     }
 
     public function getCacheFile() {
-        return self::getCacheFileByID($this->newsID);
+        return static::getCacheFileByID($this->newsId);
     }
 
     public static function getCacheFileByID($id) {
@@ -221,7 +292,7 @@ image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
     public function render($even, $stream, $pageID = '', $editable = true) {
         $renderPattern = str_replace(['@id@', '@even@', '@editable@', '@stream@', '@page_id@'],
             [
-                $this->newsID,
+                $this->newsId,
                 $even,
                 $editable ? 'true' : 'false',
                 $stream,
@@ -232,31 +303,36 @@ image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
         return p_render('xhtml', p_get_instructions($renderPattern), $info);
     }
 
-    public function fill($data) {
-        $this->newsID = $data['news_id'];
-        $this->title = $data['title'];
-        $this->authorName = $data['author_name'];
-        $this->authorEmail = $data['author_email'];
-        $this->text = $data['text'];
-        $this->newsDate = $data['news_date'];
-        $this->image = $data['image'];
-        $this->category = $data['category'];
-        $this->linkHref = $data['link_href'];
-        $this->linkTitle = $data['link_title'];
-    }
-
     public function setPriority(Priority $priority) {
         $this->priority = $priority;
     }
 
-    public function fillFromDatabase() {
-        $res = $this->sqlite->query('SELECT * FROM news WHERE news_id=?', $this->newsID);
-        $row = $this->sqlite->res2row($res);
-        $this->fill($row);
+    public function load() {
+        $res = $this->sqlite->query('SELECT * FROM news WHERE news_id=?', $this->newsId);
+        $row = (object)$this->sqlite->res2row($res);
+        $this->newsId = $row->news_id;
+        $this->title = $row->title;
+        $this->authorName = $row->author_name;
+        $this->authorEmail = $row->author_email;
+        $this->text = $row->text;
+        $this->newsDate = $row->news_date;
+        $this->image = $row->image;
+        $this->category = $row->category;
+        $this->linkHref = $row->link_href;
+        $this->linkTitle = $row->link_title;
+        return $this;
     }
 
-    public function __construct($newsID = null) {
-        parent::__construct();
-        $this->newsID = $newsID;
+    public function loadDefault() {
+        global $INFO;
+        $this->authorName = $INFO['userinfo']['name'];
+        $this->newsDate = date('Y-m-d\TH:i:s');
+        $this->authorEmail = $INFO['userinfo']['mail'];
+        return $this;
+    }
+
+    public function __construct(\helper_plugin_sqlite $sqlite, $newsId = null) {
+        parent::__construct($sqlite);
+        $this->newsId = $newsId;
     }
 }

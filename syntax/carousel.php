@@ -1,36 +1,16 @@
 <?php
 
-use \PluginNewsFeed\Model\Stream;
-use \PluginNewsFeed\Model\News;
+use PluginNewsFeed\Model\News;
+use PluginNewsFeed\Model\Stream;
+use PluginNewsFeed\Syntax\AbstractStream;
 
-class syntax_plugin_fksnewsfeed_carousel extends \DokuWiki_Syntax_Plugin {
-
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
-
-    public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
-    }
-
-    public function getType() {
-        return 'substition';
-    }
-
-    public function getPType() {
-        return 'block';
-    }
-
-    public function getSort() {
-        return 3;
-    }
+class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
 
     public function connectTo($mode) {
         $this->Lexer->addSpecialPattern('{{news-carousel>.+?}}', $mode, 'plugin_fksnewsfeed_carousel');
     }
 
-    public function handle($match, $state,$pos,Doku_Handler $handler) {
+    public function handle($match, $state, $pos, Doku_Handler $handler) {
         preg_match_all('/([a-z]+)="([^".]*)"/', substr($match, 16, -2), $matches);
         $parameters = [];
         foreach ($matches[1] as $index => $match) {
@@ -45,28 +25,19 @@ class syntax_plugin_fksnewsfeed_carousel extends \DokuWiki_Syntax_Plugin {
         }
         list(, $match) = $data;
         list($param) = $match;
-        $attributes = [];
         $renderer->nocache();
 
-        $stream = new Stream(null);
-        $stream->fillFromDatabaseByName($param['stream']);
+        $stream = new Stream($this->helper->sqlite);
+        $stream->findByName($param['stream']);
 
         $allNews = $stream->getNews();
         if (count($allNews)) {
-            $this->renderCarousel($renderer, $allNews);
+            $this->renderCarousel($renderer, $allNews, $param);
         }
-
-        foreach ($param as $key => $value) {
-            $attributes['data-' . $key] = $value;
-        }
-        $renderer->doc .= '<div class="news-stream">
-<div class="stream row" ' . buildAttributes($attributes) . ' data-start="0" data-feed="5">
-</div>
-</div>';
         return false;
     }
 
-    private function renderCarousel(Doku_Renderer &$renderer, $news) {
+    private function renderCarousel(Doku_Renderer &$renderer, $news, $params) {
         $id = md5(serialize($news) . time());
         $indicators = [];
         $items = [];
@@ -94,7 +65,9 @@ class syntax_plugin_fksnewsfeed_carousel extends \DokuWiki_Syntax_Plugin {
         foreach ($items as $item) {
             $renderer->doc .= $item;
         }
-        $renderer->doc .= '</div></div>';
+        $renderer->doc .= '</div>';
+        $renderer->doc .= $this->renderModalBtn($renderer, $id);
+        $this->renderModalContent($renderer, $id, $params);
     }
 
     private function getCarouselItem(News $feed, $active = false) {
@@ -102,15 +75,16 @@ class syntax_plugin_fksnewsfeed_carousel extends \DokuWiki_Syntax_Plugin {
         if ($feed->hasImage()) {
             $style .= 'background-image: url(' . ml($feed->getImage(), ['w' => 600]) . ')';
         }
-        $background = 'bg-' . $feed->getCategory();
+        $background = 'bg-' . $feed->getCategory() . '-fade ';
         $html = '';
         $html .= '<div class="carousel-item ' . ($feed->hasImage() ? '' : $background) . ($active ? ' active' : '') .
             '" style="' . $style . ';height:400px">
-      <div class="carousel-caption d-block ' . ($feed->getImage() ? $background : '') . '">';
+            <div class="offset-lg-1 col-lg-8 offset-xl-3 col-xl-5">                
+      <div class=" jumbotron-inner-container d-block ' . ($feed->getImage() ? $background : '') . '">';
         $html .= $this->getHeadline($feed);
         $html .= $this->getText($feed);
         $html .= $this->getLink($feed);
-        $html .= '</div></div>';
+        $html .= '</div></div></div>';
         return $html;
     }
 
@@ -129,7 +103,7 @@ class syntax_plugin_fksnewsfeed_carousel extends \DokuWiki_Syntax_Plugin {
             } else {
                 $href = wl($feed->getLinkHref(), null, true);
             }
-            return '<p><a class="btn btn-secondary" href="' . $href . '">' . $feed->getLinkTitle() . '</a></p>';
+            return '<p><a class="btn btn-outline-secondary" href="' . $href . '">' . $feed->getLinkTitle() . '</a></p>';
         }
         return '';
     }

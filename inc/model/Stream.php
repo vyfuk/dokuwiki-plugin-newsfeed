@@ -7,15 +7,30 @@ class Stream extends AbstractModel {
     /**
      * @var integer
      */
-    private $streamID;
+    private $streamId;
+
+    /**
+     * @param int $streamId
+     */
+    public function setStreamId($streamId) {
+        $this->streamId = $streamId;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name) {
+        $this->name = $name;
+    }
+
     /**
      * @var string
      */
     private $name;
 
-    public function __construct($streamID = null) {
-        parent::__construct();
-        $this->streamID = $streamID;
+    public function __construct(\helper_plugin_sqlite $sqlite, $streamId = null) {
+        parent::__construct($sqlite);
+        $this->streamId = $streamId;
     }
 
     /**
@@ -29,7 +44,7 @@ class Stream extends AbstractModel {
      * @return integer
      */
     public function getStreamID() {
-        return $this->streamID;
+        return $this->streamId;
     }
 
     /**
@@ -38,15 +53,15 @@ class Stream extends AbstractModel {
     public function getNews() {
         ;
         $res = $this->sqlite->query('SELECT * FROM priority o JOIN news n ON o.news_id=n.news_id WHERE stream_id=? ',
-            $this->streamID);
+            $this->streamId);
         $ars = $this->sqlite->res2arr($res);
         $news = [];
         foreach ($ars as $ar) {
-            $priority = new Priority();
+            $priority = new Priority($this->sqlite);
             $priority->fill($ar);
 
-            $feed = new News();
-            $feed->fill($ar);
+            $feed = new News($this->sqlite, $ar['news_id']);
+            $feed->load();
             $feed->setPriority($priority);
             $news[] = $feed;
         }
@@ -74,22 +89,46 @@ class Stream extends AbstractModel {
 
     public function fill($data) {
         $this->name = $data['name'];
-        $this->streamID = $data['stream_id'];
+        $this->streamId = $data['stream_id'];
     }
 
-    public function fillFromDatabaseByName($name) {
+    public function findByName($name) {
         $res = $this->sqlite->query('SELECT * FROM stream WHERE name=?', $name);
         $this->fill($this->sqlite->res2row($res));
     }
 
-    public function fillFromDatabase() {
-        $res = $this->sqlite->query('SELECT name FROM stream WHERE stream_id=?', $this->streamID);
+    public function load() {
+        $res = $this->sqlite->query('SELECT name FROM stream WHERE stream_id=?', $this->streamId);
         $this->name = $this->sqlite->res2single($res);
     }
 
     public function create() {
         $this->sqlite->query('INSERT INTO stream (name) VALUES(?)', $this->name);
-        $this->fillFromDatabaseByName($this->name);
+        $this->findByName($this->name);
         return $this->name;
+    }
+
+    /**
+     * @return integer[]
+     */
+    public function getAllParentDependence() {
+        $streamIDs = [];
+        $res = $this->sqlite->query('SELECT * FROM dependence WHERE parent=?', $this->streamId);
+        foreach ($this->sqlite->res2arr($res) as $row) {
+            $streamIDs[] = $row['child'];
+        }
+        return $streamIDs;
+    }
+
+    /**
+     * @return integer[]
+     */
+    public function getAllChildDependence() {
+        $streamIDs = [];
+        $res = $this->sqlite->query('SELECT * FROM dependence  WHERE child=?', $this->streamId);
+        foreach ($this->sqlite->res2arr($res) as $row) {
+            $streamIDs[] = $row['parent'];
+        }
+        return $streamIDs;
     }
 }

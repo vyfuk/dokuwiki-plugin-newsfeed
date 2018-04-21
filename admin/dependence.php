@@ -33,19 +33,18 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
         if ($dep['child'] == '' || $dep['parent'] == '') {
             return;
         }
-        $childStream = new Stream();
-        $childStream->fillFromDatabaseByName($dep['child']);
-        $childID = $childStream->getStreamID();
+        $childStream = new Stream($this->helper->sqlite);
+        $childStream->findByName($dep['child']);
+        $childId = $childStream->getStreamID();
 
-        $parentStream = new Stream();
-        $parentStream->fillFromDatabaseByName($dep['parent']);
-        $parentID = $parentStream->getStreamID();
+        $parentStream = new Stream($this->helper->sqlite);
+        $parentStream->findByName($dep['parent']);
 
-        $d = $this->helper->allParentDependence($parentID);
-        if (in_array($childID, $d)) {
+        $d = $parentStream->getAllParentDependence();
+        if (in_array($childId, $d)) {
             msg($this->getLang('dep_exist'), -1);
         } else {
-            if ($this->helper->createDependence($parentID, $childID)) {
+            if ($this->createDependence($parentStream, $childStream)) {
                 msg($this->getLang('dep_created'), 1);
             }
         }
@@ -70,13 +69,13 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
     }
 
     private function renderChildDependence(Stream $stream) {
-        $childDependence = $this->helper->allChildDependence($stream->getStreamID());
+        $childDependence = $stream->getAllChildDependence();
         echo '<h4>' . $this->getLang('dep_list_child') . '</h4>';
         if (!empty($childDependence)) {
             echo '<ul>';
             foreach ($childDependence as $dependence) {
                 $dependenceStream = new Stream($dependence);
-                $dependenceStream->fillFromDatabase();
+                $dependenceStream->load();
                 echo '<li>' . $dependenceStream->getName() . '</li>';
             }
             echo '</ul>';
@@ -91,7 +90,7 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
             echo '<ul>';
             foreach ($fullChildDependence as $dependence) {
                 $dependenceStream = new Stream($dependence);
-                $dependenceStream->fillFromDatabase();
+                $dependenceStream->load();
                 echo '<li>' . $dependenceStream->getName() . '</li>';
             }
             echo '</ul>';
@@ -103,12 +102,12 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
     private function renderParentDependence(Stream $stream) {
         echo '<h4>' . $this->getLang('dep_list_parent') . '</h4>';
 
-        $parentDependence = $this->helper->allParentDependence($stream->getStreamID());
+        $parentDependence = $stream->getAllParentDependence();
         if (!empty($parentDependence)) {
             echo '<ul>';
             foreach ($parentDependence as $dependence) {
                 $dependenceStream = new Stream($dependence);
-                $dependenceStream->fillFromDatabase();
+                $dependenceStream->load();
                 echo '<li>' . $dependenceStream->getName() . '</li>';
             }
             echo '</ul>';
@@ -123,7 +122,7 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
             echo '<ul>';
             foreach ($fullParentDependence as $dependence) {
                 $dependenceStream = new Stream($dependence);
-                $dependenceStream->fillFromDatabase();
+                $dependenceStream->load();
                 echo '<li>' . $dependenceStream->getName() . '</li>';
             }
             echo '</ul>';
@@ -152,5 +151,9 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
         $form->addButton('submit', $lang['btn_save']);
         $html .= $form->toHTML();
         return $html;
+    }
+
+    private function createDependence(Stream $parent, Stream $child) {
+        return (bool)$this->helper->sqlite->query('INSERT INTO dependence (parent,child) VALUES(?,?);', $parent->getStreamId(), $child->getStreamId());
     }
 }

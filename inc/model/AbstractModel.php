@@ -1,26 +1,27 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: miso
- * Date: 6.8.2017
- * Time: 14:33
- */
 
 namespace PluginNewsFeed\Model;
 
 
-abstract class AbstractModel extends \helper_plugin_fksnewsfeed {
+abstract class AbstractModel {
+    /**
+     * @var \helper_plugin_sqlite
+     */
+    protected $sqlite;
 
-    public final function getPluginName() {
-        return 'fksnewsfeed';
+    public function __construct(\helper_plugin_sqlite $sqlite) {
+        $this->sqlite = $sqlite;
     }
 
-    abstract public function fill($data);
-
-    abstract public function fillFromDatabase();
+    abstract public function load();
 
     abstract public function create();
 
     abstract public function update();
+
+    public function findMaxNewsId() {
+        $res = $this->sqlite->query('SELECT max(news_id) FROM news');
+        return (int)$this->sqlite->res2single($res);
+    }
 
 }

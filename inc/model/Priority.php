@@ -13,7 +13,8 @@ class Priority extends AbstractModel {
     /**
      * @var integer
      */
-    private $ID;
+    private $priorityId;
+
     /**
      * @var string;
      */
@@ -29,17 +30,17 @@ class Priority extends AbstractModel {
     /**
      * @var integer
      */
-    private $newsID;
+    private $newsId;
     /**
      * @var integer
      */
-    private $streamID;
+    private $streamId;
 
     /**
      * @return integer
      */
-    public function getID() {
-        return $this->ID;
+    public function getId() {
+        return $this->priorityId;
     }
 
     /**
@@ -63,6 +64,48 @@ class Priority extends AbstractModel {
         return $this->priorityValue;
     }
 
+    /**
+     * @param int $priorityId
+     */
+    public function setPriorityId($priorityId) {
+        $this->priorityId = $priorityId;
+    }
+
+    /**
+     * @param string $priorityFrom
+     */
+    public function setPriorityFrom($priorityFrom) {
+        $this->priorityFrom = $priorityFrom;
+    }
+
+    /**
+     * @param string $priorityTo
+     */
+    public function setPriorityTo($priorityTo) {
+        $this->priorityTo = $priorityTo;
+    }
+
+    /**
+     * @param int $priorityValue
+     */
+    public function setPriorityValue($priorityValue) {
+        $this->priorityValue = $priorityValue;
+    }
+
+    /**
+     * @param int $newsId
+     */
+    public function setNewsId($newsId) {
+        $this->newsId = $newsId;
+    }
+
+    /**
+     * @param int $streamId
+     */
+    public function setStreamId($streamId) {
+        $this->streamId = $streamId;
+    }
+
     public function checkValidity() {
         if ((time() < strtotime($this->priorityFrom)) || (time() > strtotime($this->priorityTo))) {
             $this->priorityValue = 0;
@@ -74,46 +117,46 @@ class Priority extends AbstractModel {
             $this->priorityValue,
             $this->priorityFrom,
             $this->priorityTo,
-            $this->streamID,
-            $this->newsID);
+            $this->streamId,
+            $this->newsId);
     }
 
     public function create() {
         $res = $this->sqlite->query('SELECT * FROM priority WHERE news_id=? AND stream_id=?',
-            $this->newsID,
-            $this->streamID);
+            $this->newsId,
+            $this->streamId);
         if (count($this->sqlite->res2arr($res)) == 0) {
             $this->sqlite->query('INSERT INTO priority (news_id,stream_id,priority) VALUES(?,?,?)',
-                $this->newsID,
-                $this->streamID,
+                $this->newsId,
+                $this->streamId,
                 0);
         };
         return (int)1;
     }
 
     public function delete() {
-        $res = $this->sqlite->query('DELETE FROM priority WHERE stream_id=? AND news_id =?', $this->streamID, $this->newsID);
+        $res = $this->sqlite->query('DELETE FROM priority WHERE stream_id=? AND news_id =?', $this->streamId, $this->newsId);
         return $this->sqlite->res2arr($res);
     }
 
-    public function fillFromDatabase() {
-        $res = $this->sqlite->query('SELECT * FROM priority WHERE stream_id=? AND news_id =?', $this->streamID, $this->newsID);
+    public function load() {
+        $res = $this->sqlite->query('SELECT * FROM priority WHERE stream_id=? AND news_id =?', $this->streamId, $this->newsId);
         return $this->fill($this->sqlite->res2row($res));
     }
 
     public function fill($data) {
         $this->priorityFrom = $data['priority_from'];
-        $this->ID = $data['priority_id'];
+        $this->priorityId = $data['priority_id'];
         $this->priorityTo = $data['priority_to'];
         $this->priorityValue = $data['priority'];
         $this->checkValidity();
         return true;
     }
 
-    public function __construct($params = [], $newsID = null, $streamID = null) {
-        parent::__construct();
+    public function __construct(\helper_plugin_sqlite $sqlite, $params = [], $newsId = null, $streamId = null) {
+        parent::__construct($sqlite);
         $this->fill($params);
-        $this->newsID = $newsID;
-        $this->streamID = $streamID;
+        $this->newsId = $newsId;
+        $this->streamId = $streamId;
     }
 }

@@ -34,8 +34,8 @@ class admin_plugin_fksnewsfeed_stream extends \DokuWiki_Admin_Plugin {
             return;
         }
 
-        $stream = new Stream($streamName);
-        $stream->fillFromDatabaseByName($streamName);
+        $stream = new Stream($this->helper->sqlite, $streamName);
+        $stream->findByName($streamName);
         if (!$stream->getName()) {
             $stream->fill(['name' => $streamName]);
             $stream->create();
@@ -49,13 +49,13 @@ class admin_plugin_fksnewsfeed_stream extends \DokuWiki_Admin_Plugin {
         echo '<h1>' . $this->getLang('manage') . '</h1>';
         echo '<h2>' . 'Create stream' . '</h2>';
         echo $this->getNewStreamForm()->toHTML();
-        $streams = $this->helper->allStream();
+        $streams = $this->helper->getAllStreams();
         echo '<h2 id="stream_list">Zoznam Streamov</h2>';
         echo('<ul>');
         foreach ($streams as $stream) {
-            echo '<li class="form-group row"><span class="col-3">' . $stream . '</span>';
+            echo '<li class="form-group row"><span class="col-3">' . $stream->getName() . '</span>';
             echo '<input type="text" class="col-9 form-control" value="' .
-                hsc('{{news-stream>stream="' . $stream . '" feed="5"}}') . '" />';
+                hsc('{{news-stream>stream="' . $stream->getName() . '" feed="5"}}') . '" />';
             echo '</li>';
         }
         echo '</ul>';

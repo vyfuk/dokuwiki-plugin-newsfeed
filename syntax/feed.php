@@ -62,8 +62,8 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
             switch ($state) {
                 case DOKU_LEXER_SPECIAL:
                     $renderer->nocache();
-                    $news = new News($param['id']);
-                    $news->fillFromDatabase();
+                    $news = new News($this->helper->sqlite, $param['id']);
+                    $news->load();
                     if (is_null($news) || ($param['id'] == 0)) {
                         $renderer->doc .= '<div class="alert alert-danger">' . $this->getLang('news_non_exist') .
                             '</div>';
