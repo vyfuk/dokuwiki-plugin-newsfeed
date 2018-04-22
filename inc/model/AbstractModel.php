@@ -9,8 +9,12 @@ abstract class AbstractModel {
      */
     protected $sqlite;
 
-    public function __construct(\helper_plugin_sqlite $sqlite) {
+    public function __construct(\helper_plugin_sqlite &$sqlite) {
+
         $this->sqlite = $sqlite;
+        if (!$this->sqlite->getAdapter()->getDb()) {
+            $this->sqlite->getAdapter()->opendb(false);
+        }
     }
 
     abstract public function load();

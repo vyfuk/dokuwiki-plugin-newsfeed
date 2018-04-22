@@ -73,7 +73,7 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
     private function getCarouselItem(News $feed, $active = false) {
         $style = '';
         if ($feed->hasImage()) {
-            $style .= 'background-image: url(' . ml($feed->getImage(), ['w' => 600]) . ')';
+            $style .= 'background-image: url(' . ml($feed->getImage(), ['w' => 1200]) . ')';
         }
         $background = 'bg-' . $feed->getCategory() . '-fade ';
         $html = '';
@@ -93,7 +93,7 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
     }
 
     private function getHeadline(News $feed) {
-        return '<h3>' . hsc($feed->getTitle()) . '</h3>';
+        return '<h1>' . hsc($feed->getTitle()) . '</h1>';
     }
 
     private function getLink(News $feed) {

@@ -308,9 +308,10 @@ image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
     }
 
     public function load() {
+
         $res = $this->sqlite->query('SELECT * FROM news WHERE news_id=?', $this->newsId);
         $row = (object)$this->sqlite->res2row($res);
-        $this->newsId = $row->news_id;
+        //$this->newsId = $row->news_id;
         $this->title = $row->title;
         $this->authorName = $row->author_name;
         $this->authorEmail = $row->author_email;
@@ -331,7 +332,7 @@ image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
         return $this;
     }
 
-    public function __construct(\helper_plugin_sqlite $sqlite, $newsId = null) {
+    public function __construct(\helper_plugin_sqlite &$sqlite, $newsId = null) {
         parent::__construct($sqlite);
         $this->newsId = $newsId;
     }

@@ -39,14 +39,12 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
     public function __construct() {
         $this->social = $this->loadHelper('social');
 
-        $this->sqlite = $this->loadHelper('sqlite', false);
-
+        $this->sqlite = $this->loadHelper('sqlite');
         $pluginName = $this->getPluginName();
         if (!$this->sqlite) {
             msg($pluginName . ': This plugin requires the sqlite plugin. Please install it.');
         }
-        if (!$this->sqlite->init('fksnewsfeed',
-            DOKU_PLUGIN . $pluginName . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR)
+        if (!$this->sqlite->init('fksnewsfeed', DOKU_PLUGIN . $pluginName . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR)
         ) {
             msg($pluginName . ': Cannot initialize database.');
         }
@@ -63,6 +61,7 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
             $stream->fill($row);
             $streams[] = $stream;
         }
+
         return $streams;
     }
 

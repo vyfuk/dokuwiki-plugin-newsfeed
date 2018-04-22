@@ -28,7 +28,7 @@ class Stream extends AbstractModel {
      */
     private $name;
 
-    public function __construct(\helper_plugin_sqlite $sqlite, $streamId = null) {
+    public function __construct(\helper_plugin_sqlite &$sqlite, $streamId = null) {
         parent::__construct($sqlite);
         $this->streamId = $streamId;
     }

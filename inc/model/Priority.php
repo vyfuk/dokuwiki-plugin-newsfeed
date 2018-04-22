@@ -153,7 +153,7 @@ class Priority extends AbstractModel {
         return true;
     }
 
-    public function __construct(\helper_plugin_sqlite $sqlite, $params = [], $newsId = null, $streamId = null) {
+    public function __construct(\helper_plugin_sqlite &$sqlite, $params = [], $newsId = null, $streamId = null) {
         parent::__construct($sqlite);
         $this->fill($params);
         $this->newsId = $newsId;

@@ -63,6 +63,7 @@ class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
         if ($INPUT->param('news')['id'] !== 0) {
             $data = new \PluginNewsFeed\Model\News($this->helper->sqlite, $INPUT->param('news')['id']);
             $data->load();
+
         } else {
             $data = new \PluginNewsFeed\Model\News($this->helper->sqlite, null);
             $data->loadDefault();
