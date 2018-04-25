@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: miso
- * Date: 5.8.2017
- * Time: 17:40
- */
 
 namespace PluginNewsFeed\Renderer;
 
@@ -30,7 +24,7 @@ class VyfukRenderer extends AbstractRenderer {
         return $html;
     }
 
-    protected function getHeader($news) {
+    protected function getHeader(News $news) {
         return '<h4 class="card-title">' . $news->getTitle() . '</h4>' .
             '<p class="card-text">' .
             '<small class="text-muted">' . $news->getLocalDate(function ($key) {
@@ -105,9 +99,9 @@ class VyfukRenderer extends AbstractRenderer {
 
         $stream = new Stream($this->helper->sqlite, null);
         $stream->findByName($streamName);
-        $streamID = $stream->getStreamID();
+        $streamId = $stream->getStreamId();
 
-        $priority = new Priority($this->helper->sqlite, null, $id, $streamID);
+        $priority = new Priority($this->helper->sqlite, null, $id, $streamId);
         $priority->load();
         $form->addTagOpen('div')->addClass('form-group');
         $priorityValue = new InputElement('number', 'priority[value]', $this->helper->getLang('valid_from'));
@@ -131,7 +125,7 @@ class VyfukRenderer extends AbstractRenderer {
 
         $form->addButton('submit', $this->helper->getLang('btn_save_priority'))->addClass('btn btn-success');
         $html .= $form->toHTML();
-        $html .= ' </div > ';
+        $html .= '</div>';
 
         return $html;
     }
@@ -139,8 +133,8 @@ class VyfukRenderer extends AbstractRenderer {
     protected function btnEditNews($id, $stream) {
         $html = '';
 
-        $html .= '<div class="modal-footer"> ';
-        $html .= '<div class="btn-group"> ';
+        $html .= '<div class="modal-footer">';
+        $html .= '<div class="btn-group">';
         $editForm = new Form();
         $editForm->setHiddenField('do', \helper_plugin_fksnewsfeed::FORM_TARGET);
         $editForm->setHiddenField('news[id]', $id);
@@ -165,8 +159,8 @@ class VyfukRenderer extends AbstractRenderer {
         $purgeForm->setHiddenField('news[id]', $id);
         $purgeForm->addButton('submit', $this->helper->getLang('cache_del'))->addClass('btn btn-warning');
         $html .= $purgeForm->toHTML();
-        $html .= ' </div > ';
-        $html .= ' </div > ';
+        $html .= '</div>';
+        $html .= '</div>';
 
         return $html;
     }
@@ -209,16 +203,16 @@ class VyfukRenderer extends AbstractRenderer {
      * @param $news News
      * @return null|string
      */
-    protected function getText($news) {
-        return p_render('xhtml', p_get_instructions($news->getText()), $info);
+    protected function getText(News $news) {
+        return $news->renderText();
     }
 
     /**
      * @param $news News
      * @return string
      */
-    protected function getSignature($news) {
-        return ' <div class="card-text text-right">
+    protected function getSignature(News $news) {
+        return '<div class="card-text text-right">
             <a href="mailto:' . hsc($news->getAuthorEmail()) . '" class="mail" title="' . hsc($news->getAuthorEmail()) .
             '"><span class="fa fa-envelope"></span>' . hsc($news->getAuthorName()) . '</a>
         </div>';
@@ -228,7 +222,7 @@ class VyfukRenderer extends AbstractRenderer {
      * @param $news News
      * @return string
      */
-    protected function getLink($news) {
+    protected function getLink(News $news) {
         if ($news->hasLink()) {
             if (preg_match('|^https?://|', $news->getLinkHref())) {
                 $href = hsc($news->getLinkHref());

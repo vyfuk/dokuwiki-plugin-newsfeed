@@ -6,12 +6,6 @@ use PluginFKSHelper\Form\DateTimeInputElement;
 class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
 
     private static $categories = [
-        'primary',
-        'info',
-        'success',
-        'warning',
-        'danger',
-        'deprecated',
         'fykos-blue',
         'fykos-pink',
         'fykos-line',
@@ -34,7 +28,6 @@ class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
     }
 
     public function tplEditNews(Doku_Event &$event) {
-
         global $ACT;
         global $INPUT;
         if ($ACT !== helper_plugin_fksnewsfeed::FORM_TARGET) {
@@ -50,9 +43,22 @@ class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
             case'create':
                 $this->getEditForm();
                 return;
+            case 'preview':
+                $this->getStreamPreview($event);
+                return;
             default:
                 return;
         }
+    }
+
+    private function getStreamPreview() {
+        global $INPUT;
+        if ($INPUT->param('news')['stream']) {
+            echo p_render('xhtml', p_get_instructions('{{news-stream>feed="5";stream="' . $INPUT->param('news')['stream'] . '"}}'), $info);
+        } else {
+            msg('Stream is required.', -1);
+        }
+
     }
 
     private function getEditForm() {
@@ -138,7 +144,7 @@ class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
             $form->addTagClose('div');
         }
         $form->addFieldsetClose();
-        $form->addButton('submit', $this->getLang('save'))->addClass('btn btn-succeess');
+        $form->addButton('submit', $this->getLang('save'))->addClass('btn btn-success');
         echo $form->toHTML();
     }
 }

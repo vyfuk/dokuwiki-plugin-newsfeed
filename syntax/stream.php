@@ -23,9 +23,7 @@ class syntax_plugin_fksnewsfeed_stream extends AbstractStream {
         }
         list(, $match) = $data;
         list($param) = $match;
-
         $this->renderStream($renderer, $param);
-
         return false;
     }
 }

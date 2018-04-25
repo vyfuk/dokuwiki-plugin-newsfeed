@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: miso
- * Date: 5.8.2017
- * Time: 17:40
- */
 
 namespace PluginNewsFeed\Renderer;
 
@@ -61,7 +55,7 @@ class FykosRenderer extends AbstractRenderer {
     protected function getModalHeader() {
         $html = '';
         $html .= '<div class="modal-header">';
-        $html .= '<h5 class="modal-title">' . $this->helper->getLang('Upraviť novinku') . '</h5>';
+        $html .= '<h5 class="modal-title">' . $this->helper->getLang('Edit feed') . '</h5>';
         $html .= '<button type="button" class="close" data-dismiss="modal" aria-label="Close">';
         $html .= '<span aria-hidden="true">×</span>';
         $html .= '</button>';
@@ -95,7 +89,7 @@ class FykosRenderer extends AbstractRenderer {
 
         $stream = new Stream($this->helper->sqlite, null);
         $stream->findByName($streamName);
-        $streamId = $stream->getStreamID();
+        $streamId = $stream->getStreamId();
 
         $priority = new Priority($this->helper->sqlite, null, $id, $streamId);
         $priority->load();
@@ -199,26 +193,26 @@ class FykosRenderer extends AbstractRenderer {
      * @param $news News
      * @return null|string
      */
-    protected function getText($news) {
-        return p_render('xhtml', p_get_instructions($news->getText()), $info);
+    protected function getText(News $news) {
+        return $news->renderText();
     }
 
     /**
      * @param $news News
      * @return string
      */
-    protected function getSignature($news) {
-        return ' <div class="card-text text-right">
-            <a href="mailto:' . hsc($news->getAuthorEmail()) . '" class="mail" title="' . hsc($news->getAuthorEmail()) .
-            '"><span class="fa fa-envelope"></span>' . hsc($news->getAuthorName()) . '</a>
-        </div>';
+    protected function getSignature(News $news) {
+        return '<div class="card-text text-right">' .
+            '<a href="mailto:' . hsc($news->getAuthorEmail()) . '" class="mail" title="' . hsc($news->getAuthorEmail()) .
+            '"><span class="fa fa-envelope"></span>' . hsc($news->getAuthorName()) . '</a>' .
+            '</div>';
     }
 
     /**
      * @param $news News
      * @return string
      */
-    protected function getHeader($news) {
+    protected function getHeader(News $news) {
         return '<h4>' . $news->getTitle() .
             '<small class="float-right">' . $news->getLocalDate(function ($key) {
                 return $this->helper->getLang($key);
@@ -229,7 +223,7 @@ class FykosRenderer extends AbstractRenderer {
      * @param $news News
      * @return string
      */
-    protected function getLink($news) {
+    protected function getLink(News $news) {
         if ($news->hasLink()) {
             if (preg_match('|^https?://|', $news->getLinkHref())) {
                 $href = hsc($news->getLinkHref());

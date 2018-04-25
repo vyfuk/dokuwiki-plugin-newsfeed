@@ -8,22 +8,9 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
      * @var helper_plugin_fksnewsfeed
      */
     private $helper;
-    /**
-     * @var \PluginNewsFeed\Renderer\AbstractRenderer
-     */
-    private $renderer;
 
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
-        switch ($this->getConf('contest')) {
-            default;
-            case 'fykos':
-                $this->renderer = new Renderer\FykosRenderer($this->helper);
-                break;
-            case 'vyfuk':
-                $this->renderer = new Renderer\VyfukRenderer($this->helper);
-                break;
-        }
     }
 
     public function getType() {
@@ -91,12 +78,12 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
         if ($cache->useCache()) {
             $innerHtml = $json->decode($cache->retrieveCache());
         } else {
-            $innerHtml = $this->renderer->renderContent($data, $params);
+            $innerHtml = $this->helper->renderer->renderContent($data, $params);
 
             $cache->storeCache($json->encode($innerHtml));
         }
-        $formHtml = $this->renderer->renderEditFields($params);
-        $html = $this->renderer->render($innerHtml, $formHtml, $data);
+        $formHtml = $this->helper->renderer->renderEditFields($params);
+        $html = $this->helper->renderer->render($innerHtml, $formHtml, $data);
         return $html;
     }
 }

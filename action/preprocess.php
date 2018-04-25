@@ -53,7 +53,7 @@ class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
     private function saveNews() {
         global $INPUT;
 
-        $file = News::getCacheFileByID($INPUT->param('news')['id']);
+        $file = News::getCacheFileById($INPUT->param('news')['id']);
         $cache = new cache($file, '');
         $cache->removeCache();
 
@@ -86,31 +86,31 @@ class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
         exit();
     }
 
-    private function saveIntoStreams($newsID) {
+    private function saveIntoStreams($newsId) {
         global $INPUT;
         $stream = new Stream($this->helper->sqlite, null);
         $stream->findByName($INPUT->param('news')['stream']);
-        $streamID = $stream->getStreamID();
+        $streamId = $stream->getStreamId();
 
-        $streams = [$streamID];
-        $this->helper->fullParentDependence($streamID, $streams);
+        $streams = [$streamId];
+        $this->helper->fullParentDependence($streamId, $streams);
         foreach ($streams as $stream) {
-            $priority = new Priority($this->helper->sqlite, null, $newsID, $stream);
+            $priority = new Priority($this->helper->sqlite, null, $newsId, $stream);
             $priority->create();
         }
     }
 
     private function savePriority() {
         global $INPUT;
-        $file = News::getCacheFileByID($INPUT->param('news')['id']);
+        $file = News::getCacheFileById($INPUT->param('news')['id']);
 
         $cache = new cache($file, '');
         $cache->removeCache();
         $stream = new Stream($this->helper->sqlite, null);
         $stream->findByName($INPUT->param('news')['stream']);
-        $streamID = $stream->getStreamId();
+        $streamId = $stream->getStreamId();
 
-        $priority = new Priority($this->helper->sqlite, null, $INPUT->param('news')['id'], $streamID);
+        $priority = new Priority($this->helper->sqlite, null, $INPUT->param('news')['id'], $streamId);
         $data = $INPUT->param('priority');
         $priority->setPriorityFrom($data['from']);
         $priority->setPriorityTo($data['to']);
@@ -143,7 +143,7 @@ class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
                 $cache->removeCache();
             }
         } else {
-            $f = News::getCacheFileByID($INPUT->param('news')['id']);
+            $f = News::getCacheFileById($INPUT->param('news')['id']);
             $cache = new cache($f, '');
             $cache->removeCache();
         }

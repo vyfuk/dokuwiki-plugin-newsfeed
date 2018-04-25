@@ -43,7 +43,7 @@ class Stream extends AbstractModel {
     /**
      * @return integer
      */
-    public function getStreamID() {
+    public function getStreamId() {
         return $this->streamId;
     }
 
@@ -109,26 +109,31 @@ class Stream extends AbstractModel {
     }
 
     /**
-     * @return integer[]
+     * @return Stream[]
      */
     public function getAllParentDependence() {
-        $streamIDs = [];
-        $res = $this->sqlite->query('SELECT * FROM dependence WHERE parent=?', $this->streamId);
+        $streams = [];
+        $res = $this->sqlite->query('SELECT * FROM dependence WHERE parent=?', $this->getStreamId());
         foreach ($this->sqlite->res2arr($res) as $row) {
-            $streamIDs[] = $row['child'];
+            $stream = new Stream($this->sqlite);
+            $stream->setStreamId($row['child']);
+            $streams[] = $stream;
         }
-        return $streamIDs;
+        return $streams;
     }
 
     /**
-     * @return integer[]
+     * @return Stream[]
      */
     public function getAllChildDependence() {
-        $streamIDs = [];
-        $res = $this->sqlite->query('SELECT * FROM dependence  WHERE child=?', $this->streamId);
+        $streams = [];
+        $res = $this->sqlite->query('SELECT * FROM dependence  WHERE child=?', $this->getStreamId());
         foreach ($this->sqlite->res2arr($res) as $row) {
-            $streamIDs[] = $row['parent'];
+            $stream = new Stream($this->sqlite);
+            $stream->setStreamId($row['parent']);
+            $streams[] = $stream;
+
         }
-        return $streamIDs;
+        return $streams;
     }
 }

@@ -122,3 +122,5 @@ $lang['stream_delete'] = 'Odstraň vlákno';
 $lang['alw_dep'] = 'Povolit dědění';
 
 $lang['stream_menu'] = 'Nastavenia streamov';
+
+$lang['Preview'] = 'Náhľad';

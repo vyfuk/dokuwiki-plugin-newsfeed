@@ -38,10 +38,12 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
     }
 
     private function renderCarousel(Doku_Renderer &$renderer, $news, $params) {
+        global $ID;
         $id = md5(serialize($news) . time());
         $indicators = [];
         $items = [];
-        for ($i = 0; $i < 5; $i++) {
+        $noFeeds = 5;
+        for ($i = 0; $i < $noFeeds; $i++) {
             if (!isset($news[$i])) {
                 break;
             };
@@ -52,22 +54,30 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
             $indicators[] = '<li data-target="#' . $id . '" data-slide-to="' . $i . '"></li>';
             $items[] = $this->getCarouselItem($feed, !$i);
         }
-        $renderer->doc .= '<div id="' . $id .
-            '" class="feed-carousel carousel slide mb-3 hidden-md-down" data-ride="carousel">';
+        $renderer->doc .= '<div id="' . $id . '" class="feed-carousel carousel slide mb-3 hidden-md-down" data-ride="carousel">';
 
+        $this->renderCarouselIndicators($renderer, $indicators);
+        $this->renderCarouselItems($renderer, $items);
+        $renderer->doc .= '<div style="position: absolute; bottom: 0; right: 0;">';
+        $this->renderEditModal($renderer, $params);
+        $renderer->doc .= '</div>';
+        $renderer->doc .= '</div>';
+    }
+
+    private function renderCarouselIndicators(Doku_Renderer &$renderer, array $indicators) {
         $renderer->doc .= '<ol class="carousel-indicators">';
         foreach ($indicators as $indicator) {
             $renderer->doc .= $indicator;
         }
         $renderer->doc .= '</ol>';
+    }
 
+    private function renderCarouselItems(Doku_Renderer &$renderer, array $items) {
         $renderer->doc .= '<div class="carousel-inner" role="listbox">';
         foreach ($items as $item) {
             $renderer->doc .= $item;
         }
         $renderer->doc .= '</div>';
-        $renderer->doc .= $this->renderModalBtn($renderer, $id);
-        $this->renderModalContent($renderer, $id, $params);
     }
 
     private function getCarouselItem(News $feed, $active = false) {

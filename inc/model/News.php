@@ -165,6 +165,10 @@ class News extends AbstractModel {
         return $this->text;
     }
 
+    public function renderText($mode = 'xhtml') {
+       return p_render($mode, p_get_instructions($this->getText()), $info);
+    }
+
     /**
      * @return string
      */
@@ -277,26 +281,26 @@ image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
             $this->newsId);
     }
 
-    public function getToken($pageID = '') {
-        return (string)wl($pageID, null, true) . '?news-id=' . $this->newsId;
+    public function getToken($pageId = '') {
+        return (string)wl($pageId, null, true) . '?news-id=' . $this->newsId;
     }
 
     public function getCacheFile() {
-        return static::getCacheFileByID($this->newsId);
+        return static::getCacheFileById($this->newsId);
     }
 
-    public static function getCacheFileByID($id) {
+    public static function getCacheFileById($id) {
         return 'news-feed_news_' . $id;
     }
 
-    public function render($even, $stream, $pageID = '', $editable = true) {
+    public function render($even, $stream, $pageId = '', $editable = true) {
         $renderPattern = str_replace(['@id@', '@even@', '@editable@', '@stream@', '@page_id@'],
             [
                 $this->newsId,
                 $even,
                 $editable ? 'true' : 'false',
                 $stream,
-                $pageID,
+                $pageId,
             ],
             self::SIMPLE_RENDER_PATTERN);
         $info = [];

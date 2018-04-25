@@ -11,6 +11,8 @@ require_once DOKU_PLUGIN . 'fksnewsfeed/inc/AbstractStream.php';
 
 use PluginNewsFeed\Model\News;
 use PluginNewsFeed\Model\Stream;
+use PluginNewsFeed\Renderer\FykosRenderer;
+use PluginNewsFeed\Renderer\VyfukRenderer;
 
 class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
 
@@ -34,6 +36,11 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
      */
     public $social;
 
+    /**
+     * @var \PluginNewsFeed\Renderer\AbstractRenderer
+     */
+    public $renderer;
+
     const FORM_TARGET = 'plugin_news-feed';
 
     public function __construct() {
@@ -47,6 +54,16 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
         if (!$this->sqlite->init('fksnewsfeed', DOKU_PLUGIN . $pluginName . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR)
         ) {
             msg($pluginName . ': Cannot initialize database.');
+        }
+
+        switch ($this->getConf('contest')) {
+            default;
+            case 'fykos':
+                $this->renderer = new FykosRenderer($this);
+                break;
+            case 'vyfuk':
+                $this->renderer = new VyfukRenderer($this);
+                break;
         }
     }
 
@@ -75,38 +92,38 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
         return $stream;
     }
 
-    private function allParentDependence($streamID) {
-        $streamIDs = [];
-        $res = $this->sqlite->query('SELECT * FROM dependence WHERE parent=?', $streamID);
+    private function allParentDependence($streamId) {
+        $streamIds = [];
+        $res = $this->sqlite->query('SELECT * FROM dependence WHERE parent=?', $streamId);
         foreach ($this->sqlite->res2arr($res) as $row) {
-            $streamIDs[] = $row['child'];
+            $streamIds[] = $row['child'];
         }
-        return $streamIDs;
+        return $streamIds;
     }
 
-    private function allChildDependence($streamID) {
-        $streamIDs = [];
-        $res = $this->sqlite->query('SELECT * FROM dependence  WHERE child=?', $streamID);
+    private function allChildDependence($streamId) {
+        $streamIds = [];
+        $res = $this->sqlite->query('SELECT * FROM dependence  WHERE child=?', $streamId);
         foreach ($this->sqlite->res2arr($res) as $row) {
-            $streamIDs[] = $row['parent'];
+            $streamIds[] = $row['parent'];
         }
-        return $streamIDs;
+        return $streamIds;
     }
 
-    public function fullParentDependence($streamID, &$arr) {
-        foreach ($this->allParentDependence($streamID) as $newStreamID) {
-            if (!in_array($newStreamID, $arr)) {
-                $arr[] = $newStreamID;
-                $this->fullParentDependence($newStreamID, $arr);
+    public function fullParentDependence($streamId, &$arr) {
+        foreach ($this->allParentDependence($streamId) as $newStreamId) {
+            if (!in_array($newStreamId, $arr)) {
+                $arr[] = $newStreamId;
+                $this->fullParentDependence($newStreamId, $arr);
             }
         }
     }
 
-    public function fullChildDependence($streamID, &$arr) {
-        foreach ($this->allChildDependence($streamID) as $newStreamID) {
-            if (!in_array($newStreamID, $arr)) {
-                $arr[] = $newStreamID;
-                $this->fullChildDependence($newStreamID, $arr);
+    public function fullChildDependence($streamId, &$arr) {
+        foreach ($this->allChildDependence($streamId) as $newStreamId) {
+            if (!in_array($newStreamId, $arr)) {
+                $arr[] = $newStreamId;
+                $this->fullChildDependence($newStreamId, $arr);
             }
         }
     }

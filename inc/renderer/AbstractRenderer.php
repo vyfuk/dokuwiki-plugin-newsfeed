@@ -42,23 +42,23 @@ abstract class AbstractRenderer {
      * @param $news News
      * @return null|string
      */
-    abstract protected function getText($news);
+    abstract protected function getText(News $news);
 
     /**
      * @param $news News
      * @return string
      */
-    abstract protected function getSignature($news);
+    abstract protected function getSignature(News $news);
 
     /**
      * @param $news News
      * @return string
      */
-    abstract protected function getHeader($news);
+    abstract protected function getHeader(News $news);
 
     /**
      * @param $news News
      * @return string
      */
-    abstract protected function getLink($news);
+    abstract protected function getLink(News $news);
 }

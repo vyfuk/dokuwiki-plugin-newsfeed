@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: miso
- * Date: 20.6.2017
- * Time: 15:54
- */
 
 namespace PluginNewsFeed\Model;
-
 
 class Priority extends AbstractModel {
     /**

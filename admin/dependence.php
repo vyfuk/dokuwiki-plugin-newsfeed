@@ -1,5 +1,6 @@
 <?php
 
+use PluginNewsFeed\Model\Dependence;
 use \PluginNewsFeed\Model\Stream;
 use \dokuwiki\Form\Form;
 
@@ -35,16 +36,18 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
         }
         $childStream = new Stream($this->helper->sqlite);
         $childStream->findByName($dep['child']);
-        $childId = $childStream->getStreamID();
 
         $parentStream = new Stream($this->helper->sqlite);
         $parentStream->findByName($dep['parent']);
 
-        $d = $parentStream->getAllParentDependence();
-        if (in_array($childId, $d)) {
+        $dependence = new Dependence($this->helper->sqlite);
+        $dependence->setChildStream($childStream);
+        $dependence->setParentStream($parentStream);
+
+        if ($dependence->dependenceExist()) {
             msg($this->getLang('dep_exist'), -1);
         } else {
-            if ($this->createDependence($parentStream, $childStream)) {
+            if ($dependence->create()) {
                 msg($this->getLang('dep_created'), 1);
             }
         }
@@ -73,8 +76,7 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
         echo '<h4>' . $this->getLang('dep_list_child') . '</h4>';
         if (!empty($childDependence)) {
             echo '<ul>';
-            foreach ($childDependence as $dependence) {
-                $dependenceStream = new Stream($dependence);
+            foreach ($childDependence as $dependenceStream) {
                 $dependenceStream->load();
                 echo '<li>' . $dependenceStream->getName() . '</li>';
             }
@@ -84,7 +86,7 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
         }
 
         $fullChildDependence = [];
-        $this->helper->fullChildDependence($stream->getStreamID(), $fullChildDependence);
+        $this->helper->fullChildDependence($stream->getStreamId(), $fullChildDependence);
         echo '<h4>' . $this->getLang('dep_list_child_full') . '</h4>';
         if (!empty($fullChildDependence)) {
             echo '<ul>';
@@ -105,8 +107,8 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
         $parentDependence = $stream->getAllParentDependence();
         if (!empty($parentDependence)) {
             echo '<ul>';
-            foreach ($parentDependence as $dependence) {
-                $dependenceStream = new Stream($dependence);
+            foreach ($parentDependence as $dependenceStream) {
+
                 $dependenceStream->load();
                 echo '<li>' . $dependenceStream->getName() . '</li>';
             }
@@ -116,7 +118,7 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
         }
 
         $fullParentDependence = [];
-        $this->helper->fullParentDependence($stream->getStreamID(), $fullParentDependence);
+        $this->helper->fullParentDependence($stream->getStreamId(), $fullParentDependence);
         echo '<h4>' . $this->getLang('dep_list_parent_full') . '</h4>';
         if (!empty($fullParentDependence)) {
             echo '<ul>';
@@ -151,9 +153,5 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
         $form->addButton('submit', $lang['btn_save']);
         $html .= $form->toHTML();
         return $html;
-    }
-
-    private function createDependence(Stream $parent, Stream $child) {
-        return (bool)$this->helper->sqlite->query('INSERT INTO dependence (parent,child) VALUES(?,?);', $parent->getStreamId(), $child->getStreamId());
     }
 }

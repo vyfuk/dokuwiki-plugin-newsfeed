@@ -21,6 +21,7 @@ class action_plugin_fksnewsfeed_token extends \DokuWiki_Action_Plugin {
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'AFTER', $this, 'addFBMeta');
     }
 
+
     public function addFBMeta() {
         global $ID;
         global $INPUT;

@@ -26,13 +26,25 @@ abstract class AbstractStream extends \DokuWiki_Syntax_Plugin {
         return 3;
     }
 
+    protected function renderEditModal(\Doku_Renderer &$renderer, $params) {
+        $id = md5(serialize($params));
+        global $ID;
+        $renderer->nocache();
+        if (auth_quickaclcheck($ID) >= AUTH_EDIT) {
+            $this->renderEditModalBtn($renderer, $id);
+            $this->renderEditModalContent($renderer, $id, $params);
+        }
+    }
+
     protected function renderStream(\Doku_Renderer &$renderer, $params) {
         $attributes = [];
+
         foreach ($params as $key => $value) {
             $attributes['data-' . $key] = $value;
         }
         $renderer->doc .= '<div class="news-stream">';
-        $this->renderStreamHead($renderer, $params);
+        $this->renderEditModal($renderer, $params);
+        //$this->renderStreamHead($renderer, $params);
 
         $renderer->doc .= '<div class="stream row" ' . buildAttributes($attributes) . '></div>';
 
@@ -50,6 +62,9 @@ abstract class AbstractStream extends \DokuWiki_Syntax_Plugin {
         if (auth_quickaclcheck($ID) >= AUTH_EDIT) {
             $renderer->doc .= '<div class="btn-group-vertical">';
             $renderer->doc .= '<div class="mb-3">';
+            $renderer->doc .= $this->printPreviewBtn($params['stream']);
+            $renderer->doc .= '</div>';
+            $renderer->doc .= '<div class="mb-3">';
             $renderer->doc .= $this->printCreateBtn($params['stream']);
             $renderer->doc .= '</div>';
             $renderer->doc .= '<div class="mb-3">';
@@ -58,6 +73,7 @@ abstract class AbstractStream extends \DokuWiki_Syntax_Plugin {
             $renderer->doc .= '<div class="mb-3">';
             $renderer->doc .= $this->printCacheBtn();
             $renderer->doc .= '</div>';
+
             $renderer->doc .= '</div>';
         }
         // $renderer->doc .= $this->printRSS($params['stream']);
@@ -65,7 +81,7 @@ abstract class AbstractStream extends \DokuWiki_Syntax_Plugin {
 
     private function getPullBtnForm($stream) {
         $form = new Form();
-        $form->setHiddenField('target', \helper_plugin_fksnewsfeed::FORM_TARGET);
+        // $form->setHiddenField('target', \helper_plugin_fksnewsfeed::FORM_TARGET);
         $form->setHiddenField('do', 'admin');
         $form->setHiddenField('page', 'fksnewsfeed_push');
         $form->setHiddenField('news[stream]', $stream);
@@ -77,6 +93,14 @@ abstract class AbstractStream extends \DokuWiki_Syntax_Plugin {
     private function printPullBtn($stream) {
         return $this->getPullBtnForm($stream)
             ->toHTML();
+    }
+
+    private function printPreviewBtn($stream) {
+        return '<a class="btn btn-secondary" href="' . wl(null, [
+                'do' => \helper_plugin_fksnewsfeed::FORM_TARGET,
+                'news[do]' => 'preview',
+                'news[stream]' => $stream,
+            ]) . '">' . $this->getLang('Preview') . '</a>';
     }
 
     private function getCreateButtonForm($stream) {
@@ -104,7 +128,7 @@ abstract class AbstractStream extends \DokuWiki_Syntax_Plugin {
         return $form->toHTML();
     }
 
-    protected function renderModalContent(\Doku_Renderer &$renderer, $id, $params) {
+    protected function renderEditModalContent(\Doku_Renderer &$renderer, $id, $params) {
         $renderer->doc .= '<div id="feedModal' . $id . '" class="modal" data-id="' . $id . '">
 <div class="modal-dialog">
 <div class="modal-content">
@@ -119,11 +143,9 @@ abstract class AbstractStream extends \DokuWiki_Syntax_Plugin {
         $renderer->doc .= '</div></div></div></div>';
     }
 
-    protected function renderModalBtn(\Doku_Renderer &$renderer, $id) {
-        $renderer->doc .= '<div style="position: absolute; bottom: 0; right: 0;">
-<button data-toggle="modal" data-target="#feedModal' . $id . '" class="btn btn-primary" >
+    protected function renderEditModalBtn(\Doku_Renderer &$renderer, $id) {
+        $renderer->doc .= '<button data-toggle="modal" data-target="#feedModal' . $id . '" class="btn btn-primary" >
 <span class="fa fa-edit"></span>
-</button>
-</div>';
+</button>';
     }
 }

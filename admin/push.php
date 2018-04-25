@@ -5,8 +5,6 @@ use \PluginNewsFeed\Model\Stream;
 use \PluginNewsFeed\Model\Priority;
 use \PluginNewsFeed\Model\News;
 
-// TODO to action component
-
 class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
     /**
      * @var helper_plugin_fksnewsfeed
@@ -31,6 +29,7 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
 
     public function handle() {
         global $INPUT;
+
         if (!checkSecurityToken()) {
             return;
         };
@@ -68,10 +67,10 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
         if ($stream->getName()) {
             echo '<h2>' . $this->getLang('push_menu') . ': ' . $stream->getName() . '</h2>';
 
-            $newsInStream = $this->newsToID($stream->getNews());
+            $newsInStream = $this->newsToId($stream->getNews());
             $allNews = $this->helper->allNewsFeed();
 
-            foreach ($this->newsToID($allNews) as $id) {
+            foreach ($this->newsToId($allNews) as $id) {
                 if (array_search($id, $newsInStream) === FALSE) {
                     $news = new News($this->helper->sqlite, $id);
                     echo $news->render('even', ' ', ' ', false);
@@ -89,7 +88,7 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
      */
     private function newsToId($news) {
         return array_map(function (News $value) {
-            return $value->getNewsID();
+            return $value->getNewsId();
         }, $news);
     }
 
@@ -107,11 +106,12 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
         return $form;
     }
 
-    private function newsAddForm($stream, $newsID) {
+    private function newsAddForm($stream, $newsId) {
         $newsForm = new Form();
         $newsForm->setHiddenField('do', 'admin');
         $newsForm->setHiddenField('page', 'fksnewsfeed_push');
-        $newsForm->setHiddenField('news[id]', $newsID);
+        $newsForm->setHiddenField('news[do]', 'push');
+        $newsForm->setHiddenField('news[id]', $newsId);
         $newsForm->setHiddenField('news[stream]', $stream);
         $newsForm->addCheckbox('all_dependence', $this->getLang('alw_dep'));
         $newsForm->addButton('submit', $this->getLang('btn_push_news') . $stream);
