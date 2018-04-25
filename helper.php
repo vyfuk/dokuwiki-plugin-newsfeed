@@ -83,15 +83,10 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
     }
 
     /**
-     * @param $name
-     * @return Stream
+     * @param $streamId integer
+     * @return integer[]
+     * @deprecated
      */
-    public function loadStream($name) {
-        $stream = new Stream($this->sqlite);
-        $stream->findByName($name);
-        return $stream;
-    }
-
     private function allParentDependence($streamId) {
         $streamIds = [];
         $res = $this->sqlite->query('SELECT * FROM dependence WHERE parent=?', $streamId);
@@ -101,6 +96,11 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
         return $streamIds;
     }
 
+    /**
+     * @param $streamId integer
+     * @return integer[]
+     * @deprecated
+     */
     private function allChildDependence($streamId) {
         $streamIds = [];
         $res = $this->sqlite->query('SELECT * FROM dependence  WHERE child=?', $streamId);
@@ -110,7 +110,13 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
         return $streamIds;
     }
 
-    public function fullParentDependence($streamId, &$arr) {
+    /**
+     * @param $streamId integer
+     * @param array $arr
+     * @return void
+     * @deprecated
+     */
+    public function fullParentDependence($streamId, array &$arr) {
         foreach ($this->allParentDependence($streamId) as $newStreamId) {
             if (!in_array($newStreamId, $arr)) {
                 $arr[] = $newStreamId;
@@ -119,7 +125,13 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
         }
     }
 
-    public function fullChildDependence($streamId, &$arr) {
+    /**
+     * @param $streamId
+     * @param array $arr
+     * @deprecated
+     * @return void
+     */
+    public function fullChildDependence($streamId, array &$arr) {
         foreach ($this->allChildDependence($streamId) as $newStreamId) {
             if (!in_array($newStreamId, $arr)) {
                 $arr[] = $newStreamId;
@@ -131,7 +143,7 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
     /**
      * @return News[]
      */
-    public function allNewsFeed() {
+    public function getAllNewsFeed() {
         $res = $this->sqlite->query('SELECT * FROM news');
         $news = [];
         foreach ($this->sqlite->res2arr($res) as $row) {

@@ -139,7 +139,7 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
      */
     private function createDependenceFrom(array $streams) {
         global $lang;
-        $html = '<h2>' . $this->getLang('dep_create') . '</h2>';
+        $html = '<h2>' . $this->getLang('Create streams dependence') . '</h2>';
         $html .= '<div class="info">' . $this->getLang('dep_full_info') . '</div>';
         $streamNames = array_map(function (Stream $stream) {
             return $stream->getName();

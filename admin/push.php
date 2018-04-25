@@ -68,7 +68,7 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
             echo '<h2>' . $this->getLang('push_menu') . ': ' . $stream->getName() . '</h2>';
 
             $newsInStream = $this->newsToId($stream->getNews());
-            $allNews = $this->helper->allNewsFeed();
+            $allNews = $this->helper->getAllNewsFeed();
 
             foreach ($this->newsToId($allNews) as $id) {
                 if (array_search($id, $newsInStream) === FALSE) {
