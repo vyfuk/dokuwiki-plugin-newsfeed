@@ -19,6 +19,14 @@ class Dependence extends AbstractModel {
     private $childStream;
 
     public function load() {
+        $res = $this->sqlite->query('SELECT * FROM dependence where dependence_id=?', $this->getDependenceId());
+        $row = $this->sqlite->res2single($res);
+        if ($row) {
+            $parent = new Stream($this->sqlite);
+            $parent->setStreamId($row->parent);
+            $child = new Stream($this->sqlite);
+            $child->setStreamId($row->child);
+        }
 
     }
 

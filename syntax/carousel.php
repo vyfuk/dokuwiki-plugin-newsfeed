@@ -38,7 +38,6 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
     }
 
     private function renderCarousel(Doku_Renderer &$renderer, $news, $params) {
-        global $ID;
         $id = md5(serialize($news) . time());
         $indicators = [];
         $items = [];
@@ -88,7 +87,7 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
         $background = 'bg-' . $feed->getCategory() . '-fade ';
         $html = '';
         $html .= '<div class="carousel-item ' . ($feed->hasImage() ? '' : $background) . ($active ? ' active' : '') .
-            '" style="' . $style . ';height:400px">
+            '" style="' . $style . '">
             <div class="offset-lg-1 col-lg-8 offset-xl-3 col-xl-5">                
       <div class=" jumbotron-inner-container d-block ' . ($feed->getImage() ? $background : '') . '">';
         $html .= $this->getHeadline($feed);
