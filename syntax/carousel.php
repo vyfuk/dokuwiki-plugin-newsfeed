@@ -53,7 +53,7 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
             $indicators[] = '<li data-target="#' . $id . '" data-slide-to="' . $i . '"></li>';
             $items[] = $this->getCarouselItem($feed, !$i);
         }
-        $renderer->doc .= '<div id="' . $id . '" class="feed-carousel carousel slide mb-3 hidden-md-down" data-ride="carousel">';
+        $renderer->doc .= '<div id="' . $id . '" class="feed-carousel carousel slide mb-3" data-ride="carousel">';
 
         $this->renderCarouselIndicators($renderer, $indicators);
         $this->renderCarouselItems($renderer, $items);
@@ -88,7 +88,7 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
         $html = '';
         $html .= '<div class="carousel-item ' . ($feed->hasImage() ? '' : $background) . ($active ? ' active' : '') .
             '" style="' . $style . '">
-            <div class="offset-lg-1 col-lg-8 offset-xl-3 col-xl-5">                
+            <div class="mx-auto col-lg-8 col-xl-5">                
       <div class=" jumbotron-inner-container d-block ' . ($feed->getImage() ? $background : '') . '">';
         $html .= $this->getHeadline($feed);
         $html .= $this->getText($feed);
