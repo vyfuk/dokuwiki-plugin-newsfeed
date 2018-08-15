@@ -4,6 +4,7 @@ require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/AbstractModel.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/News.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/Priority.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/Stream.php';
+require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/Dependence.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/AbstractRenderer.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/VyfukRenderer.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/FykosRenderer.php';

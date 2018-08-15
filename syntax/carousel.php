@@ -38,7 +38,7 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
     }
 
     private function renderCarousel(Doku_Renderer &$renderer, $news, $params) {
-        $id = md5(serialize($news) . time());
+        $id = uniqid();
         $indicators = [];
         $items = [];
         $noFeeds = 5;

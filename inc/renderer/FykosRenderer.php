@@ -29,7 +29,7 @@ class FykosRenderer extends AbstractRenderer {
 
         $innerHtml .= $this->getLink($data);
         $innerHtml .= $this->getSignature($data);
-        $innerHtml .= $this->getShareFields($data);
+        //$innerHtml .= $this->getShareFields($data);
         return $innerHtml;
     }
 
@@ -55,7 +55,7 @@ class FykosRenderer extends AbstractRenderer {
     protected function getModalHeader() {
         $html = '';
         $html .= '<div class="modal-header">';
-        $html .= '<h5 class="modal-title">' . $this->helper->getLang('Edit feed') . '</h5>';
+        $html .= '<h5 class="modal-title">' . $this->helper->getLang('btn_opt') . '</h5>';
         $html .= '<button type="button" class="close" data-dismiss="modal" aria-label="Close">';
         $html .= '<span aria-hidden="true">×</span>';
         $html .= '</button>';

@@ -91,7 +91,8 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
         if (!empty($fullChildDependence)) {
             echo '<ul>';
             foreach ($fullChildDependence as $dependence) {
-                $dependenceStream = new Stream($dependence);
+                $dependenceStream = new Stream($this->helper->sqlite);
+                $dependenceStream->setStreamId($dependence);
                 $dependenceStream->load();
                 echo '<li>' . $dependenceStream->getName() . '</li>';
             }
@@ -123,7 +124,8 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
         if (!empty($fullParentDependence)) {
             echo '<ul>';
             foreach ($fullParentDependence as $dependence) {
-                $dependenceStream = new Stream($dependence);
+                $dependenceStream = new Stream($this->helper->sqlite);
+                $dependenceStream->setStreamId($dependence);
                 $dependenceStream->load();
                 echo '<li>' . $dependenceStream->getName() . '</li>';
             }
@@ -139,7 +141,7 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
      */
     private function createDependenceFrom(array $streams) {
         global $lang;
-        $html = '<h2>' . $this->getLang('Create streams dependence') . '</h2>';
+        $html = '<h2>' . $this->getLang('dep_create') . '</h2>';
         $html .= '<div class="info">' . $this->getLang('dep_full_info') . '</div>';
         $streamNames = array_map(function (Stream $stream) {
             return $stream->getName();

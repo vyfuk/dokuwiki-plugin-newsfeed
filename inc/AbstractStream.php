@@ -27,7 +27,7 @@ abstract class AbstractStream extends \DokuWiki_Syntax_Plugin {
     }
 
     protected function renderEditModal(\Doku_Renderer &$renderer, $params) {
-        $id = md5(serialize($params));
+        $id = uniqid();
         global $ID;
         $renderer->nocache();
         if (auth_quickaclcheck($ID) >= AUTH_EDIT) {

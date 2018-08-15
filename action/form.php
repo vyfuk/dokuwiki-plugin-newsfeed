@@ -79,7 +79,7 @@ class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
         $form->setHiddenField('news[id]', $INPUT->param('news')['id']);
         $form->setHiddenField('news[do]', 'save');
         $form->setHiddenField('news[stream]', $INPUT->param('news')['stream']);
-        $form->addFieldsetOpen('News Feed');
+        $form->addFieldsetOpen('Novinky na webu');
 
         foreach (helper_plugin_fksnewsfeed::$fields as $field) {
             $input = null;
@@ -87,7 +87,10 @@ class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
 
             switch ($field) {
                 case'text':
-                    $input = $form->addTextarea('text', $this->getLang($field), -1)->attr('class', 'form-control');
+                    $input = $form->addTextarea('text', $this->getLang($field), -1)->attrs([
+                        'class' => 'form-control',
+                        'rows' => 10,
+                    ]);
                     $input->val($data->getText());
                     break;
                 case 'newsDate':
@@ -95,7 +98,7 @@ class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
                     $input->attr('class', 'form-control');
                     $input->setStep(1);
                     $form->addElement($input);
-                    $input->val($data->getNewsDate());
+                    $input->val($data->getNewsDate() ?: 'now');
                     break;
                 case'category':
                     $input = $form->addDropdown('category', static::$categories, $this->getLang($field))->attr('class', 'form-control');
@@ -127,6 +130,7 @@ class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
                     break;
                 case 'authorEmail':
                     $input = new \dokuwiki\Form\InputElement('email', $field, $this->getLang($field));
+                    $input->attr('class', 'form-control');
                     $form->addElement($input);
                     $input->val($data->getAuthorEmail());
                     break;
@@ -140,6 +144,9 @@ class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
                     break;
                 default:
                     msg('Not implement input field ' . $field, -1);
+            }
+            if ($note = $this->getLang($field . '_note')) {
+                $form->addHTML('<small>' . $note . '</small>');
             }
             $form->addTagClose('div');
         }

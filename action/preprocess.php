@@ -73,7 +73,7 @@ class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
         $news->setNewsDate($data['newsDate']);
         $news->setImage($data['image']);
         $news->setCategory($data['category']);
-        $news->setLinkHref($data['link-href']);
+        $news->setLinkHref($data['linkHref']);
         $news->setLinkTitle($data['linkTitle']);
         if ($INPUT->param('news')['id'] == 0) {
             $newsId = $news->create();

@@ -46,11 +46,11 @@ class admin_plugin_fksnewsfeed_stream extends \DokuWiki_Admin_Plugin {
     }
 
     public function html() {
-        echo '<h1>' . $this->getLang('Manage') . '</h1>';
-        echo '<h2>' . $this->getLang('Create stream') . '</h2>';
+        echo '<h1>' . $this->getLang('stream_menu') . '</h1>';
+        echo '<h2>' . $this->getLang('stream_create') . '</h2>';
         echo $this->getNewStreamForm()->toHTML();
         $streams = $this->helper->getAllStreams();
-        echo '<h2 id="stream_list">' . $this->getLang('List of streams') . '</h2>';
+        echo '<h2 id="stream_list">' . $this->getLang('stream_list') . '</h2>';
         echo('<ul>');
         foreach ($streams as $stream) {
             echo '<li class="form-group row"><span class="col-3">' . $stream->getName() . '</span>';
@@ -66,7 +66,7 @@ class admin_plugin_fksnewsfeed_stream extends \DokuWiki_Admin_Plugin {
         global $lang;
         $form = new Form();
         $form->setHiddenField('news_do', 'stream_add');
-        $form->addTextInput('stream_name', $this->getLang('Stream\'s name'));
+        $form->addTextInput('stream_name', $this->getLang('stream'));
         $form->addButton('submit', $lang['btn_save']);
         return $form;
     }
