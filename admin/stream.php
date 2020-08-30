@@ -5,7 +5,7 @@ use \PluginNewsFeed\Model\Stream;
 
 // TODO refract
 
-class admin_plugin_fksnewsfeed_stream extends \DokuWiki_Admin_Plugin {
+class admin_plugin_fksnewsfeed_stream extends \dokuwiki\Extension\AdminPlugin {
     /**
      * @var helper_plugin_fksnewsfeed
      */
@@ -15,15 +15,15 @@ class admin_plugin_fksnewsfeed_stream extends \DokuWiki_Admin_Plugin {
         $this->helper = $this->loadHelper('fksnewsfeed');
     }
 
-    public function getMenuSort() {
+    public function getMenuSort(): int {
         return 290;
     }
 
-    public function forAdminOnly() {
+    public function forAdminOnly(): bool {
         return false;
     }
 
-    public function getMenuText($lang) {
+    public function getMenuText($lang): string {
         return $this->getLang('stream_menu');
     }
 
@@ -45,7 +45,7 @@ class admin_plugin_fksnewsfeed_stream extends \DokuWiki_Admin_Plugin {
         }
     }
 
-    public function html() {
+    public function html(): void {
         echo '<h1>' . $this->getLang('stream_menu') . '</h1>';
         echo '<h2>' . $this->getLang('stream_create') . '</h2>';
         echo $this->getNewStreamForm()->toHTML();
@@ -62,7 +62,7 @@ class admin_plugin_fksnewsfeed_stream extends \DokuWiki_Admin_Plugin {
         echo '</div>';
     }
 
-    private function getNewStreamForm() {
+    private function getNewStreamForm(): Form {
         global $lang;
         $form = new Form();
         $form->setHiddenField('news_do', 'stream_add');

@@ -2,9 +2,10 @@
 
 namespace PluginNewsFeed\Syntax;
 
+use dokuwiki\Extension\SyntaxPlugin;
 use dokuwiki\Form\Form;
 
-abstract class AbstractStream extends \DokuWiki_Syntax_Plugin {
+abstract class AbstractStream extends SyntaxPlugin {
     /**
      * @var \helper_plugin_fksnewsfeed
      */
@@ -14,15 +15,15 @@ abstract class AbstractStream extends \DokuWiki_Syntax_Plugin {
         $this->helper = $this->loadHelper('fksnewsfeed');
     }
 
-    public function getType() {
+    public function getType(): string {
         return 'substition';
     }
 
-    public function getPType() {
+    public function getPType(): string {
         return 'block';
     }
 
-    public function getSort() {
+    public function getSort(): int {
         return 3;
     }
 

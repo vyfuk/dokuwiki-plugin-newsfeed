@@ -34,12 +34,6 @@ abstract class AbstractRenderer {
 
     /**
      * @param $news News
-     * @return string
-     */
-    abstract protected function getShareFields(News $news);
-
-    /**
-     * @param $news News
      * @return null|string
      */
     abstract protected function getText(News $news);

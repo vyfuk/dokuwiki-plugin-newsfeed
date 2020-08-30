@@ -4,28 +4,24 @@ use PluginNewsFeed\Model\Dependence;
 use \PluginNewsFeed\Model\Stream;
 use \dokuwiki\Form\Form;
 
-class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
+class admin_plugin_fksnewsfeed_dependence extends \dokuwiki\Extension\AdminPlugin {
 
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
+    private helper_plugin_fksnewsfeed $helper;
 
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
     }
 
-    public function getMenuSort() {
+    public function getMenuSort(): int {
         return 291;
     }
 
-    public function forAdminOnly() {
+    public function forAdminOnly(): bool {
         return false;
     }
 
     public function getMenuText($lang) {
-        $menuText = $this->getLang('dependence_menu');
-        return $menuText;
+        return $this->getLang('dependence_menu');
     }
 
     public function handle() {
@@ -53,7 +49,7 @@ class admin_plugin_fksnewsfeed_dependence extends DokuWiki_Admin_Plugin {
         }
     }
 
-    public function html() {
+    public function html(): void {
         echo '<h1>' . $this->getLang('dependence_menu') . '</h1>';
 
         $streams = $this->helper->getAllStreams();

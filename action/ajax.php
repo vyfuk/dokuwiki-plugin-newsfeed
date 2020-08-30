@@ -1,24 +1,28 @@
 <?php
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\Event;
+use dokuwiki\Extension\EventHandler;
 use PluginNewsFeed\Model\News;
 use PluginNewsFeed\Model\Stream;
 
-class action_plugin_fksnewsfeed_ajax extends \DokuWiki_Action_Plugin {
+/**
+ * Class action_plugin_fksnewsfeed_ajax
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class action_plugin_fksnewsfeed_ajax extends ActionPlugin {
 
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
+    private helper_plugin_fksnewsfeed $helper;
 
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
     }
 
-    public function register(Doku_Event_Handler $controller) {
+    public function register(EventHandler $controller): void {
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'stream');
     }
 
-    public function stream(Doku_Event &$event) {
+    public function stream(Event $event): void {
         global $INPUT;
         if ($INPUT->str('target') !== 'feed') {
             return;
@@ -31,9 +35,8 @@ class action_plugin_fksnewsfeed_ajax extends \DokuWiki_Action_Plugin {
         $stream->findByName($INPUT->param('news')['stream']);
         $news = $stream->getNews();
         $data = $this->printStream($news, (int)$INPUT->param('news')['start'], (int)$INPUT->param('news')['length'], $INPUT->param('news')['stream'], $INPUT->str('page_id'));
-        $json = new JSON();
 
-        echo $json->encode($data);
+        echo json_encode($data);
     }
 
     /**
@@ -41,14 +44,14 @@ class action_plugin_fksnewsfeed_ajax extends \DokuWiki_Action_Plugin {
      * @param int $start
      * @param int $length
      * @param string $stream
-     * @param string $page_id
+     * @param string $pageId
      * @return array
      */
-    private function printStream($news, $start = 0, $length = 5, $stream = "", $page_id = "") {
+    private function printStream(array $news, int $start = 0, int $length = 5, string $stream = '', string $pageId = ''): array {
         $htmlNews = [];
         for ($i = $start; $i < min([$start + $length, (count($news))]); $i++) {
             $e = $i % 2 ? 'even' : 'odd';
-            $htmlNews[] = $news[$i]->render($e, $stream, $page_id);
+            $htmlNews[] = $news[$i]->render($e, $stream, $pageId);
         }
         return ['html' => ['news' => $htmlNews]];
     }

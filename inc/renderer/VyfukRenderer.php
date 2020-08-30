@@ -39,7 +39,6 @@ class VyfukRenderer extends AbstractRenderer {
 
         $innerHtml .= $this->getLink($data);
         $innerHtml .= $this->getSignature($data);
-        $innerHtml .= $this->getShareFields($data);
         return $innerHtml;
     }
 
@@ -160,40 +159,6 @@ class VyfukRenderer extends AbstractRenderer {
         $purgeForm->addButton('submit', $this->helper->getLang('cache_del'))->addClass('btn btn-warning');
         $html .= $purgeForm->toHTML();
         $html .= '</div>';
-        $html .= '</div>';
-
-        return $html;
-    }
-
-
-    /**
-     * @param $news News
-     * @return string
-     */
-    protected function getShareFields(News $news) {
-        global $ID;
-        if (auth_quickaclcheck('start') < AUTH_READ) {
-            return '';
-        }
-        $link = $news->getToken($news->getLinkHref());
-        if (preg_match('|^https?://|', $news->getLinkHref())) {
-            $link = $news->getToken($ID);
-        }
-        $html = '<div class="row mb-3" style="max-height: 2rem;">';
-
-        $html .= '<div class="col-6">' .
-            $this->helper->social->facebook->createSend($link) .
-            '</div>';
-
-        $html .= '<div class="col-6">';
-        $html .= $this->helper->social->facebook->createShare($link);
-        $html .= '</div>';
-
-        //  $html .= '<div class="link">
-        //  <span class="link-icon icon"></span>
-        //  <span contenteditable="true" class="link_inp" >' . $link . '</span>
-        //// </div>' ;
-
         $html .= '</div>';
 
         return $html;

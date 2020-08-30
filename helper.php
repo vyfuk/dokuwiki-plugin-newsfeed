@@ -9,15 +9,19 @@ require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/AbstractRenderer.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/VyfukRenderer.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/FykosRenderer.php';
 require_once DOKU_PLUGIN . 'fksnewsfeed/inc/AbstractStream.php';
+require_once DOKU_PLUGIN . 'social/inc/OpenGraphData.php';
 
+use dokuwiki\Extension\Plugin;
+use FYKOS\dokuwiki\Extenstion\PluginSocial\OpenGraphData;
 use PluginNewsFeed\Model\News;
 use PluginNewsFeed\Model\Stream;
+use PluginNewsFeed\Renderer\AbstractRenderer;
 use PluginNewsFeed\Renderer\FykosRenderer;
 use PluginNewsFeed\Renderer\VyfukRenderer;
 
-class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
+class helper_plugin_fksnewsfeed extends Plugin {
 
-    public static $fields = [
+    public static array $fields = [
         'title',
         'authorName',
         'authorEmail',
@@ -28,24 +32,21 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
         'linkTitle',
         'text',
     ];
-    /**
-     * @var helper_plugin_sqlite
-     */
-    public $sqlite;
-    /**
-     * @var helper_plugin_social
-     */
-    public $social;
+    public helper_plugin_sqlite $sqlite;
+
+
+    public OpenGraphData $openGraphData;
 
     /**
-     * @var \PluginNewsFeed\Renderer\AbstractRenderer
+     * @var AbstractRenderer
      */
     public $renderer;
 
     const FORM_TARGET = 'plugin_news-feed';
 
     public function __construct() {
-        $this->social = $this->loadHelper('social');
+
+        $this->openGraphData = new OpenGraphData();
 
         $this->sqlite = $this->loadHelper('sqlite');
         $pluginName = $this->getPluginName();
@@ -71,7 +72,7 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
     /**
      * @return Stream[]
      */
-    public function getAllStreams() {
+    public function getAllStreams(): array {
         $streams = [];
         $res = $this->sqlite->query('SELECT * FROM stream');
         foreach ($this->sqlite->res2arr($res) as $row) {
@@ -88,7 +89,7 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
      * @return integer[]
      * @deprecated
      */
-    private function allParentDependence($streamId) {
+    private function allParentDependence(int $streamId): array {
         $streamIds = [];
         $res = $this->sqlite->query('SELECT * FROM dependence WHERE parent=?', $streamId);
         foreach ($this->sqlite->res2arr($res) as $row) {
@@ -102,7 +103,7 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
      * @return integer[]
      * @deprecated
      */
-    private function allChildDependence($streamId) {
+    private function allChildDependence(int $streamId): array {
         $streamIds = [];
         $res = $this->sqlite->query('SELECT * FROM dependence  WHERE child=?', $streamId);
         foreach ($this->sqlite->res2arr($res) as $row) {
@@ -117,7 +118,7 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
      * @return void
      * @deprecated
      */
-    public function fullParentDependence($streamId, array &$arr) {
+    public function fullParentDependence(int $streamId, array &$arr): void {
         foreach ($this->allParentDependence($streamId) as $newStreamId) {
             if (!in_array($newStreamId, $arr)) {
                 $arr[] = $newStreamId;
@@ -129,10 +130,10 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
     /**
      * @param $streamId
      * @param array $arr
-     * @deprecated
      * @return void
+     * @deprecated
      */
-    public function fullChildDependence($streamId, array &$arr) {
+    public function fullChildDependence(int $streamId, array &$arr): void {
         foreach ($this->allChildDependence($streamId) as $newStreamId) {
             if (!in_array($newStreamId, $arr)) {
                 $arr[] = $newStreamId;
@@ -144,14 +145,14 @@ class helper_plugin_fksnewsfeed extends \DokuWiki_Plugin {
     /**
      * @return News[]
      */
-    public function getAllNewsFeed() {
+    public function getAllNewsFeed(): array {
         $res = $this->sqlite->query('SELECT * FROM news');
         $news = [];
         foreach ($this->sqlite->res2arr($res) as $row) {
             $feed = new News($this->sqlite, $row['news_id']);
             $feed->load();
             $news[] = $feed;
-        };
+        }
         return $news;
     }
 }

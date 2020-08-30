@@ -13,7 +13,7 @@ abstract class AbstractModel {
 
         $this->sqlite = $sqlite;
         if (!$this->sqlite->getAdapter()->getDb()) {
-            $this->sqlite->getAdapter()->opendb(false);
+          //  $this->sqlite->getAdapter()->opendb(false);
         }
     }
 

@@ -1,13 +1,12 @@
 <?php
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
 use \PluginNewsFeed\Model\News;
 
-class action_plugin_fksnewsfeed_token extends \DokuWiki_Action_Plugin {
+class action_plugin_fksnewsfeed_token extends ActionPlugin {
 
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
+    private helper_plugin_fksnewsfeed $helper;
 
     public function __construct() {
         $this->helper = $this->loadHelper('fksnewsfeed');
@@ -15,14 +14,13 @@ class action_plugin_fksnewsfeed_token extends \DokuWiki_Action_Plugin {
 
     /**
      *
-     * @param Doku_Event_Handler $controller
+     * @param EventHandler $controller
      */
-    public function register(Doku_Event_Handler $controller) {
+    public function register(EventHandler $controller): void {
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'AFTER', $this, 'addFBMeta');
     }
 
-
-    public function addFBMeta() {
+    public function addFBMeta(): void {
         global $ID;
         global $INPUT;
         if (!$INPUT->str('news-id')) {
@@ -32,12 +30,12 @@ class action_plugin_fksnewsfeed_token extends \DokuWiki_Action_Plugin {
         $news = new News($this->helper->sqlite, $news_id);
         $news->load();
 
-        $this->helper->social->meta->addMetaData('og', 'title', $news->getTitle());
-        $this->helper->social->meta->addMetaData('og', 'url', $news->getToken($ID));
+        $this->helper->openGraphData->addMetaData('og', 'title', $news->getTitle());
+        $this->helper->openGraphData->addMetaData('og', 'url', $news->getToken($ID));
         $text = p_render('text', p_get_instructions($news->getText()), $info);
-        $this->helper->social->meta->addMetaData('og', 'description', $text);
+        $this->helper->openGraphData->addMetaData('og', 'description', $text);
         if ($news->hasImage()) {
-            $this->helper->social->meta->addMetaData('og', 'image', ml($news->getImage(), null, true, '&', true));
+            $this->helper->openGraphData->addMetaData('og', 'image', ml($news->getImage(), null, true, '&', true));
         }
     }
 }

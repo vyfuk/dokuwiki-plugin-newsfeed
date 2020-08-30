@@ -1,9 +1,9 @@
 <?php
 
+use dokuwiki\Extension\SyntaxPlugin;
 use \PluginNewsFeed\Model\News;
-use \PluginNewsFeed\Renderer;
 
-class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
+class syntax_plugin_fksnewsfeed_feed extends SyntaxPlugin {
     /**
      * @var helper_plugin_fksnewsfeed
      */
@@ -13,27 +13,27 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
         $this->helper = $this->loadHelper('fksnewsfeed');
     }
 
-    public function getType() {
+    public function getType(): string {
         return 'substition';
     }
 
-    public function getPType() {
+    public function getPType(): string {
         return 'block';
     }
 
-    public function getAllowedTypes() {
+    public function getAllowedTypes(): array {
         return [];
     }
 
-    public function getSort() {
+    public function getSort(): int {
         return 24;
     }
 
-    public function connectTo($mode) {
+    public function connectTo($mode): void {
         $this->Lexer->addSpecialPattern('{{news-feed>.+?}}', $mode, 'plugin_fksnewsfeed_feed');
     }
 
-    public function handle($match, $state, $pos, \Doku_Handler $handler) {
+    public function handle($match, $state, $pos, Doku_Handler $handler): array {
         preg_match_all('/([a-z-_]+)="([^".]*)"/', substr($match, 12, -2), $matches);
         $parameters = [];
         foreach ($matches[1] as $index => $match) {
@@ -42,10 +42,10 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
         return [$state, $parameters];
     }
 
-    public function render($mode, Doku_Renderer $renderer, $data) {
+    public function render($mode, Doku_Renderer $renderer, $data): bool {
         if ($mode == 'xhtml') {
 
-            list($state, $param) = $data;
+            [$state, $param] = $data;
             switch ($state) {
                 case DOKU_LEXER_SPECIAL:
                     $renderer->nocache();
@@ -71,7 +71,7 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
      * @param $params array
      * @return string
      */
-    private function getContent(News $data, $params) {
+    private function getContent(News $data, $params): string {
         $f = $data->getCacheFile();
         $cache = new cache($f, '');
         $json = new JSON();
@@ -83,7 +83,6 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
             $cache->storeCache($json->encode($innerHtml));
         }
         $formHtml = $this->helper->renderer->renderEditFields($params);
-        $html = $this->helper->renderer->render($innerHtml, $formHtml, $data);
-        return $html;
+        return $this->helper->renderer->render($innerHtml, $formHtml, $data);
     }
 }

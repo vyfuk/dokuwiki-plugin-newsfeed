@@ -6,11 +6,11 @@ use PluginNewsFeed\Syntax\AbstractStream;
 
 class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
 
-    public function connectTo($mode) {
+    public function connectTo($mode): void {
         $this->Lexer->addSpecialPattern('{{news-carousel>.+?}}', $mode, 'plugin_fksnewsfeed_carousel');
     }
 
-    public function handle($match, $state, $pos, Doku_Handler $handler) {
+    public function handle($match, $state, $pos, Doku_Handler $handler): array {
         preg_match_all('/([a-z]+)="([^".]*)"/', substr($match, 16, -2), $matches);
         $parameters = [];
         foreach ($matches[1] as $index => $match) {
@@ -19,12 +19,12 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
         return [$state, [$parameters]];
     }
 
-    public function render($mode, Doku_Renderer $renderer, $data) {
+    public function render($mode, Doku_Renderer $renderer, $data): bool {
         if ($mode !== 'xhtml') {
             return true;
         }
-        list(, $match) = $data;
-        list($param) = $match;
+        [, $match] = $data;
+        [$param] = $match;
         $renderer->nocache();
 
         $stream = new Stream($this->helper->sqlite);
@@ -37,7 +37,7 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
         return false;
     }
 
-    private function renderCarousel(Doku_Renderer &$renderer, $news, $params) {
+    private function renderCarousel(Doku_Renderer $renderer, $news, $params): void {
         $id = uniqid();
         $indicators = [];
         $items = [];
@@ -63,7 +63,7 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
         $renderer->doc .= '</div>';
     }
 
-    private function renderCarouselIndicators(Doku_Renderer &$renderer, array $indicators) {
+    private function renderCarouselIndicators(Doku_Renderer $renderer, array $indicators): void {
         $renderer->doc .= '<ol class="carousel-indicators">';
         foreach ($indicators as $indicator) {
             $renderer->doc .= $indicator;
@@ -71,7 +71,7 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
         $renderer->doc .= '</ol>';
     }
 
-    private function renderCarouselItems(Doku_Renderer &$renderer, array $items) {
+    private function renderCarouselItems(Doku_Renderer $renderer, array $items): void {
         $renderer->doc .= '<div class="carousel-inner" role="listbox">';
         foreach ($items as $item) {
             $renderer->doc .= $item;
@@ -79,7 +79,7 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
         $renderer->doc .= '</div>';
     }
 
-    private function getCarouselItem(News $feed, $active = false) {
+    private function getCarouselItem(News $feed, bool $active = false): string {
         $style = '';
         if ($feed->hasImage()) {
             $style .= 'background-image: url(' . ml($feed->getImage(), ['w' => 1200]) . ')';
@@ -88,7 +88,7 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
         $html = '';
         $html .= '<div class="carousel-item ' . ($feed->hasImage() ? '' : $background) . ($active ? ' active' : '') .
             '" style="' . $style . '">
-            <div class="mx-auto col-lg-8 col-xl-5">                
+            <div class="mx-auto col-lg-8 col-xl-5">
       <div class=" jumbotron-inner-container d-block ' . ($feed->getImage() ? $background : '') . '">';
         $html .= $this->getHeadline($feed);
         $html .= $this->getText($feed);
@@ -97,15 +97,15 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
         return $html;
     }
 
-    private function getText(News $feed) {
+    private function getText(News $feed): string {
         return '<p>' . p_render('xhtml', p_get_instructions($feed->getText()), $info) . '</p>';
     }
 
-    private function getHeadline(News $feed) {
+    private function getHeadline(News $feed): string {
         return '<h1>' . hsc($feed->getTitle()) . '</h1>';
     }
 
-    private function getLink(News $feed) {
+    private function getLink(News $feed): string {
         if ($feed->getLinkTitle()) {
             if (preg_match('|^https?://|', $feed->getLinkHref())) {
                 $href = hsc($feed->getLinkHref());
