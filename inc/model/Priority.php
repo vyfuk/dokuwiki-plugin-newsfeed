@@ -1,6 +1,6 @@
 <?php
 
-namespace PluginNewsFeed\Model;
+namespace FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model;
 
 class Priority extends AbstractModel {
     /**
@@ -132,9 +132,9 @@ class Priority extends AbstractModel {
         return $this->sqlite->res2arr($res);
     }
 
-    public function load() {
+    public function load(): void {
         $res = $this->sqlite->query('SELECT * FROM priority WHERE stream_id=? AND news_id =?', $this->streamId, $this->newsId);
-        return $this->fill($this->sqlite->res2row($res));
+        $this->fill($this->sqlite->res2row($res));
     }
 
     public function fill($data) {

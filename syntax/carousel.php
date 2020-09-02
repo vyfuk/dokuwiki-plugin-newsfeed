@@ -1,13 +1,17 @@
 <?php
 
-use PluginNewsFeed\Model\News;
-use PluginNewsFeed\Model\Stream;
-use PluginNewsFeed\Syntax\AbstractStream;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\AbstractStream;
 
-class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
+/**
+ * Class syntax_plugin_newsfeed_carousel
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class syntax_plugin_newsfeed_carousel extends AbstractStream {
 
     public function connectTo($mode): void {
-        $this->Lexer->addSpecialPattern('{{news-carousel>.+?}}', $mode, 'plugin_fksnewsfeed_carousel');
+        $this->Lexer->addSpecialPattern('{{news-carousel>.+?}}', $mode, 'plugin_newsfeed_carousel');
     }
 
     public function handle($match, $state, $pos, Doku_Handler $handler): array {
@@ -19,25 +23,29 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
         return [$state, [$parameters]];
     }
 
-    public function render($mode, Doku_Renderer $renderer, $data): bool {
-        if ($mode !== 'xhtml') {
+    public function render($format, Doku_Renderer $renderer, $data): bool {
+        if ($format !== 'xhtml') {
             return true;
         }
-        [, $match] = $data;
-        [$param] = $match;
-        $renderer->nocache();
 
-        $stream = new Stream($this->helper->sqlite);
-        $stream->findByName($param['stream']);
+        [$state, $match] = $data;
+        switch ($state) {
+            case DOKU_LEXER_SPECIAL:
+                [$param] = $match;
+                $renderer->nocache();
 
-        $allNews = $stream->getNews();
-        if (count($allNews)) {
-            $this->renderCarousel($renderer, $allNews, $param);
+                $stream = new Stream($this->helper->sqlite);
+                $stream->findByName($param['stream']);
+
+                $allNews = $stream->getNews();
+                if (count($allNews)) {
+                    $this->renderCarousel($renderer, $allNews, $param);
+                }
         }
-        return false;
+        return true;
     }
 
-    private function renderCarousel(Doku_Renderer $renderer, $news, $params): void {
+    private function renderCarousel(Doku_Renderer $renderer, array $news, array $params): void {
         $id = uniqid();
         $indicators = [];
         $items = [];
@@ -79,7 +87,7 @@ class syntax_plugin_fksnewsfeed_carousel extends AbstractStream {
         $renderer->doc .= '</div>';
     }
 
-    private function getCarouselItem(News $feed, bool $active = false): string {
+    private function getCarouselItem(News $feed, bool $active): string {
         $style = '';
         if ($feed->hasImage()) {
             $style .= 'background-image: url(' . ml($feed->getImage(), ['w' => 1200]) . ')';

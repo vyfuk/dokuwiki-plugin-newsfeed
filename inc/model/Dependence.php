@@ -1,6 +1,6 @@
 <?php
 
-namespace PluginNewsFeed\Model;
+namespace FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model;
 
 
 class Dependence extends AbstractModel {
@@ -18,7 +18,7 @@ class Dependence extends AbstractModel {
      */
     private $childStream;
 
-    public function load() {
+    public function load(): void {
         $res = $this->sqlite->query('SELECT * FROM dependence where dependence_id=?', $this->getDependenceId());
         $row = $this->sqlite->res2single($res);
         if ($row) {
@@ -27,12 +27,10 @@ class Dependence extends AbstractModel {
             $child = new Stream($this->sqlite);
             $child->setStreamId($row->child);
         }
-
     }
 
-    public function create() {
+    public function create(): bool {
         return (bool)$this->sqlite->query('INSERT INTO dependence (parent,child) VALUES(?,?);', $this->parentStream->getStreamId(), $this->childStream->getStreamId());
-
     }
 
     public function update() {

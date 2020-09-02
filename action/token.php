@@ -2,14 +2,18 @@
 
 use dokuwiki\Extension\ActionPlugin;
 use dokuwiki\Extension\EventHandler;
-use \PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
 
-class action_plugin_fksnewsfeed_token extends ActionPlugin {
+/**
+ * Class action_plugin_newsfeed_token
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class action_plugin_newsfeed_token extends ActionPlugin {
 
-    private helper_plugin_fksnewsfeed $helper;
+    private helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
     /**
@@ -30,12 +34,12 @@ class action_plugin_fksnewsfeed_token extends ActionPlugin {
         $news = new News($this->helper->sqlite, $news_id);
         $news->load();
 
-        $this->helper->openGraphData->addMetaData('og', 'title', $news->getTitle());
-        $this->helper->openGraphData->addMetaData('og', 'url', $news->getToken($ID));
+        $this->helper->getOpenGraphData()->addMetaData('og', 'title', $news->getTitle());
+        $this->helper->getOpenGraphData()->addMetaData('og', 'url', $news->getToken($ID));
         $text = p_render('text', p_get_instructions($news->getText()), $info);
-        $this->helper->openGraphData->addMetaData('og', 'description', $text);
+        $this->helper->getOpenGraphData()->addMetaData('og', 'description', $text);
         if ($news->hasImage()) {
-            $this->helper->openGraphData->addMetaData('og', 'image', ml($news->getImage(), null, true, '&', true));
+            $this->helper->getOpenGraphData()->addMetaData('og', 'image', ml($news->getImage(), null, true, '&', true));
         }
     }
 }

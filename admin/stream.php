@@ -1,18 +1,19 @@
 <?php
 
+use dokuwiki\Extension\AdminPlugin;
 use \dokuwiki\Form\Form;
-use \PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Stream;
 
-// TODO refract
+/**
+ * Class admin_plugin_newsfeed_stream
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class admin_plugin_newsfeed_stream extends AdminPlugin {
 
-class admin_plugin_fksnewsfeed_stream extends \dokuwiki\Extension\AdminPlugin {
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
+    private helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
     public function getMenuSort(): int {

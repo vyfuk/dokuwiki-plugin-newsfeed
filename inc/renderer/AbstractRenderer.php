@@ -1,58 +1,25 @@
 <?php
 
-namespace PluginNewsFeed\Renderer;
+namespace FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Renderer;
 
-use \PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
+use helper_plugin_newsfeed;
 
+/**
+ * Class AbstractRenderer
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
 abstract class AbstractRenderer {
-    /**
-     * @var \helper_plugin_fksnewsfeed
-     */
-    protected $helper;
 
-    public function __construct(\helper_plugin_fksnewsfeed $helper) {
+    protected helper_plugin_newsfeed $helper;
+
+    public function __construct(helper_plugin_newsfeed $helper) {
         $this->helper = $helper;
     }
 
-    abstract public function renderContent(News $data, $params);
+    abstract public function renderContent(News $data, array $params): string;
 
-    abstract public function renderEditFields($params);
+    abstract public function renderEditFields(array $params): string;
 
-    abstract public function render($innerHtml, $formHtml, News $news);
-
-    abstract protected function getModalHeader();
-
-    /**
-     * @param $id
-     * @param $streamName
-     * @param $params
-     * @return string
-     */
-    abstract protected function getPriorityField($id, $streamName, $params);
-
-    abstract protected function btnEditNews($id, $stream);
-
-    /**
-     * @param $news News
-     * @return null|string
-     */
-    abstract protected function getText(News $news);
-
-    /**
-     * @param $news News
-     * @return string
-     */
-    abstract protected function getSignature(News $news);
-
-    /**
-     * @param $news News
-     * @return string
-     */
-    abstract protected function getHeader(News $news);
-
-    /**
-     * @param $news News
-     * @return string
-     */
-    abstract protected function getLink(News $news);
+    abstract public function render(string $innerHtml, string $formHtml, News $news): string;
 }

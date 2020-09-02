@@ -3,19 +3,19 @@
 use dokuwiki\Extension\ActionPlugin;
 use dokuwiki\Extension\Event;
 use dokuwiki\Extension\EventHandler;
-use PluginNewsFeed\Model\News;
-use PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Stream;
 
 /**
- * Class action_plugin_fksnewsfeed_ajax
+ * Class action_plugin_newsfeed_ajax
  * @author Michal Červeňák <miso@fykos.cz>
  */
-class action_plugin_fksnewsfeed_ajax extends ActionPlugin {
+class action_plugin_newsfeed_ajax extends ActionPlugin {
 
-    private helper_plugin_fksnewsfeed $helper;
+    private helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
     public function register(EventHandler $controller): void {

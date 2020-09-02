@@ -1,16 +1,19 @@
 <?php
 
 use dokuwiki\Extension\SyntaxPlugin;
-use \PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
+use dokuwiki\Cache\Cache;
 
-class syntax_plugin_fksnewsfeed_feed extends SyntaxPlugin {
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
+/**
+ * Class syntax_plugin_newsfeed_feed
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class syntax_plugin_newsfeed_feed extends SyntaxPlugin {
+
+    private \helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
     public function getType(): string {
@@ -30,7 +33,7 @@ class syntax_plugin_fksnewsfeed_feed extends SyntaxPlugin {
     }
 
     public function connectTo($mode): void {
-        $this->Lexer->addSpecialPattern('{{news-feed>.+?}}', $mode, 'plugin_fksnewsfeed_feed');
+        $this->Lexer->addSpecialPattern('{{news-feed>.+?}}', $mode, 'plugin_newsfeed_feed');
     }
 
     public function handle($match, $state, $pos, Doku_Handler $handler): array {
@@ -42,28 +45,27 @@ class syntax_plugin_fksnewsfeed_feed extends SyntaxPlugin {
         return [$state, $parameters];
     }
 
-    public function render($mode, Doku_Renderer $renderer, $data): bool {
-        if ($mode == 'xhtml') {
-
-            [$state, $param] = $data;
-            switch ($state) {
-                case DOKU_LEXER_SPECIAL:
-                    $renderer->nocache();
-                    $news = new News($this->helper->sqlite, $param['id']);
-                    $news->load();
-                    if (is_null($news) || ($param['id'] == 0)) {
-                        $renderer->doc .= '<div class="alert alert-danger">' . $this->getLang('news_non_exist') .
-                            '</div>';
-                        return true;
-                    }
-                    $renderer->doc .= $this->getContent($news, $param);
-
-                    return false;
-                default:
-                    return true;
-            }
+    public function render($format, Doku_Renderer $renderer, $data): bool {
+        if ($format !== 'xhtml') {
+            return true;
         }
-        return false;
+
+        [$state, $param] = $data;
+        switch ($state) {
+            case DOKU_LEXER_SPECIAL:
+                $renderer->nocache();
+                $news = new News($this->helper->sqlite, $param['id']);
+                $news->load();
+                if (is_null($news) || ($param['id'] == 0)) {
+                    $renderer->doc .= '<div class="alert alert-danger">' . $this->getLang('news_non_exist') .
+                        '</div>';
+                    return true;
+                }
+                $renderer->doc .= $this->getContent($news, $param);
+
+                return false;
+        }
+        return true;
     }
 
     /**
@@ -71,18 +73,18 @@ class syntax_plugin_fksnewsfeed_feed extends SyntaxPlugin {
      * @param $params array
      * @return string
      */
-    private function getContent(News $data, $params): string {
+    private function getContent(News $data, array $params): string {
         $f = $data->getCacheFile();
-        $cache = new cache($f, '');
-        $json = new JSON();
+        $cache = new Cache($f, '');
         if ($cache->useCache()) {
-            $innerHtml = $json->decode($cache->retrieveCache());
-        } else {
-            $innerHtml = $this->helper->renderer->renderContent($data, $params);
 
-            $cache->storeCache($json->encode($innerHtml));
+            $innerHtml = json_decode($cache->retrieveCache());
+        } else {
+            $innerHtml = $this->helper->getRenderer()->renderContent($data, $params);
+
+            $cache->storeCache(json_encode($innerHtml));
         }
-        $formHtml = $this->helper->renderer->renderEditFields($params);
-        return $this->helper->renderer->render($innerHtml, $formHtml, $data);
+        $formHtml = $this->helper->getRenderer()->renderEditFields($params);
+        return $this->helper->getRenderer()->render($innerHtml, $formHtml, $data);
     }
 }

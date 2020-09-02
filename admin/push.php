@@ -2,20 +2,20 @@
 
 use dokuwiki\Extension\AdminPlugin;
 use \dokuwiki\Form\Form;
-use \PluginNewsFeed\Model\Stream;
-use \PluginNewsFeed\Model\Priority;
-use \PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Priority;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
 
 /**
- * Class admin_plugin_fksnewsfeed_push
+ * Class admin_plugin_newsfeed_push
  * @author Michal Červeňák <miso@fykos.cz>
  */
-class admin_plugin_fksnewsfeed_push extends AdminPlugin {
+class admin_plugin_newsfeed_push extends AdminPlugin {
 
-    private helper_plugin_fksnewsfeed $helper;
+    private helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
     public function getMenuSort(): int {
@@ -112,7 +112,7 @@ class admin_plugin_fksnewsfeed_push extends AdminPlugin {
     private function newsAddForm(string $stream, int $newsId): string {
         $newsForm = new Form();
         $newsForm->setHiddenField('do', 'admin');
-        $newsForm->setHiddenField('page', 'fksnewsfeed_push');
+        $newsForm->setHiddenField('page', 'newsfeed_push');
         $newsForm->setHiddenField('news[do]', 'push');
         $newsForm->setHiddenField('news[id]', $newsId);
         $newsForm->setHiddenField('news[stream]', $stream);

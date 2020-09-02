@@ -1,29 +1,42 @@
 <?php
 
-use PluginNewsFeed\Syntax\AbstractStream;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\AbstractStream;
 
-class syntax_plugin_fksnewsfeed_stream extends AbstractStream {
+/**
+ * Class syntax_plugin_newsfeed_stream
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class syntax_plugin_newsfeed_stream extends AbstractStream {
 
     public function connectTo($mode): void {
-        $this->Lexer->addSpecialPattern('{{news-stream>.+?}}', $mode, 'plugin_fksnewsfeed_stream');
+        $this->Lexer->addSpecialPattern('{{news-stream>.+?}}', $mode, 'plugin_newsfeed_stream');
     }
 
-    public function handle($match, $state, $pos, \Doku_Handler $handler): array {
-        preg_match_all('/([a-z]+)="([^".]*)"/', substr($match, 14, -2), $matches);
-        $parameters = [];
-        foreach ($matches[1] as $index => $match) {
-            $parameters[$match] = $matches[2][$index];
+    public function handle($match, $state, $pos, Doku_Handler $handler): array {
+        switch ($state) {
+            case DOKU_LEXER_SPECIAL:
+                preg_match_all('/([a-z]+)="([^".]*)"/', substr($match, 14, -2), $matches);
+                $parameters = [];
+                foreach ($matches[1] as $index => $match) {
+                    $parameters[$match] = $matches[2][$index];
+                }
+                return [$state, [$parameters]];
         }
-        return [$state, [$parameters]];
+        return [$state, null];
+
     }
 
-    public function render($mode, \Doku_Renderer $renderer, $data): bool {
+    public function render($mode, Doku_Renderer $renderer, $data): bool {
         if ($mode !== 'xhtml') {
             return true;
         }
-        [, $match] = $data;
-        [$param] = $match;
-        $this->renderStream($renderer, $param);
-        return false;
+        [$state, $match] = $data;
+        switch ($state) {
+            case DOKU_LEXER_SPECIAL:
+                [$param] = $match;
+                $this->renderStream($renderer, $param);
+                return false;
+        }
+        return true;
     }
 }

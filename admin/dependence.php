@@ -1,15 +1,20 @@
 <?php
 
-use PluginNewsFeed\Model\Dependence;
-use \PluginNewsFeed\Model\Stream;
+use dokuwiki\Extension\AdminPlugin;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Dependence;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Stream;
 use \dokuwiki\Form\Form;
 
-class admin_plugin_fksnewsfeed_dependence extends \dokuwiki\Extension\AdminPlugin {
+/**
+ * Class admin_plugin_newsfeed_dependence
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class admin_plugin_newsfeed_dependence extends AdminPlugin {
 
-    private helper_plugin_fksnewsfeed $helper;
+    private helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
     public function getMenuSort(): int {
@@ -20,7 +25,7 @@ class admin_plugin_fksnewsfeed_dependence extends \dokuwiki\Extension\AdminPlugi
         return false;
     }
 
-    public function getMenuText($lang) {
+    public function getMenuText($lang): string {
         return $this->getLang('dependence_menu');
     }
 

@@ -6,13 +6,13 @@ use dokuwiki\Extension\EventHandler;
 use \dokuwiki\Form\Form;
 use dokuwiki\Form\InputElement;
 use PluginFKSHelper\Form\DateTimeInputElement;
-use PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
 
 /**
- * Class action_plugin_fksnewsfeed_form
+ * Class action_plugin_newsfeed_form
  * @author Michal Červeňák <miso@fykos.cz>
  */
-class action_plugin_fksnewsfeed_form extends ActionPlugin {
+class action_plugin_newsfeed_form extends ActionPlugin {
 
     private static array $categories = [
         'fykos-blue',
@@ -23,10 +23,10 @@ class action_plugin_fksnewsfeed_form extends ActionPlugin {
         'fykos-green',
     ];
 
-    private helper_plugin_fksnewsfeed $helper;
+    private helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
     public function register(EventHandler $controller): void {
@@ -36,7 +36,7 @@ class action_plugin_fksnewsfeed_form extends ActionPlugin {
     public function tplEditNews(Event $event): void {
         global $ACT;
         global $INPUT;
-        if ($ACT !== helper_plugin_fksnewsfeed::FORM_TARGET) {
+        if ($ACT !== helper_plugin_newsfeed::FORM_TARGET) {
             return;
         }
         if (auth_quickaclcheck('start') < AUTH_EDIT) {
@@ -51,8 +51,6 @@ class action_plugin_fksnewsfeed_form extends ActionPlugin {
                 return;
             case 'preview':
                 $this->getStreamPreview();
-                return;
-            default:
                 return;
         }
     }
@@ -81,13 +79,13 @@ class action_plugin_fksnewsfeed_form extends ActionPlugin {
             $data->loadDefault();
         }
         $form->setHiddenField('page_id', $ID);
-        $form->setHiddenField('do', helper_plugin_fksnewsfeed::FORM_TARGET);
+        $form->setHiddenField('do', helper_plugin_newsfeed::FORM_TARGET);
         $form->setHiddenField('news[id]', $INPUT->param('news')['id']);
         $form->setHiddenField('news[do]', 'save');
         $form->setHiddenField('news[stream]', $INPUT->param('news')['stream']);
         $form->addFieldsetOpen('Novinky na webu');
 
-        foreach (helper_plugin_fksnewsfeed::$fields as $field) {
+        foreach (helper_plugin_newsfeed::$fields as $field) {
             $input = null;
             $form->addTagOpen('div')->addClass('form-group');
 

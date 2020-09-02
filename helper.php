@@ -1,25 +1,25 @@
 <?php
 
-require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/AbstractModel.php';
-require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/News.php';
-require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/Priority.php';
-require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/Stream.php';
-require_once DOKU_PLUGIN . 'fksnewsfeed/inc/model/Dependence.php';
-require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/AbstractRenderer.php';
-require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/VyfukRenderer.php';
-require_once DOKU_PLUGIN . 'fksnewsfeed/inc/renderer/FykosRenderer.php';
-require_once DOKU_PLUGIN . 'fksnewsfeed/inc/AbstractStream.php';
+require_once DOKU_PLUGIN . 'newsfeed/inc/model/AbstractModel.php';
+require_once DOKU_PLUGIN . 'newsfeed/inc/model/News.php';
+require_once DOKU_PLUGIN . 'newsfeed/inc/model/Priority.php';
+require_once DOKU_PLUGIN . 'newsfeed/inc/model/Stream.php';
+require_once DOKU_PLUGIN . 'newsfeed/inc/model/Dependence.php';
+require_once DOKU_PLUGIN . 'newsfeed/inc/renderer/AbstractRenderer.php';
+require_once DOKU_PLUGIN . 'newsfeed/inc/renderer/VyfukRenderer.php';
+require_once DOKU_PLUGIN . 'newsfeed/inc/renderer/FykosRenderer.php';
+require_once DOKU_PLUGIN . 'newsfeed/inc/AbstractStream.php';
 require_once DOKU_PLUGIN . 'social/inc/OpenGraphData.php';
 
 use dokuwiki\Extension\Plugin;
 use FYKOS\dokuwiki\Extenstion\PluginSocial\OpenGraphData;
-use PluginNewsFeed\Model\News;
-use PluginNewsFeed\Model\Stream;
-use PluginNewsFeed\Renderer\AbstractRenderer;
-use PluginNewsFeed\Renderer\FykosRenderer;
-use PluginNewsFeed\Renderer\VyfukRenderer;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Renderer\AbstractRenderer;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Renderer\FykosRenderer;
+use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Renderer\VyfukRenderer;
 
-class helper_plugin_fksnewsfeed extends Plugin {
+class helper_plugin_newsfeed extends Plugin {
 
     public static array $fields = [
         'title',
@@ -34,13 +34,9 @@ class helper_plugin_fksnewsfeed extends Plugin {
     ];
     public helper_plugin_sqlite $sqlite;
 
+    private OpenGraphData $openGraphData;
 
-    public OpenGraphData $openGraphData;
-
-    /**
-     * @var AbstractRenderer
-     */
-    public $renderer;
+    private AbstractRenderer $renderer;
 
     const FORM_TARGET = 'plugin_news-feed';
 
@@ -53,13 +49,14 @@ class helper_plugin_fksnewsfeed extends Plugin {
         if (!$this->sqlite) {
             msg($pluginName . ': This plugin requires the sqlite plugin. Please install it.');
         }
-        if (!$this->sqlite->init('fksnewsfeed', DOKU_PLUGIN . $pluginName . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR)
+
+        if (!$this->sqlite->init('newsfeed', DOKU_PLUGIN . $pluginName . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR)
         ) {
             msg($pluginName . ': Cannot initialize database.');
         }
 
         switch ($this->getConf('contest')) {
-            default;
+            default:
             case 'fykos':
                 $this->renderer = new FykosRenderer($this);
                 break;
@@ -67,6 +64,14 @@ class helper_plugin_fksnewsfeed extends Plugin {
                 $this->renderer = new VyfukRenderer($this);
                 break;
         }
+    }
+
+    public function getRenderer(): AbstractRenderer {
+        return $this->renderer;
+    }
+
+    public function getOpenGraphData(): OpenGraphData {
+        return $this->openGraphData;
     }
 
     /**

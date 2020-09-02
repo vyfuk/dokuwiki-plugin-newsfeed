@@ -1,56 +1,38 @@
 <?php
 
-namespace PluginNewsFeed\Model;
-
+namespace FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model;
 
 class Stream extends AbstractModel {
-    /**
-     * @var integer
-     */
-    private $streamId;
 
-    /**
-     * @param int $streamId
-     */
-    public function setStreamId($streamId) {
-        $this->streamId = $streamId;
-    }
+    private ?int $streamId;
 
-    /**
-     * @param string $name
-     */
-    public function setName($name) {
-        $this->name = $name;
-    }
+    private string $name;
 
-    /**
-     * @var string
-     */
-    private $name;
-
-    public function __construct(\helper_plugin_sqlite $sqlite, $streamId = null) {
+    public function __construct(\helper_plugin_sqlite $sqlite, ?int $streamId = null) {
         parent::__construct($sqlite);
         $this->streamId = $streamId;
     }
 
-    /**
-     * @return string
-     */
-    public function getName() {
+    public function setStreamId(int $streamId): void {
+        $this->streamId = $streamId;
+    }
+
+    public function setName(string $name): void {
+        $this->name = $name;
+    }
+
+    public function getName(): string {
         return $this->name;
     }
 
-    /**
-     * @return integer
-     */
-    public function getStreamId() {
+    public function getStreamId(): ?int {
         return $this->streamId;
     }
 
     /**
      * @return News[]
      */
-    public function getNews() {
+    public function getNews(): array {
         ;
         $res = $this->sqlite->query('SELECT * FROM priority o JOIN news n ON o.news_id=n.news_id WHERE stream_id=? ',
             $this->streamId);
@@ -68,7 +50,7 @@ class Stream extends AbstractModel {
         return $this->sortNews($news);
     }
 
-    private function sortNews($news) {
+    private function sortNews(array $news): array {
         usort($news,
             function (News $a, News $b) {
                 if ($a->getPriority()->getPriorityValue() > $b->getPriority()->getPriorityValue()) {
@@ -84,7 +66,6 @@ class Stream extends AbstractModel {
 
     public function update() {
         msg('not implement', -1);
-        return;
     }
 
     public function fill($data) {
@@ -97,7 +78,7 @@ class Stream extends AbstractModel {
         $this->fill($this->sqlite->res2row($res));
     }
 
-    public function load() {
+    public function load(): void {
         $res = $this->sqlite->query('SELECT name FROM stream WHERE stream_id=?', $this->streamId);
         $this->name = $this->sqlite->res2single($res);
     }
