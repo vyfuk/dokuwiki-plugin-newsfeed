@@ -3,9 +3,9 @@
 use dokuwiki\Extension\ActionPlugin;
 use dokuwiki\Extension\Event;
 use dokuwiki\Extension\EventHandler;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Priority;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Priority;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
 
 /**
  * Class action_plugin_newsfeed_preprocess

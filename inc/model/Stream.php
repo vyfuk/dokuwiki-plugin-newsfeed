@@ -1,12 +1,12 @@
 <?php
 
-namespace FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model;
+namespace FYKOS\dokuwiki\Extension\PluginNewsFeed\Model;
 
 class Stream extends AbstractModel {
 
     private ?int $streamId;
 
-    private string $name;
+    private ?string $name;
 
     public function __construct(\helper_plugin_sqlite $sqlite, ?int $streamId = null) {
         parent::__construct($sqlite);
@@ -17,7 +17,7 @@ class Stream extends AbstractModel {
         $this->streamId = $streamId;
     }
 
-    public function setName(string $name): void {
+    public function setName(?string $name): void {
         $this->name = $name;
     }
 

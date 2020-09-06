@@ -6,7 +6,7 @@ use dokuwiki\Extension\EventHandler;
 use \dokuwiki\Form\Form;
 use dokuwiki\Form\InputElement;
 use PluginFKSHelper\Form\DateTimeInputElement;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
 
 /**
  * Class action_plugin_newsfeed_form

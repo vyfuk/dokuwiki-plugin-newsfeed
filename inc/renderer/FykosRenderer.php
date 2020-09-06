@@ -1,6 +1,6 @@
 <?php
 
-namespace FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Renderer;
+namespace FYKOS\dokuwiki\Extension\PluginNewsFeed\Renderer;
 
 use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
 use \dokuwiki\Form\Form;

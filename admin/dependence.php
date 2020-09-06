@@ -1,8 +1,8 @@
 <?php
 
 use dokuwiki\Extension\AdminPlugin;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Dependence;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Dependence;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
 use \dokuwiki\Form\Form;
 
 /**

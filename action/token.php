@@ -2,7 +2,7 @@
 
 use dokuwiki\Extension\ActionPlugin;
 use dokuwiki\Extension\EventHandler;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
 
 /**
  * Class action_plugin_newsfeed_token

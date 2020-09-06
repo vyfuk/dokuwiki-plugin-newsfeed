@@ -1,6 +1,6 @@
 <?php
 
-namespace FYKOS\dokuwiki\Extenstion\PluginNewsFeed;
+namespace FYKOS\dokuwiki\Extension\PluginNewsFeed;
 
 use Doku_Renderer;
 use dokuwiki\Extension\SyntaxPlugin;

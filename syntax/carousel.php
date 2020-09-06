@@ -1,8 +1,8 @@
 <?php
 
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Stream;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\AbstractStream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\AbstractStream;
 
 /**
  * Class syntax_plugin_newsfeed_carousel

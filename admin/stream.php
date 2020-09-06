@@ -2,7 +2,7 @@
 
 use dokuwiki\Extension\AdminPlugin;
 use \dokuwiki\Form\Form;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
 
 /**
  * Class admin_plugin_newsfeed_stream

@@ -1,23 +1,23 @@
 <?php
 
-require_once DOKU_PLUGIN . 'newsfeed/inc/model/AbstractModel.php';
-require_once DOKU_PLUGIN . 'newsfeed/inc/model/News.php';
-require_once DOKU_PLUGIN . 'newsfeed/inc/model/Priority.php';
-require_once DOKU_PLUGIN . 'newsfeed/inc/model/Stream.php';
-require_once DOKU_PLUGIN . 'newsfeed/inc/model/Dependence.php';
-require_once DOKU_PLUGIN . 'newsfeed/inc/renderer/AbstractRenderer.php';
-require_once DOKU_PLUGIN . 'newsfeed/inc/renderer/VyfukRenderer.php';
-require_once DOKU_PLUGIN . 'newsfeed/inc/renderer/FykosRenderer.php';
-require_once DOKU_PLUGIN . 'newsfeed/inc/AbstractStream.php';
-require_once DOKU_PLUGIN . 'social/inc/OpenGraphData.php';
+require_once __DIR__ . '/inc/model/AbstractModel.php';
+require_once __DIR__ . '/inc/model/News.php';
+require_once __DIR__ . '/inc/model/Priority.php';
+require_once __DIR__ . '/inc/model/Stream.php';
+require_once __DIR__ . '/inc/model/Dependence.php';
+require_once __DIR__ . '/inc/renderer/AbstractRenderer.php';
+require_once __DIR__ . '/inc/renderer/VyfukRenderer.php';
+require_once __DIR__ . '/inc/renderer/FykosRenderer.php';
+require_once __DIR__ . '/inc/AbstractStream.php';
+require_once __DIR__ . '/../social/inc/OpenGraphData.php';
 
 use dokuwiki\Extension\Plugin;
-use FYKOS\dokuwiki\Extenstion\PluginSocial\OpenGraphData;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Stream;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Renderer\AbstractRenderer;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Renderer\FykosRenderer;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Renderer\VyfukRenderer;
+use FYKOS\dokuwiki\Extension\PluginSocial\OpenGraphData;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Renderer\AbstractRenderer;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Renderer\FykosRenderer;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Renderer\VyfukRenderer;
 
 class helper_plugin_newsfeed extends Plugin {
 

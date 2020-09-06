@@ -2,9 +2,9 @@
 
 use dokuwiki\Extension\AdminPlugin;
 use \dokuwiki\Form\Form;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Stream;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Priority;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Priority;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
 
 /**
  * Class admin_plugin_newsfeed_push

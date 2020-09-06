@@ -1,6 +1,6 @@
 <?php
 
-namespace FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model;
+namespace FYKOS\dokuwiki\Extension\PluginNewsFeed\Model;
 
 class Priority extends AbstractModel {
     /**

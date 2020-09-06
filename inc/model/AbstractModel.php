@@ -1,6 +1,6 @@
 <?php
 
-namespace FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model;
+namespace FYKOS\dokuwiki\Extension\PluginNewsFeed\Model;
 
 use helper_plugin_sqlite;
 

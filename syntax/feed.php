@@ -1,7 +1,7 @@
 <?php
 
 use dokuwiki\Extension\SyntaxPlugin;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
 use dokuwiki\Cache\Cache;
 
 /**

@@ -1,8 +1,8 @@
 <?php
 
-namespace FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Renderer;
+namespace FYKOS\dokuwiki\Extension\PluginNewsFeed\Renderer;
 
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
 use helper_plugin_newsfeed;
 
 /**
