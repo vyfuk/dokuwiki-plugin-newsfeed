@@ -1,9 +1,7 @@
 <?php
 
 use dokuwiki\Extension\AdminPlugin;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Dependence;
 use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
-use \dokuwiki\Form\Form;
 
 /**
  * Class admin_plugin_newsfeed_dependence
@@ -29,36 +27,10 @@ class admin_plugin_newsfeed_dependence extends AdminPlugin {
         return $this->getLang('dependence_menu');
     }
 
-    public function handle() {
-        global $INPUT;
-        $dep = $INPUT->param('dep');
-        if ($dep['child'] == '' || $dep['parent'] == '') {
-            return;
-        }
-        $childStream = new Stream($this->helper->sqlite);
-        $childStream->findByName($dep['child']);
-
-        $parentStream = new Stream($this->helper->sqlite);
-        $parentStream->findByName($dep['parent']);
-
-        $dependence = new Dependence($this->helper->sqlite);
-        $dependence->setChildStream($childStream);
-        $dependence->setParentStream($parentStream);
-
-        if ($dependence->dependenceExist()) {
-            msg($this->getLang('dep_exist'), -1);
-        } else {
-            if ($dependence->create()) {
-                msg($this->getLang('dep_created'), 1);
-            }
-        }
-    }
-
     public function html(): void {
         echo '<h1>' . $this->getLang('dependence_menu') . '</h1>';
 
         $streams = $this->helper->getAllStreams();
-        echo $this->createDependenceFrom($streams);
 
         echo '<h2>' . $this->getLang('dep_list') . ':</h2>';
 
@@ -134,27 +106,5 @@ class admin_plugin_newsfeed_dependence extends AdminPlugin {
         } else {
             echo '<span class="badge badge-warning">Nothing</span>';
         }
-    }
-
-    /**
-     * @param Stream[] $streams
-     * @return string
-     */
-    private function createDependenceFrom(array $streams) {
-        global $lang;
-        $html = '<h2>' . $this->getLang('dep_create') . '</h2>';
-        $html .= '<div class="info">' . $this->getLang('dep_full_info') . '</div>';
-        $streamNames = array_map(function (Stream $stream) {
-            return $stream->getName();
-        }, $streams);
-
-        $form = new Form();
-        $form->addClass('block');
-        $form->setHiddenField('news[do]', 'dependence');
-        $form->addDropdown('dep[parent]', $streamNames, $this->getLang('dep_parent_info'));
-        $form->addDropdown('dep[child]', $streamNames, $this->getLang('dep_child_info'));
-        $form->addButton('submit', $lang['btn_save']);
-        $html .= $form->toHTML();
-        return $html;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 use dokuwiki\Extension\AdminPlugin;
-use \dokuwiki\Form\Form;
+use dokuwiki\Form\Form;
 use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
 use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Priority;
 use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;

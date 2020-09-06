@@ -2,11 +2,11 @@
 
 namespace FYKOS\dokuwiki\Extension\PluginNewsFeed\Renderer;
 
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\News;
-use \dokuwiki\Form\Form;
-use \dokuwiki\Form\InputElement;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Priority;
-use FYKOS\dokuwiki\Extenstion\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
+use dokuwiki\Form\Form;
+use dokuwiki\Form\InputElement;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Priority;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
 
 /**
  * Class FykosRenderer

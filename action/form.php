@@ -3,7 +3,7 @@
 use dokuwiki\Extension\ActionPlugin;
 use dokuwiki\Extension\Event;
 use dokuwiki\Extension\EventHandler;
-use \dokuwiki\Form\Form;
+use dokuwiki\Form\Form;
 use dokuwiki\Form\InputElement;
 use PluginFKSHelper\Form\DateTimeInputElement;
 use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
