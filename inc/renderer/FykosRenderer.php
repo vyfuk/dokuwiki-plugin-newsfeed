@@ -1,17 +1,20 @@
 <?php
 
-namespace PluginNewsFeed\Renderer;
+namespace FYKOS\dokuwiki\Extension\PluginNewsFeed\Renderer;
 
-use PluginNewsFeed\Model\News;
-use \dokuwiki\Form\Form;
-use \dokuwiki\Form\InputElement;
-use \PluginNewsFeed\Model\Priority;
-use \PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
+use dokuwiki\Form\Form;
+use dokuwiki\Form\InputElement;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Priority;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
 
-
+/**
+ * Class FykosRenderer
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
 class FykosRenderer extends AbstractRenderer {
 
-    public function render($innerHtml, $formHtml, News $news) {
+    public function render(string $innerHtml, string $formHtml, News $news): string {
         $html = '<div class="col-12 row mb-3">';
         $html .= '<div class="col-12">';
         $html .= '<div class="bs-callout mb-3 bs-callout-' . $news->getCategory() . '">';
@@ -23,7 +26,7 @@ class FykosRenderer extends AbstractRenderer {
         return $html;
     }
 
-    public function renderContent(News $data, $params) {
+    public function renderContent(News $data, array $params): string {
         $innerHtml = $this->getHeader($data);
         $innerHtml .= $this->getText($data);
 
@@ -33,7 +36,7 @@ class FykosRenderer extends AbstractRenderer {
         return $innerHtml;
     }
 
-    public function renderEditFields($params) {
+    public function renderEditFields(array $params): string {
 
         if (auth_quickaclcheck('start') < AUTH_EDIT) {
             return '';
@@ -52,7 +55,7 @@ class FykosRenderer extends AbstractRenderer {
         return $html;
     }
 
-    protected function getModalHeader() {
+    protected function getModalHeader(): string {
         $html = '';
         $html .= '<div class="modal-header">';
         $html .= '<h5 class="modal-title">' . $this->helper->getLang('btn_opt') . '</h5>';
@@ -63,13 +66,7 @@ class FykosRenderer extends AbstractRenderer {
         return $html;
     }
 
-    /**
-     * @param $id
-     * @param $streamName
-     * @param $params
-     * @return string
-     */
-    protected function getPriorityField($id, $streamName, $params) {
+    protected function getPriorityField(int $id, string $streamName, array $params): string {
         $html = '';
         if ($params['editable'] !== 'true') {
             return '';
@@ -82,7 +79,7 @@ class FykosRenderer extends AbstractRenderer {
         $form = new Form();
         $form->addClass('block');
 
-        $form->setHiddenField('do', \helper_plugin_fksnewsfeed::FORM_TARGET);
+        $form->setHiddenField('do', \helper_plugin_newsfeed::FORM_TARGET);
         $form->setHiddenField('news[id]', $id);
         $form->setHiddenField('news[stream]', $streamName);
         $form->setHiddenField('news[do]', 'priority');
@@ -120,13 +117,13 @@ class FykosRenderer extends AbstractRenderer {
         return $html;
     }
 
-    protected function btnEditNews($id, $stream) {
+    protected function btnEditNews(int $id, string $stream): string {
         $html = '';
 
         $html .= '<div class="modal-footer"> ';
         $html .= '<div class="btn-group"> ';
         $editForm = new Form();
-        $editForm->setHiddenField('do', \helper_plugin_fksnewsfeed::FORM_TARGET);
+        $editForm->setHiddenField('do', \helper_plugin_newsfeed::FORM_TARGET);
         $editForm->setHiddenField('news[id]', $id);
         $editForm->setHiddenField('news[do]', 'edit');
         $editForm->addButton('submit', $this->helper->getLang('btn_edit_news'))->addClass('btn btn-info');
@@ -134,7 +131,7 @@ class FykosRenderer extends AbstractRenderer {
 
         if ($stream) {
             $deleteForm = new Form();
-            $deleteForm->setHiddenField('do', \helper_plugin_fksnewsfeed::FORM_TARGET);
+            $deleteForm->setHiddenField('do', \helper_plugin_newsfeed::FORM_TARGET);
             $deleteForm->setHiddenField('news[do]', 'delete');
             $deleteForm->setHiddenField('news[stream]', $stream);
             $deleteForm->setHiddenField('news[id]', $id);
@@ -144,7 +141,7 @@ class FykosRenderer extends AbstractRenderer {
         }
 
         $purgeForm = new Form();
-        $purgeForm->setHiddenField('do', \helper_plugin_fksnewsfeed::FORM_TARGET);
+        $purgeForm->setHiddenField('do', \helper_plugin_newsfeed::FORM_TARGET);
         $purgeForm->setHiddenField('news[do]', 'purge');
         $purgeForm->setHiddenField('news[id]', $id);
         $purgeForm->addButton('submit', $this->helper->getLang('cache_del'))->addClass('btn btn-warning');
@@ -155,75 +152,25 @@ class FykosRenderer extends AbstractRenderer {
         return $html;
     }
 
-
-    /**
-     * @param $news News
-     * @return string
-     */
-    protected function getShareFields(News $news) {
-        global $ID;
-        if (auth_quickaclcheck('start') < AUTH_READ) {
-            return '';
-        }
-        $link = $news->getToken($news->getLinkHref());
-        if (preg_match('|^https?://|', $news->getLinkHref())) {
-            $link = $news->getToken($ID);
-        }
-        $html = '<div class="row mb-3" style="max-height: 2rem;">';
-
-        $html .= '<div class="col-6">' .
-            $this->helper->social->facebook->createSend($link) .
-            '</div>';
-
-        $html .= '<div class="col-6">';
-        $html .= $this->helper->social->facebook->createShare($link);
-        $html .= '</div>';
-
-        //  $html .= '<div class="link">
-        //  <span class="link-icon icon"></span>
-        //  <span contenteditable="true" class="link_inp" >' . $link . '</span>
-        //// </div>' ;
-
-        $html .= '</div>';
-
-        return $html;
-    }
-
-    /**
-     * @param $news News
-     * @return null|string
-     */
-    protected function getText(News $news) {
+    protected function getText(News $news): ?string {
         return $news->renderText();
     }
 
-    /**
-     * @param $news News
-     * @return string
-     */
-    protected function getSignature(News $news) {
+    protected function getSignature(News $news): string {
         return '<div class="card-text text-right">' .
             '<a href="mailto:' . hsc($news->getAuthorEmail()) . '" class="mail" title="' . hsc($news->getAuthorEmail()) .
             '"><span class="fa fa-envelope"></span>' . hsc($news->getAuthorName()) . '</a>' .
             '</div>';
     }
 
-    /**
-     * @param $news News
-     * @return string
-     */
-    protected function getHeader(News $news) {
+    protected function getHeader(News $news): string {
         return '<h4>' . $news->getTitle() .
             '<small class="float-right">' . $news->getLocalDate(function ($key) {
                 return $this->helper->getLang($key);
             }) . '</small></h4>';
     }
 
-    /**
-     * @param $news News
-     * @return string
-     */
-    protected function getLink(News $news) {
+    protected function getLink(News $news): string {
         if ($news->hasLink()) {
             if (preg_match('|^https?://|', $news->getLinkHref())) {
                 $href = hsc($news->getLinkHref());

@@ -1,56 +1,34 @@
 <?php
 
-use \dokuwiki\Form\Form;
-use \PluginNewsFeed\Model\Stream;
+use dokuwiki\Extension\AdminPlugin;
 
-// TODO refract
+/**
+ * Class admin_plugin_newsfeed_stream
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class admin_plugin_newsfeed_stream extends AdminPlugin {
 
-class admin_plugin_fksnewsfeed_stream extends \DokuWiki_Admin_Plugin {
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
+    private helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
-    public function getMenuSort() {
+    public function getMenuSort(): int {
         return 290;
     }
 
-    public function forAdminOnly() {
+    public function forAdminOnly(): bool {
         return false;
     }
 
-    public function getMenuText($lang) {
+    public function getMenuText($lang): string {
         return $this->getLang('stream_menu');
     }
 
-    public function handle() {
-        global $INPUT;
-        $streamName = $INPUT->str('stream_name');
-        if (trim($streamName) == '') {
-            return;
-        }
-
-        $stream = new Stream($this->helper->sqlite, $streamName);
-        $stream->findByName($streamName);
-        if (!$stream->getName()) {
-            $stream->fill(['name' => $streamName]);
-            $stream->create();
-            msg('Stream has been created', 1);
-        } else {
-            msg('Stream already exist', -1);
-        }
-    }
-
-    public function html() {
-        echo '<h1>' . $this->getLang('stream_menu') . '</h1>';
-        echo '<h2>' . $this->getLang('stream_create') . '</h2>';
-        echo $this->getNewStreamForm()->toHTML();
+    public function html(): void {
+        echo '<h1>' . $this->getLang('stream_list') . '</h1>';
         $streams = $this->helper->getAllStreams();
-        echo '<h2 id="stream_list">' . $this->getLang('stream_list') . '</h2>';
         echo('<ul>');
         foreach ($streams as $stream) {
             echo '<li class="form-group row"><span class="col-3">' . $stream->getName() . '</span>';
@@ -62,12 +40,4 @@ class admin_plugin_fksnewsfeed_stream extends \DokuWiki_Admin_Plugin {
         echo '</div>';
     }
 
-    private function getNewStreamForm() {
-        global $lang;
-        $form = new Form();
-        $form->setHiddenField('news_do', 'stream_add');
-        $form->addTextInput('stream_name', $this->getLang('stream'));
-        $form->addButton('submit', $lang['btn_save']);
-        return $form;
-    }
 }

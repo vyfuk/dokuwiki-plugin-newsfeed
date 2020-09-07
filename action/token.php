@@ -1,28 +1,30 @@
 <?php
 
-use \PluginNewsFeed\Model\News;
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
 
-class action_plugin_fksnewsfeed_token extends \DokuWiki_Action_Plugin {
+/**
+ * Class action_plugin_newsfeed_token
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class action_plugin_newsfeed_token extends ActionPlugin {
 
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
+    private helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
     /**
      *
-     * @param Doku_Event_Handler $controller
+     * @param EventHandler $controller
      */
-    public function register(Doku_Event_Handler $controller) {
+    public function register(EventHandler $controller): void {
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'AFTER', $this, 'addFBMeta');
     }
 
-
-    public function addFBMeta() {
+    public function addFBMeta(): void {
         global $ID;
         global $INPUT;
         if (!$INPUT->str('news-id')) {
@@ -32,12 +34,12 @@ class action_plugin_fksnewsfeed_token extends \DokuWiki_Action_Plugin {
         $news = new News($this->helper->sqlite, $news_id);
         $news->load();
 
-        $this->helper->social->meta->addMetaData('og', 'title', $news->getTitle());
-        $this->helper->social->meta->addMetaData('og', 'url', $news->getToken($ID));
+        $this->helper->getOpenGraphData()->addMetaData('og', 'title', $news->getTitle());
+        $this->helper->getOpenGraphData()->addMetaData('og', 'url', $news->getToken($ID));
         $text = p_render('text', p_get_instructions($news->getText()), $info);
-        $this->helper->social->meta->addMetaData('og', 'description', $text);
+        $this->helper->getOpenGraphData()->addMetaData('og', 'description', $text);
         if ($news->hasImage()) {
-            $this->helper->social->meta->addMetaData('og', 'image', ml($news->getImage(), null, true, '&', true));
+            $this->helper->getOpenGraphData()->addMetaData('og', 'image', ml($news->getImage(), null, true, '&', true));
         }
     }
 }

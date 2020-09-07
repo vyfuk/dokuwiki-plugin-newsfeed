@@ -1,6 +1,8 @@
 <?php
 
-namespace PluginNewsFeed\Model;
+namespace FYKOS\dokuwiki\Extension\PluginNewsFeed\Model;
+
+use helper_plugin_sqlite;
 
 class News extends AbstractModel {
 
@@ -165,8 +167,8 @@ class News extends AbstractModel {
         return $this->text;
     }
 
-    public function renderText($mode = 'xhtml') {
-       return p_render($mode, p_get_instructions($this->getText()), $info);
+    public function renderText($mode = 'xhtml'): ?string {
+        return p_render($mode, p_get_instructions($this->getText()), $info);
     }
 
     /**
@@ -190,7 +192,7 @@ class News extends AbstractModel {
             'September',
             'October',
             'November',
-            'December'
+            'December',
         ];
         $langMonth = [
             $getLang('jan'),
@@ -204,7 +206,7 @@ class News extends AbstractModel {
             $getLang('sep'),
             $getLang('oct'),
             $getLang('now'),
-            $getLang('dec')
+            $getLang('dec'),
         ];
         return (string)str_replace($enMonth, $langMonth, $date);
     }
@@ -252,7 +254,7 @@ class News extends AbstractModel {
     }
 
     public function create() {
-        $this->sqlite->query('INSERT INTO news  (title,  author_name,  author_email , text,  news_date,  
+        $this->sqlite->query('INSERT INTO news  (title,  author_name,  author_email , text,  news_date,
 image,  category, link_href,  link_title)  VALUES(?,?,?,?,?,?,?,?,?) ',
             $this->title,
             $this->authorName,
@@ -267,7 +269,7 @@ image,  category, link_href,  link_title)  VALUES(?,?,?,?,?,?,?,?,?) ',
     }
 
     public function update() {
-        $this->sqlite->query('UPDATE news SET title=?,  author_name=?,  author_email=? , text=?, news_date=?,  
+        $this->sqlite->query('UPDATE news SET title=?,  author_name=?,  author_email=? , text=?, news_date=?,
 image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
             $this->title,
             $this->authorName,
@@ -289,7 +291,7 @@ image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
         return static::getCacheFileById($this->newsId);
     }
 
-    public static function getCacheFileById($id) {
+    public static function getCacheFileById($id): string {
         return 'news-feed_news_' . $id;
     }
 
@@ -311,8 +313,7 @@ image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
         $this->priority = $priority;
     }
 
-    public function load() {
-
+    public function load(): void {
         $res = $this->sqlite->query('SELECT * FROM news WHERE news_id=?', $this->newsId);
         $row = (object)$this->sqlite->res2row($res);
         //$this->newsId = $row->news_id;
@@ -325,10 +326,9 @@ image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
         $this->category = $row->category;
         $this->linkHref = $row->link_href;
         $this->linkTitle = $row->link_title;
-        return $this;
     }
 
-    public function loadDefault() {
+    public function loadDefault(): self {
         global $INFO;
         $this->authorName = $INFO['userinfo']['name'];
         $this->newsDate = date('Y-m-d\TH:i:s');
@@ -336,7 +336,7 @@ image=?,  category=?, link_href=?,  link_title=? WHERE news_id=? ',
         return $this;
     }
 
-    public function __construct(\helper_plugin_sqlite &$sqlite, $newsId = null) {
+    public function __construct(helper_plugin_sqlite &$sqlite, $newsId = null) {
         parent::__construct($sqlite);
         $this->newsId = $newsId;
     }

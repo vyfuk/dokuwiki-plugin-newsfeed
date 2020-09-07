@@ -1,27 +1,31 @@
 <?php
 
-use \PluginNewsFeed\Model\Priority;
-use \PluginNewsFeed\Model\News;
-use \PluginNewsFeed\Model\Stream;
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\Event;
+use dokuwiki\Extension\EventHandler;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Priority;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
 
-class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
+/**
+ * Class action_plugin_newsfeed_preprocess
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class action_plugin_newsfeed_preprocess extends ActionPlugin {
 
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
+    private helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
-    public function register(Doku_Event_Handler $controller) {
+    public function register(EventHandler $controller): void {
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'actPreprocess');
     }
 
-    public function actPreprocess(Doku_Event &$event) {
+    public function actPreprocess(Event $event): void {
         global $INPUT;
-        if ($event->data !== helper_plugin_fksnewsfeed::FORM_TARGET) {
+        if ($event->data !== helper_plugin_newsfeed::FORM_TARGET) {
             return;
         }
         if (auth_quickaclcheck('start') < AUTH_EDIT) {
@@ -32,6 +36,7 @@ class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
         switch ($INPUT->param('news')['do']) {
             case 'create':
             case 'edit':
+            default:
                 return;
             case'save':
                 $this->saveNews();
@@ -45,12 +50,10 @@ class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
             case'purge':
                 $this->deleteCache();
                 return;
-            default:
-                return;
         }
     }
 
-    private function saveNews() {
+    private function saveNews(): void {
         global $INPUT;
 
         $file = News::getCacheFileById($INPUT->param('news')['id']);
@@ -58,7 +61,7 @@ class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
         $cache->removeCache();
 
         $data = [];
-        foreach (helper_plugin_fksnewsfeed::$fields as $field) {
+        foreach (helper_plugin_newsfeed::$fields as $field) {
             if ($field === 'text') {
                 $data[$field] = cleanText($INPUT->str('text'));
             } else {
@@ -100,7 +103,7 @@ class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
         }
     }
 
-    private function savePriority() {
+    private function savePriority(): void {
         global $INPUT;
         $file = News::getCacheFileById($INPUT->param('news')['id']);
 
@@ -122,7 +125,7 @@ class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
         }
     }
 
-    private function saveDelete() {
+    private function saveDelete(): void {
         global $INPUT;
         $stream = new Stream($this->helper->sqlite, null);
         $stream->findByName($INPUT->param('news')['stream']);
@@ -133,7 +136,7 @@ class action_plugin_fksnewsfeed_preprocess extends \DokuWiki_Action_Plugin {
         exit();
     }
 
-    private function deleteCache() {
+    private function deleteCache(): void {
         global $INPUT;
         if (!$INPUT->param('news')['id']) {
             $news = $this->helper->allNewsFeed();

@@ -1,42 +1,62 @@
 <?php
 
-namespace PluginNewsFeed\Syntax;
+namespace FYKOS\dokuwiki\Extension\PluginNewsFeed;
 
+use Doku_Renderer;
+use dokuwiki\Extension\SyntaxPlugin;
 use dokuwiki\Form\Form;
+use helper_plugin_newsfeed;
 
-abstract class AbstractStream extends \DokuWiki_Syntax_Plugin {
-    /**
-     * @var \helper_plugin_fksnewsfeed
-     */
-    protected $helper;
+abstract class AbstractStream extends SyntaxPlugin {
+
+    protected helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
-    public function getType() {
+    public function getType(): string {
         return 'substition';
     }
 
-    public function getPType() {
+    public function getPType(): string {
         return 'block';
     }
 
-    public function getSort() {
+    public function getSort(): int {
         return 3;
     }
 
-    protected function renderEditModal(\Doku_Renderer &$renderer, $params) {
+    protected function renderEditModal(Doku_Renderer $renderer, array $params): void {
         $id = uniqid();
         global $ID;
         $renderer->nocache();
         if (auth_quickaclcheck($ID) >= AUTH_EDIT) {
-            $this->renderEditModalBtn($renderer, $id);
-            $this->renderEditModalContent($renderer, $id, $params);
+            $this->renderModalContent($renderer, $id, $params);
         }
     }
 
-    protected function renderStream(\Doku_Renderer &$renderer, $params) {
+    protected function renderModalContent(Doku_Renderer $renderer, string $id, array $params): void {
+        //button
+        $renderer->doc .= '<button data-toggle="modal" data-target="#feedModal' . $id . '" class="btn btn-primary" >
+<span class="fa fa-edit"></span>
+</button>';
+        // content
+        $renderer->doc .= '<div id="feedModal' . $id . '" class="modal" data-id="' . $id . '">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">' . $this->helper->getLang('edit_stream') . '</h5>
+<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+<span aria-hidden="true">×</span>
+</button>
+</div>
+<div class="modal-body">';
+        $this->renderStreamHead($renderer, $params);
+        $renderer->doc .= '</div></div></div></div>';
+    }
+
+    protected function renderStream(Doku_Renderer $renderer, array $params): void {
         $attributes = [];
 
         foreach ($params as $key => $value) {
@@ -44,7 +64,6 @@ abstract class AbstractStream extends \DokuWiki_Syntax_Plugin {
         }
         $renderer->doc .= '<div class="news-stream">';
         $this->renderEditModal($renderer, $params);
-        //$this->renderStreamHead($renderer, $params);
 
         $renderer->doc .= '<div class="stream row" ' . buildAttributes($attributes) . '></div>';
 
@@ -57,7 +76,7 @@ abstract class AbstractStream extends \DokuWiki_Syntax_Plugin {
     }
 
 
-    protected function renderStreamHead(\Doku_Renderer &$renderer, $params) {
+    protected function renderStreamHead(Doku_Renderer $renderer, array $params): void {
         global $ID;
         if (auth_quickaclcheck($ID) >= AUTH_EDIT) {
             $renderer->doc .= '<div class="btn-group-vertical">';
@@ -73,79 +92,46 @@ abstract class AbstractStream extends \DokuWiki_Syntax_Plugin {
             $renderer->doc .= '<div class="mb-3">';
             $renderer->doc .= $this->printCacheBtn();
             $renderer->doc .= '</div>';
-
             $renderer->doc .= '</div>';
         }
-        // $renderer->doc .= $this->printRSS($params['stream']);
     }
 
-    private function getPullBtnForm($stream) {
+    private function printPullBtn($stream): string {
         $form = new Form();
-        // $form->setHiddenField('target', \helper_plugin_fksnewsfeed::FORM_TARGET);
         $form->setHiddenField('do', 'admin');
-        $form->setHiddenField('page', 'fksnewsfeed_push');
+        $form->setHiddenField('page', 'newsfeed_push');
         $form->setHiddenField('news[stream]', $stream);
         $form->addButton('submit', $this->getLang('btn_push_stream'))
             ->addClass('btn btn-info');
-        return $form;
+        return $form->toHTML();
     }
 
-    private function printPullBtn($stream) {
-        return $this->getPullBtnForm($stream)
-            ->toHTML();
-    }
-
-    private function printPreviewBtn($stream) {
+    private function printPreviewBtn($stream): string {
         return '<a class="btn btn-secondary" href="' . wl(null, [
-                'do' => \helper_plugin_fksnewsfeed::FORM_TARGET,
+                'do' => helper_plugin_newsfeed::FORM_TARGET,
                 'news[do]' => 'preview',
                 'news[stream]' => $stream,
             ]) . '">' . $this->getLang('Preview') . '</a>';
     }
 
-    private function getCreateButtonForm($stream) {
+    private function printCreateBtn($stream): string {
         $form = new Form();
-        $form->setHiddenField('do', \helper_plugin_fksnewsfeed::FORM_TARGET);
+        $form->setHiddenField('do', helper_plugin_newsfeed::FORM_TARGET);
         $form->setHiddenField('news[do]', 'create');
         $form->setHiddenField('news[id]', 0);
         $form->setHiddenField('news[stream]', $stream);
         $form->addButton('submit', $this->getLang('btn_create_news'))
             ->addClass('btn btn-primary');
-        return $form;
+        return $form->toHTML();
     }
 
-    private function printCreateBtn($stream) {
-        return $this->getCreateButtonForm($stream)
-            ->toHTML();
-    }
-
-    private function printCacheBtn() {
+    private function printCacheBtn(): string {
         $form = new Form();
-        $form->setHiddenField('do', \helper_plugin_fksnewsfeed::FORM_TARGET);
+        $form->setHiddenField('do', helper_plugin_newsfeed::FORM_TARGET);
         $form->setHiddenField('news[do]', 'purge');
         $form->addButton('submit', $this->getLang('cache_del_full'))
             ->addClass('btn btn-warning');
         return $form->toHTML();
     }
 
-    protected function renderEditModalContent(\Doku_Renderer &$renderer, $id, $params) {
-        $renderer->doc .= '<div id="feedModal' . $id . '" class="modal" data-id="' . $id . '">
-<div class="modal-dialog">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title">' . $this->helper->getLang('edit_stream') . '</h5>
-<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-<span aria-hidden="true">×</span>
-</button>
-</div>
-<div class="modal-body">';
-        $this->renderStreamHead($renderer, $params);
-        $renderer->doc .= '</div></div></div></div>';
-    }
-
-    protected function renderEditModalBtn(\Doku_Renderer &$renderer, $id) {
-        $renderer->doc .= '<button data-toggle="modal" data-target="#feedModal' . $id . '" class="btn btn-primary" >
-<span class="fa fa-edit"></span>
-</button>';
-    }
 }

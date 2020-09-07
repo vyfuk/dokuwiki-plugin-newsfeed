@@ -1,5 +1,5 @@
 /**
- * JavaScript for DokuWiki plugin FKS-NewsFeed
+ * JavaScript for DokuWiki plugin NewsFeed
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author Michal Červeňák <miso@fykos.cz>
  */

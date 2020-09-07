@@ -1,11 +1,20 @@
 <?php
 
-use \dokuwiki\Form\Form;
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\Event;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Form\Form;
+use dokuwiki\Form\InputElement;
 use PluginFKSHelper\Form\DateTimeInputElement;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
 
-class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
+/**
+ * Class action_plugin_newsfeed_form
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class action_plugin_newsfeed_form extends ActionPlugin {
 
-    private static $categories = [
+    private static array $categories = [
         'fykos-blue',
         'fykos-pink',
         'fykos-line',
@@ -14,23 +23,20 @@ class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
         'fykos-green',
     ];
 
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
+    private helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
-    public function register(Doku_Event_Handler $controller) {
+    public function register(EventHandler $controller): void {
         $controller->register_hook('TPL_ACT_UNKNOWN', 'BEFORE', $this, 'tplEditNews');
     }
 
-    public function tplEditNews(Doku_Event &$event) {
+    public function tplEditNews(Event $event): void {
         global $ACT;
         global $INPUT;
-        if ($ACT !== helper_plugin_fksnewsfeed::FORM_TARGET) {
+        if ($ACT !== helper_plugin_newsfeed::FORM_TARGET) {
             return;
         }
         if (auth_quickaclcheck('start') < AUTH_EDIT) {
@@ -44,14 +50,12 @@ class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
                 $this->getEditForm();
                 return;
             case 'preview':
-                $this->getStreamPreview($event);
-                return;
-            default:
+                $this->getStreamPreview();
                 return;
         }
     }
 
-    private function getStreamPreview() {
+    private function getStreamPreview(): void {
         global $INPUT;
         if ($INPUT->param('news')['stream']) {
             echo p_render('xhtml', p_get_instructions('{{news-stream>feed="5";stream="' . $INPUT->param('news')['stream'] . '"}}'), $info);
@@ -61,27 +65,27 @@ class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
 
     }
 
-    private function getEditForm() {
+    private function getEditForm(): void {
         global $INPUT;
         global $ID;
 
         $form = new Form();
         if ($INPUT->param('news')['id'] !== 0) {
-            $data = new \PluginNewsFeed\Model\News($this->helper->sqlite, $INPUT->param('news')['id']);
+            $data = new News($this->helper->sqlite, $INPUT->param('news')['id']);
             $data->load();
 
         } else {
-            $data = new \PluginNewsFeed\Model\News($this->helper->sqlite, null);
+            $data = new News($this->helper->sqlite, null);
             $data->loadDefault();
         }
         $form->setHiddenField('page_id', $ID);
-        $form->setHiddenField('do', helper_plugin_fksnewsfeed::FORM_TARGET);
+        $form->setHiddenField('do', helper_plugin_newsfeed::FORM_TARGET);
         $form->setHiddenField('news[id]', $INPUT->param('news')['id']);
         $form->setHiddenField('news[do]', 'save');
         $form->setHiddenField('news[stream]', $INPUT->param('news')['stream']);
         $form->addFieldsetOpen('Novinky na webu');
 
-        foreach (helper_plugin_fksnewsfeed::$fields as $field) {
+        foreach (helper_plugin_newsfeed::$fields as $field) {
             $input = null;
             $form->addTagOpen('div')->addClass('form-group');
 
@@ -129,7 +133,7 @@ class action_plugin_fksnewsfeed_form extends \DokuWiki_Action_Plugin {
                     $input->val($data->getAuthorName());
                     break;
                 case 'authorEmail':
-                    $input = new \dokuwiki\Form\InputElement('email', $field, $this->getLang($field));
+                    $input = new InputElement('email', $field, $this->getLang($field));
                     $input->attr('class', 'form-control');
                     $form->addElement($input);
                     $input->val($data->getAuthorEmail());

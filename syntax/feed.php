@@ -1,39 +1,42 @@
 <?php
 
-use \PluginNewsFeed\Model\News;
-use \PluginNewsFeed\Renderer;
+use dokuwiki\Extension\SyntaxPlugin;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
+use dokuwiki\Cache\Cache;
 
-class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
+/**
+ * Class syntax_plugin_newsfeed_feed
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class syntax_plugin_newsfeed_feed extends SyntaxPlugin {
+
+    private \helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
-    public function getType() {
+    public function getType(): string {
         return 'substition';
     }
 
-    public function getPType() {
+    public function getPType(): string {
         return 'block';
     }
 
-    public function getAllowedTypes() {
+    public function getAllowedTypes(): array {
         return [];
     }
 
-    public function getSort() {
+    public function getSort(): int {
         return 24;
     }
 
-    public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('{{news-feed>.+?}}', $mode, 'plugin_fksnewsfeed_feed');
+    public function connectTo($mode): void {
+        $this->Lexer->addSpecialPattern('{{news-feed>.+?}}', $mode, 'plugin_newsfeed_feed');
     }
 
-    public function handle($match, $state, $pos, \Doku_Handler $handler) {
+    public function handle($match, $state, $pos, Doku_Handler $handler): array {
         preg_match_all('/([a-z-_]+)="([^".]*)"/', substr($match, 12, -2), $matches);
         $parameters = [];
         foreach ($matches[1] as $index => $match) {
@@ -42,28 +45,27 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
         return [$state, $parameters];
     }
 
-    public function render($mode, Doku_Renderer $renderer, $data) {
-        if ($mode == 'xhtml') {
-
-            list($state, $param) = $data;
-            switch ($state) {
-                case DOKU_LEXER_SPECIAL:
-                    $renderer->nocache();
-                    $news = new News($this->helper->sqlite, $param['id']);
-                    $news->load();
-                    if (is_null($news) || ($param['id'] == 0)) {
-                        $renderer->doc .= '<div class="alert alert-danger">' . $this->getLang('news_non_exist') .
-                            '</div>';
-                        return true;
-                    }
-                    $renderer->doc .= $this->getContent($news, $param);
-
-                    return false;
-                default:
-                    return true;
-            }
+    public function render($format, Doku_Renderer $renderer, $data): bool {
+        if ($format !== 'xhtml') {
+            return true;
         }
-        return false;
+
+        [$state, $param] = $data;
+        switch ($state) {
+            case DOKU_LEXER_SPECIAL:
+                $renderer->nocache();
+                $news = new News($this->helper->sqlite, $param['id']);
+                $news->load();
+                if (is_null($news) || ($param['id'] == 0)) {
+                    $renderer->doc .= '<div class="alert alert-danger">' . $this->getLang('news_non_exist') .
+                        '</div>';
+                    return true;
+                }
+                $renderer->doc .= $this->getContent($news, $param);
+
+                return false;
+        }
+        return true;
     }
 
     /**
@@ -71,19 +73,18 @@ class syntax_plugin_fksnewsfeed_feed extends DokuWiki_Syntax_Plugin {
      * @param $params array
      * @return string
      */
-    private function getContent(News $data, $params) {
+    private function getContent(News $data, array $params): string {
         $f = $data->getCacheFile();
-        $cache = new cache($f, '');
-        $json = new JSON();
+        $cache = new Cache($f, '');
         if ($cache->useCache()) {
-            $innerHtml = $json->decode($cache->retrieveCache());
-        } else {
-            $innerHtml = $this->helper->renderer->renderContent($data, $params);
 
-            $cache->storeCache($json->encode($innerHtml));
+            $innerHtml = json_decode($cache->retrieveCache());
+        } else {
+            $innerHtml = $this->helper->getRenderer()->renderContent($data, $params);
+
+            $cache->storeCache(json_encode($innerHtml));
         }
-        $formHtml = $this->helper->renderer->renderEditFields($params);
-        $html = $this->helper->renderer->render($innerHtml, $formHtml, $data);
-        return $html;
+        $formHtml = $this->helper->getRenderer()->renderEditFields($params);
+        return $this->helper->getRenderer()->render($innerHtml, $formHtml, $data);
     }
 }

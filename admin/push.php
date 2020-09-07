@@ -1,29 +1,32 @@
 <?php
 
-use \dokuwiki\Form\Form;
-use \PluginNewsFeed\Model\Stream;
-use \PluginNewsFeed\Model\Priority;
-use \PluginNewsFeed\Model\News;
+use dokuwiki\Extension\AdminPlugin;
+use dokuwiki\Form\Form;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Priority;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
 
-class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
+/**
+ * Class admin_plugin_newsfeed_push
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class admin_plugin_newsfeed_push extends AdminPlugin {
+
+    private helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
-    public function getMenuSort() {
+    public function getMenuSort(): int {
         return 291;
     }
 
-    public function forAdminOnly() {
+    public function forAdminOnly(): bool {
         return false;
     }
 
-    public function getMenuText($lang) {
+    public function getMenuText($lang): string {
         return $this->getLang('push_menu');
     }
 
@@ -32,7 +35,7 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
 
         if (!checkSecurityToken()) {
             return;
-        };
+        }
         $stream = new Stream($this->helper->sqlite);
         $stream->findByName($INPUT->param('news')['stream']);
         $newsId = $INPUT->param('news')['id'];
@@ -53,7 +56,7 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
         }
     }
 
-    public function html() {
+    public function html(): void {
         global $INPUT;
         $streamName = $INPUT->param('news')['stream'];
         $stream = new Stream($this->helper->sqlite);
@@ -71,7 +74,7 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
             $allNews = $this->helper->getAllNewsFeed();
 
             foreach ($this->newsToId($allNews) as $id) {
-                if (array_search($id, $newsInStream) === FALSE) {
+                if (array_search($id, $newsInStream) === false) {
                     $news = new News($this->helper->sqlite, $id);
                     echo $news->render('even', ' ', ' ', false);
                     echo $this->newsAddForm($stream->getName(), $id);
@@ -86,7 +89,7 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
      * @param $news News[]
      * @return integer[]
      */
-    private function newsToId($news) {
+    private function newsToId(array $news): array {
         return array_map(function (News $value) {
             return $value->getNewsId();
         }, $news);
@@ -97,7 +100,7 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
      * @return Form
      *
      */
-    private function getChangeStreamForm(array $streamValues = []) {
+    private function getChangeStreamForm(array $streamValues = []): Form {
         $form = new Form();
         $form->addDropdown('news[stream]', array_map(function (Stream $value) {
             return $value->getName();
@@ -106,10 +109,10 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
         return $form;
     }
 
-    private function newsAddForm($stream, $newsId) {
+    private function newsAddForm(string $stream, int $newsId): string {
         $newsForm = new Form();
         $newsForm->setHiddenField('do', 'admin');
-        $newsForm->setHiddenField('page', 'fksnewsfeed_push');
+        $newsForm->setHiddenField('page', 'newsfeed_push');
         $newsForm->setHiddenField('news[do]', 'push');
         $newsForm->setHiddenField('news[id]', $newsId);
         $newsForm->setHiddenField('news[stream]', $stream);
