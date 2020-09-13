@@ -5,8 +5,10 @@ use dokuwiki\Extension\Event;
 use dokuwiki\Extension\EventHandler;
 use dokuwiki\Form\Form;
 use dokuwiki\Form\InputElement;
-use PluginFKSHelper\Form\DateTimeInputElement;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extension\PluginFKSHelper\Form\DateTimeInputElement;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelNews;
+
+require_once __DIR__ . '/../../fkshelper/inc/Form/DateTimeInputElement.php';
 
 /**
  * Class action_plugin_newsfeed_form
@@ -30,10 +32,10 @@ class action_plugin_newsfeed_form extends ActionPlugin {
     }
 
     public function register(EventHandler $controller): void {
-        $controller->register_hook('TPL_ACT_UNKNOWN', 'BEFORE', $this, 'tplEditNews');
+        $controller->register_hook('TPL_ACT_UNKNOWN', 'BEFORE', $this, 'handleActUnknown');
     }
 
-    public function tplEditNews(Event $event): void {
+    public function handleActUnknown(Event $event): void {
         global $ACT;
         global $INPUT;
         if ($ACT !== helper_plugin_newsfeed::FORM_TARGET) {
@@ -47,35 +49,33 @@ class action_plugin_newsfeed_form extends ActionPlugin {
         switch ($INPUT->param('news')['do']) {
             case'edit':
             case'create':
-                $this->getEditForm();
+                $this->handleEditForm();
                 return;
             case 'preview':
-                $this->getStreamPreview();
+                $this->handleStreamPreview();
                 return;
         }
     }
 
-    private function getStreamPreview(): void {
+    private function handleStreamPreview(): void {
         global $INPUT;
         if ($INPUT->param('news')['stream']) {
             echo p_render('xhtml', p_get_instructions('{{news-stream>feed="5";stream="' . $INPUT->param('news')['stream'] . '"}}'), $info);
         } else {
             msg('Stream is required.', -1);
         }
-
     }
 
-    private function getEditForm(): void {
+    private function handleEditForm(): void {
         global $INPUT;
         global $ID;
 
         $form = new Form();
-        if ($INPUT->param('news')['id'] !== 0) {
-            $data = new News($this->helper->sqlite, $INPUT->param('news')['id']);
-            $data->load();
 
+        if ($INPUT->param('news')['id'] !== 0) {
+            $data = $this->helper->serviceNews->getById($INPUT->param('news')['id']);
         } else {
-            $data = new News($this->helper->sqlite, null);
+            $data = new ModelNews($this->helper->sqlite);
             $data->loadDefault();
         }
         $form->setHiddenField('page_id', $ID);
@@ -95,34 +95,34 @@ class action_plugin_newsfeed_form extends ActionPlugin {
                         'class' => 'form-control',
                         'rows' => 10,
                     ]);
-                    $input->val($data->getText());
+                    $input->val($data->text);
                     break;
                 case 'newsDate':
                     $input = new DateTimeInputElement($field, $this->getLang($field));
                     $input->attr('class', 'form-control');
                     $input->setStep(1);
                     $form->addElement($input);
-                    $input->val($data->getNewsDate() ?: 'now');
+                    $input->val($data->newsDate ?: 'now');
                     break;
                 case'category':
                     $input = $form->addDropdown('category', static::$categories, $this->getLang($field))->attr('class', 'form-control');
-                    $input->val($data->getCategory());
+                    $input->val($data->category);
                     break;
                 case'image':
                     $input = $form->addTextInput($field, $this->getLang($field))->attr('class', 'form-control');
-                    $input->val($data->getImage());
+                    $input->val($data->image);
                     break;
                 case 'linkHref':
                     $input = $form->addTextInput($field, $this->getLang($field))->attrs([
                         'class' => 'form-control',
                     ]);
-                    $input->val($data->getLinkHref());
+                    $input->val($data->linkHref);
                     break;
                 case 'linkTitle':
                     $input = $form->addTextInput($field, $this->getLang($field))->attrs([
                         'class' => 'form-control',
                     ]);
-                    $input->val($data->getLinkTitle());
+                    $input->val($data->linkTitle);
                     break;
                 case 'authorName':
                     $input = $form->addTextInput($field, $this->getLang($field))->attrs([
@@ -130,13 +130,13 @@ class action_plugin_newsfeed_form extends ActionPlugin {
                         'required' => 'required',
                         'class' => 'form-control',
                     ]);
-                    $input->val($data->getAuthorName());
+                    $input->val($data->authorName);
                     break;
                 case 'authorEmail':
                     $input = new InputElement('email', $field, $this->getLang($field));
                     $input->attr('class', 'form-control');
                     $form->addElement($input);
-                    $input->val($data->getAuthorEmail());
+                    $input->val($data->authorEmail);
                     break;
                 case 'title':
                     $input = $form->addTextInput($field, $this->getLang($field))->attrs([
@@ -144,7 +144,7 @@ class action_plugin_newsfeed_form extends ActionPlugin {
                         'required' => 'required',
                         'class' => 'form-control',
                     ]);
-                    $input->val($data->getTitle());
+                    $input->val($data->title);
                     break;
                 default:
                     msg('Not implement input field ' . $field, -1);

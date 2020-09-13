@@ -3,26 +3,32 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author Michal Červeňák <miso@fykos.cz>
  */
-/* global DOKU_BASE, JSINFO, PluginSocial, jQuery */
-jQuery(() => {
+/* global DOKU_BASE, JSINFO */
+window.addEventListener('DOMContentLoaded', () => {
     'use strict';
-    const CALL_PLUGIN = 'plugin_news-feed';
-    const CALL_TARGET = 'feed';
 
-    const fetch = (stream, start, length, callback) => {
-        jQuery.post(DOKU_BASE + 'lib/exe/ajax.php',
-            {
-                call: CALL_PLUGIN,
-                target: CALL_TARGET,
+    const fetchNews = (stream, offset, length, callback) => {
+        fetch(DOKU_BASE + 'lib/exe/ajax.php?call=plugin_newsfeed', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                call: 'plugin_newsfeed',
+                target: 'feed',
                 news: {
                     stream,
-                    start,
+                    offset,
                     length,
                 },
                 page_id: JSINFO.id,
-            },
-            callback,
-            'json');
+            })
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            callback(data);
+        });
     };
 
     document.querySelectorAll('.news-stream').forEach((stream) => {
@@ -33,7 +39,9 @@ jQuery(() => {
         const loadBar = stream.querySelector('.load-bar');
         const moreButton = stream.querySelector('.more-news');
 
-        const renderNews = (data) => {
+        const renderNext = (data) => {
+            loadBar.style.display = 'none';
+            moreButton.disabled = false;
             index += data.html.news.length;
             if (!data.html.news.length) {
                 moreButton.disabled = true;
@@ -41,21 +49,12 @@ jQuery(() => {
             data.html.news.forEach((news) => {
                 newsContainer.innerHTML += news;
             });
-            if (window.PluginSocial) {
-                PluginSocial.parse();
-            }
         };
-        const renderNext = (data) => {
-            loadBar.style.display = 'none';
-            moreButton.disabled = false;
-            renderNews(data);
-        };
-
-        fetch(streamName, index, numberFeed, renderNext);
+        fetchNews(streamName, index, numberFeed, renderNext);
         moreButton.addEventListener('click', () => {
             loadBar.style.display = '';
             moreButton.disabled = true;
-            fetch(streamName, index, 3, renderNext);
+            fetchNews(streamName, index, 3, renderNext);
         });
     });
     return true;

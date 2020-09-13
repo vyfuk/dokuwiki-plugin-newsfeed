@@ -7,6 +7,10 @@ use dokuwiki\Extension\SyntaxPlugin;
 use dokuwiki\Form\Form;
 use helper_plugin_newsfeed;
 
+/**
+ * Class AbstractStream
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
 abstract class AbstractStream extends SyntaxPlugin {
 
     protected helper_plugin_newsfeed $helper;

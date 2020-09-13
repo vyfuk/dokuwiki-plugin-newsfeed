@@ -3,9 +3,10 @@
 use dokuwiki\Extension\ActionPlugin;
 use dokuwiki\Extension\Event;
 use dokuwiki\Extension\EventHandler;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Priority;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelPriority;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelNews;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelStream;
+use dokuwiki\Cache\Cache;
 
 /**
  * Class action_plugin_newsfeed_preprocess
@@ -39,25 +40,24 @@ class action_plugin_newsfeed_preprocess extends ActionPlugin {
             default:
                 return;
             case'save':
-                $this->saveNews();
+                $this->handleNews();
                 return;
             case'priority':
-                $this->savePriority();
+                $this->handlePriority();
                 return;
             case'delete':
-                $this->saveDelete();
+                $this->handleDelete();
                 return;
             case'purge':
-                $this->deleteCache();
+                $this->handleCache();
                 return;
         }
     }
 
-    private function saveNews(): void {
+    private function handleNews(): void {
         global $INPUT;
-
-        $file = News::getCacheFileById($INPUT->param('news')['id']);
-        $cache = new cache($file, '');
+        $file = ModelNews::getCacheFileById($INPUT->param('news')['id']);
+        $cache = new Cache($file, '');
         $cache->removeCache();
 
         $data = [];
@@ -68,22 +68,23 @@ class action_plugin_newsfeed_preprocess extends ActionPlugin {
                 $data[$field] = $INPUT->param($field);
             }
         }
-        $news = new News($this->helper->sqlite);
-        $news->setTitle($data['title']);
-        $news->setAuthorName($data['authorName']);
-        $news->setAuthorEmail($data['authorEmail']);
-        $news->setText($data['text']);
-        $news->setNewsDate($data['newsDate']);
-        $news->setImage($data['image']);
-        $news->setCategory($data['category']);
-        $news->setLinkHref($data['linkHref']);
-        $news->setLinkTitle($data['linkTitle']);
+        $data = [
+            'title' => $data['title'],
+            'author_name' => $data['authorName'],
+            'author_email' => $data['authorEmail'],
+            'text' => $data['text'],
+            'news_date' => $data['newsDate'],
+            'image' => $data['image'],
+            'category' => $data['category'],
+            'link_href' => $data['linkHref'],
+            'link_title' => $data['linkTitle'],
+        ];
         if ($INPUT->param('news')['id'] == 0) {
-            $newsId = $news->create();
-            $this->saveIntoStreams($newsId);
+            $this->helper->serviceNews->create($data);
+            $this->saveIntoStreams($this->helper->serviceNews->getMaxId());
         } else {
-            $news->setNewsId($INPUT->param('news')['id']);
-            $news->update();
+            $news = $this->helper->serviceNews->getById($INPUT->param('news')['id']);
+            $this->helper->serviceNews->update($news, $data);
         }
         header('Location: ' . $_SERVER['REQUEST_URI']);
         exit();
@@ -91,62 +92,55 @@ class action_plugin_newsfeed_preprocess extends ActionPlugin {
 
     private function saveIntoStreams($newsId) {
         global $INPUT;
-        $stream = new Stream($this->helper->sqlite, null);
-        $stream->findByName($INPUT->param('news')['stream']);
-        $streamId = $stream->getStreamId();
+        $stream = $this->helper->serviceStream->findByName($INPUT->param('news')['stream']);
 
-        $streams = [$streamId];
-        $this->helper->fullParentDependence($streamId, $streams);
+        $streams = [$stream->streamId];
+        $this->helper->fullParentDependence($stream->streamId, $streams);
         foreach ($streams as $stream) {
-            $priority = new Priority($this->helper->sqlite, null, $newsId, $stream);
+            $priority = new ModelPriority($this->helper->sqlite, null, $newsId, $stream);
             $priority->create();
         }
     }
 
-    private function savePriority(): void {
+    private function handlePriority(): void {
         global $INPUT;
-        $file = News::getCacheFileById($INPUT->param('news')['id']);
+        $file = ModelNews::getCacheFileById($INPUT->param('news')['id']);
 
         $cache = new cache($file, '');
         $cache->removeCache();
-        $stream = new Stream($this->helper->sqlite, null);
-        $stream->findByName($INPUT->param('news')['stream']);
-        $streamId = $stream->getStreamId();
+        $stream = $this->helper->serviceStream->findByName($INPUT->param('news')['stream']);
 
-        $priority = new Priority($this->helper->sqlite, null, $INPUT->param('news')['id'], $streamId);
+        $priority = $this->helper->servicePriority->findByNewsAndStream($INPUT->param('news')['id'], $stream->streamId);
         $data = $INPUT->param('priority');
-        $priority->setPriorityFrom($data['from']);
-        $priority->setPriorityTo($data['to']);
-        $priority->setPriorityValue($data['value']);
-        $priority->checkValidity();
-        if ($priority->update()) {
-            header('Location: ' . $_SERVER['REQUEST_URI']);
-            exit();
-        }
+        $this->helper->servicePriority->update($priority, [
+            'priority_from' => $data['from'],
+            'priority_to' => $data['to'],
+            'priority' => $data['value'],
+        ]);
+        header('Location: ' . $_SERVER['REQUEST_URI']);
+        exit();
     }
 
-    private function saveDelete(): void {
+    private function handleDelete(): void {
         global $INPUT;
-        $stream = new Stream($this->helper->sqlite, null);
-        $stream->findByName($INPUT->param('news')['stream']);
-        $streamId = $stream->getStreamId();
-        $priority = new Priority($this->helper->sqlite, null, $INPUT->param('news')['id'], $streamId);
+        $stream = $this->helper->serviceStream->findByName($INPUT->param('news')['stream']);
+        $priority = $this->helper->servicePriority->findByNewsAndStream($INPUT->param('news')['id'], $stream->streamId);
         $priority->delete();
         header('Location: ' . $_SERVER['REQUEST_URI']);
         exit();
     }
 
-    private function deleteCache(): void {
+    private function handleCache(): void {
         global $INPUT;
         if (!$INPUT->param('news')['id']) {
-            $news = $this->helper->allNewsFeed();
+            $news = $this->helper->serviceNews->getAll();
             foreach ($news as $new) {
                 $f = $new->getCacheFile();
                 $cache = new cache($f, '');
                 $cache->removeCache();
             }
         } else {
-            $f = News::getCacheFileById($INPUT->param('news')['id']);
+            $f = ModelNews::getCacheFileById($INPUT->param('news')['id']);
             $cache = new cache($f, '');
             $cache->removeCache();
         }

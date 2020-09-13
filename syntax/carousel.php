@@ -1,7 +1,6 @@
 <?php
 
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelNews;
 use FYKOS\dokuwiki\Extension\PluginNewsFeed\AbstractStream;
 
 /**
@@ -34,8 +33,7 @@ class syntax_plugin_newsfeed_carousel extends AbstractStream {
                 [$param] = $match;
                 $renderer->nocache();
 
-                $stream = new Stream($this->helper->sqlite);
-                $stream->findByName($param['stream']);
+                $stream = $this->helper->serviceStream->findByName($param['stream']);
 
                 $allNews = $stream->getNews();
                 if (count($allNews)) {
@@ -55,7 +53,7 @@ class syntax_plugin_newsfeed_carousel extends AbstractStream {
                 break;
             };
             /**
-             * @var $feed News;
+             * @var $feed ModelNews;
              */
             $feed = $news[$i];
             $indicators[] = '<li data-target="#' . $id . '" data-slide-to="' . $i . '"></li>';
@@ -87,17 +85,17 @@ class syntax_plugin_newsfeed_carousel extends AbstractStream {
         $renderer->doc .= '</div>';
     }
 
-    private function getCarouselItem(News $feed, bool $active): string {
+    private function getCarouselItem(ModelNews $feed, bool $active): string {
         $style = '';
         if ($feed->hasImage()) {
-            $style .= 'background-image: url(' . ml($feed->getImage(), ['w' => 1200]) . ')';
+            $style .= 'background-image: url(' . ml($feed->image, ['w' => 1200]) . ')';
         }
-        $background = 'bg-' . $feed->getCategory() . '-fade ';
+        $background = 'bg-' . $feed->category . '-fade ';
         $html = '';
         $html .= '<div class="carousel-item ' . ($feed->hasImage() ? '' : $background) . ($active ? ' active' : '') .
             '" style="' . $style . '">
             <div class="mx-auto col-lg-8 col-xl-5">
-      <div class=" jumbotron-inner-container d-block ' . ($feed->getImage() ? $background : '') . '">';
+      <div class=" jumbotron-inner-container d-block ' . ($feed->image ? $background : '') . '">';
         $html .= $this->getHeadline($feed);
         $html .= $this->getText($feed);
         $html .= $this->getLink($feed);
@@ -105,22 +103,22 @@ class syntax_plugin_newsfeed_carousel extends AbstractStream {
         return $html;
     }
 
-    private function getText(News $feed): string {
-        return '<p>' . p_render('xhtml', p_get_instructions($feed->getText()), $info) . '</p>';
+    private function getText(ModelNews $feed): string {
+        return '<p>' . $feed->renderText() . '</p>';
     }
 
-    private function getHeadline(News $feed): string {
-        return '<h1>' . hsc($feed->getTitle()) . '</h1>';
+    private function getHeadline(ModelNews $feed): string {
+        return '<h1>' . hsc($feed->title) . '</h1>';
     }
 
-    private function getLink(News $feed): string {
-        if ($feed->getLinkTitle()) {
-            if (preg_match('|^https?://|', $feed->getLinkHref())) {
-                $href = hsc($feed->getLinkHref());
+    private function getLink(ModelNews $feed): string {
+        if ($feed->linkTitle) {
+            if (preg_match('|^https?://|', $feed->linkHref)) {
+                $href = hsc($feed->linkHref);
             } else {
-                $href = wl($feed->getLinkHref(), null, true);
+                $href = wl($feed->linkHref, null, true);
             }
-            return '<p><a class="btn btn-outline-secondary" href="' . $href . '">' . $feed->getLinkTitle() . '</a></p>';
+            return '<p><a class="btn btn-outline-secondary" href="' . $href . '">' . $feed->linkTitle . '</a></p>';
         }
         return '';
     }

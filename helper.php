@@ -1,10 +1,16 @@
 <?php
 
-require_once __DIR__ . '/inc/model/AbstractModel.php';
-require_once __DIR__ . '/inc/model/News.php';
-require_once __DIR__ . '/inc/model/Priority.php';
-require_once __DIR__ . '/inc/model/Stream.php';
-require_once __DIR__ . '/inc/model/Dependence.php';
+require_once __DIR__ . '/inc/ORM/AbstractModel.php';
+require_once __DIR__ . '/inc/ORM/ModelNews.php';
+require_once __DIR__ . '/inc/ORM/ModelPriority.php';
+require_once __DIR__ . '/inc/ORM/ModelStream.php';
+require_once __DIR__ . '/inc/ORM/ModelDependence.php';
+require_once __DIR__ . '/inc/ORM/AbstractService.php';
+require_once __DIR__ . '/inc/ORM/ServiceDependence.php';
+require_once __DIR__ . '/inc/ORM/ServiceNews.php';
+require_once __DIR__ . '/inc/ORM/ServicePriority.php';
+require_once __DIR__ . '/inc/ORM/ServiceStream.php';
+
 require_once __DIR__ . '/inc/renderer/AbstractRenderer.php';
 require_once __DIR__ . '/inc/renderer/VyfukRenderer.php';
 require_once __DIR__ . '/inc/renderer/FykosRenderer.php';
@@ -12,14 +18,20 @@ require_once __DIR__ . '/inc/AbstractStream.php';
 require_once __DIR__ . '/../social/inc/OpenGraphData.php';
 
 use dokuwiki\Extension\Plugin;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\ORM\ServiceDependence;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\ORM\ServiceNews;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\ORM\ServicePriority;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\ORM\ServiceStream;
 use FYKOS\dokuwiki\Extension\PluginSocial\OpenGraphData;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelNews;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelStream;
 use FYKOS\dokuwiki\Extension\PluginNewsFeed\Renderer\AbstractRenderer;
 use FYKOS\dokuwiki\Extension\PluginNewsFeed\Renderer\FykosRenderer;
 use FYKOS\dokuwiki\Extension\PluginNewsFeed\Renderer\VyfukRenderer;
 
 class helper_plugin_newsfeed extends Plugin {
+
+    const FORM_TARGET = 'plugin_newsfeed';
 
     public static array $fields = [
         'title',
@@ -34,17 +46,26 @@ class helper_plugin_newsfeed extends Plugin {
     ];
     public helper_plugin_sqlite $sqlite;
 
-    private OpenGraphData $openGraphData;
+    public OpenGraphData $openGraphData;
 
-    private AbstractRenderer $renderer;
+    public AbstractRenderer $renderer;
 
-    const FORM_TARGET = 'plugin_news-feed';
+
+    public ServiceNews $serviceNews;
+    public ServicePriority $servicePriority;
+    public ServiceDependence $serviceDependence;
+    public ServiceStream $serviceStream;
 
     public function __construct() {
 
         $this->openGraphData = new OpenGraphData();
-
         $this->sqlite = $this->loadHelper('sqlite');
+
+        $this->serviceNews = new ServiceNews($this->sqlite);
+        $this->servicePriority = new ServicePriority($this->sqlite);
+        $this->serviceDependence = new ServiceDependence($this->sqlite);
+        $this->serviceStream = new ServiceStream($this->sqlite);
+
         $pluginName = $this->getPluginName();
         if (!$this->sqlite) {
             msg($pluginName . ': This plugin requires the sqlite plugin. Please install it.');
@@ -66,33 +87,9 @@ class helper_plugin_newsfeed extends Plugin {
         }
     }
 
-    public function getRenderer(): AbstractRenderer {
-        return $this->renderer;
-    }
-
-    public function getOpenGraphData(): OpenGraphData {
-        return $this->openGraphData;
-    }
-
-    /**
-     * @return Stream[]
-     */
-    public function getAllStreams(): array {
-        $streams = [];
-        $res = $this->sqlite->query('SELECT * FROM stream');
-        foreach ($this->sqlite->res2arr($res) as $row) {
-            $stream = new Stream($this->sqlite);
-            $stream->fill($row);
-            $streams[] = $stream;
-        }
-
-        return $streams;
-    }
-
     /**
      * @param $streamId integer
      * @return integer[]
-     * @deprecated
      */
     private function allParentDependence(int $streamId): array {
         $streamIds = [];
@@ -105,23 +102,8 @@ class helper_plugin_newsfeed extends Plugin {
 
     /**
      * @param $streamId integer
-     * @return integer[]
-     * @deprecated
-     */
-    private function allChildDependence(int $streamId): array {
-        $streamIds = [];
-        $res = $this->sqlite->query('SELECT * FROM dependence  WHERE child=?', $streamId);
-        foreach ($this->sqlite->res2arr($res) as $row) {
-            $streamIds[] = $row['parent'];
-        }
-        return $streamIds;
-    }
-
-    /**
-     * @param $streamId integer
      * @param array $arr
      * @return void
-     * @deprecated
      */
     public function fullParentDependence(int $streamId, array &$arr): void {
         foreach ($this->allParentDependence($streamId) as $newStreamId) {
@@ -130,34 +112,5 @@ class helper_plugin_newsfeed extends Plugin {
                 $this->fullParentDependence($newStreamId, $arr);
             }
         }
-    }
-
-    /**
-     * @param $streamId
-     * @param array $arr
-     * @return void
-     * @deprecated
-     */
-    public function fullChildDependence(int $streamId, array &$arr): void {
-        foreach ($this->allChildDependence($streamId) as $newStreamId) {
-            if (!in_array($newStreamId, $arr)) {
-                $arr[] = $newStreamId;
-                $this->fullChildDependence($newStreamId, $arr);
-            }
-        }
-    }
-
-    /**
-     * @return News[]
-     */
-    public function getAllNewsFeed(): array {
-        $res = $this->sqlite->query('SELECT * FROM news');
-        $news = [];
-        foreach ($this->sqlite->res2arr($res) as $row) {
-            $feed = new News($this->sqlite, $row['news_id']);
-            $feed->load();
-            $news[] = $feed;
-        }
-        return $news;
     }
 }

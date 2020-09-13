@@ -2,11 +2,10 @@
 
 namespace FYKOS\dokuwiki\Extension\PluginNewsFeed\Renderer;
 
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelNews;
 use dokuwiki\Form\Form;
 use dokuwiki\Form\InputElement;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Priority;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelStream;
 
 /**
  * Class FykosRenderer
@@ -14,10 +13,10 @@ use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
  */
 class FykosRenderer extends AbstractRenderer {
 
-    public function render(string $innerHtml, string $formHtml, News $news): string {
+    public function render(string $innerHtml, string $formHtml, ModelNews $news): string {
         $html = '<div class="col-12 row mb-3">';
         $html .= '<div class="col-12">';
-        $html .= '<div class="bs-callout mb-3 bs-callout-' . $news->getCategory() . '">';
+        $html .= '<div class="bs-callout mb-3 bs-callout-' . $news->category . '">';
         $html .= $innerHtml;
         $html .= $formHtml;
         $html .= '</div>';
@@ -26,7 +25,7 @@ class FykosRenderer extends AbstractRenderer {
         return $html;
     }
 
-    public function renderContent(News $data, array $params): string {
+    public function renderContent(ModelNews $data, array $params): string {
         $innerHtml = $this->getHeader($data);
         $innerHtml .= $this->getText($data);
 
@@ -84,12 +83,8 @@ class FykosRenderer extends AbstractRenderer {
         $form->setHiddenField('news[stream]', $streamName);
         $form->setHiddenField('news[do]', 'priority');
 
-        $stream = new Stream($this->helper->sqlite, null);
-        $stream->findByName($streamName);
-        $streamId = $stream->getStreamId();
-
-        $priority = new Priority($this->helper->sqlite, null, $id, $streamId);
-        $priority->load();
+        $stream = $this->helper->serviceStream->findByName($streamName);
+        $priority = $this->helper->servicePriority->findByNewsAndStream($id, $stream->streamId);
         $form->addTagOpen('div')->addClass('form-group');
         $priorityValue = new InputElement('number', 'priority[value]', $this->helper->getLang('valid_from'));
         $priorityValue->attr('class', 'form-control')->val($priority->getPriorityValue());
@@ -98,14 +93,14 @@ class FykosRenderer extends AbstractRenderer {
 
         $form->addTagOpen('div')->addClass('form-group');
         $priorityFromElement = new InputElement('datetime-local', 'priority[from]', $this->helper->getLang('valid_from'));
-        $priorityFromElement->val($priority->getPriorityFrom() ?: date('Y-m-d\TH:i:s', time()))
+        $priorityFromElement->val($priority->priorityFrom ?: date('Y-m-d\TH:i:s', time()))
             ->attr('class', 'form-control');
         $form->addElement($priorityFromElement);
         $form->addTagClose('div');
 
         $form->addTagOpen('div')->addClass('form-group');
         $priorityToElement = new InputElement('datetime-local', 'priority[to]', $this->helper->getLang('valid_to'));
-        $priorityToElement->val($priority->getPriorityTo() ?: date('Y-m-d\TH:i:s', time()))
+        $priorityToElement->val($priority->priorityTo ?: date('Y-m-d\TH:i:s', time()))
             ->attr('class', 'form-control');
         $form->addElement($priorityToElement);
         $form->addTagClose('div');
@@ -146,38 +141,38 @@ class FykosRenderer extends AbstractRenderer {
         $purgeForm->setHiddenField('news[id]', $id);
         $purgeForm->addButton('submit', $this->helper->getLang('cache_del'))->addClass('btn btn-warning');
         $html .= $purgeForm->toHTML();
-        $html .= ' </div > ';
-        $html .= ' </div > ';
+        $html .= '</div>';
+        $html .= '</div>';
 
         return $html;
     }
 
-    protected function getText(News $news): ?string {
+    protected function getText(ModelNews $news): ?string {
         return $news->renderText();
     }
 
-    protected function getSignature(News $news): string {
+    protected function getSignature(ModelNews $news): string {
         return '<div class="card-text text-right">' .
-            '<a href="mailto:' . hsc($news->getAuthorEmail()) . '" class="mail" title="' . hsc($news->getAuthorEmail()) .
-            '"><span class="fa fa-envelope"></span>' . hsc($news->getAuthorName()) . '</a>' .
+            '<a href="mailto:' . hsc($news->authorEmail) . '" class="mail" title="' . hsc($news->authorEmail) .
+            '"><span class="fa fa-envelope"></span>' . hsc($news->authorName) . '</a>' .
             '</div>';
     }
 
-    protected function getHeader(News $news): string {
-        return '<h4>' . $news->getTitle() .
+    protected function getHeader(ModelNews $news): string {
+        return '<h4>' . $news->title .
             '<small class="float-right">' . $news->getLocalDate(function ($key) {
                 return $this->helper->getLang($key);
             }) . '</small></h4>';
     }
 
-    protected function getLink(News $news): string {
+    protected function getLink(ModelNews $news): string {
         if ($news->hasLink()) {
-            if (preg_match('|^https?://|', $news->getLinkHref())) {
-                $href = hsc($news->getLinkHref());
+            if (preg_match('|^https?://|', $news->linkHref)) {
+                $href = hsc($news->linkHref);
             } else {
-                $href = wl($news->getLinkHref(), null, true);
+                $href = wl($news->linkHref, null, true);
             }
-            return '<p><a class="btn btn-secondary" href="' . $href . '">' . $news->getLinkTitle() . '</a></p>';
+            return '<p><a class="btn btn-secondary" href="' . $href . '">' . $news->linkTitle . '</a></p>';
         }
         return '';
     }

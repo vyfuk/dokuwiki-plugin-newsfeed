@@ -2,9 +2,9 @@
 
 use dokuwiki\Extension\AdminPlugin;
 use dokuwiki\Form\Form;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Stream;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\Priority;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelStream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelPriority;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelNews;
 
 /**
  * Class admin_plugin_newsfeed_push
@@ -36,19 +36,18 @@ class admin_plugin_newsfeed_push extends AdminPlugin {
         if (!checkSecurityToken()) {
             return;
         }
-        $stream = new Stream($this->helper->sqlite);
-        $stream->findByName($INPUT->param('news')['stream']);
+        $stream = $this->helper->serviceStream->findByName($INPUT->param('news')['stream']);
         $newsId = $INPUT->param('news')['id'];
 
         if ($stream && $newsId) {
-            $targetStreamId = $stream->getStreamId();
+            $targetStreamId = $stream->streamId;
             $streamIds = [$targetStreamId];
             if ($INPUT->str('all_dependence')) {
                 $this->helper->fullParentDependence($targetStreamId, $streamIds);
             }
 
             foreach ($streamIds as $streamId) {
-                $priority = new Priority($this->helper->sqlite, null, $newsId, $streamId);
+                $priority = new ModelPriority($this->helper->sqlite, null, $newsId, $streamId);
                 $priority->create();
             }
             header('Location: ' . $_SERVER['REQUEST_URI']);
@@ -59,25 +58,23 @@ class admin_plugin_newsfeed_push extends AdminPlugin {
     public function html(): void {
         global $INPUT;
         $streamName = $INPUT->param('news')['stream'];
-        $stream = new Stream($this->helper->sqlite);
-        $stream->findByName($streamName);
+        $stream = $this->helper->serviceStream->findByName($streamName);
         echo '<h1>' . $this->getLang('push_menu') . '</h1>';
-        echo '<div class="info">' . $this->getLang('push_in_stream') . ': ' . $stream->getName() . '</div>';
+        echo '<div class="info">' . $this->getLang('push_in_stream') . ': ' . $stream->name . '</div>';
 
-        $streams = $this->helper->getAllStreams();
+        $streams = $this->helper->serviceStream->getAll();
         echo $this->getChangeStreamForm($streams)->toHTML();
 
-        if ($stream->getName()) {
-            echo '<h2>' . $this->getLang('push_menu') . ': ' . $stream->getName() . '</h2>';
+        if ($stream->name) {
+            echo '<h2>' . $this->getLang('push_menu') . ': ' . $stream->name . '</h2>';
 
             $newsInStream = $this->newsToId($stream->getNews());
-            $allNews = $this->helper->getAllNewsFeed();
-
+            $allNews = $this->helper->serviceNews->getAll();
             foreach ($this->newsToId($allNews) as $id) {
                 if (array_search($id, $newsInStream) === false) {
-                    $news = new News($this->helper->sqlite, $id);
+                    $news = $this->helper->serviceNews->getById($id);
                     echo $news->render('even', ' ', ' ', false);
-                    echo $this->newsAddForm($stream->getName(), $id);
+                    echo $this->newsAddForm($stream->name, $id);
                     echo '<hr class="clearfix"/>';
                     tpl_flush();
                 }
@@ -86,24 +83,24 @@ class admin_plugin_newsfeed_push extends AdminPlugin {
     }
 
     /**
-     * @param $news News[]
+     * @param $news ModelNews[]
      * @return integer[]
      */
     private function newsToId(array $news): array {
-        return array_map(function (News $value) {
-            return $value->getNewsId();
+        return array_map(function (ModelNews $value) {
+            return $value->newsId;
         }, $news);
     }
 
     /**
-     * @param $streamValues Stream[]
+     * @param $streamValues ModelStream[]
      * @return Form
      *
      */
     private function getChangeStreamForm(array $streamValues = []): Form {
         $form = new Form();
-        $form->addDropdown('news[stream]', array_map(function (Stream $value) {
-            return $value->getName();
+        $form->addDropdown('news[stream]', array_map(function (ModelStream $value) {
+            return $value->name;
         }, $streamValues), $this->getLang('stream'));
         $form->addButton('submit', $this->getLang('push_choose_stream'));
         return $form;
