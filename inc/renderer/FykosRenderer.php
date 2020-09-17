@@ -5,7 +5,7 @@ namespace FYKOS\dokuwiki\Extension\PluginNewsFeed\Renderer;
 use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelNews;
 use dokuwiki\Form\Form;
 use dokuwiki\Form\InputElement;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelStream;
+use helper_plugin_newsfeed;
 
 /**
  * Class FykosRenderer
@@ -78,7 +78,7 @@ class FykosRenderer extends AbstractRenderer {
         $form = new Form();
         $form->addClass('block');
 
-        $form->setHiddenField('do', \helper_plugin_newsfeed::FORM_TARGET);
+        $form->setHiddenField('do', helper_plugin_newsfeed::FORM_TARGET);
         $form->setHiddenField('news[id]', $id);
         $form->setHiddenField('news[stream]', $streamName);
         $form->setHiddenField('news[do]', 'priority');
@@ -118,7 +118,7 @@ class FykosRenderer extends AbstractRenderer {
         $html .= '<div class="modal-footer"> ';
         $html .= '<div class="btn-group"> ';
         $editForm = new Form();
-        $editForm->setHiddenField('do', \helper_plugin_newsfeed::FORM_TARGET);
+        $editForm->setHiddenField('do', helper_plugin_newsfeed::FORM_TARGET);
         $editForm->setHiddenField('news[id]', $id);
         $editForm->setHiddenField('news[do]', 'edit');
         $editForm->addButton('submit', $this->helper->getLang('btn_edit_news'))->addClass('btn btn-info');
@@ -126,7 +126,7 @@ class FykosRenderer extends AbstractRenderer {
 
         if ($stream) {
             $deleteForm = new Form();
-            $deleteForm->setHiddenField('do', \helper_plugin_newsfeed::FORM_TARGET);
+            $deleteForm->setHiddenField('do', helper_plugin_newsfeed::FORM_TARGET);
             $deleteForm->setHiddenField('news[do]', 'delete');
             $deleteForm->setHiddenField('news[stream]', $stream);
             $deleteForm->setHiddenField('news[id]', $id);
@@ -136,7 +136,7 @@ class FykosRenderer extends AbstractRenderer {
         }
 
         $purgeForm = new Form();
-        $purgeForm->setHiddenField('do', \helper_plugin_newsfeed::FORM_TARGET);
+        $purgeForm->setHiddenField('do', helper_plugin_newsfeed::FORM_TARGET);
         $purgeForm->setHiddenField('news[do]', 'purge');
         $purgeForm->setHiddenField('news[id]', $id);
         $purgeForm->addButton('submit', $this->helper->getLang('cache_del'))->addClass('btn btn-warning');

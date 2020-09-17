@@ -29,19 +29,6 @@ class ModelPriority extends AbstractModel {
         return $this->priorityValue;
     }
 
-    public function create() {
-        $res = $this->sqlite->query('SELECT * FROM priority WHERE news_id=? AND stream_id=?',
-            $this->newsId,
-            $this->streamId);
-        if (count($this->sqlite->res2arr($res)) == 0) {
-            $this->sqlite->query('INSERT INTO priority (news_id,stream_id,priority) VALUES(?,?,?)',
-                $this->newsId,
-                $this->streamId,
-                0);
-        };
-        return (int)1;
-    }
-
     public function delete() {
         $res = $this->sqlite->query('DELETE FROM priority WHERE stream_id=? AND news_id =?', $this->streamId, $this->newsId);
         return $this->sqlite->res2arr($res);

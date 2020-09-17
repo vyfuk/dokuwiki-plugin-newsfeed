@@ -72,11 +72,11 @@ class ModelNews extends AbstractModel {
     }
 
     public function hasImage(): bool {
-        return !is_null($this->image);
+        return (bool)$this->image;
     }
 
     public function hasLink(): bool {
-        return !is_null($this->linkHref);
+        return (bool)$this->linkHref;
     }
 
     public function getToken($pageId = ''): string {

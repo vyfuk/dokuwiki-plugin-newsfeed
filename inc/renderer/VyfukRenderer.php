@@ -5,7 +5,6 @@ namespace FYKOS\dokuwiki\Extension\PluginNewsFeed\Renderer;
 use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelNews;
 use dokuwiki\Form\Form;
 use dokuwiki\Form\InputElement;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelStream;
 
 /**
  * Class VyfukRenderer

@@ -3,7 +3,6 @@
 use dokuwiki\Extension\AdminPlugin;
 use dokuwiki\Form\Form;
 use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelStream;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelPriority;
 use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelNews;
 
 /**
@@ -47,8 +46,7 @@ class admin_plugin_newsfeed_push extends AdminPlugin {
             }
 
             foreach ($streamIds as $streamId) {
-                $priority = new ModelPriority($this->helper->sqlite, null, $newsId, $streamId);
-                $priority->create();
+                $this->helper->servicePriority->store($newsId, $streamId);
             }
             header('Location: ' . $_SERVER['REQUEST_URI']);
             exit();

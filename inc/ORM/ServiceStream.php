@@ -15,7 +15,7 @@ class ServiceStream extends AbstractService {
     }
 
     public function findByName(string $name): ?ModelStream {
-        $res = $this->sqlite->query('SELECT * FROM ? WHERE name=?', $this->table, $name);
+        $res = $this->sqlite->query('SELECT * FROM ' . $this->table . ' WHERE name=?', $name);
         return ($this->modelClassName)::createFromArray($this->sqlite, $res->fetch());
     }
 }
