@@ -1,7 +1,7 @@
 <?php
 
 use dokuwiki\Extension\SyntaxPlugin;
-use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\News;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelNews;
 use dokuwiki\Cache\Cache;
 
 /**
@@ -10,7 +10,7 @@ use dokuwiki\Cache\Cache;
  */
 class syntax_plugin_newsfeed_feed extends SyntaxPlugin {
 
-    private \helper_plugin_newsfeed $helper;
+    private helper_plugin_newsfeed $helper;
 
     public function __construct() {
         $this->helper = $this->loadHelper('newsfeed');
@@ -54,8 +54,8 @@ class syntax_plugin_newsfeed_feed extends SyntaxPlugin {
         switch ($state) {
             case DOKU_LEXER_SPECIAL:
                 $renderer->nocache();
-                $news = new News($this->helper->sqlite, $param['id']);
-                $news->load();
+
+                $news = $this->helper->serviceNews->getById($param['id']);
                 if (is_null($news) || ($param['id'] == 0)) {
                     $renderer->doc .= '<div class="alert alert-danger">' . $this->getLang('news_non_exist') .
                         '</div>';
@@ -69,22 +69,22 @@ class syntax_plugin_newsfeed_feed extends SyntaxPlugin {
     }
 
     /**
-     * @param $data News
+     * @param $data ModelNews
      * @param $params array
      * @return string
      */
-    private function getContent(News $data, array $params): string {
+    private function getContent(ModelNews $data, array $params): string {
         $f = $data->getCacheFile();
         $cache = new Cache($f, '');
         if ($cache->useCache()) {
 
             $innerHtml = json_decode($cache->retrieveCache());
         } else {
-            $innerHtml = $this->helper->getRenderer()->renderContent($data, $params);
+            $innerHtml = $this->helper->renderer->renderContent($data, $params);
 
             $cache->storeCache(json_encode($innerHtml));
         }
-        $formHtml = $this->helper->getRenderer()->renderEditFields($params);
-        return $this->helper->getRenderer()->render($innerHtml, $formHtml, $data);
+        $formHtml = $this->helper->renderer->renderEditFields($params);
+        return $this->helper->renderer->render($innerHtml, $formHtml, $data);
     }
 }
