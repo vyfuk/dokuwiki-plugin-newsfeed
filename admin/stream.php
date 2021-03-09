@@ -8,7 +8,7 @@ use dokuwiki\Extension\AdminPlugin;
  */
 class admin_plugin_newsfeed_stream extends AdminPlugin {
 
-    private helper_plugin_newsfeed $helper;
+    private $helper;
 
     public function __construct() {
         $this->helper = $this->loadHelper('newsfeed');

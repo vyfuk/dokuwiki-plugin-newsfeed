@@ -10,17 +10,17 @@ use helper_plugin_sqlite;
  */
 class ModelPriority extends AbstractModel {
 
-    public int $priorityId;
+    public $priorityId;
 
-    public ?string $priorityFrom;
+    public $priorityFrom;
 
-    public ?string $priorityTo;
+    public $priorityTo;
 
-    private int $priorityValue;
+    private $priorityValue;
 
-    public int $newsId;
+    public $newsId;
 
-    public int $streamId;
+    public $streamId;
 
     public function getPriorityValue(): int {
         if ((time() < strtotime($this->priorityFrom)) || (time() > strtotime($this->priorityTo))) {

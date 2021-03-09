@@ -10,7 +10,7 @@ use helper_plugin_sqlite;
  */
 abstract class AbstractModel {
 
-    protected helper_plugin_sqlite $sqlite;
+    protected $sqlite;
 
     public function __construct(helper_plugin_sqlite $sqlite) {
         $this->sqlite = $sqlite;

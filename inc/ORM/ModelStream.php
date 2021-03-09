@@ -12,9 +12,9 @@ use helper_plugin_sqlite;
  */
 class ModelStream extends AbstractModel {
 
-    public int $streamId;
+    public $streamId;
 
-    public string $name;
+    public $name;
 
     /**
      * @return ModelNews[]

@@ -13,7 +13,7 @@ use helper_plugin_newsfeed;
  */
 abstract class AbstractStream extends SyntaxPlugin {
 
-    protected helper_plugin_newsfeed $helper;
+    protected $helper;
 
     public function __construct() {
         $this->helper = $this->loadHelper('newsfeed');

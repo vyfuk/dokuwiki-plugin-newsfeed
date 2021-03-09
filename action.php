@@ -17,7 +17,7 @@ require_once __DIR__ . '/../fkshelper/inc/Form/DateTimeInputElement.php';
  */
 class action_plugin_newsfeed extends ActionPlugin {
 
-    private static array $categories = [
+    private static $categories = [
         'fykos-blue',
         'fykos-pink',
         'fykos-line',
@@ -26,7 +26,7 @@ class action_plugin_newsfeed extends ActionPlugin {
         'fykos-green',
     ];
 
-    private helper_plugin_newsfeed $helper;
+    private $helper;
 
     public function __construct() {
         $this->helper = $this->loadHelper('newsfeed');

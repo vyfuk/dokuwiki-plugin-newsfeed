@@ -11,7 +11,7 @@ use helper_plugin_newsfeed;
  */
 abstract class AbstractRenderer {
 
-    protected helper_plugin_newsfeed $helper;
+    protected $helper;
 
     public function __construct(helper_plugin_newsfeed $helper) {
         $this->helper = $helper;

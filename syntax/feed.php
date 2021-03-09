@@ -10,7 +10,7 @@ use dokuwiki\Cache\Cache;
  */
 class syntax_plugin_newsfeed_feed extends SyntaxPlugin {
 
-    private helper_plugin_newsfeed $helper;
+    private $helper;
 
     public function __construct() {
         $this->helper = $this->loadHelper('newsfeed');

@@ -11,7 +11,7 @@ use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelNews;
  */
 class admin_plugin_newsfeed_push extends AdminPlugin {
 
-    private helper_plugin_newsfeed $helper;
+    private $helper;
 
     public function __construct() {
         $this->helper = $this->loadHelper('newsfeed');

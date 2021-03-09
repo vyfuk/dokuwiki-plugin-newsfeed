@@ -8,27 +8,27 @@ class ModelNews extends AbstractModel {
 
     const SIMPLE_RENDER_PATTERN = '{{news-feed>id="@id@" even="@even@" editable="@editable@" stream="@stream@" page_id="@page_id@"}}';
 
-    public int $newsId;
+    public $newsId;
 
-    public string $title;
+    public $title;
 
-    public string $authorName;
+    public $authorName;
 
-    public string $authorEmail;
+    public $authorEmail;
 
-    public string $text;
+    public $text;
 
-    public string $newsDate;
+    public $newsDate;
 
-    public ?string $image;
+    public $image;
 
-    public string $category;
+    public $category;
 
-    public ?string $linkHref;
+    public $linkHref;
 
-    public ?string $linkTitle;
+    public $linkTitle;
 
-    private ModelPriority $priority;
+    private $priority;
 
     public function getPriority(): ModelPriority {
         return $this->priority;

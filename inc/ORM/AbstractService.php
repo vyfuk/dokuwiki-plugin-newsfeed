@@ -11,11 +11,11 @@ use helper_plugin_sqlite;
  */
 abstract class AbstractService {
 
-    protected string $table;
+    protected $table;
     /** @var string|AbstractModel */
-    protected string $modelClassName;
+    protected $modelClassName;
 
-    protected helper_plugin_sqlite $sqlite;
+    protected $sqlite;
 
     public function __construct(helper_plugin_sqlite $sqlite, string $table, string $modelClassName) {
         $this->table = $table;

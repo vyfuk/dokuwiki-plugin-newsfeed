@@ -33,7 +33,7 @@ class helper_plugin_newsfeed extends Plugin {
 
     const FORM_TARGET = 'plugin_newsfeed';
 
-    public static array $fields = [
+    public static $fields = [
         'title',
         'authorName',
         'authorEmail',
@@ -44,17 +44,17 @@ class helper_plugin_newsfeed extends Plugin {
         'linkTitle',
         'text',
     ];
-    public helper_plugin_sqlite $sqlite;
+    public $sqlite;
 
-    public OpenGraphData $openGraphData;
+    public $openGraphData;
 
-    public AbstractRenderer $renderer;
+    public $renderer;
 
 
-    public ServiceNews $serviceNews;
-    public ServicePriority $servicePriority;
-    public ServiceDependence $serviceDependence;
-    public ServiceStream $serviceStream;
+    public $serviceNews;
+    public $servicePriority;
+    public $serviceDependence;
+    public $serviceStream;
 
     public function __construct() {
 
