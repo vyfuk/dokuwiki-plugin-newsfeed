@@ -1,83 +1,79 @@
 <?php
 
-use \dokuwiki\Form\Form;
-use \PluginNewsFeed\Model\Stream;
-use \PluginNewsFeed\Model\Priority;
-use \PluginNewsFeed\Model\News;
+use dokuwiki\Extension\AdminPlugin;
+use dokuwiki\Form\Form;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelStream;
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\Model\ModelNews;
 
-// TODO to action component
+/**
+ * Class admin_plugin_newsfeed_push
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class admin_plugin_newsfeed_push extends AdminPlugin {
 
-class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
+    private helper_plugin_newsfeed $helper;
 
     public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+        $this->helper = $this->loadHelper('newsfeed');
     }
 
-    public function getMenuSort() {
+    public function getMenuSort(): int {
         return 291;
     }
 
-    public function forAdminOnly() {
+    public function forAdminOnly(): bool {
         return false;
     }
 
-    public function getMenuText($lang) {
+    public function getMenuText($lang): string {
         return $this->getLang('push_menu');
     }
 
     public function handle() {
         global $INPUT;
+
         if (!checkSecurityToken()) {
             return;
-        };
-        $streamName = $INPUT->param('news')['stream'];
-        $stream = new Stream();
-        $stream->fillFromDatabaseByName($streamName);
-        $newsID = $INPUT->param('news')['id'];
+        }
+        $stream = $this->helper->serviceStream->findByName($INPUT->param('news')['stream']);
+        $newsId = $INPUT->param('news')['id'];
 
-        if ($stream && $newsID) {
-            $targetStreamID = $stream->getStreamID();
-            $streamIDs = [$targetStreamID];
+        if ($stream && $newsId) {
+            $targetStreamId = $stream->streamId;
+            $streamIds = [$targetStreamId];
             if ($INPUT->str('all_dependence')) {
-                $this->helper->fullParentDependence($targetStreamID, $streamIDs);
+                $this->helper->fullParentDependence($targetStreamId, $streamIds);
             }
 
-            foreach ($streamIDs as $streamID) {
-                $priority = new Priority(null, $newsID, $streamID);
-                $priority->create();
+            foreach ($streamIds as $streamId) {
+                $this->helper->servicePriority->store($newsId, $streamId);
             }
             header('Location: ' . $_SERVER['REQUEST_URI']);
             exit();
         }
     }
 
-    public function html() {
+    public function html(): void {
         global $INPUT;
         $streamName = $INPUT->param('news')['stream'];
-        $stream = new Stream();
-        $stream->fillFromDatabaseByName($streamName);
+        $stream = $this->helper->serviceStream->findByName($streamName);
         echo '<h1>' . $this->getLang('push_menu') . '</h1>';
-        echo '<div class="info">' . $this->getLang('push_in_stream') . ': ' . $stream->getName() . '</div>';
+        echo '<div class="info">' . $this->getLang('push_in_stream') . ': ' . $stream->name . '</div>';
 
-        $streams = $this->helper->allStream();
+        $streams = $this->helper->serviceStream->getAll();
         echo $this->getChangeStreamForm($streams)->toHTML();
 
-        if ($stream->getName()) {
-            echo '<h2>' . $this->getLang('push_menu') . ': ' . $stream->getName() . '</h2>';
+        if ($stream->name) {
+            echo '<h2>' . $this->getLang('push_menu') . ': ' . $stream->name . '</h2>';
 
-            $newsInStream = $this->newsToID($stream->getNews());
-            $allNews = $this->helper->allNewsFeed();
-
-            foreach ($this->newsToID($allNews) as $id) {
-                if (array_search($id, $newsInStream) === FALSE) {
-                    $news = new News($id);
+            $newsInStream = $this->newsToId($stream->getNews());
+            $allNews = $this->helper->serviceNews->getAll();
+            foreach ($this->newsToId($allNews) as $id) {
+                if (array_search($id, $newsInStream) === false) {
+                    $news = $this->helper->serviceNews->getById($id);
                     echo $news->render('even', ' ', ' ', false);
-                    echo $this->newsAddForm($stream->getName(), $id);
-                    echo '<hr class="clearfix">';
+                    echo $this->newsAddForm($stream->name, $id);
+                    echo '<hr class="clearfix"/>';
                     tpl_flush();
                 }
             }
@@ -85,32 +81,35 @@ class admin_plugin_fksnewsfeed_push extends \DokuWiki_Admin_Plugin {
     }
 
     /**
-     * @param $news News[]
+     * @param $news ModelNews[]
      * @return integer[]
      */
-    private function newsToID($news) {
-        return array_map(function (News $value) {
-            return $value->getNewsID();
+    private function newsToId(array $news): array {
+        return array_map(function (ModelNews $value) {
+            return $value->newsId;
         }, $news);
     }
 
     /**
-     * @param $streamValues array
+     * @param $streamValues ModelStream[]
      * @return Form
      *
      */
-    private function getChangeStreamForm(array $streamValues = []) {
+    private function getChangeStreamForm(array $streamValues = []): Form {
         $form = new Form();
-        $form->addDropdown('news[stream]', $streamValues, $this->getLang('stream'));
+        $form->addDropdown('news[stream]', array_map(function (ModelStream $value) {
+            return $value->name;
+        }, $streamValues), $this->getLang('stream'));
         $form->addButton('submit', $this->getLang('push_choose_stream'));
         return $form;
     }
 
-    private function newsAddForm($stream, $newsID) {
+    private function newsAddForm(string $stream, int $newsId): string {
         $newsForm = new Form();
         $newsForm->setHiddenField('do', 'admin');
-        $newsForm->setHiddenField('page', 'fksnewsfeed_push');
-        $newsForm->setHiddenField('news[id]', $newsID);
+        $newsForm->setHiddenField('page', 'newsfeed_push');
+        $newsForm->setHiddenField('news[do]', 'push');
+        $newsForm->setHiddenField('news[id]', $newsId);
         $newsForm->setHiddenField('news[stream]', $stream);
         $newsForm->addCheckbox('all_dependence', $this->getLang('alw_dep'));
         $newsForm->addButton('submit', $this->getLang('btn_push_news') . $stream);

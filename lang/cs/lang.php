@@ -11,6 +11,8 @@ $lang['direction'] = 'ltr';
 /**
  * other buttons
  */
+$lang['edit_stream'] = 'Upravit stream';
+
 $lang['btn_edit_news'] = 'Upravit tuto novinku';
 $lang['btn_more_news'] = 'Starší novinky';
 $lang['btn_share'] = 'Sdílet';
@@ -20,20 +22,23 @@ $lang['btn_opt'] = 'Další možnosti';
 /**
  * label to form
  */
-$lang['author-name'] = 'Jméno autora';
-$lang['author-email'] = 'E-mail autora';
+$lang['authorName'] = 'Jméno autora';
+$lang['authorEmail'] = 'E-mail autora';
 
-$lang['news-date'] = 'Datum';
+$lang['newsDate'] = 'Datum';
 
 $lang['title'] = 'Nadpis';
 
 $lang['image'] = 'Obrázek';
+$lang['image_note'] = 'URL adresa obrázku, který bude v pozadí.';
 $lang['category'] = 'Kategorie';
 
-$lang['link-href'] = 'Cíl odkazu';
-$lang['link-title'] = 'Text odkazu';
+$lang['linkHref'] = 'Cíl odkazu';
+$lang['linkHref_note'] = 'Tlačítko s odkazem na URL adresu. Pokud se nevyplní, tlačítko se neobjeví.';
+$lang['linkTitle'] = 'Text odkazu';
 
-$lang['text'] = 'text';
+$lang['text'] = 'Text';
+$lang['save'] = 'Uložit';
 
 
 $lang['stream'] = 'Vlákno';
@@ -114,11 +119,14 @@ $lang['dep_list_child_full'] = 'Do tohoto vlákna celkově dědí, je dcera/vnu�
 /**
  * for admin stream
  */
-
 $lang['stream_create'] = 'Vytvoř vlákno';
 $lang['stream_list'] = 'Seznam vláken';
 $lang['stream_delete'] = 'Odstraň vlákno';
 
 $lang['alw_dep'] = 'Povolit dědění';
 
-$lang['stream_menu'] = 'Nastavenia streamov';
+$lang['stream_menu'] = 'Správa vláken';
+
+$lang['Preview'] = 'Náhled streamu';
+
+

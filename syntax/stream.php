@@ -1,56 +1,42 @@
 <?php
 
-class syntax_plugin_fksnewsfeed_stream extends DokuWiki_Syntax_Plugin {
+use FYKOS\dokuwiki\Extension\PluginNewsFeed\AbstractStream;
 
-    /**
-     * @var helper_plugin_fksnewsfeed
-     */
-    private $helper;
+/**
+ * Class syntax_plugin_newsfeed_stream
+ * @author Michal Červeňák <miso@fykos.cz>
+ */
+class syntax_plugin_newsfeed_stream extends AbstractStream {
 
-    public function __construct() {
-        $this->helper = $this->loadHelper('fksnewsfeed');
+    public function connectTo($mode): void {
+        $this->Lexer->addSpecialPattern('{{news-stream>.+?}}', $mode, 'plugin_newsfeed_stream');
     }
 
-    public function getType() {
-        return 'substition';
-    }
-
-    public function getPType() {
-        return 'block';
-    }
-
-    public function getSort() {
-        return 3;
-    }
-
-    public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('{{news-stream>.+?}}', $mode, 'plugin_fksnewsfeed_stream');
-    }
-
-    public function handle($match, $state, $pos, \Doku_Handler $handler) {
-        preg_match_all('/([a-z]+)="([^".]*)"/', substr($match, 14, -2), $matches);
-        $parameters = [];
-        foreach ($matches[1] as $index => $match) {
-            $parameters[$match] = $matches[2][$index];
+    public function handle($match, $state, $pos, Doku_Handler $handler): array {
+        switch ($state) {
+            case DOKU_LEXER_SPECIAL:
+                preg_match_all('/([a-z]+)="([^".]*)"/', substr($match, 14, -2), $matches);
+                $parameters = [];
+                foreach ($matches[1] as $index => $match) {
+                    $parameters[$match] = $matches[2][$index];
+                }
+                return [$state, [$parameters]];
         }
-        return [$state, [$parameters]];
+        return [$state, null];
+
     }
 
-    public function render($mode, \Doku_Renderer $renderer, $data) {
+    public function render($mode, Doku_Renderer $renderer, $data): bool {
         if ($mode !== 'xhtml') {
             return true;
         }
-        list(, $match) = $data;
-        list($param) = $match;
-        $attributes = [];
-        foreach ($param as $key => $value) {
-            $attributes['data-' . $key] = $value;
+        [$state, $match] = $data;
+        switch ($state) {
+            case DOKU_LEXER_SPECIAL:
+                [$param] = $match;
+                $this->renderStream($renderer, $param);
+                return false;
         }
-        $renderer->doc .= '<div class="news-stream">
-<div class="stream row" ' . buildAttributes($attributes) . '>
-</div>
-</div>';
-        return false;
+        return true;
     }
-
 }

@@ -1,7 +1,7 @@
-base   fksnewsfeed
+base   newsfeed
 author Michal Červňák, Radka Štefaníková
 email  miso@fykos.cz
-date   2017-06-21
-name   FKSnewsfeed
+date   2020-08-31
+name   newsfeed
 desc   display and manage newsfeed on page
-url    https://github.com/cevro/dokuwiki-plugin-fksnewsfeed.git
+url    https://github.com/cevro/dokuwiki-plugin-newsfeed.git
