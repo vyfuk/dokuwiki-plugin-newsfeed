@@ -16,5 +16,5 @@ abstract class AbstractModel {
         $this->sqlite = $sqlite;
     }
 
-    abstract public static function createFromArray(\helper_plugin_sqlite $helperPluginSqlite, array $data): self;
+    abstract public static function createFromArray(\helper_plugin_sqlite $helperPluginSqlite, array $data);
 }

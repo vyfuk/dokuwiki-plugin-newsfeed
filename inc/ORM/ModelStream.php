@@ -75,7 +75,7 @@ class ModelStream extends AbstractModel {
         return $streams;
     }
 
-    public static function createFromArray(helper_plugin_sqlite $helperPluginSqlite, array $data): self {
+    public static function createFromArray(helper_plugin_sqlite $helperPluginSqlite, array $data) {
         $model = new self($helperPluginSqlite);
         $model->name = $data['name'];
         $model->streamId = $data['stream_id'];

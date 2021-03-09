@@ -34,7 +34,7 @@ class ModelPriority extends AbstractModel {
         return $this->sqlite->res2arr($res);
     }
 
-    public static function createFromArray(helper_plugin_sqlite $helperPluginSqlite, array $data): self {
+    public static function createFromArray(helper_plugin_sqlite $helperPluginSqlite, array $data) {
         $model = new self($helperPluginSqlite);
         $model->priorityId = $data['priority_id'];
         $model->newsId = $data['news_id'];

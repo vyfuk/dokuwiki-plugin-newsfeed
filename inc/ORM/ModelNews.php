@@ -109,7 +109,7 @@ class ModelNews extends AbstractModel {
         $this->priority = $priority;
     }
 
-    public static function createFromArray(helper_plugin_sqlite $helperPluginSqlite, array $data): self {
+    public static function createFromArray(helper_plugin_sqlite $helperPluginSqlite, array $data) {
         $model = new self($helperPluginSqlite);
         $model->newsId = $data['news_id'];
         $model->title = $data['title'];

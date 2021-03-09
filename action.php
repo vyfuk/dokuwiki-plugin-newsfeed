@@ -256,49 +256,23 @@ class action_plugin_newsfeed extends ActionPlugin {
         $form->setHiddenField('news[id]', $INPUT->param('news')['id']);
         $form->setHiddenField('news[do]', 'save');
         $form->setHiddenField('news[stream]', $INPUT->param('news')['stream']);
-        $form->addFieldsetOpen('Novinky na webu');
+        $form->addHTML('<h1>' . $this->getLang('btn_create_news') . '</h1>');
+        $form->addTagOpen('div')->addClass('row');
 
         foreach (helper_plugin_newsfeed::$fields as $field) {
             $input = null;
-            $form->addTagOpen('div')->addClass('form-group');
 
             switch ($field) {
-                case'text':
-                    $input = $form->addTextarea('text', $this->getLang($field), -1)->attrs([
-                        'class' => 'form-control',
-                        'rows' => 10,
-                    ]);
-                    $input->val($data->text);
-                    break;
-                case 'newsDate':
-                    $input = new DateTimeInputElement($field, $this->getLang($field));
-                    $input->attr('class', 'form-control');
-                    $input->setStep(1);
-                    $form->addElement($input);
-                    $input->val($data->newsDate ?: 'now');
-                    break;
-                case'category':
-                    $input = $form->addDropdown('category', static::$categories, $this->getLang($field))->attr('class', 'form-control');
-                    $input->val($data->category);
-                    break;
-                case'image':
-                    $input = $form->addTextInput($field, $this->getLang($field))->attr('class', 'form-control');
-                    $input->val($data->image);
-                    break;
-                case 'linkHref':
-                    $input = $form->addTextInput($field, $this->getLang($field))->attrs([
+                case 'title':
+                    $input = $form->addTextInput($field, $this->getLang($field))->addClass('col-12')->attrs([
+                        'pattern' => '\S.*',
+                        'required' => 'required',
                         'class' => 'form-control',
                     ]);
-                    $input->val($data->linkHref);
-                    break;
-                case 'linkTitle':
-                    $input = $form->addTextInput($field, $this->getLang($field))->attrs([
-                        'class' => 'form-control',
-                    ]);
-                    $input->val($data->linkTitle);
+                    $input->val($data->title);
                     break;
                 case 'authorName':
-                    $input = $form->addTextInput($field, $this->getLang($field))->attrs([
+                    $input = $form->addTextInput($field, $this->getLang($field))->addClass('col-6')->attrs([
                         'pattern' => '\S.*',
                         'required' => 'required',
                         'class' => 'form-control',
@@ -307,28 +281,51 @@ class action_plugin_newsfeed extends ActionPlugin {
                     break;
                 case 'authorEmail':
                     $input = new InputElement('email', $field, $this->getLang($field));
-                    $input->attr('class', 'form-control');
+                    $input->addClass('col-6')->attr('class', 'form-control');
                     $form->addElement($input);
                     $input->val($data->authorEmail);
                     break;
-                case 'title':
-                    $input = $form->addTextInput($field, $this->getLang($field))->attrs([
-                        'pattern' => '\S.*',
-                        'required' => 'required',
+                case 'newsDate':
+                    $input = new DateTimeInputElement($field, $this->getLang($field));
+                    $input->addClass('col-6')->attr('class', 'form-control');
+                    $input->setStep(1);
+                    $form->addElement($input);
+                    $input->val($data->newsDate ?: 'now');
+                    break;
+                case'image':
+                    $input = $form->addTextInput($field, $this->getLang($field))->addClass('col-6')
+                        ->attr('class', 'form-control');
+                    $input->val($data->image);
+                    break;
+                case'category':
+                    $input = $form->addDropdown('category', static::$categories, $this->getLang($field))
+                        ->addClass('col-12')->attr('class', 'form-control')->attr('disabled', 'true');
+                    $input->val($data->category);
+                    break;
+                case'text':
+                    $input = $form->addTextarea('text', $this->getLang($field), -1)->addClass('col-12')
+                        ->attr('rows', 5);
+                    $input->val($data->text);
+                    break;
+                case 'linkHref':
+                    $input = $form->addTextInput($field, $this->getLang($field))->addClass('col-6')->attrs([
                         'class' => 'form-control',
                     ]);
-                    $input->val($data->title);
+                    $input->val($data->linkHref);
+                    break;
+                case 'linkTitle':
+                    $input = $form->addTextInput($field, $this->getLang($field))->addClass('col-6')->attrs([
+                        'class' => 'form-control',
+                    ]);
+                    $input->val($data->linkTitle);
                     break;
                 default:
                     msg('Not implement input field ' . $field, -1);
             }
-            if ($note = $this->getLang($field . '_note')) {
-                $form->addHTML('<small>' . $note . '</small>');
-            }
-            $form->addTagClose('div');
         }
+        $form->addTagClose('div');
         $form->addFieldsetClose();
-        $form->addButton('submit', $this->getLang('save'))->addClass('btn btn-success');
+        $form->addButton('submit', $this->getLang('publish'))->addClass('d-block btn btn-success m-auto w-50');
         echo $form->toHTML();
     }
 }

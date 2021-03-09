@@ -13,34 +13,31 @@ use dokuwiki\Form\InputElement;
 class VyfukRenderer extends AbstractRenderer {
 
     public function render(string $innerHtml, string $formHtml, ModelNews $news): string {
-        $html = '<div class="col-12 row mb-3">';
-        $html .= '<div class="col-12">';
-        $html .= '<div class="card card-outline-' . $news->category . ' card-outline-vyfuk-orange">';
-        $html .= '<div class="card-block">';
+        $html = '<div class="col-12">';
+        $html .= '<div class="card mb-2">';
         $html .= $innerHtml;
+        $html .= '</div>';
         $html .= $formHtml;
-        $html .= '</div>';
-        $html .= '</div>';
-        $html .= '</div>';
         $html .= '</div>';
         return $html;
     }
 
     protected function getHeader(ModelNews $news) {
-        return '<h4 class="card-title">' . $news->title . '</h4>' .
-            '<p class="card-text">' .
-            '<small class="text-muted">' . $news->getLocalDate(function ($key) {
+        return '<h3 class="card-header"><i class="fa fa-newspaper-o" aria-hidden="true"></i> ' . $news->title .
+            '<small class="pull-right"><i class="fa fa-calendar" aria-hidden="true"></i> ' .
+            $news->getLocalDate(function ($key) {
                 return $this->helper->getLang($key);
-            }) . '</small>' .
-            '</p>';
+            }) . '</small></h3>';
     }
 
     public function renderContent(ModelNews $data, array $params): string {
         $innerHtml = $this->getHeader($data);
-        $innerHtml .= $this->getText($data);
 
-        $innerHtml .= $this->getLink($data);
+        $innerHtml .= '<div class="card-body">';
+        $innerHtml .= $this->getText($data);
         $innerHtml .= $this->getSignature($data);
+        $innerHtml .= $this->getLink($data);
+        $innerHtml .= '</div>';
         return $innerHtml;
     }
 
@@ -49,28 +46,14 @@ class VyfukRenderer extends AbstractRenderer {
         if (auth_quickaclcheck('start') < AUTH_EDIT) {
             return '';
         }
-        $html = '<button data-toggle="modal" data-target="#feedModal' . $params['id'] . '" class="btn btn-primary" >' .
-            $this->helper->getLang('btn_opt') . '</button>';
-        $html .= '<div id="feedModal' . $params['id'] . '" class="modal" data-id="' . $params["id"] . '">';
-        $html .= '<div class="modal-dialog">';
-        $html .= '<div class="modal-content">';
-        $html .= $this->getModalHeader();
-        $html .= $this->getPriorityField($params['id'], $params['stream'], $params);
+        $html = sprintf('<button data-toggle="collapse" data-target="#feedCollapse%d"
+            class="btn btn-primary mb-4 pull-right" ><i class="fa fa-sort-numeric-asc" aria-hidden="true"></i> %s</button>',
+            $params['id'], 'Změnit prioritu novinky');
         $html .= $this->btnEditNews($params['id'], $params['stream']);
+        $html .= '<div class="clearfix mb-2"></div>';
+        $html .= sprintf('<div id="feedCollapse%1$d" class="collapse">', $params['id']);
+        $html .= $this->getPriorityField($params['id'], $params['stream'], $params);
         $html .= '</div>';
-        $html .= '</div>';
-        $html .= '</div>';
-        return $html;
-    }
-
-    protected function getModalHeader() {
-        $html = '';
-        $html .= '<div class="modal-header">';
-        $html .= '<h5 class="modal-title">' . $this->helper->getLang('') . 'Upaviť novinku</h5>';
-        $html .= '<button type="button" class="close" data-dismiss="modal" aria-label="Close">';
-        $html .= '<span aria-hidden="true">×</span>';
-        $html .= '</button>';
-        $html .= ' </div>';
         return $html;
     }
 
@@ -81,7 +64,8 @@ class VyfukRenderer extends AbstractRenderer {
      * @return string
      */
     protected function getPriorityField($id, $streamName, $params) {
-        $html = '';
+        $html = '<p>Novinky na stránce jsou řazeny podle data. Přiřazením priority je možné novinku posunout výše či níže na stránce.<br>';
+        $html .= '<i><b>Upozornění:</b> Ve výchozím nastavení mají všechny novinky prioritu 0!</i></p>';
         if ($params['editable'] !== 'true') {
             return '';
         }
@@ -89,9 +73,8 @@ class VyfukRenderer extends AbstractRenderer {
             return '';
         }
 
-        $html .= '<div class="modal-body">';
         $form = new Form();
-        $form->addClass('block');
+        $form->addClass('row no-gutters');
 
         $form->setHiddenField('do', \helper_plugin_newsfeed::FORM_TARGET);
         $form->setHiddenField('news[id]', $id);
@@ -101,29 +84,29 @@ class VyfukRenderer extends AbstractRenderer {
         $stream = $this->helper->serviceStream->findByName($streamName);
 
         $priority = $this->helper->servicePriority->findByNewsAndStream($id, $stream->streamId);
-        $form->addTagOpen('div')->addClass('form-group');
-        $priorityValue = new InputElement('number', 'priority[value]', $this->helper->getLang('valid_from'));
+        $form->addTagOpen('div')->addClass('col-4 form-group');
+        $priorityValue = new InputElement('number', 'priority[value]', $this->helper->getLang('priority_value'));
         $priorityValue->attr('class', 'form-control')->val($priority->getPriorityValue());
         $form->addElement($priorityValue);
         $form->addTagClose('div');
 
-        $form->addTagOpen('div')->addClass('form-group');
+        $form->addTagOpen('div')->addClass('col-4 form-group');
         $priorityFromElement = new InputElement('datetime-local', 'priority[from]', $this->helper->getLang('valid_from'));
         $priorityFromElement->val($priority->priorityFrom ?: date('Y-m-d\TH:i:s', time()))
             ->attr('class', 'form-control');
         $form->addElement($priorityFromElement);
         $form->addTagClose('div');
 
-        $form->addTagOpen('div')->addClass('form-group');
+        $form->addTagOpen('div')->addClass('col-4 form-group');
         $priorityToElement = new InputElement('datetime-local', 'priority[to]', $this->helper->getLang('valid_to'));
         $priorityToElement->val($priority->priorityTo ?: date('Y-m-d\TH:i:s', time()))
             ->attr('class', 'form-control');
         $form->addElement($priorityToElement);
         $form->addTagClose('div');
 
-        $form->addButton('submit', $this->helper->getLang('btn_save_priority'))->addClass('btn btn-success');
+        $form->addButtonHTML('submit', '<i class="fa fa-floppy-o" aria-hidden="true"></i> ' .
+            $this->helper->getLang('btn_save_priority'))->addClass('btn btn-success m-auto');
         $html .= $form->toHTML();
-        $html .= '</div>';
 
         return $html;
     }
@@ -131,13 +114,13 @@ class VyfukRenderer extends AbstractRenderer {
     protected function btnEditNews($id, $stream) {
         $html = '';
 
-        $html .= '<div class="modal-footer">';
-        $html .= '<div class="btn-group">';
+        $html .= '<div class="d-flex pull-left">';
         $editForm = new Form();
         $editForm->setHiddenField('do', \helper_plugin_newsfeed::FORM_TARGET);
         $editForm->setHiddenField('news[id]', $id);
         $editForm->setHiddenField('news[do]', 'edit');
-        $editForm->addButton('submit', $this->helper->getLang('btn_edit_news'))->addClass('btn btn-info');
+        $editForm->addButtonHTML('submit', '<i class="fa fa-pencil" aria-hidden="true"></i> ' .
+            $this->helper->getLang('btn_edit_news'))->addClass('btn btn-info m-1');
         $html .= $editForm->toHTML();
 
         if ($stream) {
@@ -146,8 +129,9 @@ class VyfukRenderer extends AbstractRenderer {
             $deleteForm->setHiddenField('news[do]', 'delete');
             $deleteForm->setHiddenField('news[stream]', $stream);
             $deleteForm->setHiddenField('news[id]', $id);
-            $deleteForm->addButton('submit', $this->helper->getLang('delete_news'))->attr('data-warning', true)
-                ->addClass('btn btn-danger');
+            $deleteForm->addButtonHTML('submit', '<i class="fa fa-trash-o" aria-hidden="true"></i> ' .
+                $this->helper->getLang('delete_news'))
+                ->attr('data-warning', true)->addClass('btn btn-danger m-1');
             $html .= $deleteForm->toHTML();
         }
 
@@ -155,9 +139,9 @@ class VyfukRenderer extends AbstractRenderer {
         $purgeForm->setHiddenField('do', \helper_plugin_newsfeed::FORM_TARGET);
         $purgeForm->setHiddenField('news[do]', 'purge');
         $purgeForm->setHiddenField('news[id]', $id);
-        $purgeForm->addButton('submit', $this->helper->getLang('cache_del'))->addClass('btn btn-warning');
+        $purgeForm->addButtonHTML('submit', '<i class="fa fa-trash-o" aria-hidden="true"></i> ' .
+            $this->helper->getLang('cache_del'))->addClass('btn btn-warning m-1');
         $html .= $purgeForm->toHTML();
-        $html .= '</div>';
         $html .= '</div>';
 
         return $html;
@@ -193,7 +177,8 @@ class VyfukRenderer extends AbstractRenderer {
             } else {
                 $href = wl($news->linkHref, null, true);
             }
-            return '<p><a class="btn btn-secondary" href="' . $href . '">' . $news->linkTitle . '</a></p>';
+            return '<div class="text-center"><a class="btn btn-outline-secondary mt-1 mb-1 pl-4 pr-4" href="'
+                . $href . '">' . $news->linkTitle . '</a></div>';
         }
         return '';
     }

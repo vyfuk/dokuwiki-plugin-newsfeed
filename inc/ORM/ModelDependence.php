@@ -9,7 +9,7 @@ use helper_plugin_sqlite;
  */
 class ModelDependence extends AbstractModel {
 
-    public static function createFromArray(helper_plugin_sqlite $helperPluginSqlite, array $data): self {
+    public static function createFromArray(helper_plugin_sqlite $helperPluginSqlite, array $data) {
         return new self($helperPluginSqlite);
     }
 }

@@ -19,6 +19,7 @@ $lang['btn_share'] = 'Sdílet';
 $lang['btn_priority_edit'] = 'Upravit prioritu';
 $lang['btn_create_news'] = 'Vytvořit novinku';
 $lang['btn_opt'] = 'Další možnosti';
+$lang['btn_manage'] = 'Správa novinky';
 /**
  * label to form
  */
@@ -39,6 +40,7 @@ $lang['linkTitle'] = 'Text odkazu';
 
 $lang['text'] = 'Text';
 $lang['save'] = 'Uložit';
+$lang['publish'] = 'Publikovat';
 
 
 $lang['stream'] = 'Vlákno';
@@ -72,8 +74,8 @@ $lang['cache_del_full'] = 'Smazat všechny cache';
  * Priority
  */
 $lang['btn_save_priority'] = 'Uložit prioritu';
-$lang['valid_from'] = 'Priorita platná od';
-$lang['valid_to'] = 'Priorita platná do';
+$lang['valid_from'] = 'Začátek platnosti priority';
+$lang['valid_to'] = 'Konec platnosti priority';
 $lang['priority_value'] = 'Hodnota priority';
 
 /*
