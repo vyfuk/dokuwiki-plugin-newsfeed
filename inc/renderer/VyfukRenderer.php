@@ -162,7 +162,7 @@ class VyfukRenderer extends AbstractRenderer {
     protected function getSignature(ModelNews $news) {
         return '<div class="card-text text-right">
             <a href="mailto:' . hsc($news->authorEmail) . '" class="mail" title="' . hsc($news->authorEmail) .
-            '"><span class="fa fa-envelope"></span>' . hsc($news->authorName) . '</a>
+            '"><span class="fa fa-envelope"></span> ' . hsc($news->authorName) . '</a>
         </div>';
     }
 
@@ -177,7 +177,7 @@ class VyfukRenderer extends AbstractRenderer {
             } else {
                 $href = wl($news->linkHref, null, true);
             }
-            return '<div class="text-center"><a class="btn btn-outline-secondary mt-1 mb-1 pl-4 pr-4" href="'
+            return '<div class="text-center"><a class="btn btn-outline-primary mt-1 mb-1 pl-4 pr-4" href="'
                 . $href . '">' . $news->linkTitle . '</a></div>';
         }
         return '';
