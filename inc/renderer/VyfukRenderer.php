@@ -35,8 +35,8 @@ class VyfukRenderer extends AbstractRenderer {
 
         $innerHtml .= '<div class="card-body">';
         $innerHtml .= $this->getText($data);
-        $innerHtml .= $this->getSignature($data);
         $innerHtml .= $this->getLink($data);
+        $innerHtml .= $this->getSignature($data);
         $innerHtml .= '</div>';
         return $innerHtml;
     }
@@ -160,7 +160,7 @@ class VyfukRenderer extends AbstractRenderer {
      * @return string
      */
     protected function getSignature(ModelNews $news) {
-        return '<div class="card-text text-right">
+        return '<div class="float-end">
             <a href="mailto:' . hsc($news->authorEmail) . '" class="mail" title="' . hsc($news->authorEmail) .
             '"><span class="fa fa-envelope"></span> ' . hsc($news->authorName) . '</a>
         </div>';
@@ -177,7 +177,7 @@ class VyfukRenderer extends AbstractRenderer {
             } else {
                 $href = wl($news->linkHref, null, true);
             }
-            return '<div class="text-center"><a class="btn btn-outline-primary mt-1 mb-1 pl-4 pr-4" href="'
+            return '<div class="float-start"><a class="btn btn-outline-primary px-4" href="'
                 . $href . '">' . $news->linkTitle . '</a></div>';
         }
         return '';
