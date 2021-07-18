@@ -298,9 +298,11 @@ class action_plugin_newsfeed extends ActionPlugin {
                     $input->val($data->image);
                     break;
                 case'category':
-                    $input = $form->addDropdown('category', static::$categories, $this->getLang($field))
-                        ->addClass('col-12')->attr('class', 'form-control')->attr('disabled', 'true');
-                    $input->val($data->category);
+                    if ($this->getConf('contest') != 'vyfuk') {
+                        $input = $form->addDropdown('category', static::$categories, $this->getLang($field))
+                            ->addClass('col-12')->attr('class', 'form-control');
+                        $input->val($data->category);
+                    }
                     break;
                 case'text':
                     $input = $form->addTextarea('text', $this->getLang($field), -1)->addClass('col-12')
@@ -325,7 +327,7 @@ class action_plugin_newsfeed extends ActionPlugin {
         }
         $form->addTagClose('div');
         $form->addFieldsetClose();
-        $form->addButton('submit', $this->getLang('publish'))->addClass('d-block btn btn-success m-auto w-50');
+        $form->addButton('submit', $this->getLang('publish'))->addClass('btn btn-success d-block mx-auto my-2 w-50');
         echo $form->toHTML();
     }
 }
