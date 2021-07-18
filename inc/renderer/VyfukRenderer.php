@@ -46,8 +46,8 @@ class VyfukRenderer extends AbstractRenderer {
         if (auth_quickaclcheck('start') < AUTH_EDIT) {
             return '';
         }
-        $html = sprintf('<button data-toggle="collapse" data-target="#feedCollapse%d"
-            class="btn btn-primary mb-4 pull-right" ><i class="fa fa-sort-numeric-asc" aria-hidden="true"></i> %s</button>',
+        $html = sprintf('<button class="btn btn-primary mb-4 pull-right"
+        data-bs-toggle="collapse" data-bs-target="#feedCollapse%d"><i class="fa fa-sort-numeric-asc" aria-hidden="true"></i> %s</button>',
             $params['id'], 'Změnit prioritu novinky');
         $html .= $this->btnEditNews($params['id'], $params['stream']);
         $html .= '<div class="clearfix mb-2"></div>';
@@ -105,7 +105,7 @@ class VyfukRenderer extends AbstractRenderer {
         $form->addTagClose('div');
 
         $form->addButtonHTML('submit', '<i class="fa fa-floppy-o" aria-hidden="true"></i> ' .
-            $this->helper->getLang('btn_save_priority'))->addClass('btn btn-success m-auto');
+            $this->helper->getLang('btn_save_priority'))->addClass('btn btn-success w-50 mx-auto my-2');
         $html .= $form->toHTML();
 
         return $html;
