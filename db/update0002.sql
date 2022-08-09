@@ -1,6 +1,6 @@
 CREATE TABLE `news`
 (
-    `news_id`      INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `news_id`      INTEGER PRIMARY KEY,
     `title`        VARCHAR(64) NOT NULL,
     `author_name`  VARCHAR(64) NOT NULL,
     `author_email` VARCHAR(64) NOT NULL,
@@ -14,13 +14,13 @@ CREATE TABLE `news`
 
 CREATE TABLE `stream`
 (
-    `stream_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `stream_id` INTEGER PRIMARY KEY,
     `name`      VARCHAR(32) NOT NULL
 );
 
 CREATE TABLE `dependence`
 (
-    `dependence_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `dependence_id` INTEGER PRIMARY KEY,
     `parent`        INTEGER NOT NULL,
     `child`         INTEGER NOT NULL,
     FOREIGN KEY (`child`) REFERENCES `stream` (`stream_id`),
@@ -29,7 +29,7 @@ CREATE TABLE `dependence`
 
 CREATE TABLE `priority`
 (
-    `priority_id`   INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `priority_id`   INTEGER PRIMARY KEY,
     `news_id`       INTEGER NOT NULL,
     `stream_id`     INTEGER NOT NULL,
     `priority`      INTEGER NOT NULL DEFAULT 0,
